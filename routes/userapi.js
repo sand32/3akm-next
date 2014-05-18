@@ -23,9 +23,6 @@ misrepresented as being the original software.
 */
 
 module.exports = function(app, prefix){
-    app.get(prefix + "/", function(req, res){
-        //res.render("index");
-        res.send("<h1>Ima page!</h1>");
-    });
+    app.
 }
 

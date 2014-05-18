@@ -23,11 +23,29 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
+    possport = require("passport"),
+    auth = require("./auth.js"),
     config = require("./config/config.js"),
     routes = require("./routes/routes.js");
     app = express();
 
-app.use(express.static(__dirname + "/public"));
+// Declare view engine
+app.set("views", __dirname + "/views");
+app.set("view engine", "jade");
+
+// Define session
+app.use(express.cookieParser());
+app.use(express.session({secret: config.sessionSecret}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Define authentication method
+auth();
+
+// Define routes
 routes(app);
+app.use(express.static(__dirname + "/public"));
+
+// Go
 app.listen(config.port);
 
