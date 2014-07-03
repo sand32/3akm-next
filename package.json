@@ -12,6 +12,7 @@
   "license": "zlib/libpng",
   "dependencies": {
     "express": "latest",
+    "body-parser": "latest",
     "passport": "latest",
     "passport-local": "latest",
     "bcrypt-nodejs": "latest",

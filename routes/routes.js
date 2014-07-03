@@ -23,9 +23,9 @@ misrepresented as being the original software.
 */
 
 module.exports = function(app){
-    var apiRoutes = require("./api.js"),
+    var userApiRoutes = require("./userapi.js"),
         clientRoutes = require("./client.js");
-    apiRoutes(app, "/api");
+    userApiRoutes(app, "/api/user");
     clientRoutes(app, "");
 
     app.get("/hello", function(req, res){

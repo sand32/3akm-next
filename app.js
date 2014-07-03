@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
+    bodyParser = require("body-parser"),
     possport = require("passport"),
     auth = require("./auth.js"),
     config = require("./config/config.js"),
@@ -35,6 +36,8 @@ app.set("view engine", "jade");
 
 // Define session
 app.use(express.cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 app.use(express.session({secret: config.sessionSecret}));
 app.use(passport.initialize());
 app.use(passport.session());

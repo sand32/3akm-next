@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
+    bcrypt = require("bcrypt-nodejs"),
     userSchema = mongoose.Schema({
         email: {
             type: String,
@@ -33,6 +34,10 @@ var mongoose = require("mongoose"),
             type: String,
             required: true
         },
+        verified: {
+            type: Boolean,
+            default: false
+        },
         fullName: String,
         handles: [String],
         rsvps: [{
@@ -42,7 +47,6 @@ var mongoose = require("mongoose"),
             },
             status: {
                 type: String,
-                required: true,
                 enum: ["Yes", "No", "Maybe"],
                 default: "Yes"
             },
