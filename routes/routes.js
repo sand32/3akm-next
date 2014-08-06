@@ -23,17 +23,17 @@ misrepresented as being the original software.
 */
 
 module.exports = function(app){
-    var userApiRoutes = require("./userapi.js"),
-        clientRoutes = require("./client.js");
-    userApiRoutes(app, "/api/user");
-    clientRoutes(app, "");
+	var userApiRoutes = require("./userapi.js"),
+		clientRoutes = require("./client.js");
+	userApiRoutes(app, "/api/user");
+	clientRoutes(app, "");
 
-    app.get("/hello", function(req, res){
-        res.send("Hi! :D");
-    });
+	app.get("/hello", function(req, res){
+		res.send("Hi! :D");
+	});
 
-    app.use(function(req, res){
-        res.send(404);
-    });
+	app.use(function(req, res){
+		res.send(404);
+	});
 }
 

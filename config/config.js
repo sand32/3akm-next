@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 module.exports = {
-    port: 80,
-    sessionSecret: "changeme"
+	port: 80,
+	sessionSecret: "changeme"
 }
 

@@ -23,77 +23,77 @@ misrepresented as being the original software.
 */
 
 module.exports = function(){
-    var possport = require("passport"),
-        LocalStrategy = require("passport-local"),
-        User = require("./model/user.js");
+	var possport = require("passport"),
+		LocalStrategy = require("passport-local"),
+		User = require("./model/user.js");
 
-    passport.serializeUser(function(user, done){
-        done(null, user._id);
-    });
+	passport.serializeUser(function(user, done){
+		done(null, user._id);
+	});
 
-    passport.deserializeUser(function(id, done){
-        User.findById(id, function(err, user){
-            done(err, user);
-        });
-    });
+	passport.deserializeUser(function(id, done){
+		User.findById(id, function(err, user){
+			done(err, user);
+		});
+	});
 
-    passport.use("register", new LocalStrategy({
-            usernameField: "email",
-            passwordField: "password"
-        },
-        function(req, email, password, done){
-            process.nextTick(function(){
-                // Try to find a user with the given email
-                User.findOne({"email": email}, function(err, user){
-                    // If we've encountered a database error, bail
-                    if(err){
-                        return done(err);
-                    }
+	passport.use("register", new LocalStrategy({
+			usernameField: "email",
+			passwordField: "password"
+		},
+		function(req, email, password, done){
+			process.nextTick(function(){
+				// Try to find a user with the given email
+				User.findOne({"email": email}, function(err, user){
+					// If we've encountered a database error, bail
+					if(err){
+						return done(err);
+					}
 
-                    // If we'ver found the email in our database, the user already exists, do nothing
-                    if(user){
-                        return done(null, false);
-                    // Else, create the new user
-                    }else{
-                        var newUser = new User();
-                        newUser.email = email;
-                        newUser.pass = newUser.hash(password);
-                        newUser.save(function(err){
-                            if(err){
-                                throw err;
-                            }
-                            return done(null, newUser);
-                        });
-                    }
-                });
-            });
-        }
-    ));
+					// If we'ver found the email in our database, the user already exists, do nothing
+					if(user){
+						return done(null, false);
+					// Else, create the new user
+					}else{
+						var newUser = new User();
+						newUser.email = email;
+						newUser.pass = newUser.hash(password);
+						newUser.save(function(err){
+							if(err){
+								throw err;
+							}
+							return done(null, newUser);
+						});
+					}
+				});
+			});
+		}
+	));
 
-    passport.use("login", new LocalStrategy({
-            usernameField: "email",
-            passwordField: "password"
-        },
-        function(req, email, password, done){
-            process.nextTick(function(){
-                // Try to find a user with the given email
-                User.findOne({"email": email}, function(err, user){
-                    // If we've encountered a database error, bail
-                    if(err){
-                        return done(err);
-                    }
+	passport.use("login", new LocalStrategy({
+			usernameField: "email",
+			passwordField: "password"
+		},
+		function(req, email, password, done){
+			process.nextTick(function(){
+				// Try to find a user with the given email
+				User.findOne({"email": email}, function(err, user){
+					// If we've encountered a database error, bail
+					if(err){
+						return done(err);
+					}
 
-                    // If we've found the user in the database and the given password matches, 
-                    // pass the user on to the next middleware
-                    if(user && user.isValidPassword(password)){
-                        return done(null, user);
-                    // Else, set the flash and move on
-                    }else{
-                        return done(null, false);
-                    }
-                });
-            });
-        }
-    ));
+					// If we've found the user in the database and the given password matches, 
+					// pass the user on to the next middleware
+					if(user && user.isValidPassword(password)){
+						return done(null, user);
+					// Else, set the flash and move on
+					}else{
+						return done(null, false);
+					}
+				});
+			});
+		}
+	));
 }
 

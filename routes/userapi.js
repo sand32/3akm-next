@@ -23,29 +23,29 @@ misrepresented as being the original software.
 */
 
 module.exports = function(app, prefix){
-    app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
-        if(req.isAuthenticated()){
-            // Send email for verification
-            // Respond with "201 Created"
-            res.send(201);
-        }else{
-            res.send(403);
-        }
-    });
+	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
+		if(req.isAuthenticated()){
+			// Send email for verification
+			// Respond with "201 Created"
+			res.send(201);
+		}else{
+			res.send(403);
+		}
+	});
 
-    app.get(prefix + "/verify/:verificationHash", function(req, res){
-        if(req.verificationHash){
-        }
-    });
+	app.get(prefix + "/verify/:verificationHash", function(req, res){
+		if(req.verificationHash){
+		}
+	});
 
-    app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
-        if(req.isAuthenticated()){
-            res.send(200, {
-                email: req.user.email,
-                fullname: req.user.fullname,
-                verified: req.user.verified
-            });
-        }
-    });
+	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
+		if(req.isAuthenticated()){
+			res.send(200, {
+				email: req.user.email,
+				fullname: req.user.fullname,
+				verified: req.user.verified
+			});
+		}
+	});
 }
 

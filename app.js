@@ -23,12 +23,12 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
-    bodyParser = require("body-parser"),
-    possport = require("passport"),
-    auth = require("./auth.js"),
-    config = require("./config/config.js"),
-    routes = require("./routes/routes.js");
-    app = express();
+	bodyParser = require("body-parser"),
+	possport = require("passport"),
+	auth = require("./auth.js"),
+	config = require("./config/config.js"),
+	routes = require("./routes/routes.js");
+	app = express();
 
 // Declare view engine
 app.set("views", __dirname + "/views");

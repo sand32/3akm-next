@@ -23,50 +23,50 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-    bcrypt = require("bcrypt-nodejs"),
-    userSchema = mongoose.Schema({
-        email: {
-            type: String,
-            required: true,
-            unique: true
-        },
-        pass: {
-            type: String,
-            required: true
-        },
-        verified: {
-            type: Boolean,
-            default: false
-        },
-        fullName: String,
-        handles: [String],
-        rsvps: [{
-            id: {
-                type: ObjectId,
-                required: true
-            },
-            status: {
-                type: String,
-                enum: ["Yes", "No", "Maybe"],
-                default: "Yes"
-            },
-            guests: {
-                type: Number,
-                default: 0
-            },
-            attended: {
-                type: Boolean,
-                default: false
-            }
-        }]
-    });
+	bcrypt = require("bcrypt-nodejs"),
+	userSchema = mongoose.Schema({
+		email: {
+			type: String,
+			required: true,
+			unique: true
+		},
+		pass: {
+			type: String,
+			required: true
+		},
+		verified: {
+			type: Boolean,
+			default: false
+		},
+		fullName: String,
+		handles: [String],
+		rsvps: [{
+			id: {
+				type: ObjectId,
+				required: true
+			},
+			status: {
+				type: String,
+				enum: ["Yes", "No", "Maybe"],
+				default: "Yes"
+			},
+			guests: {
+				type: Number,
+				default: 0
+			},
+			attended: {
+				type: Boolean,
+				default: false
+			}
+		}]
+	});
 
 userSchema.methods.hash = function(pass){
-    return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
+	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
 };
 
 userSchema.methods.isValidPassword = function(pass){
-    return bcrypt.compareSync(pass, this.pass);
+	return bcrypt.compareSync(pass, this.pass);
 };
 
 module.exports = mongoose.model("User", userSchema);

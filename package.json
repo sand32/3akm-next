@@ -1,22 +1,22 @@
 {
-  "name": "3akm-lan",
-  "version": "0.1.0",
-  "description": "The site for the 3AK^M annual LAN party",
-  "private": true,
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sand32/3akm-next.git"
-  },
-  "author": "Seth Anderson <seth.anderson32@gmail.com> (https://github.com/sand32)",
-  "license": "zlib/libpng",
-  "dependencies": {
-    "express": "latest",
-    "body-parser": "latest",
-    "passport": "latest",
-    "passport-local": "latest",
-    "bcrypt-nodejs": "latest",
-    "mongoose": "latest",
-    "jade": "latest"
-  }
+	"name": "3akm-lan",
+	"version": "0.1.0",
+	"description": "The site for the 3AK^M annual LAN party",
+	"private": true,
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sand32/3akm-next.git"
+	},
+	"author": "Seth Anderson <seth.anderson32@gmail.com> (https://github.com/sand32)",
+	"license": "zlib/libpng",
+	"dependencies": {
+		"express": "latest",
+		"body-parser": "latest",
+		"passport": "latest",
+		"passport-local": "latest",
+		"bcrypt-nodejs": "latest",
+		"mongoose": "latest",
+		"jade": "latest"
+	}
 }
