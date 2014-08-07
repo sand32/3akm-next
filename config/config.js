@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 module.exports = {
 	port: 80,
+	cookieSecret: "changeme",
 	sessionSecret: "changeme"
 }
 

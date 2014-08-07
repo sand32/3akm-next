@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 module.exports = function(){
-	var possport = require("passport"),
+	var passport = require("passport"),
 		BasicStrategy = require("passport-http").BasicStrategy,
 		LocalStrategy = require("passport-local"),
 		User = require("./model/user.js");

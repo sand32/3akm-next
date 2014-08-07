@@ -12,7 +12,9 @@
 	"license": "zlib/libpng",
 	"dependencies": {
 		"express": "latest",
+		"express-session": "latest",
 		"body-parser": "latest",
+		"cookie-parser": "latest",
 		"passport": "latest",
 		"passport-http": "latest",
 		"passport-local": "latest",

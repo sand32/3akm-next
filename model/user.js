@@ -41,10 +41,6 @@ var mongoose = require("mongoose"),
 		fullName: String,
 		handles: [String],
 		rsvps: [{
-			id: {
-				type: ObjectId,
-				required: true
-			},
 			status: {
 				type: String,
 				enum: ["Yes", "No", "Maybe"],

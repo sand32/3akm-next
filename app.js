@@ -23,8 +23,10 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
+	session = require("express-session"),
 	bodyParser = require("body-parser"),
-	possport = require("passport"),
+	cookieParser = require("cookie-parser"),
+	passport = require("passport"),
 	auth = require("./auth.js"),
 	config = require("./config/config.js"),
 	routes = require("./routes/routes.js");
@@ -35,10 +37,14 @@ app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
 
 // Define session
-app.use(express.cookieParser());
+app.use(cookieParser(config.cookieSecret));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
-app.use(express.session({secret: config.sessionSecret}));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(session({
+	secret: config.sessionSecret,
+	resave: true,
+	saveUninitialized: true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 

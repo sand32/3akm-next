@@ -22,7 +22,8 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var User = require("../model/user.js");
+var passport = require("passport"),
+	User = require("../model/user.js");
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
