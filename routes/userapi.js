@@ -22,19 +22,24 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+var User = require("../model/user.js");
+
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
 		if(req.isAuthenticated()){
 			// Send email for verification
 			// Respond with "201 Created"
-			res.send(201);
+			res.send(201, req.user._id.toString());
 		}else{
 			res.send(403);
 		}
 	});
 
 	app.get(prefix + "/verify/:verificationHash", function(req, res){
-		if(req.verificationHash){
+		if(req.verificationHash === req.user._id.toString()){
+			User.update({_id: req.verificationHash}, {verified: true}, null, function(err){
+				console.log(err);
+			});
 		}
 	});
 
