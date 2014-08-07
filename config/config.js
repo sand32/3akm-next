@@ -25,6 +25,10 @@ misrepresented as being the original software.
 module.exports = {
 	port: 80,
 	cookieSecret: "changeme",
-	sessionSecret: "changeme"
+	sessionSecret: "changeme",
+	dbAddress: "localhost",
+	dbName: "3akm",
+	dbUser: "",
+	dbPassword: ""
 }
 

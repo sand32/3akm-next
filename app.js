@@ -30,7 +30,21 @@ var express = require("express"),
 	auth = require("./auth.js"),
 	config = require("./config/config.js"),
 	routes = require("./routes/routes.js");
-	app = express();
+	app = express(),
+	mongoose = require("mongoose");
+
+// Establish database connection
+if(config.dbUser){
+	mongoose.connect("mongodb://" + config.dbUser + ":" + 
+									config.dbPassword + "@" + 
+									config.dbAddress + "/" + 
+									config.dbName);
+}else{
+	mongoose.connect("mongodb://" + config.dbAddress + "/" + config.dbName);
+}
+mongoose.connection.on("error", function(){
+	console.error("Unable to connect to mongodb!");
+});
 
 // Declare view engine
 app.set("views", __dirname + "/views");

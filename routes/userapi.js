@@ -37,11 +37,14 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/verify/:verificationHash", function(req, res){
-		if(req.verificationHash === req.user._id.toString()){
-			User.update({_id: req.verificationHash}, {verified: true}, null, function(err){
-				console.log(err);
-			});
-		}
+		User.findOneAndUpdate({_id: req.verificationHash}, {verified: true}, null, function(err){
+			if(err){
+				console.log("In /verify/: " + err);
+				res.send(404);
+			}else{
+				res.send(200);
+			}
+		});
 	});
 
 	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
