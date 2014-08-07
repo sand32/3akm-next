@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 module.exports = function(){
 	var possport = require("passport"),
+		BasicStrategy = require("passport-http").BasicStrategy,
 		LocalStrategy = require("passport-local"),
 		User = require("./model/user.js");
 
@@ -75,6 +76,29 @@ module.exports = function(){
 			passwordField: "password"
 		},
 		function(req, email, password, done){
+			process.nextTick(function(){
+				// Try to find a user with the given email
+				User.findOne({"email": email}, function(err, user){
+					// If we've encountered a database error, bail
+					if(err){
+						return done(err);
+					}
+
+					// If we've found the user in the database and the given password matches, 
+					// pass the user on to the next middleware
+					if(user && user.isValidPassword(password)){
+						return done(null, user);
+					// Else, set the flash and move on
+					}else{
+						return done(null, false);
+					}
+				});
+			});
+		}
+	));
+
+	passport.use("api", new BasicStrategy(
+		function(email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email
 				User.findOne({"email": email}, function(err, user){
