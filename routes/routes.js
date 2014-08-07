@@ -28,10 +28,6 @@ module.exports = function(app){
 	userApiRoutes(app, "/api/user");
 	clientRoutes(app, "");
 
-	app.get("/hello", function(req, res){
-		res.send("Hi! :D");
-	});
-
 	app.use(function(req, res){
 		res.send(404);
 	});

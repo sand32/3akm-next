@@ -30,9 +30,9 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			// Send email for verification
 			// Respond with "201 Created"
-			res.send(201, req.user._id.toString());
+			res.status(201, req.user._id.toString()).end();
 		}else{
-			res.send(403);
+			res.status(403).end();
 		}
 	});
 
@@ -40,9 +40,9 @@ module.exports = function(app, prefix){
 		User.findOneAndUpdate({_id: req.verificationHash}, {verified: true}, null, function(err){
 			if(err){
 				console.log("In /verify/: " + err);
-				res.send(404);
+				res.status(404).end();
 			}else{
-				res.send(200);
+				res.status(200).end();
 			}
 		});
 	});
