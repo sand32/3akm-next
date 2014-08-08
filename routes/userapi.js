@@ -30,7 +30,7 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			// Send email for verification
 			// Respond with "201 Created"
-			res.status(201, req.user._id.toString()).end();
+			res.status(201).send(req.user._id.toString());
 		}else{
 			res.status(403).end();
 		}
@@ -49,7 +49,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
 		if(req.isAuthenticated()){
-			res.send(200, {
+			res.status(200).send({
 				email: req.user.email,
 				fullname: req.user.fullname,
 				verified: req.user.verified
