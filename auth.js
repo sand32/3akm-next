@@ -42,7 +42,7 @@ module.exports = function(){
 			usernameField: "email",
 			passwordField: "password"
 		},
-		function(req, email, password, done){
+		function(email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email
 				User.findOne({"email": email}, function(err, user){
@@ -75,7 +75,7 @@ module.exports = function(){
 			usernameField: "email",
 			passwordField: "password"
 		},
-		function(req, email, password, done){
+		function(email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email
 				User.findOne({"email": email}, function(err, user){

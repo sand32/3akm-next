@@ -27,5 +27,14 @@ module.exports = function(app, prefix){
 		//res.render("index");
 		res.send("<h1>Ima page!</h1>");
 	});
+
+	app.get(prefix + "/testregister", function(req, res){
+		res.send(
+"<form action='/api/user/register' method='post'>" + 
+	"<input type='text' name='email' />" + 
+	"<input type='text' name='password' />" + 
+	"<button type='submit'>Register</button>" + 
+"</form>");
+	});
 }
 

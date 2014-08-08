@@ -25,11 +25,12 @@ misrepresented as being the original software.
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
 		clientRoutes = require("./client.js");
+
 	userApiRoutes(app, "/api/user");
 	clientRoutes(app, "");
 
 	app.use(function(req, res){
-		res.send(404);
+		res.status(404).end();
 	});
 }
 
