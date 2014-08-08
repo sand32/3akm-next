@@ -22,6 +22,8 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+var passport = require("passport");
+
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
 		//res.render("index");
@@ -34,7 +36,20 @@ module.exports = function(app, prefix){
 	"<input type='text' name='email' />" + 
 	"<input type='text' name='password' />" + 
 	"<button type='submit'>Register</button>" + 
-"</form>");
+"</form>"
+		);
+	});
+
+	app.get(prefix + "/testlogin", passport.authenticate("login"), function(req, res){
+		if(req.isAuthenticated()){
+			res.send(
+"<form action='/api/user/login' method='post'>" + 
+	"<input type='text' name='email' />" + 
+	"<input type='text' name='password' />" + 
+	"<button type='submit'>Login</button>" + 
+"</form>"
+			);
+		}
 	});
 }
 

@@ -37,12 +37,17 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/verify/:verificationHash", function(req, res){
-		User.findOneAndUpdate({_id: req.verificationHash}, {verified: true}, null, function(err){
-			if(err){
-				console.log("In /verify/: " + err);
-				res.status(404).end();
+		if(!mongoose.Types.ObjectId.isValid(req.params.verificationHash)){
+			res.status(404).end();
+		}
+
+		User.findById(req.params.verificationHash, function(err, doc){
+			if(doc){
+				doc.verified = true;
+				doc.save();
+				res.status(200).send("Verified");
 			}else{
-				res.status(200).end();
+				res.status(404).end();
 			}
 		});
 	});
