@@ -56,10 +56,15 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			res.status(200).send({
 				email: req.user.email,
-				fullname: req.user.fullname,
+				fullName: req.user.fullName,
 				verified: req.user.verified
 			});
 		}
+	});
+
+	app.post(prefix + "/logout", function(req, res){
+		req.logout();
+		res.status(200).end();
 	});
 }
 

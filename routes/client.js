@@ -40,8 +40,16 @@ module.exports = function(app, prefix){
 		);
 	});
 
-	app.get(prefix + "/testlogin", passport.authenticate("login"), function(req, res){
+	app.get(prefix + "/testlogin", function(req, res){
 		if(req.isAuthenticated()){
+			res.send(
+"<form action='/api/user/logout' method='post'>" + 
+"<p>Hi, " + req.user.email + 
+	"<button type='submit'>Logout</button>" + 
+"</p>" + 
+"</form>"
+			);
+		}else{
 			res.send(
 "<form action='/api/user/login' method='post'>" + 
 	"<input type='text' name='email' />" + 
