@@ -24,20 +24,44 @@ misrepresented as being the original software.
 
 $(function(){
 	$(window).on("load resize", function(){
+		// Set content area to full height of window
 		if($(window).height() > $(".container").height()){
 			$(".container").css("height", $(window).height() + "px");
 		}
+
+		// Set menu container to width of its parent since "width: inherit" 
+		// apparently can't be trusted
+		$(".menu-container").css("width", $("#menu").width());
 	});
 
 	login = function(){
-		$.post("/api/user/login", {
-			email: $("#login-email").val(), 
-			password: $("#login-password").val()
-		});
-	}
+		if(validLogin()){
+			$.post("/api/user/login", {
+				email: $("#login-email").val(), 
+				password: $("#login-password").val()
+			},
+			location.reload(true));
+		}
+	};
 
 	logout = function(){
 		$.post("/api/user/logout", null, location.reload(true));
-	}
+	};
+
+	register = function(){
+		if(validRegistration()){
+			$.post("/api/user/register", {
+				email: $("#register-email").val(),
+				password: $("#register-password").val()
+			});
+		}
+	};
+
+	validLogin = function(){
+		return true;
+	};
+
+	validRegistration = function(){
+	};
 });
 

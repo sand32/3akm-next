@@ -21,27 +21,28 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-a(href = "/")
-	.logo
+.menu-container.affix-top
+	a(href = "/")
+		.logo
 
-ul.menu-list(class = "nav nav-stacked")
-	li
-		a(href = "/") Home
+	ul.menu-list(class = "nav nav-stacked")
+		li
+			a(href = "/") Home
 
-if isAuthenticated
-	ul.nav(class = "nav-stacked")
-		li
-			a(href = "#") Profile
-		li
-			a(href = "#", onclick = "logout();") Logout
-else
-	form(role = "form")
-		.form-group
-			label(for = "login-email") Email
-			input#login-email.form-control(type = "text")
-		.form-group
-			label(for = "login-password") Password
-			input#login-password.form-control(type = "password")
-		button(class = "btn btn-default", type = "submit", onclick = "login();") Login
-		a(class = "btn btn-link", href = "/register") Register
+	if isAuthenticated
+		ul.nav(class = "nav-stacked")
+			li
+				a(href = "#") Profile
+			li
+				a(href = "#", onclick = "logout();") Logout
+	else
+		form(role = "form")
+			.form-group
+				label(for = "login-email") Email
+				input#login-email.form-control(type = "text")
+			.form-group
+				label(for = "login-password") Password
+				input#login-password.form-control(type = "password")
+			button(class = "btn btn-default", type = "submit", onclick = "login();") Login
+			a(class = "btn btn-link", href = "/register") Register
 

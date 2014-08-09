@@ -30,6 +30,10 @@ body {
 	background-color: white;
 }
 
+.menu-container {
+	position: fixed;
+}
+
 .logo {
 	background: url('/images/3ak_transx_short_dark.png') no-repeat center;
 	height: 100px;
