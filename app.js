@@ -27,11 +27,11 @@ var express = require("express"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
 	passport = require("passport"),
+	mongoose = require("mongoose"),
 	auth = require("./auth.js"),
 	config = require("./config/config.js"),
 	routes = require("./routes/routes.js");
-	app = express(),
-	mongoose = require("mongoose");
+	app = express();
 
 // Establish database connection
 if(config.dbUser){
@@ -67,7 +67,6 @@ auth();
 
 // Define routes
 routes(app);
-app.use(express.static(__dirname + "/public"));
 
 // Go
 app.listen(config.port);

@@ -26,8 +26,9 @@ var passport = require("passport");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
-		//res.render("index");
-		res.send("<h1>Ima page!</h1>");
+		res.render("article", {
+			isAuthenticated: req.isAuthenticated()
+		});
 	});
 
 	app.get(prefix + "/testregister", function(req, res){
