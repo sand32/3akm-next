@@ -22,7 +22,40 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+body {
+	background-color: #222;
+}
+
+.container {
+	background-color: white;
+}
+
+.logo {
+	background: url('/images/3ak_transx_short_dark.png') no-repeat center;
+	height: 100px;
+	margin-bottom: 1.5em;
+}
+
 div.row {
 	padding-bottom: 2em;
+}
+
+.menu-list {
+	padding-bottom: 1.5em;
+}
+
+.menu-list li {
+	background-color: white;
+}
+
+.menu-list a {
+	color: #222;
+	border-left: 2px #222 solid;
+}
+
+.menu-list a:hover {
+	background-color: none !important;
+	color: red;
+	border-left: 2px red solid;
 }
 

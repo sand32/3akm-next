@@ -1,4 +1,4 @@
-//
+//-
 	-----------------------------------------------------------------------------
 	Copyright (c) 2014 Seth Anderson
 
@@ -21,7 +21,10 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-ul.nav(class = "nav-stacked")
+a(href = "/")
+	.logo
+
+ul.menu-list(class = "nav nav-stacked")
 	li
 		a(href = "/") Home
 
@@ -38,4 +41,5 @@ else
 			label(for = "login-password") Password
 			input#login-password.form-control(type = "password")
 		button(class = "btn btn-default") Login
+		button(class = "btn btn-link") Register
 
