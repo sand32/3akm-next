@@ -31,6 +31,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/register", function(req, res){
+		res.render("register", {
+			isAuthenticated: req.isAuthenticated()
+		})
+	});
+
 	app.get(prefix + "/testregister", function(req, res){
 		res.send(
 "<form action='/api/user/register' method='post'>" + 

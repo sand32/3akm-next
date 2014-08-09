@@ -21,27 +21,20 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-a(href = "/")
-	.logo
+extends layout.jade
 
-ul.menu-list(class = "nav nav-stacked")
-	li
-		a(href = "/") Home
-
-if isAuthenticated
-	ul.nav(class = "nav-stacked")
-		li
-			a(href = "#") Profile
-		li
-			a(href = "#", onclick = "logout();") Logout
-else
+block content
 	form(role = "form")
 		.form-group
-			label(for = "login-email") Email
-			input#login-email.form-control(type = "email")
+			label(for = "register-email") Email
+			input#register-email.form-control(type = "email")
 		.form-group
-			label(for = "login-password") Password
-			input#login-password.form-control(type = "password")
-		button(class = "btn btn-default", type = "submit", onclick = "login();") Login
-		a(class = "btn btn-link", href = "/register") Register
-
+			label(for = "register-password") Password
+			input#register-password.form-control(type = "password")
+		.form-group
+			label(for = "register-confirmpassword") Confirm Password
+			input#register-confirmpassword.form-control(type = "password")
+		.form-group
+			label(for = "register-name") Name
+			input#register-name.form-control(type = "text")
+		button(class = "btn btn-default", type = "submit", onclick = "register();") Register
