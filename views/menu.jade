@@ -32,6 +32,8 @@ if isAuthenticated
 	ul.nav(class = "nav-stacked")
 		li
 			a(href = "#") Profile
+		li
+			a(href = "#", onclick = "logout();") Logout
 else
 	form(role = "form")
 		.form-group
@@ -40,6 +42,6 @@ else
 		.form-group
 			label(for = "login-password") Password
 			input#login-password.form-control(type = "password")
-		button(class = "btn btn-default") Login
-		button(class = "btn btn-link") Register
+		button(class = "btn btn-default", type = "submit", onclick = "login();") Login
+		a(class = "btn btn-link") Register
 

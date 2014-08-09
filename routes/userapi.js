@@ -54,11 +54,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
 		if(req.isAuthenticated()){
-			res.status(200).send({
-				email: req.user.email,
-				fullName: req.user.fullName,
-				verified: req.user.verified
-			});
+			res.status(200).end();
 		}
 	});
 
