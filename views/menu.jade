@@ -28,6 +28,12 @@
 	ul.menu-list(class = "nav nav-stacked")
 		li
 			a(href = "/") Home
+		li
+			a(href = "/") Games
+		li
+			a(href = "/") Preparation
+		li
+			a(href = "/") Confirmed Appearances
 
 	if isAuthenticated
 		ul.nav(class = "nav-stacked")
@@ -36,13 +42,13 @@
 			li
 				a(href = "#", onclick = "logout();") Logout
 	else
-		form(role = "form")
+		form#login-form(role = "form")
 			.form-group
-				label(for = "login-email") Email
-				input#login-email.form-control(type = "text")
+				label Email
+				input.form-control(type = "text", name = "email")
 			.form-group
-				label(for = "login-password") Password
-				input#login-password.form-control(type = "password")
+				label Password
+				input.form-control(type = "password", name = "password")
 			button(class = "btn btn-default", type = "submit", onclick = "login();") Login
 			a(class = "btn btn-link", href = "/register") Register
 

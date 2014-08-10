@@ -24,17 +24,23 @@
 extends layout.jade
 
 block content
-	form(role = "form")
-		.form-group
-			label(for = "register-email") Email
-			input#register-email.form-control(type = "email")
-		.form-group
-			label(for = "register-password") Password
-			input#register-password.form-control(type = "password")
-		.form-group
-			label(for = "register-confirmpassword") Confirm Password
-			input#register-confirmpassword.form-control(type = "password")
-		.form-group
-			label(for = "register-name") Name
-			input#register-name.form-control(type = "text")
+	form#register-form(role = "form")
+		.row
+			.form-group.col-xs-6
+				label Email 
+					span.text-danger (Required)
+				input.form-control(type = "email", name = "email")
+		.row
+			.form-group.col-xs-6
+				label Password 
+					span.text-danger (Required)
+				input.form-control(type = "password", name = "password")
+		.row
+			.form-group.col-xs-6
+				label Confirm Password
+				input.form-control(type = "password", name = "confirmPassword")
+		.row
+			.form-group.col-xs-6
+				label Name
+				input.form-control(type = "text", name = "name")
 		button(class = "btn btn-default", type = "submit", onclick = "register();") Register

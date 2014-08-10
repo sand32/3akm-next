@@ -35,13 +35,11 @@ $(function(){
 	});
 
 	login = function(){
-		if(validLogin()){
-			$.post("/api/user/login", {
-				email: $("#login-email").val(), 
-				password: $("#login-password").val()
-			},
-			location.reload(true));
-		}
+		$.post("/api/user/login", {
+			email: $("#login-form input[name = 'email']").val(), 
+			password: $("#login-form input[name = 'password']").val()
+		},
+		location.reload(true));
 	};
 
 	logout = function(){
@@ -49,19 +47,47 @@ $(function(){
 	};
 
 	register = function(){
-		if(validRegistration()){
-			$.post("/api/user/register", {
-				email: $("#register-email").val(),
-				password: $("#register-password").val()
-			});
+		$.post("/api/user/register", {
+			email: $("#register-email").val(),
+			password: $("#register-password").val()
+		});
+	};
+
+	//----------------------------
+	// Validation
+	//----------------------------
+
+	$("#register-form").bootstrapValidator({
+		fields: {
+			email: {
+				validators: {
+					notEmpty: {
+						message: "Required"
+					},
+					emailAddress: {
+						message: "Must be a valid email address"
+					}
+				}
+			},
+			password: {
+				validators: {
+					notEmpty: {
+						message: "Required"
+					}
+				}
+			},
+			confirmPassword: {
+				validators: {
+					notEmpty: {
+						message: "Passwords must match"
+					},
+					identical: {
+						field: "password",
+						message: "Passwords must match"
+					}
+				}
+			}
 		}
-	};
-
-	validLogin = function(){
-		return true;
-	};
-
-	validRegistration = function(){
-	};
+	});
 });
 
