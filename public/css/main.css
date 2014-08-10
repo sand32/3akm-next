@@ -63,3 +63,11 @@ body {
 	border-left: 2px red solid;
 }
 
+#register-form {
+	padding-bottom: 1em;
+}
+
+.addHandle {
+	margin-top: .5em;
+}
+

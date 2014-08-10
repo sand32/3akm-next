@@ -24,6 +24,8 @@
 extends layout.jade
 
 block content
+	h1 Registration Form
+	hr
 	form#register-form(role = "form")
 		.row
 			.form-group.col-xs-6
@@ -39,8 +41,20 @@ block content
 			.form-group.col-xs-6
 				label Confirm Password
 				input.form-control(type = "password", name = "confirmPassword")
+		hr
+		.row
+			.form-group.col-xs-4
+				label First Name
+				input.form-control(type = "text", name = "firstName")
+			.form-group.col-xs-4
+				label Last Name
+				input.form-control(type = "text", name = "lastName")
 		.row
 			.form-group.col-xs-6
-				label Name
-				input.form-control(type = "text", name = "name")
+				label Handles
+				input.form-control(type = "text", name = "handles", placeholder = "Primary Handle")
+		.row
+			.form-group.col-xs-6
+				a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+		hr
 		button(class = "btn btn-default", type = "submit", onclick = "register();") Register

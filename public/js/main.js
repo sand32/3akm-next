@@ -23,16 +23,22 @@ misrepresented as being the original software.
 */
 
 $(function(){
-	$(window).on("load resize", function(){
+	resizeContentArea = function(){
+		var contentHeight = $("#header").outerHeight() + $("#contentRow").outerHeight(),
+			containerHeight = $(".container").height(),
+			windowHeight = $(window).height();
+
 		// Set content area to full height of window
-		if($(window).height() > $(".container").height()){
-			$(".container").css("height", $(window).height() + "px");
+		if(windowHeight > containerHeight
+		|| contentHeight > containerHeight){
+			$(".container").css("height", Math.max(windowHeight, contentHeight) + "px");
 		}
 
 		// Set menu container to width of its parent since "width: inherit" 
 		// apparently can't be trusted
 		$(".menu-container").css("width", $("#menu").width());
-	});
+	}
+	$(window).on("load resize", resizeContentArea);
 
 	login = function(){
 		$.post("/api/user/login", {
@@ -52,6 +58,17 @@ $(function(){
 			password: $("#register-form input[name = 'password']").val()
 		});
 	};
+
+	$(".addHandle").tooltip("enable");
+	$(".addHandle").click(function(){
+		$(".addHandle").before('<div class="input-group" style="margin-top:.5em;"><input type="text" name="handles" class="form-control"><span class="input-group-btn"><a data-toggle="tooltip" data-placement="right" title="Remove this handle" class="removeHandle btn btn-default glyphicon glyphicon-minus" style="margin-top:-2px;" /></span></div>');
+		$(".removeHandle").tooltip("enable");
+		$(".removeHandle").click(function(){
+			$(this).closest(".input-group").remove();
+			resizeContentArea();
+		});
+		resizeContentArea();
+	});
 
 	//----------------------------
 	// Validation

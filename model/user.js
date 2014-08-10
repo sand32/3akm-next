@@ -38,7 +38,8 @@ var mongoose = require("mongoose"),
 			type: Boolean,
 			default: false
 		},
-		fullName: String,
+		firstName: String,
+		lastName: String,
 		handles: [String],
 		rsvps: [{
 			status: {
