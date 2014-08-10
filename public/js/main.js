@@ -39,17 +39,17 @@ $(function(){
 			email: $("#login-form input[name = 'email']").val(), 
 			password: $("#login-form input[name = 'password']").val()
 		},
-		location.reload(true));
+		function(){location.reload(true);});
 	};
 
 	logout = function(){
-		$.post("/api/user/logout", null, location.reload(true));
+		$.post("/api/user/logout", null, function(){location.reload(true);});
 	};
 
 	register = function(){
 		$.post("/api/user/register", {
-			email: $("#register-email").val(),
-			password: $("#register-password").val()
+			email: $("#register-form input[name = 'email']").val(),
+			password: $("#register-form input[name = 'password']").val()
 		});
 	};
 
