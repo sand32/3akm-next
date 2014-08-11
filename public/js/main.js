@@ -61,6 +61,11 @@ $(function(){
 		});
 	};
 
+	// Make sure the enter key submits on the login form since we're handling 
+	// forms a little unconventionally
+	$("#login-form input").keypress(function(){login();});
+
+	// Dynamic behavior for adding multiple handles in the registration form
 	$(".addHandle").tooltip("enable");
 	$(".addHandle").click(function(){
 		$(".addHandle").before('<div class="input-group" style="margin-top:.5em;"><input type="text" name="handles" class="form-control"><span class="input-group-btn"><a data-toggle="tooltip" data-placement="right" title="Remove this handle" class="removeHandle btn btn-default glyphicon glyphicon-minus" style="margin-top:-2px;" /></span></div>');
