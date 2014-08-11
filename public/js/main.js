@@ -24,7 +24,9 @@ misrepresented as being the original software.
 
 $(function(){
 	resizeContentArea = function(){
-		var contentHeight = $("#header").outerHeight() + $("#contentRow").outerHeight(),
+		var contentHeight = $("#header").outerHeight() 
+							+ $("#contentRow").outerHeight() 
+							+ $("#footer").outerHeight(),
 			containerHeight = $(".container").height(),
 			windowHeight = $(window).height();
 

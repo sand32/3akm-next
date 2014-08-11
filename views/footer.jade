@@ -21,34 +21,10 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-.menu-container.affix-top
-	a(href = "/")
-		.logo
-
-	ul.menu-list(class = "nav nav-stacked")
-		li
-			a(href = "/") Home
-		li
-			a(href = "/") Games
-		li
-			a(href = "/") Preparation
-		li
-			a(href = "/") Confirmed Appearances
-
-	if isAuthenticated
-		ul.menu-list(class = "nav nav-stacked")
-			li
-				a(href = "#") Profile
-			li
-				a(href = "#", onclick = "logout();") Logout
-	else
-		form#login-form(role = "form")
-			.form-group
-				label Email
-				input.form-control(type = "text", name = "email")
-			.form-group
-				label Password
-				input.form-control(type = "password", name = "password")
-			a(class = "btn btn-default", onclick = "login();") Login
-			a(class = "btn btn-link", href = "/register") Register
+.footer.col-xs-12
+	p Copyright &copy; 2014 Seth Anderson
+	p Source available under the zlib/libpng license on
+		br
+		a(href = "https://github.com/sand32/3akm-next", target = "_blank")
+			img(src = "/images/GitHub_Logo.png")
 

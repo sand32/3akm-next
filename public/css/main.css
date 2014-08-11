@@ -44,6 +44,15 @@ body {
 	padding-bottom: 2em;
 }
 
+#footer {
+	padding-top: 2em;
+	padding-bottom: 2em;
+}
+
+.footer {
+	text-align: center;
+}
+
 .menu-list {
 	padding-bottom: 1.5em;
 }
