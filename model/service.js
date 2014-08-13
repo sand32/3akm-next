@@ -23,51 +23,13 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	bcrypt = require("bcrypt-nodejs"),
-	userSchema = mongoose.Schema({
-		email: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		passwordHash: {
-			type: String,
-			required: true
-		},
-		verified: {
+	serviceSchema = mongoose.Schema({
+		name: String,
+		visibleToRoles: [String],
+		adminAuthorizationRequired: {
 			type: Boolean,
-			default: false
-		},
-		created: {
-			type: Date,
-			default: Date.now
-		},
-		accessed: {
-			type: Date,
-			default: Date.now
-		},
-		firstName: String,
-		lastName: String,
-		primaryHandle: String,
-		tertiaryHandles: [String],
-		roles: [String],
-		services: [{
-			service: {
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "Service",
-				required: true
-			},
-			serviceHandle: String
-		}]
+			default: true
+		}
 	});
 
-userSchema.methods.hash = function(pass){
-	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
-};
-
-userSchema.methods.isValidPassword = function(pass){
-	return bcrypt.compareSync(pass, this.passwordHash);
-};
-
-module.exports = mongoose.model("User", userSchema);
-
+module.exports = mongoose.model("Service", serviceSchema);

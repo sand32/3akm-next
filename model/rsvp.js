@@ -23,51 +23,33 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	bcrypt = require("bcrypt-nodejs"),
-	userSchema = mongoose.Schema({
-		email: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		passwordHash: {
-			type: String,
+	rsvpSchema = mongoose.Schema({
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
 			required: true
 		},
-		verified: {
+		year: {
+			type: Number,
+			default: new Date().getFullYear()
+		},
+		status: {
+			type: String,
+			enum: ["Yes", "No", "Maybe"],
+			default: "Yes"
+		},
+		playing: {
+			type: Boolean,
+			default: true
+		},
+		guests: {
+			type: Number,
+			default: 0
+		},
+		attended: {
 			type: Boolean,
 			default: false
-		},
-		created: {
-			type: Date,
-			default: Date.now
-		},
-		accessed: {
-			type: Date,
-			default: Date.now
-		},
-		firstName: String,
-		lastName: String,
-		primaryHandle: String,
-		tertiaryHandles: [String],
-		roles: [String],
-		services: [{
-			service: {
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "Service",
-				required: true
-			},
-			serviceHandle: String
-		}]
+		}
 	});
 
-userSchema.methods.hash = function(pass){
-	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
-};
-
-userSchema.methods.isValidPassword = function(pass){
-	return bcrypt.compareSync(pass, this.passwordHash);
-};
-
-module.exports = mongoose.model("User", userSchema);
-
+module.exports = mongoose.model("Rsvp", rsvpSchema);

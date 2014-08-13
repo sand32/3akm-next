@@ -58,7 +58,7 @@ module.exports = function(){
 					}else{
 						var newUser = new User();
 						newUser.email = email;
-						newUser.pass = newUser.hash(password);
+						newUser.passwordHash = newUser.hash(password);
 						newUser.save(function(err){
 							if(err){
 								throw err;

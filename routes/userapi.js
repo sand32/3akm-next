@@ -54,7 +54,11 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
 		if(req.isAuthenticated()){
+			req.user.accessed = Date.now();
+			req.user.save();
 			res.status(200).end();
+		}else{
+			res.status(403).end();
 		}
 	});
 
