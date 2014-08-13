@@ -90,7 +90,12 @@ $(function(){
 
 	// Make sure the enter key submits on the login form since we're handling 
 	// forms a little unconventionally
-	$("#login-form input").keypress(function(){login();});
+	$("#login-form input").keypress(function(e){
+		if (e.which == 13) {
+			login();
+			return false;
+		}
+	});
 
 	// Dynamic behavior for adding multiple handles in the registration form
 	$(".addHandle").tooltip("enable");
