@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 module.exports = {
-	port: 80,
+	port: 8080,
 	cookieSecret: "changeme",
 	sessionSecret: "changeme",
 	dbAddress: "localhost",
