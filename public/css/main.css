@@ -44,8 +44,12 @@ body {
 	padding-bottom: 2em;
 }
 
-.alert {
+#header .alert {
+	border-top: 0px;
+	border-left: 0px;
+	border-right: 0px;
 	border-radius: 0 !important;
+	margin: 0px;
 }
 
 #footer {
