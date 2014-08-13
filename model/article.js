@@ -23,14 +23,27 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	serviceSchema = mongoose.Schema({
-		name: String,
-		visibleToRoles: [String],
-		adminAuthorizationRequired: {
-			type: Boolean,
-			default: true
-		}
+	articleSchema = mongoose.Schema({
+		title: String,
+		author: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true
+		},
+		published: {
+			type: Date,
+			default: Date.now
+		},
+		modifiedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User"
+		},
+		modified: {
+			type: Date
+		},
+		tags: [String],
+		content: String
 	});
 
-module.exports = mongoose.model("Service", serviceSchema);
+module.exports = mongoose.model("Article", articleSchema);
 
