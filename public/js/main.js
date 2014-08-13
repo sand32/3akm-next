@@ -23,6 +23,11 @@ misrepresented as being the original software.
 */
 
 $(function(){
+
+	//----------------------------
+	// General Behavior
+	//----------------------------
+
 	resizeContentArea = function(){
 		var contentHeight = $("#header").outerHeight() 
 							+ $("#contentRow").outerHeight() 
@@ -42,12 +47,28 @@ $(function(){
 	}
 	$(window).on("load resize", resizeContentArea);
 
+	//----------------------------
+	// Alerts
+	//----------------------------
+
+	setErrorAlert = function(contents){
+		contents = "<div class='alert alert-danger' role='alert'>" + contents;
+		contents += "<button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button></div>";
+		$("#header").html(contents);
+	};
+
+	//----------------------------
+	// Authentication
+	//----------------------------
+
 	login = function(){
 		$.post("/api/user/login", {
 			email: $("#login-form input[name = 'email']").val(), 
 			password: $("#login-form input[name = 'password']").val()
 		},
-		function(){location.reload(true);});
+		function(){location.reload(true);}).fail(function(){
+			setErrorAlert("Invalid username or password.");
+		});
 	};
 
 	logout = function(){
@@ -58,8 +79,14 @@ $(function(){
 		$.post("/api/user/register", {
 			email: $("#register-form input[name = 'email']").val(),
 			password: $("#register-form input[name = 'password']").val()
+		}).fail(function(){
+			setErrorAlert("Unable to register user.");
 		});
 	};
+
+	//----------------------------
+	// Form Behavior
+	//----------------------------
 
 	// Make sure the enter key submits on the login form since we're handling 
 	// forms a little unconventionally
@@ -78,10 +105,11 @@ $(function(){
 	});
 
 	//----------------------------
-	// Validation
+	// Form Validation
 	//----------------------------
 
 	$("#register-form").bootstrapValidator({
+		submitButtons: "button[type='submit']",
 		fields: {
 			email: {
 				validators: {
