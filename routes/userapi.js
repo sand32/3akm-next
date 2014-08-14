@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 var passport = require("passport"),
+	mongoose = require("mongoose"),
 	User = require("../model/user.js");
 
 module.exports = function(app, prefix){
@@ -36,23 +37,23 @@ module.exports = function(app, prefix){
 		}
 	});
 
-	app.get(prefix + "/verify/:verificationHash", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.verificationHash)){
-			res.status(404).end();
+	app.get(prefix + "/verify/:user", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
 		}
 
-		User.findById(req.params.verificationHash, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(doc){
 				doc.verified = true;
 				doc.save();
-				res.status(200).send("Verified");
+				res.status(200).end();
 			}else{
 				res.status(404).end();
 			}
 		});
 	});
 
-	app.post(prefix + "/login", passport.authenticate("login"), function(req, res){
+	app.post(prefix + "/login", passport.authenticate("local"), function(req, res){
 		if(req.isAuthenticated()){
 			req.user.accessed = Date.now();
 			req.user.save();
@@ -66,5 +67,50 @@ module.exports = function(app, prefix){
 		req.logout();
 		res.status(200).end();
 	});
+
+	resendVerification = function(req, res){
+		if(req.params.user){
+			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+				return res.status(404).end();
+			}else if(req.user._id != req.params.user
+				  && !req.user.hasRole("admin")){
+				return res.status(403).end();
+			}
+		}else{
+			if(!req.isAuthenticated()){
+				return res.status(403).end();
+			}
+		}
+
+		// Resend verification email
+		res.status(200).end();
+	};
+	app.post(prefix + "/session/verify", resendVerification);
+	app.post(prefix + "/:user/verify", passport.authenticate("basic"), resendVerification);
+
+	userIsVerified = function(req, res){
+		if(req.params.user){
+			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+				return res.status(404).end();
+			}else if(req.user._id != req.params.user
+				  && !req.user.hasRole("admin")){
+				return res.status(403).end();
+			}
+		}else{
+			if(!req.isAuthenticated()){
+				return res.status(403).end();
+			}
+		}
+
+		User.findById(req.user._id, function(err, doc){
+			if(doc){
+				res.status(200).send({verified: doc.verified});
+			}else{
+				res.status(500).end();
+			}
+		});
+	};
+	app.get(prefix + "/session/verified", userIsVerified);
+	app.get(prefix + "/:user/verified", passport.authenticate("basic"), userIsVerified);
 }
 

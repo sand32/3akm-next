@@ -71,7 +71,7 @@ module.exports = function(){
 		}
 	));
 
-	passport.use("login", new LocalStrategy({
+	passport.use("local", new LocalStrategy({
 			usernameField: "email",
 			passwordField: "password"
 		},
@@ -97,7 +97,7 @@ module.exports = function(){
 		}
 	));
 
-	passport.use("api", new BasicStrategy(
+	passport.use("basic", new BasicStrategy(
 		function(email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email

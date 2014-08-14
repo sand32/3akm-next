@@ -69,5 +69,9 @@ userSchema.methods.isValidPassword = function(pass){
 	return bcrypt.compareSync(pass, this.passwordHash);
 };
 
+userSchema.methods.hasRole = function(role){
+	return this.roles.indexOf(role) !== -1;
+};
+
 module.exports = mongoose.model("User", userSchema);
 
