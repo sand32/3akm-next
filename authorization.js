@@ -22,18 +22,43 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport");
+rules = {
+	isUser: function(thisUser, otherUserId){
+		return thisUser._id == otherUserId;
+	},
 
-module.exports = {
-	// Special authentication in order to support local sessions and basic auth 
-	// on API routes.
-	// 
-	// Basically: if we have a local session, proceed, else require basic auth.
-	blendedAuthenticate: function(req, res, next){
-		if(req.isAuthenticated()){
-			return next();
+	hasRoles: function(user, roles){
+		if(roles.length === 0){
+			return false;
 		}
-		passport.authenticate("basic")(req, res, next);
+		var hasRolesSuccess = true;
+		for(var i = 0; i < roles.length; i+=1){
+			if(!user.hasRole(roles[i])){
+				hasRolesSuccess = false;
+			}
+		}
+		return hasRolesSuccess;
+	}
+}
+
+// Authorizes a user based on the given ruleset
+// 
+// The acceptable rules are as follows, all rules are optional:
+// {
+//     isUser: (User)
+//     hasRoles: [String]
+// }
+module.exports = function(user, ruleset, combination){
+	if(!ruleset){
+		return true;
+	}
+
+	if(combination === "or"){
+		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
+				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
+	}else{
+		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : true) && 
+				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : true);
 	}
 }
 

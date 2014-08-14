@@ -25,6 +25,7 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
+	authorize = require("../authorization.js"),
 	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
@@ -70,17 +71,15 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/:user/verify", blendedAuthenticate, function(req, res){
-		if(req.params.user !== "session"){
-			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-				return res.status(404).end();
-			}else if(req.user._id != req.params.user
-				  && !req.user.hasRole("admin")){
-				return res.status(403).end();
-			}
-		}else{
-			if(!req.isAuthenticated()){
-				return res.status(403).end();
-			}
+		var queryUser = req.params.user;
+		if(req.params.user === "session"){
+			queryUser = req.user._id;
+		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		if(!authorize(req.user, {isUser: queryUser, hasRoles: ["admin"]}, "or")){
+			return res.status(403).end();
 		}
 
 		// Resend verification email
@@ -88,20 +87,18 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user/verified", blendedAuthenticate, function(req, res){
-		if(req.params.user !== "session"){
-			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-				return res.status(404).end();
-			}else if(req.user._id != req.params.user
-				  && !req.user.hasRole("admin")){
-				return res.status(403).end();
-			}
-		}else{
-			if(!req.isAuthenticated()){
-				return res.status(403).end();
-			}
+		var queryUser = req.params.user;
+		if(req.params.user === "session"){
+			queryUser = req.user._id;
+		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
 		}
 
-		User.findById(req.user._id, function(err, doc){
+		if(!authorize(req.user, {isUser: queryUser, hasRoles: ["admin"]}, "or")){
+			return res.status(403).end();
+		}
+
+		User.findById(queryUser, function(err, doc){
 			if(doc){
 				res.status(200).send({verified: doc.verified});
 			}else{
