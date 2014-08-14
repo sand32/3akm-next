@@ -28,7 +28,7 @@ var express = require("express"),
 	cookieParser = require("cookie-parser"),
 	passport = require("passport"),
 	mongoose = require("mongoose"),
-	auth = require("./auth.js"),
+	authentication = require("./authentication.js"),
 	config = require("./config/config.js"),
 	routes = require("./routes/routes.js");
 	app = express();
@@ -63,7 +63,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Define authentication method
-auth();
+authentication();
 
 // Define routes
 routes(app);
