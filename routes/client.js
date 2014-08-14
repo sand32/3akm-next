@@ -37,35 +37,5 @@ module.exports = function(app, prefix){
 			containsForm: true
 		})
 	});
-
-	app.get(prefix + "/testregister", function(req, res){
-		res.send(
-"<form action='/api/user/register' method='post'>" + 
-	"<input type='text' name='email' />" + 
-	"<input type='text' name='password' />" + 
-	"<button type='submit'>Register</button>" + 
-"</form>"
-		);
-	});
-
-	app.get(prefix + "/testlogin", function(req, res){
-		if(req.isAuthenticated()){
-			res.send(
-"<form action='/api/user/logout' method='post'>" + 
-"<p>Hi, " + req.user.email + 
-	"<button type='submit'>Logout</button>" + 
-"</p>" + 
-"</form>"
-			);
-		}else{
-			res.send(
-"<form action='/api/user/login' method='post'>" + 
-	"<input type='text' name='email' />" + 
-	"<input type='text' name='password' />" + 
-	"<button type='submit'>Login</button>" + 
-"</form>"
-			);
-		}
-	});
 }
 
