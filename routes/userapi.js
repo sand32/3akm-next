@@ -24,7 +24,8 @@ misrepresented as being the original software.
 
 var passport = require("passport"),
 	mongoose = require("mongoose"),
-	User = require("../model/user.js");
+	User = require("../model/user.js"),
+	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
@@ -86,7 +87,7 @@ module.exports = function(app, prefix){
 		res.status(200).end();
 	};
 	app.post(prefix + "/session/verify", resendVerification);
-	app.post(prefix + "/:user/verify", passport.authenticate("basic"), resendVerification);
+	app.post(prefix + "/:user/verify", blendedAuthenticate, resendVerification);
 
 	userIsVerified = function(req, res){
 		if(req.params.user){
@@ -111,6 +112,6 @@ module.exports = function(app, prefix){
 		});
 	};
 	app.get(prefix + "/session/verified", userIsVerified);
-	app.get(prefix + "/:user/verified", passport.authenticate("basic"), userIsVerified);
+	app.get(prefix + "/:user/verified", blendedAuthenticate, userIsVerified);
 }
 
