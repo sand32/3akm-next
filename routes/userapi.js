@@ -78,7 +78,7 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		if(!authorize(req.user, {isUser: queryUser, hasRoles: ["admin"]}, "or")){
+		if(!authorize(req.user, {isUser: queryUser})){
 			return res.status(403).end();
 		}
 
@@ -94,7 +94,7 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		if(!authorize(req.user, {isUser: queryUser, hasRoles: ["admin"]}, "or")){
+		if(!authorize(req.user, {isUser: queryUser})){
 			return res.status(403).end();
 		}
 

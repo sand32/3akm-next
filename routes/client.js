@@ -33,7 +33,8 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/register", function(req, res){
 		res.render("register", {
-			isAuthenticated: req.isAuthenticated()
+			isAuthenticated: req.isAuthenticated(),
+			containsForm: true
 		})
 	});
 

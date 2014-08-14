@@ -49,16 +49,11 @@ rules = {
 //     hasRoles: [String]
 // }
 module.exports = function(user, ruleset, combination){
-	if(!ruleset){
+	if(!ruleset || user.hasRole("admin")){
 		return true;
 	}
 
-	if(combination === "or"){
-		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
-				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
-	}else{
-		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : true) && 
-				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : true);
-	}
+	return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
+			(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
 }
 

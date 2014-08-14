@@ -29,6 +29,7 @@ head
 	script(src = "http://code.jquery.com/jquery-2.1.1.min.js")
 	script(src = "/thirdparty/bootstrap/bootstrap.min.js")
 	script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")
-	script(src = "/thirdparty/ckeditor/ckeditor.js")
+	if containsEditor
+		script(src = "/thirdparty/ckeditor/ckeditor.js")
 	script(src = "/js/main.js")
 	meta(name = "viewport", content = "width=device-width, initial-scale=1")

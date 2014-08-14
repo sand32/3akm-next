@@ -27,9 +27,11 @@ var express = require("express"),
 
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
+		articleApiRoutes = require("./articleapi.js"),
 		clientRoutes = require("./client.js");
 
 	userApiRoutes(app, "/api/user");
+	articleApiRoutes(app, "/api/article");
 	clientRoutes(app, "");
 
 	app.use(express.static('public'));
