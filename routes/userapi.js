@@ -69,8 +69,8 @@ module.exports = function(app, prefix){
 		res.status(200).end();
 	});
 
-	resendVerification = function(req, res){
-		if(req.params.user){
+	app.post(prefix + "/:user/verify", blendedAuthenticate, function(req, res){
+		if(req.params.user !== "session"){
 			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 				return res.status(404).end();
 			}else if(req.user._id != req.params.user
@@ -85,12 +85,10 @@ module.exports = function(app, prefix){
 
 		// Resend verification email
 		res.status(200).end();
-	};
-	app.post(prefix + "/session/verify", resendVerification);
-	app.post(prefix + "/:user/verify", blendedAuthenticate, resendVerification);
+	});
 
-	userIsVerified = function(req, res){
-		if(req.params.user){
+	app.get(prefix + "/:user/verified", blendedAuthenticate, function(req, res){
+		if(req.params.user !== "session"){
 			if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 				return res.status(404).end();
 			}else if(req.user._id != req.params.user
@@ -110,8 +108,6 @@ module.exports = function(app, prefix){
 				res.status(500).end();
 			}
 		});
-	};
-	app.get(prefix + "/session/verified", userIsVerified);
-	app.get(prefix + "/:user/verified", blendedAuthenticate, userIsVerified);
+	});
 }
 
