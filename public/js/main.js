@@ -29,6 +29,10 @@ $(function(){
 	//----------------------------
 
 	resizeContentArea = function(){
+		if($("#contentRow").height() < $(".menu-container").height()){
+			$("#contentRow").css("height", $(".menu-container").height())
+		}
+
 		var contentHeight = $("#header").outerHeight() 
 							+ $("#contentRow").outerHeight() 
 							+ $("#footer").outerHeight(),
@@ -51,6 +55,12 @@ $(function(){
 	// Alerts
 	//----------------------------
 
+	setSuccessAlert = function(contents){
+		contents = "<div class='alert alert-success' role='alert'>" + contents;
+		contents += "<button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button></div>";
+		$("#header").html(contents);
+	};
+
 	setErrorAlert = function(contents){
 		contents = "<div class='alert alert-danger' role='alert'>" + contents;
 		contents += "<button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button></div>";
@@ -58,6 +68,9 @@ $(function(){
 	};
 
 	//----------------------------
+	// Form Submission
+	//----------------------------
+
 	// Authentication
 	//----------------------------
 
@@ -65,8 +78,9 @@ $(function(){
 		$.post("/api/user/login", {
 			email: $("#login-form input[name = 'email']").val(), 
 			password: $("#login-form input[name = 'password']").val()
-		},
-		function(){location.reload(true);}).fail(function(){
+		}, function(){
+			location.reload(true);
+		}).fail(function(){
 			setErrorAlert("Invalid username or password.");
 		});
 	};
@@ -79,8 +93,44 @@ $(function(){
 		$.post("/api/user/register", {
 			email: $("#register-form input[name = 'email']").val(),
 			password: $("#register-form input[name = 'password']").val()
+		}, function(){
+			location.replace("/");
 		}).fail(function(){
 			setErrorAlert("Unable to register user.");
+		});
+	};
+
+	// User Management
+	//----------------------------
+
+	updateUser = function(){
+		getTertiaryHandles = function(){
+			var handles = [].concat($("#profile-form input[name = 'tertiaryHandles']").val());
+			if(handles[0] == ""
+			|| handles[0] == null){
+				handles = [];
+			}
+			return handles;
+		};
+
+		$.ajax({
+			type: "PUT",
+			url: "/api/user/session",
+			contentType: "application/json",
+			data: JSON.stringify({
+				firstName: $("#profile-form input[name = 'firstName']").val(),
+				lastName: $("#profile-form input[name = 'lastName']").val(),
+				primaryHandle: $("#profile-form input[name = 'primaryHandle']").val(),
+				tertiaryHandles: getTertiaryHandles(),
+				roles: $("#profile-form input[name = 'roles']").val().split(",")
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Profile successfully updated.");
+			},
+			error: function(){
+				setErrorAlert("Error updating profile.");
+			}
 		});
 	};
 
@@ -88,11 +138,11 @@ $(function(){
 	// Form Behavior
 	//----------------------------
 
-	// Make sure the enter key submits on the login form since we're handling 
+	// Make sure the enter key submits on our forms since we're handling 
 	// forms a little unconventionally
-	$("#login-form input").keypress(function(e){
+	$("form input").keypress(function(e){
 		if (e.which == 13) {
-			login();
+			$(e.target).closest("form").find(".submitButton").click();
 			return false;
 		}
 	});
@@ -100,12 +150,16 @@ $(function(){
 	// Dynamic behavior for adding multiple handles in the registration form
 	$(".addHandle").tooltip("enable");
 	$(".addHandle").click(function(){
-		$(".addHandle").before('<div class="input-group" style="margin-top:.5em;"><input type="text" name="handles" class="form-control"><span class="input-group-btn"><a data-toggle="tooltip" data-placement="right" title="Remove this handle" class="removeHandle btn btn-default glyphicon glyphicon-minus" style="margin-top:-2px;" /></span></div>');
+		$(".addHandle").before('<div class="input-group" style="margin-top:.5em;"><input type="text" name="tertiaryHandles" class="form-control"><span class="input-group-btn"><a data-toggle="tooltip" data-placement="right" title="Remove this handle" class="removeHandle btn btn-default glyphicon glyphicon-minus" style="margin-top:-2px;" /></span></div>');
 		$(".removeHandle").tooltip("enable");
 		$(".removeHandle").click(function(){
 			$(this).closest(".input-group").remove();
 			resizeContentArea();
 		});
+		resizeContentArea();
+	});
+	$(".removeHandle").click(function(){
+		$(this).closest(".input-group").remove();
 		resizeContentArea();
 	});
 

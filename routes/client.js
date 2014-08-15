@@ -27,15 +27,26 @@ var passport = require("passport");
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
 		res.render("article", {
-			isAuthenticated: req.isAuthenticated()
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
 		});
 	});
 
 	app.get(prefix + "/register", function(req, res){
 		res.render("register", {
 			isAuthenticated: req.isAuthenticated(),
-			containsForm: true
-		})
+			user: req.user
+		});
+	});
+
+	app.get(prefix + "/profile", function(req, res){
+		if(!req.isAuthenticated()){
+			return res.redirect("/");
+		}
+		res.render("userprofile", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
+		});
 	});
 }
 

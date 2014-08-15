@@ -102,7 +102,40 @@ module.exports = function(app, prefix){
 			if(doc){
 				res.status(200).send({verified: doc.verified});
 			}else{
-				res.status(500).end();
+				res.status(404).end();
+			}
+		});
+	});
+
+	app.put(prefix + "/:user", blendedAuthenticate, function(req, res){
+		var queryUser = req.params.user;
+		if(req.params.user === "session"){
+			queryUser = req.user._id;
+		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		if(!authorize(req.user, {isUser: queryUser})){
+			return res.status(403).end();
+		}
+
+		User.findById(queryUser, function(err, doc){
+			if(doc){
+				try{
+					doc.firstName = req.body.firstName;
+					doc.lastName = req.body.lastName;
+					doc.primaryHandle = req.body.primaryHandle;
+					doc.tertiaryHandles = req.body.tertiaryHandles;
+					if(req.user.hasRole("admin")){
+						doc.roles = req.body.roles;
+					}
+					doc.save();
+				}catch(e){
+					return res.status(400).end();
+				}
+				res.status(200).end();
+			}else{
+				res.status(404).end();
 			}
 		});
 	});

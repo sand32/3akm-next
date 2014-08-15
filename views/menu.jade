@@ -38,7 +38,10 @@
 	if isAuthenticated
 		ul.menu-list(class = "nav nav-stacked")
 			li
-				a(href = "#") Profile
+				a(href = "/profile") Profile
+			if user.hasRole("admin")
+				li
+					a(href = "#") Users
 			li
 				a(href = "#", onclick = "logout();") Logout
 	else
@@ -49,6 +52,6 @@
 			.form-group
 				label Password
 				input.form-control(type = "password", name = "password")
-			a(class = "btn btn-default", onclick = "login();") Login
+			a.submitButton(class = "btn btn-default", onclick = "login();") Login
 			a(class = "btn btn-link", href = "/register") Register
 

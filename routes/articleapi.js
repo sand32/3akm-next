@@ -58,7 +58,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix, blendedAuthentication, function(req, res){
+	app.post(prefix, blendedAuthenticate, function(req, res){
 		if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();
 		}
