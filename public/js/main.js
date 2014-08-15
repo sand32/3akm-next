@@ -156,6 +156,12 @@ $(function(){
 			$(this).closest(".input-group").remove();
 			resizeContentArea();
 		});
+		$("form input").keypress(function(e){
+			if (e.which == 13) {
+				$(e.target).closest("form").find(".submitButton").click();
+				return false;
+			}
+		});
 		resizeContentArea();
 	});
 	$(".removeHandle").click(function(){
