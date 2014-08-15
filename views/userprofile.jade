@@ -1,0 +1,59 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+extends layout.jade
+
+block content
+	h1 User Profile
+	hr
+	form#profile-form(role = "form")
+		h3 Names
+		.row
+			.form-group.col-xs-4
+				label First Name
+				input.form-control(type = "text", name = "firstName", value = user.firstName)
+			.form-group.col-xs-4
+				label Last Name
+				input.form-control(type = "text", name = "lastName", value = user.lastName)
+		.row
+			.form-group.col-xs-6
+				label Handles
+				input.form-control(type = "text", name = "primaryHandle", placeholder = "Primary Handle", value = user.primaryHandle)
+		.row
+			.form-group.col-xs-6
+				each handle in user.tertiaryHandles
+					div.input-group(style = "margin-top:.5em;")
+						input.form-control(type = "text", name = "tertiaryHandles", value = handle)
+						span.input-group-btn
+							a.removeHandle(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
+				a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+		if user.hasRole("admin")
+			hr
+			h3 Admin-Only
+			.row
+				.form-group.col-xs-6
+					label Roles (comma-delimited)
+					input.form-control(type = "text", name = "roles", value = user.roles)
+		hr
+		a.submitButton(class = "btn btn-default", onclick = "updateUser();") Update
+
