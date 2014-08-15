@@ -174,7 +174,7 @@ $(function(){
 	//----------------------------
 
 	$("#register-form").bootstrapValidator({
-		submitButtons: "button[type='submit']",
+		submitButtons: ".submitButton",
 		fields: {
 			email: {
 				validators: {
