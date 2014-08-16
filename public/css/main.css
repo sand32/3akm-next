@@ -98,6 +98,18 @@ a.btn-link:hover {
 	margin-top: .5em;
 }
 
+.button-icon {
+	margin-right: .5em;
+}
+
+.button-row-left button {
+	margin-right: .5em;
+}
+
+.button-row-right button {
+	margin-left: .5em;
+}
+
 .no-articles {
 	text-align: center;
 	font-weight: bold;

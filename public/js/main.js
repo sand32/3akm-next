@@ -25,7 +25,7 @@ misrepresented as being the original software.
 $(function(){
 
 	//----------------------------
-	// General Behavior
+	// Common Behavior
 	//----------------------------
 
 	resizeContentArea = function(){
@@ -66,6 +66,34 @@ $(function(){
 		contents += "<button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button></div>";
 		$("#header").html(contents);
 	};
+
+	//----------------------------
+	// Page-specific Behavior
+	//----------------------------
+
+	// User Profile
+	//----------------------------
+
+	showChangePasswordModal = function(){
+		$("#changePasswordModal").on("shown.bs.modal", function(e){
+			$("#change-password-form input[name = 'newPassword']").focus();
+		});
+		$("#changePasswordModal").modal("show");
+	};
+
+	// Article Manager
+	//----------------------------
+
+	reactOnArticleSelect = function(){
+		if($("#article-manager .article-selector:checked").length > 0){
+			$("#article-manager button[name = 'edit']").removeAttr("disabled");
+		}else{
+			$("#article-manager button[name = 'edit']").attr("disabled", "disabled");
+		}
+	}
+
+	reactOnArticleSelect();
+	$("#article-manager .article-selector").click(reactOnArticleSelect);
 
 	//----------------------------
 	// Form Submission
@@ -194,13 +222,6 @@ $(function(){
 		$(this).closest(".input-group").remove();
 		resizeContentArea();
 	});
-
-	showChangePasswordModal = function(){
-		$("#changePasswordModal").on("shown.bs.modal", function(e){
-			$("#change-password-form input[name = 'newPassword']").focus();
-		});
-		$("#changePasswordModal").modal("show");
-	};
 
 	//----------------------------
 	// Form Validation

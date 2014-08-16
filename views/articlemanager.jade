@@ -26,25 +26,33 @@ extends layout.jade
 block content
 	h1 Article Manager
 	hr
-	table.table.table-hover
-		thead
-			tr
-				th
-				th Title
-				th Author
-				th Create Date
-				th Modified By
-				th Modify Date
-		tbody
-			each article in articles
+	#article-manager
+		.button-row-left
+			button(class = "btn btn-default", name = "new")
+				span.button-icon(class = "glyphicon glyphicon-plus")
+				| New
+			button(class = "btn btn-default", name = "edit")
+				span.button-icon(class = "glyphicon glyphicon-pencil")
+				| Edit
+		table.table.table-hover
+			thead
 				tr
-					td
-						input.article-selector(type = "checkbox", value = "")
-					td article.title
-					td article.author
-					td article.created
-					td article.modifiedBy
-					td article.modified
-	if articles.length === 0
-		.no-articles You haven't written any articles yet!
+					th
+					th Title
+					th Author
+					th Create Date
+					th Modified By
+					th Modify Date
+			tbody
+				each article in articles
+					tr
+						td
+							input.article-selector(type = "checkbox", value = "")
+						td article.title
+						td article.author
+						td article.created
+						td article.modifiedBy
+						td article.modified
+		if articles.length === 0
+			.no-articles You haven't written any articles yet!
 
