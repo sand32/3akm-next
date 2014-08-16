@@ -86,9 +86,9 @@ $(function(){
 
 	reactOnArticleSelect = function(){
 		if($("#article-manager .article-selector:checked").length > 0){
-			$("#article-manager button[name = 'edit']").removeAttr("disabled");
+			$("#article-manager [name = 'edit']").removeAttr("disabled");
 		}else{
-			$("#article-manager button[name = 'edit']").attr("disabled", "disabled");
+			$("#article-manager [name = 'edit']").attr("disabled", "disabled");
 		}
 	}
 

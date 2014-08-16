@@ -102,11 +102,11 @@ a.btn-link:hover {
 	margin-right: .5em;
 }
 
-.button-row-left button {
+.button-row-left .btn {
 	margin-right: .5em;
 }
 
-.button-row-right button {
+.button-row-right .btn {
 	margin-left: .5em;
 }
 
