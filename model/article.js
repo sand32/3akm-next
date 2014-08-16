@@ -41,7 +41,10 @@ var mongoose = require("mongoose"),
 		modified: {
 			type: Date
 		},
-		published: Boolean,
+		published: {
+			type: Boolean,
+			default: false
+		},
 		tags: [String],
 		content: String
 	});

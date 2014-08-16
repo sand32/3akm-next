@@ -33,6 +33,19 @@ module.exports = function(app, prefix){
 		if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();
 		}
+
+		try{
+			var article = new Article();
+			article.title = req.body.title;
+			article.author = req.user._id;
+			article.published = req.body.published;
+			article.tags = req.body.tags;
+			article.content = req.body.content;
+			article.save();
+			res.status(200).end();
+		}catch(e){
+			res.status(400).end();
+		}
 	});
 
 	app.get(prefix + "/:article", function(req, res){
