@@ -22,7 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport");
+var passport = require("passport"),
+	authorize = require("../authorization.js"),
+	Article = require("../model/article.js");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
@@ -49,6 +51,20 @@ module.exports = function(app, prefix){
 		res.render("userprofile", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
+		});
+	});
+
+	app.get(prefix + "/articles", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user, {hasRoles:["author"]})){
+			return res.redirect("/");
+		}
+		Article.find({}, "title author created modifiedBy modified published tags", function(err, docs){
+			res.render("articlemanager", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				articles: docs
+			});
 		});
 	});
 }

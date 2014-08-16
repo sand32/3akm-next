@@ -30,7 +30,7 @@ var mongoose = require("mongoose"),
 			ref: "User",
 			required: true
 		},
-		published: {
+		created: {
 			type: Date,
 			default: Date.now
 		},
@@ -41,6 +41,7 @@ var mongoose = require("mongoose"),
 		modified: {
 			type: Date
 		},
+		published: Boolean,
 		tags: [String],
 		content: String
 	});

@@ -98,3 +98,8 @@ a.btn-link:hover {
 	margin-top: .5em;
 }
 
+.no-articles {
+	text-align: center;
+	font-weight: bold;
+}
+

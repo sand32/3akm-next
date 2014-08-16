@@ -21,41 +21,30 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-.menu-container.affix-top
-	a(href = "/")
-		.logo
+extends layout.jade
 
-	ul.menu-list(class = "nav nav-stacked")
-		li
-			a(href = "/") Home
-		li
-			a(href = "/") Games
-		li
-			a(href = "/") Preparation
-		li
-			a(href = "/") Confirmed Appearances
-
-	if isAuthenticated
-		h4 User Menu
-		ul.menu-list(class = "nav nav-stacked")
-			li
-				a(href = "/profile") Profile
-			if user.hasRole("admin")
-				li
-					a(href = "#") Users
-			if user.hasRole("admin") || user.hasRole("author")
-				li
-					a(href = "/articles") Articles
-			li
-				a(href = "#", onclick = "logout();") Logout
-	else
-		form#login-form(role = "form")
-			.form-group
-				label Email
-				input.form-control(type = "text", name = "email")
-			.form-group
-				label Password
-				input.form-control(type = "password", name = "password")
-			a.submitButton(class = "btn btn-default", onclick = "login();") Login
-			a(class = "btn btn-link", href = "/register") Register
+block content
+	h1 Article Manager
+	hr
+	table.table.table-hover
+		thead
+			tr
+				th
+				th Title
+				th Author
+				th Create Date
+				th Modified By
+				th Modify Date
+		tbody
+			each article in articles
+				tr
+					td
+						input.article-selector(type = "checkbox", value = "")
+					td article.title
+					td article.author
+					td article.created
+					td article.modifiedBy
+					td article.modified
+	if articles.length === 0
+		.no-articles You haven't written any articles yet!
 
