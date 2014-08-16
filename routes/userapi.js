@@ -78,6 +78,7 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
+		// Only the user in the URL can access this resource
 		if(!authorize(req.user, {isUser: queryUser})){
 			return res.status(403).end();
 		}
@@ -94,13 +95,49 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
+		// Only the user in the URL can access this resource
+		if(!authorize(req.user, {isUser: queryUser})){
+			return res.status(403).end();
+		}
+
+		// Retrieve and return the "verified" value
+		User.findById(queryUser, function(err, doc){
+			if(doc){
+				res.status(200).send({verified: doc.verified});
+			}else{
+				res.status(404).end();
+			}
+		});
+	});
+
+	app.get(prefix + "/:user", blendedAuthenticate, function(req, res){
+		var queryUser = req.params.user;
+		if(req.params.user === "session"){
+			queryUser = req.user._id;
+		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		// Only the user in the URL can access this resource
 		if(!authorize(req.user, {isUser: queryUser})){
 			return res.status(403).end();
 		}
 
 		User.findById(queryUser, function(err, doc){
 			if(doc){
-				res.status(200).send({verified: doc.verified});
+				res.status(200).send({
+					email: doc.email,
+					verified: doc.verified,
+					created: doc.created,
+					accessed: doc.accessed,
+					modified: doc.modified,
+					firstName: doc.firstName,
+					lastName: doc.lastName,
+					primaryHandle: doc.primaryHandle,
+					tertiaryHandles: doc.tertiaryHandles,
+					roles: doc.roles,
+					services: doc.services
+				});
 			}else{
 				res.status(404).end();
 			}
@@ -115,27 +152,58 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
+		// Only the user in the URL can access this resource
 		if(!authorize(req.user, {isUser: queryUser})){
 			return res.status(403).end();
 		}
 
-		User.findById(queryUser, function(err, doc){
-			if(doc){
-				try{
-					doc.firstName = req.body.firstName;
-					doc.lastName = req.body.lastName;
-					doc.primaryHandle = req.body.primaryHandle;
-					doc.tertiaryHandles = req.body.tertiaryHandles;
-					if(req.user.hasRole("admin")){
-						doc.roles = req.body.roles;
-					}
-					doc.save();
-				}catch(e){
-					return res.status(400).end();
-				}
-				res.status(200).end();
+		// Ignore the following fields unless sent by an admin
+		if(!req.user.hasRole("admin")){
+			delete req.body.verified;
+			delete req.body.roles;
+			delete req.body.services;
+		}
+		delete req.body.passwordHash;
+		delete req.body.created;
+
+		// Record this modification
+		req.body.modified = Date.now();
+
+		// Update the user 
+		User.findByIdAndUpdate(queryUser, req.body, function(err, doc){
+			if(!err && !doc){
+				res.status(400).end();
 			}else{
-				res.status(404).end();
+				res.status(200).end();
+			}
+		});
+	});
+
+	app.put(prefix + "/:user/password", blendedAuthenticate, function(req, res){
+		var queryUser = req.params.user;
+		if(req.params.user === "session"){
+			queryUser = req.user._id;
+		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		// Only the user in the URL can access this resource
+		if(!authorize(req.user, {isUser: queryUser})){
+			return res.status(403).end();
+		}
+
+		// Record this modification
+		var update = {
+			modified: Date.now(),
+			passwordHash: req.user.hash(req.body.password)
+		}
+
+		// Update the user 
+		User.findByIdAndUpdate(queryUser, update, function(err, doc){
+			if(!err && !doc){
+				res.status(400).end();
+			}else{
+				res.status(200).end();
 			}
 		});
 	});

@@ -42,6 +42,10 @@ var mongoose = require("mongoose"),
 			type: Date,
 			default: Date.now
 		},
+		modified: {
+			type: Date,
+			default: Date.now
+		},
 		accessed: {
 			type: Date,
 			default: Date.now

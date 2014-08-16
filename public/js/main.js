@@ -113,23 +113,46 @@ $(function(){
 			return handles;
 		};
 
+		var data = {
+			email: $("#profile-form input[name = 'email']").val(),
+			firstName: $("#profile-form input[name = 'firstName']").val(),
+			lastName: $("#profile-form input[name = 'lastName']").val(),
+			primaryHandle: $("#profile-form input[name = 'primaryHandle']").val(),
+			tertiaryHandles: getTertiaryHandles()
+		};
+		if($("#profile-form input[name = 'roles']").length > 0){
+			data.roles = $("#profile-form input[name = 'roles']").val().split(",");
+		}
+
 		$.ajax({
 			type: "PUT",
 			url: "/api/user/session",
 			contentType: "application/json",
-			data: JSON.stringify({
-				firstName: $("#profile-form input[name = 'firstName']").val(),
-				lastName: $("#profile-form input[name = 'lastName']").val(),
-				primaryHandle: $("#profile-form input[name = 'primaryHandle']").val(),
-				tertiaryHandles: getTertiaryHandles(),
-				roles: $("#profile-form input[name = 'roles']").val().split(",")
-			}),
+			data: JSON.stringify(data),
 			processData: false,
 			success: function(){
 				setSuccessAlert("Profile successfully updated.");
 			},
 			error: function(){
 				setErrorAlert("Error updating profile.");
+			}
+		});
+	};
+
+	changePassword = function(){
+		$.ajax({
+			type: "PUT",
+			url: "/api/user/session/password",
+			contentType: "application/json",
+			data: JSON.stringify({
+				password: $("#change-password-form input[name = 'newPassword']").val()
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Password changed successfully.");
+			},
+			error: function(){
+				setErrorAlert("Error changing password.");
 			}
 		});
 	};
@@ -142,7 +165,10 @@ $(function(){
 	// forms a little unconventionally
 	$("form input").keypress(function(e){
 		if (e.which == 13) {
-			$(e.target).closest("form").find(".submitButton").click();
+			var submitButton = $(e.target).closest("form").find(".submitButton");
+			if(!submitButton.attr("disabled")){
+				submitButton.click();
+			}
 			return false;
 		}
 	});
@@ -169,6 +195,13 @@ $(function(){
 		resizeContentArea();
 	});
 
+	showChangePasswordModal = function(){
+		$("#changePasswordModal").on("shown.bs.modal", function(e){
+			$("#change-password-form input[name = 'newPassword']").focus();
+		});
+		$("#changePasswordModal").modal("show");
+	};
+
 	//----------------------------
 	// Form Validation
 	//----------------------------
@@ -190,6 +223,10 @@ $(function(){
 				validators: {
 					notEmpty: {
 						message: "Required"
+					},
+					identical: {
+						field: "confirmPassword",
+						message: "Passwords must match"
 					}
 				}
 			},
@@ -200,6 +237,34 @@ $(function(){
 					},
 					identical: {
 						field: "password",
+						message: "Passwords must match"
+					}
+				}
+			}
+		}
+	});
+
+	$("#change-password-form").bootstrapValidator({
+		submitButtons: ".submitButton",
+		fields: {
+			newPassword: {
+				validators: {
+					notEmpty: {
+						message: "Required"
+					},
+					identical: {
+						field: "confirmPassword",
+						message: "Passwords must match"
+					}
+				}
+			},
+			confirmPassword: {
+				validators: {
+					notEmpty: {
+						message: "Passwords must match"
+					},
+					identical: {
+						field: "newPassword",
 						message: "Passwords must match"
 					}
 				}

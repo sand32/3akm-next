@@ -26,6 +26,15 @@ body {
 	background-color: #222;
 }
 
+a.btn-link {
+	color: #222;
+}
+
+a.btn-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
 .container {
 	background-color: white;
 }
@@ -66,18 +75,19 @@ body {
 }
 
 .menu-list li {
-	background-color: white;
+	border-left: 2px #222 solid;
+}
+
+.menu-list li:hover {
+	border-left: 2px red solid;
 }
 
 .menu-list a {
 	color: #222;
-	border-left: 2px #222 solid;
 }
 
 .menu-list a:hover {
-	background-color: none !important;
 	color: red;
-	border-left: 2px red solid;
 }
 
 #register-form {

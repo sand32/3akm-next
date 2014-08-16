@@ -33,6 +33,9 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/register", function(req, res){
+		if(req.isAuthenticated()){
+			return res.redirect("/");
+		}
 		res.render("register", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
