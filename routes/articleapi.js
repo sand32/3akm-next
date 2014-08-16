@@ -29,6 +29,12 @@ var passport = require("passport"),
 	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
+	app.post(prefix, blendedAuthenticate, function(req, res){
+		if(!authorize(req.user, {hasRoles: ["author"]})){
+			return res.status(403).end();
+		}
+	});
+
 	app.get(prefix + "/:article", function(req, res){
 		Article.findById(req.params.article)
 		.populate("author")
@@ -58,10 +64,31 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix, blendedAuthenticate, function(req, res){
-		if(!authorize(req.user, {hasRoles: ["author"]})){
+	app.put(prefix + "/:article", blendedAuthenticate, function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}else if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();
 		}
+
+		// Remove fields that should not be updated
+		delete req.body.author;
+		delete req.body.created;
+
+		// Record this modification
+		req.body.modifiedBy = req.user._id;
+		req.body.modified = Date.now();
+
+		// Apply the update
+		Article.findByIdAndUpdate(req.params.article, req.body, function(err, doc){
+			if(!err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
+			}
+		});
 	});
 }
 

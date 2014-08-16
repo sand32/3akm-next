@@ -171,8 +171,10 @@ module.exports = function(app, prefix){
 
 		// Update the user 
 		User.findByIdAndUpdate(queryUser, req.body, function(err, doc){
-			if(!err && !doc){
+			if(!err){
 				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
 			}else{
 				res.status(200).end();
 			}
@@ -200,8 +202,10 @@ module.exports = function(app, prefix){
 
 		// Update the user 
 		User.findByIdAndUpdate(queryUser, update, function(err, doc){
-			if(!err && !doc){
+			if(!err){
 				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
 			}else{
 				res.status(200).end();
 			}
