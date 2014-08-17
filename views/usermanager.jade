@@ -1,0 +1,69 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+extends layout.jade
+
+block content
+	h1 User Manager
+	hr
+	#user-manager
+		.global-operations
+			.button-row-left
+				a(class = "btn btn-default", name = "new", href = "/admin/user/new")
+					span.button-icon(class = "glyphicon glyphicon-plus")
+					| New
+		table.table.table-hover
+			thead
+				tr
+					th
+					th First Name
+					th Last Name
+					th Email
+					th Verified
+					th Registered
+					th Accessed
+					th
+			tbody
+				each editUser in editUsers
+					tr.article-row
+						td
+							input.user-selector(type = "checkbox", value = "")
+							input(type = "hidden", value = user._id)
+						td= editUser.firstName
+						td= editUser.lastName
+						td= editUser.email
+						td
+							if editUser.verified
+								span(class = "glyphicon glyphicon-ok", style = "color:green;")
+							else
+								span(class = "glyphicon glyphicon-remove", style = "color:red;")
+						td= getFormattedTime(editUser.created)
+						td= getFormattedTime(editUser.accessed)
+						td
+							.btn-group
+								a(class = "btn btn-default btn-xs", name = "edit", href = "/admin/user/" + editUser._id)
+									span.button-icon(class = "glyphicon glyphicon-pencil")
+									| Edit
+		if editUsers.length === 0
+			.no-articles Oh shit! Where are all the users?! Wait, who are you?!
+

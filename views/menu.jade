@@ -42,7 +42,7 @@
 				a(href = "/profile") Profile
 			if user.hasRole("admin")
 				li
-					a(href = "#") Users
+					a(href = "/admin/user") Users
 			if user.hasRole("admin") || user.hasRole("author")
 				li
 					a(href = "/authoring/article") Articles

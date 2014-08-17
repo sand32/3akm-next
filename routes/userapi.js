@@ -31,6 +31,11 @@ var passport = require("passport"),
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
 		if(req.isAuthenticated()){
+			req.user.firstName = req.body.firstName;
+			req.user.lastName = req.body.lastName;
+			req.user.primaryHandle = req.body.primaryHandle;
+			req.user.tertiaryHandles = req.body.tertiaryHandles;
+			req.user.save();
 			// Send email for verification
 			// Respond with "201 Created"
 			res.status(201).send(req.user._id.toString());
@@ -108,6 +113,27 @@ module.exports = function(app, prefix){
 				res.status(404).end();
 			}
 		});
+	});
+
+	app.post(prefix, function(req, res){
+		try{
+			var user = new User();
+			user.email = req.body.email;
+			user.passwordHash = user.hash(req.body.password);
+			user.firstName = req.body.firstName;
+			user.lastName = req.body.lastName;
+			user.primaryHandle = req.body.primaryHandle;
+			user.tertiaryHandles = req.body.tertiaryHandles;
+
+			if(req.isAuthenticated() && req.user.hasRole("admin")){
+				user.roles = req.body.roles;
+				user.services = req.body.services;
+			}
+			user.save();
+			res.status(201).send({_id: user._id});
+		}catch(e){
+			res.status(400).end();
+		}
 	});
 
 	app.get(prefix + "/:user", blendedAuthenticate, function(req, res){

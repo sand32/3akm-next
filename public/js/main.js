@@ -87,6 +87,21 @@ $(function(){
 		$("#changePasswordModal").modal("show");
 	};
 
+	// User Manager
+	//----------------------------
+
+	reactOnUserSelect = function(){
+		if($("#user-manager .user-selector:checked").length > 0){
+			$("#user-manager .global-operations [name = 'delete']").removeAttr("disabled");
+		}else{
+			$("#user-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
+		}
+	};
+	if($("#user-manager").length > 0){
+		reactOnUserSelect();
+		$("#user-manager .user-selector").click(reactOnUserSelect);
+	}
+
 	// Article Manager
 	//----------------------------
 
@@ -96,8 +111,7 @@ $(function(){
 		}else{
 			$("#article-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
 		}
-	}
-
+	};
 	if($("#article-manager").length > 0){
 		reactOnArticleSelect();
 		$("#article-manager .article-selector").click(reactOnArticleSelect);
@@ -149,78 +163,136 @@ $(function(){
 	// Form Submission
 	//----------------------------
 
+	getTertiaryHandles = function(){
+		var handles = [],
+			fields = $("#user-editor-form input[name = 'tertiaryHandles']");
+		for(var i = 0; i < fields.length; i += 1){
+			handles[i] = $(fields[i]).val();
+		}
+		if(handles[0] == ""
+		|| handles[0] == null){
+			handles = [];
+		}
+		return handles;
+	};
+
 	// Authentication
 	//----------------------------
 
 	login = function(){
-		$.post("/api/user/login", {
-			email: $("#login-form input[name = 'email']").val(), 
-			password: $("#login-form input[name = 'password']").val()
-		}, function(){
-			location.reload(true);
-		}).fail(function(){
-			setErrorAlert("Invalid username or password.");
+		$.ajax({
+			type: "POST",
+			url: "/api/user/login",
+			contentType: "application/json",
+			data: JSON.stringify({
+				email: $("#login-form input[name = 'email']").val(), 
+				password: $("#login-form input[name = 'password']").val()
+			}), 
+			processData: false,
+			success: function(){
+				location.reload(true);
+			},
+			error: function(){
+				setErrorAlert("Invalid username or password.");
+			}
 		});
 	};
 
 	logout = function(){
-		$.post("/api/user/logout", null, function(){location.reload(true);});
+		$.ajax({
+			type: "POST",
+			url: "/api/user/logout",
+			success: function(){
+				location.reload(true);
+			}
+		});
 	};
 
 	register = function(){
-		$.post("/api/user/register", {
-			email: $("#register-form input[name = 'email']").val(),
-			password: $("#register-form input[name = 'password']").val()
-		}, function(){
-			location.replace("/");
-		}).fail(function(){
-			setErrorAlert("Unable to register user.");
+		$.ajax({
+			type: "POST",
+			url: "/api/user/register",
+			contentType: "application/json",
+			data: JSON.stringify({
+				email: $("#user-editor-form input[name = 'email']").val(),
+				password: $("#user-editor-form input[name = 'password']").val(),
+				firstName: $("#user-editor-form input[name = 'firstName']").val(),
+				lastName: $("#user-editor-form input[name = 'lastName']").val(),
+				primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
+				tertiaryHandles: getTertiaryHandles()
+			}),
+			processData: false,
+			success: function(){
+				location.replace("/");
+			},
+			error: function(){
+				setErrorAlert("Unable to register user.");
+			}
 		});
 	};
 
 	// User Management
 	//----------------------------
 
-	updateUser = function(){
-		getTertiaryHandles = function(){
-			var handles = [].concat($("#profile-form input[name = 'tertiaryHandles']").val());
-			if(handles[0] == ""
-			|| handles[0] == null){
-				handles = [];
-			}
-			return handles;
-		};
-
+	addUser = function(){
 		var data = {
-			email: $("#profile-form input[name = 'email']").val(),
-			firstName: $("#profile-form input[name = 'firstName']").val(),
-			lastName: $("#profile-form input[name = 'lastName']").val(),
-			primaryHandle: $("#profile-form input[name = 'primaryHandle']").val(),
+			email: $("#user-editor-form input[name = 'email']").val(),
+			password: $("#user-editor-form input[name = 'password']").val(),
+			firstName: $("#user-editor-form input[name = 'firstName']").val(),
+			lastName: $("#user-editor-form input[name = 'lastName']").val(),
+			primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
 			tertiaryHandles: getTertiaryHandles()
 		};
-		if($("#profile-form input[name = 'roles']").length > 0){
-			data.roles = $("#profile-form input[name = 'roles']").val().split(",");
+		if($("#user-editor-form input[name = 'roles']").length > 0){
+			data.roles = $("#user-editor-form input[name = 'roles']").val().split(",");
 		}
 
 		$.ajax({
-			type: "PUT",
-			url: "/api/user/session",
+			type: "POST",
+			url: "/api/user",
 			contentType: "application/json",
 			data: JSON.stringify(data),
 			processData: false,
 			success: function(){
-				setSuccessAlert("Profile successfully updated.");
+				location.replace("/");
 			},
 			error: function(){
-				setErrorAlert("Error updating profile.");
+				setErrorAlert("Failed to register user.");
+			}
+		});
+	}
+
+	updateUser = function(id){
+		var data = {
+			email: $("#user-editor-form input[name = 'email']").val(),
+			firstName: $("#user-editor-form input[name = 'firstName']").val(),
+			lastName: $("#user-editor-form input[name = 'lastName']").val(),
+			primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
+			tertiaryHandles: getTertiaryHandles()
+		};
+		if($("#user-editor-form input[name = 'roles']").length > 0){
+			data.roles = $("#user-editor-form input[name = 'roles']").val().split(",");
+		}
+
+		$.ajax({
+			type: "PUT",
+			url: "/api/user/" + id,
+			contentType: "application/json",
+			data: JSON.stringify(data),
+			processData: false,
+			success: function(){
+				setSuccessAlert("User successfully updated.");
+			},
+			error: function(){
+				setErrorAlert("Error updating user.");
 			}
 		});
 	};
 
-	changePassword = function(){
+	changePassword = function(id){
 		$.ajax({
 			type: "PUT",
-			url: "/api/user/session/password",
+			url: "/api/user/" + id + "/password",
 			contentType: "application/json",
 			data: JSON.stringify({
 				password: $("#change-password-form input[name = 'newPassword']").val()
@@ -245,7 +317,6 @@ $(function(){
 			contentType: "application/json",
 			data: JSON.stringify({
 				title: $("#article-editor-form input[name = 'title']").val(),
-				author: $("#article-editor-form input[name = 'authorid']").val(),
 				tags: $("#article-editor-form input[name = 'tags']").val().split(","),
 				published: $("#article-editor-form input[name = 'published-yes']").parent().hasClass("active"),
 				content: $("#article-editor-form textarea[name = 'article-content']").val()
@@ -260,14 +331,13 @@ $(function(){
 		});
 	};
 
-	updateArticle = function(){
+	updateArticle = function(id){
 		$.ajax({
 			type: "PUT",
-			url: "/api/article/" + $("#article-editor-form input[name = 'articleid']").val(),
+			url: "/api/article/" + id,
 			contentType: "application/json",
 			data: JSON.stringify({
 				title: $("#article-editor-form input[name = 'title']").val(),
-				author: $("#article-editor-form input[name = 'authorid']").val(),
 				tags: $("#article-editor-form input[name = 'tags']").val().split(","),
 				published: $("#article-editor-form input[name = 'published-yes']").parent().hasClass("active"),
 				content: $("#article-editor-form textarea[name = 'article-content']").val()
@@ -329,6 +399,44 @@ $(function(){
 	//----------------------------
 
 	$("#register-form").bootstrapValidator({
+		submitButtons: ".submitButton",
+		fields: {
+			email: {
+				validators: {
+					notEmpty: {
+						message: "Required"
+					},
+					emailAddress: {
+						message: "Must be a valid email address"
+					}
+				}
+			},
+			password: {
+				validators: {
+					notEmpty: {
+						message: "Required"
+					},
+					identical: {
+						field: "confirmPassword",
+						message: "Passwords must match"
+					}
+				}
+			},
+			confirmPassword: {
+				validators: {
+					notEmpty: {
+						message: "Passwords must match"
+					},
+					identical: {
+						field: "password",
+						message: "Passwords must match"
+					}
+				}
+			}
+		}
+	});
+
+	$("#user-editor-form").bootstrapValidator({
 		submitButtons: ".submitButton",
 		fields: {
 			email: {

@@ -42,7 +42,7 @@ module.exports = function(app, prefix){
 			article.tags = req.body.tags;
 			article.content = req.body.content;
 			article.save();
-			res.status(200).end();
+			res.status(201).end();
 		}catch(e){
 			res.status(400).end();
 		}

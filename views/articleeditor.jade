@@ -49,7 +49,6 @@ block content
 				.form-group.col-xs-12
 					label Content
 					textarea.form-control(type = "text", name = "article-content")
-			input(type = "hidden", name = "authorid", value = user._id)
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "submitNewArticle();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/authoring/article") Cancel
@@ -104,10 +103,8 @@ block content
 				.form-group.col-xs-12
 					label Content
 					textarea.form-control(type = "text", name = "article-content")= article.content
-			input(type = "hidden", name = "articleid", value = article._id)
-			input(type = "hidden", name = "authorid", value = user._id)
 			hr
-			a.submitButton(class = "btn btn-default", onclick = "updateArticle();") Update
-			a(class = "btn btn-link" href = "/authoring/article") Back
+			a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Update
 			a(class = "btn btn-link" href = "/article/" + article._id) View
+			a(class = "btn btn-link" href = "/authoring/article") Back
 

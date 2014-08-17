@@ -26,6 +26,7 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
 	Article = require("../model/article.js"),
+	User = require("../model/user.js"),
 	getFormattedTime = require("../utils.js").getFormattedTime;
 
 module.exports = function(app, prefix){
@@ -55,7 +56,7 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			return res.redirect("/");
 		}
-		res.render("register", {
+		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
 		});
@@ -65,9 +66,10 @@ module.exports = function(app, prefix){
 		if(!req.isAuthenticated()){
 			return res.redirect("/");
 		}
-		res.render("userprofile", {
+		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+			user: req.user,
+			editUser: req.user
 		});
 	});
 
@@ -138,6 +140,54 @@ module.exports = function(app, prefix){
 					user: req.user,
 					article: doc,
 					containsEditor: true,
+					getFormattedTime: getFormattedTime
+				});
+			}else{
+				res.redirect("/");
+			}
+		});
+	});
+
+	app.get(prefix + "/admin/user", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user, {})){
+			return res.redirect("/");
+		}
+		User.find({}, "email firstName lastName created accessed verified", function(err, docs){
+			res.render("usermanager", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				editUsers: docs,
+				getFormattedTime: getFormattedTime
+			});
+		});
+	});
+
+	app.get(prefix + "/admin/user/new", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user, {})){
+			return res.redirect("/");
+		}
+		res.render("usereditor", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
+		});
+	});
+
+	app.get(prefix + "/admin/user/:user", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.redirect("/");
+		}else if(!req.isAuthenticated()
+			  || !authorize(req.user, {})){
+			return res.redirect("/");
+		}
+		User.findById(req.params.user)
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.render("usereditor", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					editUser: doc,
 					getFormattedTime: getFormattedTime
 				});
 			}else{
