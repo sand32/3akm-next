@@ -41,7 +41,7 @@ block content
 					th
 					th Title
 					th Author
-					th Create Date
+					th Created
 					th Published
 					th
 			tbody
@@ -52,7 +52,7 @@ block content
 							input(type = "hidden", value = article._id)
 						td #{article.title}
 						td #{article.author.firstName} #{article.author.lastName} (#{article.author.email})
-						td #{article.created}
+						td #{getFormattedTime(article.created)}
 						td
 							if article.published
 								span(class = "glyphicon glyphicon-ok", style = "color:green;")

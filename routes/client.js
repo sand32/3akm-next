@@ -25,7 +25,8 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
-	Article = require("../model/article.js");
+	Article = require("../model/article.js"),
+	getFormattedTime = require("../utils.js").getFormattedTime;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
@@ -66,7 +67,8 @@ module.exports = function(app, prefix){
 			res.render("articlemanager", {
 				isAuthenticated: req.isAuthenticated(),
 				user: req.user,
-				articles: docs
+				articles: docs,
+				getFormattedTime: getFormattedTime
 			});
 		});
 	});
@@ -92,13 +94,15 @@ module.exports = function(app, prefix){
 		}
 		Article.findById(req.params.article)
 		.populate("author")
+		.populate("modifiedBy")
 		.exec(function(err, doc){
 			if(!err && doc){
 				res.render("articleeditor", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					article: doc,
-					containsEditor: true
+					containsEditor: true,
+					getFormattedTime: getFormattedTime
 				});
 			}else{
 				res.redirect("/");

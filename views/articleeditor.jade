@@ -32,9 +32,6 @@ block content
 				.form-group.col-xs-6
 					label Title
 					input.form-control(type = "text", name = "title", autofocus)
-				.form-group.col-xs-6
-					label Author
-					input.form-control(type = "text", name = "author", readonly, value = user.firstName + " " + user.lastName + " (" + user.email + ")")
 			.row
 				.form-group.col-xs-6
 					label Tags (comma-delimited)
@@ -62,12 +59,22 @@ block content
 					label Title
 					input.form-control(type = "text", name = "title", value = article.title, autofocus)
 				.form-group.col-xs-6
-					label Author
-					input.form-control(type = "text", name = "author", readonly, value = article.author.firstName + " " + article.author.lastName + " (" + article.author.email + ")")
-			.row
-				.form-group.col-xs-6
 					label Tags (comma-delimited)
 					input.form-control(type = "text", name = "tags", value = article.tags)
+			.row
+				.col-xs-6.well
+					.row
+						label.col-xs-5 Created by:
+						.col-xs-7 #{article.author.firstName} #{article.author.lastName} (#{article.author.email})
+					.row
+						label.col-xs-5 Created:
+						.col-xs-7 #{getFormattedTime(article.created)}
+					.row
+						label.col-xs-5 Last modified by:
+						.col-xs-7 #{article.modifiedBy.firstName} #{article.modifiedBy.lastName} (#{article.modifiedBy.email})
+					.row
+						label.col-xs-5 Last modified:
+						.col-xs-7 #{getFormattedTime(article.modified)}
 				.form-group.col-xs-2
 					label Published
 					.btn-group(data-toggle = "buttons")
