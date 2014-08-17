@@ -30,9 +30,24 @@ var passport = require("passport"),
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
-		res.render("article", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+		Article.findOne({})
+		.populate("author")
+		.populate("modifiedBy")
+		.exec(function(err, doc){
+			if(!err && doc && doc.published){
+				res.render("article", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					article: doc,
+					getFormattedTime: getFormattedTime
+				});
+			}else{
+				res.render("article", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					getFormattedTime: getFormattedTime
+				});
+			}
 		});
 	});
 
@@ -53,6 +68,27 @@ module.exports = function(app, prefix){
 		res.render("userprofile", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
+		});
+	});
+
+	app.get(prefix + "/article/:article", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
+			return res.redirect("/");
+		}
+		Article.findById(req.params.article)
+		.populate("author")
+		.populate("modifiedBy")
+		.exec(function(err, doc){
+			if(!err && doc && (doc.published || authorize(req.user, {hasRoles:["author"]}))){
+				res.render("article", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					article: doc,
+					getFormattedTime: getFormattedTime
+				});
+			}else{
+				res.redirect("/");
+			}
 		});
 	});
 

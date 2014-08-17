@@ -37,7 +37,7 @@ block content
 					label Tags (comma-delimited)
 					input.form-control(type = "text", name = "tags")
 				.form-group.col-xs-2
-					label Published
+					label Publish
 					.btn-group(data-toggle = "buttons")
 						label(class = "btn btn-default")
 							input(type = "radio", name = "published-yes")
@@ -68,13 +68,21 @@ block content
 						.col-xs-7 #{article.author.firstName} #{article.author.lastName} (#{article.author.email})
 					.row
 						label.col-xs-5 Created:
-						.col-xs-7 #{getFormattedTime(article.created)}
-					.row
-						label.col-xs-5 Last modified by:
-						.col-xs-7 #{article.modifiedBy.firstName} #{article.modifiedBy.lastName} (#{article.modifiedBy.email})
-					.row
-						label.col-xs-5 Last modified:
-						.col-xs-7 #{getFormattedTime(article.modified)}
+						.col-xs-7= getFormattedTime(article.created)
+					if article.modifiedBy
+						.row
+							label.col-xs-5 Last modified by:
+							.col-xs-7 #{article.modifiedBy.firstName} #{article.modifiedBy.lastName} (#{article.modifiedBy.email})
+						.row
+							label.col-xs-5 Last modified:
+							.col-xs-7= getFormattedTime(article.modified)
+					else
+						.row
+							label.col-xs-5 Last modified by:
+							.col-xs-7 N/A
+						.row
+							label.col-xs-5 Last modified:
+							.col-xs-7 N/A
 				.form-group.col-xs-2
 					label Published
 					.btn-group(data-toggle = "buttons")
@@ -95,10 +103,11 @@ block content
 			.row
 				.form-group.col-xs-12
 					label Content
-					textarea.form-control(type = "text", name = "article-content") #{article.content}
+					textarea.form-control(type = "text", name = "article-content")= article.content
 			input(type = "hidden", name = "articleid", value = article._id)
 			input(type = "hidden", name = "authorid", value = user._id)
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "updateArticle();") Update
 			a(class = "btn btn-link" href = "/authoring/article") Back
+			a(class = "btn btn-link" href = "/article/" + article._id) View
 
