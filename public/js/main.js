@@ -260,6 +260,28 @@ $(function(){
 		});
 	};
 
+	updateArticle = function(){
+		$.ajax({
+			type: "PUT",
+			url: "/api/article/" + $("#article-editor-form input[name = 'articleid']").val(),
+			contentType: "application/json",
+			data: JSON.stringify({
+				title: $("#article-editor-form input[name = 'title']").val(),
+				author: $("#article-editor-form input[name = 'authorid']").val(),
+				tags: $("#article-editor-form input[name = 'tags']").val().split(","),
+				published: $("#article-editor-form input[name = 'published-yes']").parent().hasClass("active"),
+				content: $("#article-editor-form textarea[name = 'article-content']").val()
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Successfully updated article.");
+			},
+			error: function(){
+				setErrorAlert("Error updating article.");
+			}
+		});
+	};
+
 	//----------------------------
 	// Form Behavior
 	//----------------------------

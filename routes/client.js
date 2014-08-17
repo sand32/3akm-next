@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 var passport = require("passport"),
+	mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
 	Article = require("../model/article.js");
 
@@ -59,7 +60,9 @@ module.exports = function(app, prefix){
 		|| !authorize(req.user, {hasRoles:["author"]})){
 			return res.redirect("/");
 		}
-		Article.find({}, "title author created modifiedBy modified published tags", function(err, docs){
+		Article.find({}, "title author created modifiedBy modified published tags")
+		.populate("author")
+		.exec(function(err, docs){
 			res.render("articlemanager", {
 				isAuthenticated: req.isAuthenticated(),
 				user: req.user,
@@ -77,6 +80,29 @@ module.exports = function(app, prefix){
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
 			containsEditor: true
+		});
+	});
+
+	app.get(prefix + "/authoring/article/:article", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
+			return res.redirect("/");
+		}else if(!req.isAuthenticated()
+			  || !authorize(req.user, {hasRoles: ["author"]})){
+			return res.redirect("/");
+		}
+		Article.findById(req.params.article)
+		.populate("author")
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.render("articleeditor", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					article: doc,
+					containsEditor: true
+				});
+			}else{
+				res.redirect("/");
+			}
 		});
 	});
 }

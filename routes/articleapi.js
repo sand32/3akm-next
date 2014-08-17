@@ -78,7 +78,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:article", blendedAuthenticate, function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
 		}else if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();
@@ -105,7 +105,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.delete(prefix + "/:article", blendedAuthenticate, function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
 		}else if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();

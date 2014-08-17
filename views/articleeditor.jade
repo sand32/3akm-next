@@ -27,31 +27,71 @@ block content
 	h1 Article Editor
 	hr
 	form#article-editor-form(role = "form")
-		.row
-			.form-group.col-xs-6
-				label Title
-				input.form-control(type = "text", name = "title", autofocus)
-			.form-group.col-xs-6
-				label Author
-				input.form-control(type = "text", name = "author", readonly, value = user.firstName + " " + user.lastName + " (" + user.email + ")")
-		.row
-			.form-group.col-xs-6
-				label Tags (comma-delimited)
-				input.form-control(type = "text", name = "tags")
-			.form-group.col-xs-2
-				label Published
-				.btn-group(data-toggle = "buttons")
+		if !article
+			.row
+				.form-group.col-xs-6
+					label Title
+					input.form-control(type = "text", name = "title", autofocus)
+				.form-group.col-xs-6
+					label Author
+					input.form-control(type = "text", name = "author", readonly, value = user.firstName + " " + user.lastName + " (" + user.email + ")")
+			.row
+				.form-group.col-xs-6
+					label Tags (comma-delimited)
+					input.form-control(type = "text", name = "tags")
+				.form-group.col-xs-2
+					label Published
+					.btn-group(data-toggle = "buttons")
 						label(class = "btn btn-default")
 							input(type = "radio", name = "published-yes")
 							| Yes
 						label(class = "btn btn-default active")
-							input(type = "radio", name = "published-no", checked)
+							input(type = "radio", name = "published-no")
 							| No
-		.row
-			.form-group.col-xs-12
-				label Content
-				textarea.form-control(type = "text", name = "article-content")
-		input(type = "hidden", name = "authorid", value = user._id)
-		hr
-		a.submitButton(class = "btn btn-default", onclick = "submitNewArticle();", disabled = "disabled") Submit
+			.row
+				.form-group.col-xs-12
+					label Content
+					textarea.form-control(type = "text", name = "article-content")
+			input(type = "hidden", name = "authorid", value = user._id)
+			hr
+			a.submitButton(class = "btn btn-default", onclick = "submitNewArticle();", disabled = "disabled") Submit
+			a(class = "btn btn-link" href = "/authoring/article") Cancel
+		else
+			.row
+				.form-group.col-xs-6
+					label Title
+					input.form-control(type = "text", name = "title", value = article.title, autofocus)
+				.form-group.col-xs-6
+					label Author
+					input.form-control(type = "text", name = "author", readonly, value = article.author.firstName + " " + article.author.lastName + " (" + article.author.email + ")")
+			.row
+				.form-group.col-xs-6
+					label Tags (comma-delimited)
+					input.form-control(type = "text", name = "tags", value = article.tags)
+				.form-group.col-xs-2
+					label Published
+					.btn-group(data-toggle = "buttons")
+						if article.published
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "published-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "published-no")
+								| No
+						else
+							label(class = "btn btn-default")
+								input(type = "radio", name = "published-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "published-no")
+								| No
+			.row
+				.form-group.col-xs-12
+					label Content
+					textarea.form-control(type = "text", name = "article-content") #{article.content}
+			input(type = "hidden", name = "articleid", value = article._id)
+			input(type = "hidden", name = "authorid", value = user._id)
+			hr
+			a.submitButton(class = "btn btn-default", onclick = "updateArticle();") Update
+			a(class = "btn btn-link" href = "/authoring/article") Back
 
