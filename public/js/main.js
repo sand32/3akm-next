@@ -247,6 +247,7 @@ $(function(){
 				title: $("#article-editor-form input[name = 'title']").val(),
 				author: $("#article-editor-form input[name = 'authorid']").val(),
 				tags: $("#article-editor-form input[name = 'tags']").val().split(","),
+				published: $("#article-editor-form input[name = 'published-yes']").parent().attr("active") ? true : false,
 				content: $("#article-editor-form textarea[name = 'article-content']").val()
 			}),
 			processData: false,

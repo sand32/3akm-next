@@ -28,17 +28,17 @@ block content
 	hr
 	form#article-editor-form(role = "form")
 		.row
-			.form-group.col-xs-4
+			.form-group.col-xs-6
 				label Title
 				input.form-control(type = "text", name = "title", autofocus)
-			.form-group.col-xs-4
+			.form-group.col-xs-6
 				label Author
-				input.form-control(type = "text", name = "author", readonly, value = user.firstName + " " + user.lastName)
+				input.form-control(type = "text", name = "author", readonly, value = user.firstName + " " + user.lastName + " (" + user.email + ")")
 		.row
 			.form-group.col-xs-6
 				label Tags (comma-delimited)
 				input.form-control(type = "text", name = "tags")
-			.form-group.col-xs-6
+			.form-group.col-xs-2
 				label Published
 				.btn-group(data-toggle = "buttons")
 						label(class = "btn btn-default")

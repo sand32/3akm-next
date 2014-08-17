@@ -42,6 +42,7 @@ block content
 					th Title
 					th Author
 					th Create Date
+					th Published
 					th
 			tbody
 				each article in articles
@@ -52,6 +53,11 @@ block content
 						td #{article.title}
 						td #{article.author}
 						td #{article.created}
+						td
+							if article.published
+								span(class = "glyphicon glyphicon-ok", style = "color:green;")
+							else
+								span(class = "glyphicon glyphicon-remove", style = "color:red;")
 						td
 							.button-row-right
 								a(class = "btn btn-default btn-xs", name = "edit")
