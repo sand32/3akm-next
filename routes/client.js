@@ -54,7 +54,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/articles", function(req, res){
+	app.get(prefix + "/authoring/article", function(req, res){
 		if(!req.isAuthenticated()
 		|| !authorize(req.user, {hasRoles:["author"]})){
 			return res.redirect("/");
@@ -65,6 +65,18 @@ module.exports = function(app, prefix){
 				user: req.user,
 				articles: docs
 			});
+		});
+	});
+
+	app.get(prefix + "/authoring/article/new", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user, {hasRoles:["author"]})){
+			return res.redirect("/");
+		}
+		res.render("articleeditor", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user,
+			containsEditor: true
 		});
 	});
 }

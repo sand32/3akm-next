@@ -86,14 +86,52 @@ $(function(){
 
 	reactOnArticleSelect = function(){
 		if($("#article-manager .article-selector:checked").length > 0){
-			$("#article-manager [name = 'edit']").removeAttr("disabled");
+			$("#article-manager .global-operations [name = 'delete']").removeAttr("disabled");
 		}else{
-			$("#article-manager [name = 'edit']").attr("disabled", "disabled");
+			$("#article-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
 		}
 	}
 
-	reactOnArticleSelect();
-	$("#article-manager .article-selector").click(reactOnArticleSelect);
+	if($("#article-manager").length > 0){
+		reactOnArticleSelect();
+		$("#article-manager .article-selector").click(reactOnArticleSelect);
+	}
+
+	deleteSelectedArticles = function(){
+		var articles = $("#article-manager .article-selector:checked");
+		for(var i = 0; i < articles.length; i += 1){
+			if(i === articles.length - 1){
+				$.ajax({
+					type: "DELETE",
+					url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val(),
+					success: function(){
+						location.reload(true);
+					},
+					error: function(){
+						setErrorAlert("Unable to delete article(s).");
+					}
+				});
+			}else{
+				$.ajax({
+					type: "DELETE",
+					url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val()
+				});
+			}
+		}
+	};
+
+	deleteArticle = function(id){
+		$.ajax({
+			type: "DELETE",
+			url: "/api/article/" + id,
+			success: function(){
+				location.reload(true);
+			},
+			error: function(){
+				setErrorAlert("Unable to delete article.");
+			}
+		});
+	};
 
 	//----------------------------
 	// Form Submission
@@ -185,6 +223,30 @@ $(function(){
 		});
 	};
 
+	// Article Authoring
+	//----------------------------
+
+	submitNewArticle = function(){
+		$.ajax({
+			type: "POST",
+			url: "/api/article",
+			contentType: "application/json",
+			data: JSON.stringify({
+				title: $("#article-editor-form input[name = 'title']").val(),
+				author: $("#article-editor-form input[name = 'authorid']").val(),
+				tags: $("#article-editor-form input[name = 'tags']").val().split(","),
+				content: $("#article-editor-form textarea[name = 'article-content']").val()
+			}),
+			processData: false,
+			success: function(){
+				location.replace("/authoring/article");
+			},
+			error: function(){
+				setErrorAlert("Error creating article.");
+			}
+		});
+	};
+
 	//----------------------------
 	// Form Behavior
 	//----------------------------
@@ -222,6 +284,10 @@ $(function(){
 		$(this).closest(".input-group").remove();
 		resizeContentArea();
 	});
+
+	if($("#article-editor-form").length > 0){
+		$("#article-editor-form textarea[name = 'article-content']").ckeditor();
+	}
 
 	//----------------------------
 	// Form Validation
@@ -287,6 +353,19 @@ $(function(){
 					identical: {
 						field: "newPassword",
 						message: "Passwords must match"
+					}
+				}
+			}
+		}
+	});
+
+	$("#article-editor-form").bootstrapValidator({
+		submitButtons: ".submitButton",
+		fields: {
+			title: {
+				validators: {
+					notEmpty: {
+						message: "A title is required"
 					}
 				}
 			}

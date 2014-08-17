@@ -94,7 +94,25 @@ module.exports = function(app, prefix){
 
 		// Apply the update
 		Article.findByIdAndUpdate(req.params.article, req.body, function(err, doc){
-			if(!err){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
+			}
+		});
+	});
+
+	app.delete(prefix + "/:article", blendedAuthenticate, function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}else if(!authorize(req.user, {hasRoles: ["author"]})){
+			return res.status(403).end();
+		}
+
+		Article.findByIdAndRemove(req.params.article, function(err, doc){
+			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
