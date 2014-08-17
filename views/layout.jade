@@ -34,4 +34,15 @@ html
 					include ./menu.jade
 			.row#footer
 				include ./footer.jade
+		.modal.fade#confirmationModal
+			.modal-dialog
+				.modal-content
+					.modal-header
+						button.close(type = "button", data-dismiss = "modal")
+							span.sr-only(aria-hidden = "true") &times;
+							span.sr-only Close
+						h4.modal-title Are you sure?
+					.modal-footer
+						a(class = "btn btn-link", data-dismiss = "modal") No
+						a(class = "btn btn-default", name = "yes", data-dismiss = "modal") Yes
 

@@ -51,6 +51,12 @@ $(function(){
 	}
 	$(window).on("load resize", resizeContentArea);
 
+	confirm = function(question, callback){
+		$("#confirmationModal .modal-title").html(question);
+		$("#confirmationModal .btn[name = 'yes']").click(callback);
+		$("#confirmationModal").modal("show");
+	};
+
 	//----------------------------
 	// Alerts
 	//----------------------------
@@ -98,39 +104,45 @@ $(function(){
 	}
 
 	deleteSelectedArticles = function(){
-		var articles = $("#article-manager .article-selector:checked");
-		for(var i = 0; i < articles.length; i += 1){
-			if(i === articles.length - 1){
-				$.ajax({
-					type: "DELETE",
-					url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val(),
-					success: function(){
-						location.reload(true);
-					},
-					error: function(){
-						setErrorAlert("Unable to delete article(s).");
-					}
-				});
-			}else{
-				$.ajax({
-					type: "DELETE",
-					url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val()
-				});
+		callback = function(){
+			var articles = $("#article-manager .article-selector:checked");
+			for(var i = 0; i < articles.length; i += 1){
+				if(i === articles.length - 1){
+					$.ajax({
+						type: "DELETE",
+						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val(),
+						success: function(){
+							location.reload(true);
+						},
+						error: function(){
+							setErrorAlert("Unable to delete article(s).");
+						}
+					});
+				}else{
+					$.ajax({
+						type: "DELETE",
+						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val()
+					});
+				}
 			}
-		}
+		};
+		confirm("Are you sure you want to delete the selected article(s)?", callback);
 	};
 
 	deleteArticle = function(id){
-		$.ajax({
-			type: "DELETE",
-			url: "/api/article/" + id,
-			success: function(){
-				location.reload(true);
-			},
-			error: function(){
-				setErrorAlert("Unable to delete article.");
-			}
-		});
+		callback = function(){
+			$.ajax({
+				type: "DELETE",
+				url: "/api/article/" + id,
+				success: function(){
+					location.reload(true);
+				},
+				error: function(){
+					setErrorAlert("Unable to delete article.");
+				}
+			});
+		};
+		confirm("Are you sure you want to delete this article?", callback);
 	};
 
 	//----------------------------
