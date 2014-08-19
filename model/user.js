@@ -78,4 +78,3 @@ userSchema.methods.hasRole = function(role){
 };
 
 module.exports = mongoose.model("User", userSchema);
-

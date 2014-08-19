@@ -56,4 +56,3 @@ module.exports = function(user, ruleset, combination){
 	return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
 			(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
 }
-
