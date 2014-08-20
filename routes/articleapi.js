@@ -26,7 +26,8 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	Article = require("../model/article.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
+	removeDuplicates = require("../utils.js").removeDuplicates;
 
 module.exports = function(app, prefix){
 	app.post(prefix, blendedAuthenticate, function(req, res){
@@ -39,7 +40,7 @@ module.exports = function(app, prefix){
 			article.title = req.body.title;
 			article.author = req.user._id;
 			article.published = req.body.published;
-			article.tags = req.body.tags;
+			article.tags = removeDuplicates(req.body.tags);
 			article.content = req.body.content;
 			article.save();
 			res.status(201).end();
@@ -83,6 +84,9 @@ module.exports = function(app, prefix){
 		}else if(!authorize(req.user, {hasRoles: ["author"]})){
 			return res.status(403).end();
 		}
+
+		// Remove duplicate tags
+		req.body.tags = removeDuplicates(req.body.tags);
 
 		// Remove fields that should not be updated
 		delete req.body.author;
