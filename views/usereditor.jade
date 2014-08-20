@@ -109,15 +109,15 @@ block content
 							.row
 								.form-group
 									label Registered:
-									p= getFormattedTime(user.created)
+									p= getFormattedTime(editUser.created)
 							.row
 								.form-group
 									label Modified:
-									p= getFormattedTime(user.modified)
+									p= getFormattedTime(editUser.modified)
 							.row
 								.form-group
 									label Last Online:
-									p= getFormattedTime(user.accessed)
+									p= getFormattedTime(editUser.accessed)
 			if user.hasRole("admin")
 				.row
 					.form-group.col-xs-6
