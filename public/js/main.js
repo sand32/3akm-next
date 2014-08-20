@@ -399,7 +399,7 @@ $(function(){
 		$("#article-editor-form textarea[name = 'article-content']").ckeditor();
 		resizeContentArea();
 	}
-	if($("#user-editor-form").length > 0){
+	if($("#user-editor-form input[name = 'roles']").length > 0){
 		$("#user-editor-form input[name = 'roles']").tokenfield(tokenFieldOptions);
 	}
 

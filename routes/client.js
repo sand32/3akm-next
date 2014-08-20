@@ -70,7 +70,7 @@ module.exports = function(app, prefix){
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
 			editUser: req.user,
-			containsTokenField: true,
+			containsTokenField: req.user.hasRole("admin"),
 			getFormattedTime: getFormattedTime
 		});
 	});
