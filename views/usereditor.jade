@@ -104,7 +104,7 @@ block content
 										a.removeHandle(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
 							a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
 				.col-xs-3
-					if user && user.hasRole("admin")
+					if user.hasRole("admin")
 						.well
 							.row
 								.form-group
