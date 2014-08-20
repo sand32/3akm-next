@@ -154,7 +154,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/user", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user, {})){
+		|| !authorize(req.user)){
 			return res.redirect("/");
 		}
 		User.find({}, "email firstName lastName created accessed verified", function(err, docs){
@@ -169,7 +169,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/user/new", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user, {})){
+		|| !authorize(req.user)){
 			return res.redirect("/");
 		}
 		res.render("usereditor", {
@@ -183,7 +183,7 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user, {})){
+			  || !authorize(req.user)){
 			return res.redirect("/");
 		}
 		User.findById(req.params.user)

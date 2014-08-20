@@ -84,6 +84,10 @@ block content
 						.form-group.col-xs-6
 							label Email
 							input.form-control(type = "text", name = "email", value = editUser.email, autofocus)
+						if !editUser.verified
+							.field-align.col-xs-6
+								span.text-danger.form-control-static.col-xs-6 Email not verified!
+								a.col-xs-6(class = "btn btn-danger" onclick = "resendVerificationEmail();") Resend Verification
 					.row
 						.form-group.col-xs-5
 							label First Name

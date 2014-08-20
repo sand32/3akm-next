@@ -90,8 +90,8 @@ a.btn-link:hover {
 	color: red;
 }
 
-#register-form {
-	padding-bottom: 1em;
+.field-align {
+	margin-top: 1.8em;
 }
 
 .addHandle {

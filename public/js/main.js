@@ -234,6 +234,19 @@ $(function(){
 	// User Management
 	//----------------------------
 
+	resendVerificationEmail = function(){
+		$.ajax({
+			type: "POST",
+			url: "/api/user/session/verify",
+			success: function(){
+				setSuccessAlert("Verification email resent.");
+			},
+			error: function(){
+				setErrorAlert("Failed to resend verification email.");
+			}
+		});
+	};
+
 	addUser = function(){
 		var data = {
 			email: $("#user-editor-form input[name = 'email']").val(),
