@@ -70,6 +70,7 @@ module.exports = function(app, prefix){
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
 			editUser: req.user,
+			containsTokenField: true,
 			getFormattedTime: getFormattedTime
 		});
 	});
@@ -120,6 +121,7 @@ module.exports = function(app, prefix){
 		res.render("articleeditor", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
+			containsTokenField: true,
 			containsEditor: true
 		});
 	});
@@ -140,6 +142,7 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					article: doc,
+					containsTokenField: true,
 					containsEditor: true,
 					getFormattedTime: getFormattedTime
 				});
@@ -171,7 +174,8 @@ module.exports = function(app, prefix){
 		}
 		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+			user: req.user,
+			containsTokenField: true
 		});
 	});
 
@@ -189,6 +193,7 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					editUser: doc,
+					containsTokenField: true,
 					getFormattedTime: getFormattedTime
 				});
 			}else{

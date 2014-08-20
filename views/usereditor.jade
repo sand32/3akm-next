@@ -64,8 +64,8 @@ block content
 				hr
 				.row
 					.form-group.col-xs-6
-						label Roles (comma-delimited)
-						input.form-control(type = "text", name = "roles", placeholder = "Roles")
+						label Roles
+						input.form-control(type = "text", name = "roles")
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "addUser();", disabled = "disabled") Submit
 			else
@@ -119,10 +119,11 @@ block content
 									label Last Online:
 									p= getFormattedTime(editUser.accessed)
 			if user.hasRole("admin")
+				hr
 				.row
 					.form-group.col-xs-6
-						label Roles (comma-delimited)
-						input.form-control(type = "text", name = "roles", placeholder = "Roles", value = editUser.roles)
+						label Roles
+						input.form-control(type = "text", name = "roles", value = editUser.roles)
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "');") Update
 			else

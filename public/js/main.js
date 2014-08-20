@@ -390,9 +390,17 @@ $(function(){
 		resizeContentArea();
 	});
 
+	tokenFieldOptions = {
+		createTokensOnBlur: true
+	};
+
 	if($("#article-editor-form").length > 0){
+		$("#article-editor-form input[name = 'tags']").tokenfield(tokenFieldOptions);
 		$("#article-editor-form textarea[name = 'article-content']").ckeditor();
 		resizeContentArea();
+	}
+	if($("#user-editor-form").length > 0){
+		$("#user-editor-form input[name = 'roles']").tokenfield(tokenFieldOptions);
 	}
 
 	//----------------------------
