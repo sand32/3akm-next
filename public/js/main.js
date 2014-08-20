@@ -234,10 +234,10 @@ $(function(){
 	// User Management
 	//----------------------------
 
-	resendVerificationEmail = function(){
+	resendVerificationEmail = function(id){
 		$.ajax({
 			type: "POST",
-			url: "/api/user/session/verify",
+			url: "/api/user/" + id + "/verify",
 			success: function(){
 				setSuccessAlert("Verification email resent.");
 			},
