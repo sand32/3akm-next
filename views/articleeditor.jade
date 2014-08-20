@@ -104,6 +104,8 @@ block content
 					label Content
 					textarea.form-control(type = "text", name = "article-content")= article.content
 			hr
-			a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Update
+			.btn-group
+				a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "'); location.replace('/authoring/article');") Save
+				a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Apply
 			a(class = "btn btn-link" href = "/article/" + article._id) View
 			a(class = "btn btn-link" href = "/authoring/article") Back

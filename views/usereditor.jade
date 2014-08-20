@@ -132,7 +132,9 @@ block content
 						label Roles
 						input.form-control(type = "text", name = "roles", value = editUser.roles)
 				hr
-				a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "');") Update
+				.btn-group
+					a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "'); location.replace('/admin/user')") Save
+					a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "');") Apply
 			else
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "updateUser('session');") Update
