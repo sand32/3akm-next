@@ -48,5 +48,15 @@ module.exports = {
 			+ (date.getHours()%12 === 0 ? "12" : padTo2(date.getHours()%12)) + ":" + padTo2(date.getMinutes()) + ":" + padTo2(date.getSeconds()) 
 			+ " " + (date.getHours() > 12 ? "PM" : "AM");
 		return dateString;
+	},
+
+	removeDuplicates: function(array){
+		var newArray = [];
+		for(var i = 0; i < array.length; i += 1){
+			if(newArray.indexOf(array[i]) === -1){
+				newArray.push(array[i]);
+			}
+		}
+		return newArray;
 	}
 }

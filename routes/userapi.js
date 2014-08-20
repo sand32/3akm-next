@@ -26,7 +26,8 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
+	removeDuplicates = require("../utils.js").removeDuplicates;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
@@ -126,7 +127,7 @@ module.exports = function(app, prefix){
 			user.tertiaryHandles = req.body.tertiaryHandles;
 
 			if(req.isAuthenticated() && req.user.hasRole("admin")){
-				user.roles = req.body.roles;
+				user.roles = removeDuplicates(req.body.roles);
 				user.services = req.body.services;
 			}
 			user.save();
@@ -188,6 +189,8 @@ module.exports = function(app, prefix){
 			delete req.body.verified;
 			delete req.body.roles;
 			delete req.body.services;
+		}else{
+			req.body.roles = removeDuplicates(req.body.roles);
 		}
 		delete req.body.passwordHash;
 		delete req.body.created;
