@@ -87,7 +87,10 @@ block content
 						if !editUser.verified
 							.field-align.col-xs-6
 								span.text-danger.form-control-static.col-xs-6 Email not verified!
-								a.col-xs-6(class = "btn btn-danger" onclick = "resendVerificationEmail('session');") Resend Verification
+								if user.hasRole("admin")
+									a.col-xs-6(class = "btn btn-danger" onclick = "resendVerificationEmail('" + editUser._id + "');") Resend Verification
+								else
+									a.col-xs-6(class = "btn btn-danger" onclick = "resendVerificationEmail('session');") Resend Verification
 					.row
 						.form-group.col-xs-5
 							label First Name
