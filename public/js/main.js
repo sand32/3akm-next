@@ -392,6 +392,7 @@ $(function(){
 
 	if($("#article-editor-form").length > 0){
 		$("#article-editor-form textarea[name = 'article-content']").ckeditor();
+		resizeContentArea();
 	}
 
 	//----------------------------

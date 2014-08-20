@@ -79,28 +79,45 @@ block content
 		hr
 		form#user-editor-form(role = "form")
 			.row
-				.form-group.col-xs-6
-					label Email
-					input.form-control(type = "text", name = "email", value = editUser.email, autofocus)
-			.row
-				.form-group.col-xs-4
-					label First Name
-					input.form-control(type = "text", name = "firstName", value = editUser.firstName)
-				.form-group.col-xs-4
-					label Last Name
-					input.form-control(type = "text", name = "lastName", value = editUser.lastName)
-			.row
-				.form-group.col-xs-6
-					label Handles
-					input.form-control(type = "text", name = "primaryHandle", placeholder = "Primary Handle", value = editUser.primaryHandle)
-			.row
-				.form-group.col-xs-6
-					each handle in editUser.tertiaryHandles
-						div.input-group(style = "margin-top:.5em;")
-							input.form-control(type = "text", name = "tertiaryHandles", value = handle)
-							span.input-group-btn
-								a.removeHandle(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
-					a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+				.col-xs-9
+					.row
+						.form-group.col-xs-6
+							label Email
+							input.form-control(type = "text", name = "email", value = editUser.email, autofocus)
+					.row
+						.form-group.col-xs-5
+							label First Name
+							input.form-control(type = "text", name = "firstName", value = editUser.firstName)
+						.form-group.col-xs-5
+							label Last Name
+							input.form-control(type = "text", name = "lastName", value = editUser.lastName)
+					.row
+						.form-group.col-xs-6
+							label Handles
+							input.form-control(type = "text", name = "primaryHandle", placeholder = "Primary Handle", value = editUser.primaryHandle)
+					.row
+						.form-group.col-xs-6
+							each handle in editUser.tertiaryHandles
+								div.input-group(style = "margin-top:.5em;")
+									input.form-control(type = "text", name = "tertiaryHandles", value = handle)
+									span.input-group-btn
+										a.removeHandle(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
+							a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+				.col-xs-3
+					if user && user.hasRole("admin")
+						.well
+							.row
+								.form-group
+									label Registered:
+									p= getFormattedTime(user.created)
+							.row
+								.form-group
+									label Modified:
+									p= getFormattedTime(user.modified)
+							.row
+								.form-group
+									label Last Online:
+									p= getFormattedTime(user.accessed)
 			if user.hasRole("admin")
 				.row
 					.form-group.col-xs-6

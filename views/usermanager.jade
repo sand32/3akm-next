@@ -40,8 +40,7 @@ block content
 					th Last Name
 					th Email
 					th Verified
-					th Registered
-					th Accessed
+					th Last Online
 					th
 			tbody
 				each editUser in editUsers
@@ -57,7 +56,6 @@ block content
 								span(class = "glyphicon glyphicon-ok", style = "color:green;")
 							else
 								span(class = "glyphicon glyphicon-remove", style = "color:red;")
-						td= getFormattedTime(editUser.created)
 						td= getFormattedTime(editUser.accessed)
 						td
 							.btn-group

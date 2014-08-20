@@ -191,6 +191,7 @@ module.exports = function(app, prefix){
 		}
 		delete req.body.passwordHash;
 		delete req.body.created;
+		delete req.body.accessed;
 
 		// Record this modification
 		req.body.modified = Date.now();

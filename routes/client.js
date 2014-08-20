@@ -69,7 +69,8 @@ module.exports = function(app, prefix){
 		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
-			editUser: req.user
+			editUser: req.user,
+			getFormattedTime: getFormattedTime
 		});
 	});
 
