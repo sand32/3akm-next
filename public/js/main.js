@@ -57,6 +57,14 @@ $(function(){
 		$("#confirmationModal").modal("show");
 	};
 
+	// Add icons to sorted table columns
+	if($(".sort-asc").length > 0){
+		$(".sort-asc").html($(".sort-asc").html() + "<span class='glyphicon glyphicon-chevron-up' />");
+	}
+	if($(".sort-desc").length > 0){
+		$(".sort-desc").html($(".sort-desc").html() + "<span class='glyphicon glyphicon-chevron-down' />");
+	}
+
 	//----------------------------
 	// Alerts
 	//----------------------------
@@ -101,6 +109,10 @@ $(function(){
 		reactOnUserSelect();
 		$("#user-manager .user-selector").click(reactOnUserSelect);
 	}
+
+	sortUsers = function(sort){
+		location.replace("/admin/user?sort=" + sort);
+	};
 
 	// Article Manager
 	//----------------------------
@@ -157,6 +169,10 @@ $(function(){
 			});
 		};
 		confirm("Are you sure you want to delete this article?", callback);
+	};
+
+	sortArticles = function(sort){
+		location.replace("/authoring/article?sort=" + sort);
 	};
 
 	//----------------------------

@@ -110,6 +110,16 @@ a.btn-link:hover {
 	margin-left: .5em;
 }
 
+#user-manager th,
+#article-manager th {
+	cursor: pointer;
+}
+
+.sort-asc .glyphicon,
+.sort-desc .glyphicon {
+	margin-left: .5em;
+}
+
 .no-articles {
 	text-align: center;
 	font-weight: bold;

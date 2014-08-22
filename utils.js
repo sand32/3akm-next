@@ -58,5 +58,29 @@ module.exports = {
 			}
 		}
 		return newArray;
+	},
+
+	getSortClassForHeader: function(sort, header){
+		if(sort && sort.indexOf(header) !== -1){
+			if(sort.indexOf("-") !== -1){
+				return "sort-desc";
+			}else{
+				return "sort-asc";
+			}
+		}else{
+			return "";
+		}
+	},
+
+	getSortLinkForHeader: function(sort, header){
+		if(sort && sort.indexOf(header) !== -1){
+			if(sort.indexOf("-") !== -1){
+				return header;
+			}else{
+				return "-" + header;
+			}
+		}else{
+			return header;
+		}
 	}
 }

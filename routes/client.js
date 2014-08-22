@@ -28,6 +28,8 @@ var passport = require("passport"),
 	Article = require("../model/article.js"),
 	User = require("../model/user.js"),
 	getFormattedTime = require("../utils.js").getFormattedTime;
+	getSortClassForHeader = require("../utils.js").getSortClassForHeader;
+	getSortLinkForHeader = require("../utils.js").getSortLinkForHeader;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
@@ -101,14 +103,19 @@ module.exports = function(app, prefix){
 		|| !authorize(req.user, {hasRoles:["author"]})){
 			return res.redirect("/");
 		}
+
 		Article.find({}, "title author created modifiedBy modified published tags")
 		.populate("author")
+		.sort(req.query.sort)
 		.exec(function(err, docs){
 			res.render("articlemanager", {
 				isAuthenticated: req.isAuthenticated(),
 				user: req.user,
 				articles: docs,
-				getFormattedTime: getFormattedTime
+				sort: req.query.sort,
+				getFormattedTime: getFormattedTime,
+				getSortClassForHeader: getSortClassForHeader,
+				getSortLinkForHeader: getSortLinkForHeader
 			});
 		});
 	});
@@ -157,12 +164,18 @@ module.exports = function(app, prefix){
 		|| !authorize(req.user)){
 			return res.redirect("/");
 		}
-		User.find({}, "email firstName lastName created accessed verified", function(err, docs){
+
+		User.find({}, "firstName lastName email verified accessed")
+		.sort(req.query.sort)
+		.exec(function(err, docs){
 			res.render("usermanager", {
 				isAuthenticated: req.isAuthenticated(),
 				user: req.user,
 				editUsers: docs,
-				getFormattedTime: getFormattedTime
+				sort: req.query.sort,
+				getFormattedTime: getFormattedTime,
+				getSortClassForHeader: getSortClassForHeader,
+				getSortLinkForHeader: getSortLinkForHeader
 			});
 		});
 	});
