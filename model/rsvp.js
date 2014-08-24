@@ -29,9 +29,10 @@ var mongoose = require("mongoose"),
 			ref: "User",
 			required: true
 		},
-		year: {
-			type: Number,
-			default: new Date().getFullYear()
+		lan: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Lan",
+			required: true
 		},
 		status: {
 			type: String,
@@ -47,6 +48,10 @@ var mongoose = require("mongoose"),
 			default: 0
 		},
 		attended: {
+			type: Boolean,
+			default: false
+		},
+		cleaning: {
 			type: Boolean,
 			default: false
 		}

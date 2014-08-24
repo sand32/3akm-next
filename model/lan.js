@@ -23,66 +23,45 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	bcrypt = require("bcrypt-nodejs"),
-	userSchema = mongoose.Schema({
-		email: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		passwordHash: {
-			type: String,
+	lanSchema = mongoose.Schema({
+		beginDate: {
+			type: Date,
 			required: true
 		},
-		verified: {
+		endDate: {
+			type: Date,
+			required: true
+		},
+		entryFee: {
+			type: Number,
+			default: 10
+		},
+		acceptingRsvps: {
 			type: Boolean,
 			default: false
 		},
-		created: {
-			type: Date,
-			default: Date.now
-		},
-		modified: {
-			type: Date,
-			default: Date.now
-		},
-		accessed: {
-			type: Date,
-			default: Date.now
-		},
-		lanInviteDesired: {
-			type: Boolean,
-			default: true
-		},
-		blacklisted: {
-			type: Boolean,
-			default: false
-		},
-		firstName: String,
-		lastName: String,
-		primaryHandle: String,
-		tertiaryHandles: [String],
-		roles: [String],
-		services: [{
-			service: {
+		games: [{
+			game: {
 				type: mongoose.Schema.Types.ObjectId,
-				ref: "Service",
+				ref: "Game",
 				required: true
 			},
-			serviceHandle: String
+			tournament: {
+				type: Boolean,
+				default: false
+			},
+			tournamentName: String
+		}],
+		foodRequired: [{
+			name: {
+				type: String,
+				required: true
+			},
+			amount: {
+				type: Number,
+				default: 1
+			}
 		}]
 	});
 
-userSchema.methods.hash = function(pass){
-	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
-};
-
-userSchema.methods.isValidPassword = function(pass){
-	return bcrypt.compareSync(pass, this.passwordHash);
-};
-
-userSchema.methods.hasRole = function(role){
-	return this.roles.indexOf(role) !== -1;
-};
-
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Lan", lanSchema);
