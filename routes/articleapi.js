@@ -35,18 +35,21 @@ module.exports = function(app, prefix){
 			return res.status(403).end();
 		}
 
-		try{
-			var article = new Article();
-			article.title = req.body.title;
-			article.author = req.user._id;
-			article.published = req.body.published;
-			article.tags = removeDuplicates(req.body.tags);
-			article.content = req.body.content;
-			article.save();
-			res.status(201).end();
-		}catch(e){
-			res.status(400).end();
-		}
+		var article = new Article();
+		article.title = req.body.title;
+		article.author = req.user._id;
+		article.published = req.body.published;
+		article.tags = removeDuplicates(req.body.tags);
+		article.content = req.body.content;
+		article.save(function(err){
+			if(err){
+				res.status(400).end();
+			}else{
+				res.status(201)
+				.location(prefix + "/" + article._id)
+				.end();
+			}
+		});
 	});
 
 	app.get(prefix + "/:article", function(req, res){
