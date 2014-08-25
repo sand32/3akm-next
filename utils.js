@@ -51,7 +51,7 @@ module.exports = {
 	},
 
 	removeDuplicates: function(array){
-		if(!array || !array.isArray()){
+		if(!array || !Array.isArray(array)){
 			return array;
 		}
 		var newArray = [];

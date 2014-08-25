@@ -58,7 +58,6 @@ module.exports = function(app, prefix){
 		.populate("modifiedBy")
 		.exec(function(err, doc){
 			if(doc){
-				doc.populate();
 				var article = {
 					title: doc.title,
 					author: {
