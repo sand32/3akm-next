@@ -29,6 +29,14 @@ $(function(){
 	//----------------------------
 
 	uriVars = {};
+	createURIVarObj = function(){
+		var vars = location.search.replace("?", "").split("&"),
+			pair;
+		for(var i = 0; i < vars.length; i += 1){
+			pair = vars[i].split("=");
+			uriVars[pair[0]] = pair[1];
+		}
+	};
 	createURIVarString = function(){
 		var str = "?";
 		for(var key in uriVars){
@@ -39,6 +47,9 @@ $(function(){
 		}
 		return str;
 	};
+	if(location.search){
+		createURIVarObj();
+	}
 
 	resizeContentArea = function(){
 		if($("#contentRow").height() < $(".menu-container").height()){
