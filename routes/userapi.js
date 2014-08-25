@@ -117,25 +117,26 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, function(req, res){
-		try{
-			var user = new User();
-			user.email = req.body.email;
-			user.passwordHash = user.hash(req.body.password);
-			user.firstName = req.body.firstName;
-			user.lastName = req.body.lastName;
-			user.primaryHandle = req.body.primaryHandle;
-			user.tertiaryHandles = req.body.tertiaryHandles;
+		var user = new User();
+		user.email = req.body.email;
+		user.passwordHash = user.hash(req.body.password);
+		user.firstName = req.body.firstName;
+		user.lastName = req.body.lastName;
+		user.primaryHandle = req.body.primaryHandle;
+		user.tertiaryHandles = req.body.tertiaryHandles;
 
-			if(req.isAuthenticated() && req.user.hasRole("admin")){
-				user.vip = req.body.vip;
-				user.roles = removeDuplicates(req.body.roles);
-				user.services = req.body.services;
-			}
-			user.save();
-			res.status(201).send({_id: user._id});
-		}catch(e){
-			res.status(400).end();
+		if(req.isAuthenticated() && req.user.hasRole("admin")){
+			user.vip = req.body.vip;
+			user.roles = removeDuplicates(req.body.roles);
+			user.services = req.body.services;
 		}
+		user.save(function(err){
+			if(err){
+				res.status(400).end();
+			}else{
+				res.status(201).send({_id: user._id});
+			}
+		});
 	});
 
 	app.get(prefix + "/:user", blendedAuthenticate, function(req, res){
@@ -195,7 +196,9 @@ module.exports = function(app, prefix){
 			delete req.body.roles;
 			delete req.body.services;
 		}else{
-			req.body.roles = removeDuplicates(req.body.roles);
+			if(req.body.roles){
+				req.body.roles = removeDuplicates(req.body.roles);
+			}
 		}
 		delete req.body.passwordHash;
 		delete req.body.created;

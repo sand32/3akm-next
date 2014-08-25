@@ -42,8 +42,8 @@ if(config.dbUser){
 }else{
 	mongoose.connect("mongodb://" + config.dbAddress + "/" + config.dbName);
 }
-mongoose.connection.on("error", function(){
-	console.error("Unable to connect to mongodb!");
+mongoose.connection.on("error", function(e){
+	console.error(e.name + ": " + e.message);
 });
 
 // Declare view engine
