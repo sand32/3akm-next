@@ -34,8 +34,7 @@ var passport = require("passport"),
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
 		Article.findOne({})
-		.populate("author")
-		.populate("modifiedBy")
+		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(!err && doc && doc.published){
 				res.render("article", {
@@ -82,8 +81,7 @@ module.exports = function(app, prefix){
 			return res.redirect("/");
 		}
 		Article.findById(req.params.article)
-		.populate("author")
-		.populate("modifiedBy")
+		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(!err && doc && (doc.published || authorize(req.user, {hasRoles:["author"]}))){
 				res.render("article", {
@@ -105,7 +103,7 @@ module.exports = function(app, prefix){
 		}
 
 		Article.find({}, "title author created modifiedBy modified published tags")
-		.populate("author")
+		.populate("author", "email firstName lastName")
 		.sort(req.query.sort)
 		.exec(function(err, docs){
 			res.render("articlemanager", {
@@ -141,8 +139,7 @@ module.exports = function(app, prefix){
 			return res.redirect("/");
 		}
 		Article.findById(req.params.article)
-		.populate("author")
-		.populate("modifiedBy")
+		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(!err && doc){
 				res.render("articleeditor", {

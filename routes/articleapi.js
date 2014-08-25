@@ -53,26 +53,10 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:article", function(req, res){
 		Article.findById(req.params.article)
-		.populate("author")
-		.populate("modifiedBy")
+		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(doc){
-				var article = {
-					title: doc.title,
-					author: {
-						email: doc.author.email,
-						name: doc.author.firstName + " " + doc.author.lastName
-					},
-					published: doc.published,
-					modifiedBy: {
-						email: (doc.modifiedBy ? doc.modifiedBy.email : null),
-						name: (doc.modifiedBy ? doc.modifiedBy.firstName + " " + doc.modifiedBy.lastName : null)
-					},
-					modified: doc.modified,
-					tags: doc.tags,
-					content: doc.content
-				};
-				res.status(200).send(article);
+				res.status(200).send(doc);
 			}else{
 				res.status(404).end();
 			}
