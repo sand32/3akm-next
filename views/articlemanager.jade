@@ -39,10 +39,10 @@ block content
 			thead
 				tr
 					th
-					th(class = getSortClassForHeader(sort, "title"), onclick = "sortArticles('" + getSortLinkForHeader(sort, "title") + "');") Title
-					th(class = getSortClassForHeader(sort, "author"), onclick = "sortArticles('" + getSortLinkForHeader(sort, "author") + "');") Author
-					th(class = getSortClassForHeader(sort, "created"), onclick = "sortArticles('" + getSortLinkForHeader(sort, "created") + "');") Created
-					th(class = getSortClassForHeader(sort, "published"), onclick = "sortArticles('" + getSortLinkForHeader(sort, "published") + "');") Published
+					th(class = getSortClassForHeader(sort, "title"), onclick = "sortTable('" + getSortLinkForHeader(sort, "title") + "');") Title
+					th(class = getSortClassForHeader(sort, "author"), onclick = "sortTable('" + getSortLinkForHeader(sort, "author") + "');") Author
+					th(class = getSortClassForHeader(sort, "created"), onclick = "sortTable('" + getSortLinkForHeader(sort, "created") + "');") Created
+					th(class = getSortClassForHeader(sort, "published"), onclick = "sortTable('" + getSortLinkForHeader(sort, "published") + "');") Published
 					th
 			tbody
 				each article in articles

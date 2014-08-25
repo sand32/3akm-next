@@ -36,11 +36,11 @@ block content
 			thead
 				tr
 					th
-					th(class = getSortClassForHeader(sort, "firstName"), onclick = "sortUsers('" + getSortLinkForHeader(sort, "firstName") + "');") First Name
-					th(class = getSortClassForHeader(sort, "lastName"), onclick = "sortUsers('" + getSortLinkForHeader(sort, "lastName") + "');") Last Name
-					th(class = getSortClassForHeader(sort, "email"), onclick = "sortUsers('" + getSortLinkForHeader(sort, "email") + "');") Email
-					th(class = getSortClassForHeader(sort, "verified"), onclick = "sortUsers('" + getSortLinkForHeader(sort, "verified") + "');") Verified
-					th(class = getSortClassForHeader(sort, "accessed"), onclick = "sortUsers('" + getSortLinkForHeader(sort, "accessed") + "');") Last Online
+					th(class = getSortClassForHeader(sort, "firstName"), onclick = "sortTable('" + getSortLinkForHeader(sort, "firstName") + "');") First Name
+					th(class = getSortClassForHeader(sort, "lastName"), onclick = "sortTable('" + getSortLinkForHeader(sort, "lastName") + "');") Last Name
+					th(class = getSortClassForHeader(sort, "email"), onclick = "sortTable('" + getSortLinkForHeader(sort, "email") + "');") Email
+					th(class = getSortClassForHeader(sort, "verified"), onclick = "sortTable('" + getSortLinkForHeader(sort, "verified") + "');") Verified
+					th(class = getSortClassForHeader(sort, "accessed"), onclick = "sortTable('" + getSortLinkForHeader(sort, "accessed") + "');") Last Online
 					th
 			tbody
 				each editUser in editUsers

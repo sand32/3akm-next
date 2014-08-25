@@ -28,6 +28,18 @@ $(function(){
 	// Common Behavior
 	//----------------------------
 
+	uriVars = {};
+	createURIVarString = function(){
+		var str = "?";
+		for(var key in uriVars){
+			if(str !== "?"){
+				str += "&";
+			}
+			str += key + "=" + uriVars[key];
+		}
+		return str;
+	};
+
 	resizeContentArea = function(){
 		if($("#contentRow").height() < $(".menu-container").height()){
 			$("#contentRow").css("height", $(".menu-container").height())
@@ -55,6 +67,11 @@ $(function(){
 		$("#confirmationModal .modal-title").html(question);
 		$("#confirmationModal .btn[name = 'yes']").click(callback);
 		$("#confirmationModal").modal("show");
+	};
+
+	sortTable = function(sort){
+		uriVars.sort = sort;
+		location.replace(location.pathname + createURIVarString());
 	};
 
 	// Add icons to sorted table columns
@@ -109,10 +126,6 @@ $(function(){
 		reactOnUserSelect();
 		$("#user-manager .user-selector").click(reactOnUserSelect);
 	}
-
-	sortUsers = function(sort){
-		location.replace("/admin/user?sort=" + sort);
-	};
 
 	// Article Manager
 	//----------------------------
@@ -169,10 +182,6 @@ $(function(){
 			});
 		};
 		confirm("Are you sure you want to delete this article?", callback);
-	};
-
-	sortArticles = function(sort){
-		location.replace("/authoring/article?sort=" + sort);
 	};
 
 	//----------------------------
