@@ -28,10 +28,14 @@ var express = require("express"),
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
 		articleApiRoutes = require("./articleapi.js"),
+		lanApiRoutes = require("./lanapi.js"),
+		gameApiRoutes = require("./gameapi.js"),
 		clientRoutes = require("./client.js");
 
 	userApiRoutes(app, "/api/user");
 	articleApiRoutes(app, "/api/article");
+	lanApiRoutes(app, "/api/lan");
+	gameApiRoutes(app, "/api/game");
 	clientRoutes(app, "");
 
 	app.use(express.static('public'));
