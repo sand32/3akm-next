@@ -51,6 +51,9 @@ module.exports = {
 	},
 
 	removeDuplicates: function(array){
+		if(!array || !array.isArray()){
+			return array;
+		}
 		var newArray = [];
 		for(var i = 0; i < array.length; i += 1){
 			if(newArray.indexOf(array[i]) === -1){

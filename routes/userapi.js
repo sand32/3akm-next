@@ -198,9 +198,7 @@ module.exports = function(app, prefix){
 			delete req.body.roles;
 			delete req.body.services;
 		}else{
-			if(req.body.roles){
-				req.body.roles = removeDuplicates(req.body.roles);
-			}
+			req.body.roles = removeDuplicates(req.body.roles);
 		}
 		delete req.body.passwordHash;
 		delete req.body.created;
