@@ -22,8 +22,7 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport"),
-	mongoose = require("mongoose"),
+var mongoose = require("mongoose"),
 	Article = require("../model/article.js"),
 	authorize = require("../authorization.js"),
 	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
