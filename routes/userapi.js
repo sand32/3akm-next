@@ -134,7 +134,9 @@ module.exports = function(app, prefix){
 			if(err){
 				res.status(400).end();
 			}else{
-				res.status(201).send({_id: user._id});
+				res.status(201)
+				.location(prefix + "/" + user._id)
+				.send({_id: user._id});
 			}
 		});
 	});
