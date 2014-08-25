@@ -127,6 +127,7 @@ module.exports = function(app, prefix){
 			user.tertiaryHandles = req.body.tertiaryHandles;
 
 			if(req.isAuthenticated() && req.user.hasRole("admin")){
+				user.vip = req.body.vip;
 				user.roles = removeDuplicates(req.body.roles);
 				user.services = req.body.services;
 			}
@@ -156,8 +157,10 @@ module.exports = function(app, prefix){
 					email: doc.email,
 					verified: doc.verified,
 					created: doc.created,
-					accessed: doc.accessed,
 					modified: doc.modified,
+					accessed: doc.accessed,
+					vip: doc.vip,
+					lanInviteDesired: doc.lanInviteDesired,
 					firstName: doc.firstName,
 					lastName: doc.lastName,
 					primaryHandle: doc.primaryHandle,
@@ -187,6 +190,8 @@ module.exports = function(app, prefix){
 		// Ignore the following fields unless sent by an admin
 		if(!req.user.hasRole("admin")){
 			delete req.body.verified;
+			delete req.body.vip;
+			delete req.body.blacklisted;
 			delete req.body.roles;
 			delete req.body.services;
 		}else{

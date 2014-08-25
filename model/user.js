@@ -50,6 +50,10 @@ var mongoose = require("mongoose"),
 			type: Date,
 			default: Date.now
 		},
+		vip: {
+			type: Boolean,
+			default: false
+		},
 		lanInviteDesired: {
 			type: Boolean,
 			default: true
