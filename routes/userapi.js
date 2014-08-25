@@ -127,8 +127,8 @@ module.exports = function(app, prefix){
 
 		if(req.isAuthenticated() && req.user.hasRole("admin")){
 			user.vip = req.body.vip;
-			user.roles = removeDuplicates(req.body.roles);
-			user.services = req.body.services;
+			user.roles = removeDuplicates(req.body.roles) || [];
+			user.services = req.body.services || [];
 		}
 		user.save(function(err){
 			if(err){
@@ -198,7 +198,7 @@ module.exports = function(app, prefix){
 			delete req.body.roles;
 			delete req.body.services;
 		}else{
-			req.body.roles = removeDuplicates(req.body.roles);
+			req.body.roles = removeDuplicates(req.body.roles) || [];
 		}
 		delete req.body.passwordHash;
 		delete req.body.created;
