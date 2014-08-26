@@ -36,6 +36,10 @@ var mongoose = require("mongoose"),
 			type: Number,
 			default: 10
 		},
+		active: {
+			type: Boolean,
+			default: false
+		},
 		acceptingRsvps: {
 			type: Boolean,
 			default: false

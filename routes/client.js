@@ -26,6 +26,7 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
 	Article = require("../model/article.js"),
+	Lan = require("../model/lan.js"),
 	User = require("../model/user.js"),
 	getFormattedTime = require("../utils.js").getFormattedTime;
 	getSortClassForHeader = require("../utils.js").getSortClassForHeader;
@@ -73,6 +74,19 @@ module.exports = function(app, prefix){
 			editUser: req.user,
 			containsTokenField: req.user.hasRole("admin"),
 			getFormattedTime: getFormattedTime
+		});
+	});
+
+	app.get(prefix + "/games", function(req, res){
+		Lan.findOne({active: true}, "games", {sort: {beginDate: "-1"}})
+		.populate("games.game")
+		.exec(function(err, doc){
+			res.render("games", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				year: doc.beginDate.getFullYear(),
+				games: doc ? doc.games : doc
+			});
 		});
 	});
 

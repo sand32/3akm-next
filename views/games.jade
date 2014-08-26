@@ -21,40 +21,12 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-.menu-container.affix-top
-	a(href = "/")
-		.logo
+extends layout.jade
 
-	ul.menu-list(class = "nav nav-stacked")
-		li
-			a(href = "/") Home
-		li
-			a(href = "/games") Games
-		li
-			a(href = "/") Preparation
-		li
-			a(href = "/") Confirmed Appearances
-
-	if isAuthenticated
-		h4 User Menu
-		ul.menu-list(class = "nav nav-stacked")
-			li
-				a(href = "/profile") Profile
-			if user.hasRole("admin")
-				li
-					a(href = "/admin/user") Users
-			if user.hasRole("admin") || user.hasRole("author")
-				li
-					a(href = "/authoring/article") Articles
-			li
-				a(href = "#", onclick = "logout();") Logout
+block content
+	if games
+		h1 Games for #{year}
+		hr
 	else
-		form#login-form(role = "form")
-			.form-group
-				label Email
-				input.form-control(type = "text", name = "email")
-			.form-group
-				label Password
-				input.form-control(type = "password", name = "password")
-			a.submitButton(class = "btn btn-default", onclick = "login();") Login
-			a(class = "btn btn-link", href = "/register") Register
+		h1 No games defined
+		hr
