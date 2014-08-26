@@ -102,6 +102,14 @@ a.btn-link:hover {
 	margin-right: .5em;
 }
 
+.button-row-left {
+	float: left;
+}
+
+.button-row-right {
+	float: right;
+}
+
 .button-row-left .btn {
 	margin-right: .5em;
 }
