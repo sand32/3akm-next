@@ -74,4 +74,22 @@ module.exports = function(app, prefix){
 			}
 		});
 	});
+
+	app.delete(prefix + "/:game", blendedAuthenticate, function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}else if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+
+		Game.findByIdAndRemove(req.params.game, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
+			}
+		});
+	});
 }

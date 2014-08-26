@@ -252,6 +252,63 @@ $(function(){
 		confirm("Are you sure you want to delete this LAN?", callback);
 	};
 
+	// Game Manager
+	//----------------------------
+
+	reactOnGameSelect = function(){
+		if($("#game-manager .game-selector:checked").length > 0){
+			$("#game-manager .global-operations [name = 'delete']").removeAttr("disabled");
+		}else{
+			$("#game-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
+		}
+	};
+	if($("#game-manager").length > 0){
+		reactOnGameSelect();
+		$("#game-manager .game-selector").click(reactOnGameSelect);
+	}
+
+	deleteSelectedGames = function(){
+		callback = function(){
+			var lans = $("#game-manager .game-selector:checked");
+			for(var i = 0; i < lans.length; i += 1){
+				if(i === lans.length - 1){
+					$.ajax({
+						type: "DELETE",
+						url: "/api/game/" + $(lans[i]).next("input[type = 'hidden']").val(),
+						success: function(){
+							location.reload(true);
+						},
+						error: function(){
+							setErrorAlert("Unable to delete game(s).");
+						}
+					});
+				}else{
+					$.ajax({
+						type: "DELETE",
+						url: "/api/game/" + $(lans[i]).next("input[type = 'hidden']").val()
+					});
+				}
+			}
+		};
+		confirm("Are you sure you want to delete the selected game(s)?", callback);
+	};
+
+	deleteGame = function(id){
+		callback = function(){
+			$.ajax({
+				type: "DELETE",
+				url: "/api/game/" + id,
+				success: function(){
+					location.reload(true);
+				},
+				error: function(){
+					setErrorAlert("Unable to delete game.");
+				}
+			});
+		};
+		confirm("Are you sure you want to delete this game?", callback);
+	};
+
 	//----------------------------
 	// Form Submission
 	//----------------------------
@@ -458,6 +515,76 @@ $(function(){
 		});
 	};
 
+	// Game Management
+	//----------------------------
+
+	getSupplementalFiles = function(){
+		var files = [],
+			fileFields = $("#game-editor-form .supplementalFiles");
+		for(var i = 0; i < fileFields.length; i += 1){
+			if($(fileFields[i]).find("[name = 'fileName']").val() != ""){
+				files.push({
+					name: $(fileFields[i]).find("[name = 'fileName']").val(),
+					url: $(fileFields[i]).find("[name = 'fileUrl']").val()
+				});
+			}
+		}
+		return files;
+	};
+
+	addGame = function(){
+		var data = {
+				name: $("#game-editor-form input[name = 'name']").val(),
+				version: $("#game-editor-form input[name = 'version']").val(),
+				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
+				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
+				description: $("#game-editor-form textarea[name = 'description']").val(),
+				supplementalFiles: getSupplementalFiles()
+			};
+			console.log(data);
+		$.ajax({
+			type: "POST",
+			url: "/api/game",
+			contentType: "application/json",
+			data: JSON.stringify({
+				name: $("#game-editor-form input[name = 'name']").val(),
+				version: $("#game-editor-form input[name = 'version']").val(),
+				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
+				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
+				description: $("#game-editor-form textarea[name = 'description']").val(),
+				supplementalFiles: getSupplementalFiles()
+			}),
+			processData: false,
+			success: function(){
+				location.replace("/admin/game");
+			},
+			error: function(){
+				setErrorAlert("Error adding game.");
+			}
+		});
+	};
+
+	updateGame = function(id){
+		$.ajax({
+			type: "PUT",
+			url: "/api/game/" + id,
+			contentType: "application/json",
+			data: JSON.stringify({
+				name: $("#game-editor-form input[name = 'name']").val(),
+				version: $("#game-editor-form input[name = 'version']").val(),
+				supplementalFiles: getSupplementalFiles(),
+				description: $("#game-editor-form textarea[name = 'description']").val()
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Successfully updated game.");
+			},
+			error: function(){
+				setErrorAlert("Error updating game.");
+			}
+		});
+	};
+
 	//----------------------------
 	// Form Behavior
 	//----------------------------
@@ -475,12 +602,12 @@ $(function(){
 	});
 
 	// Dynamic behavior for adding multiple handles in the registration form
-	$(".addHandle").tooltip("enable");
-	$(".addHandle").click(function(){
-		$(".addHandle").before('<div class="input-group" style="margin-top:.5em;"><input type="text" name="tertiaryHandles" class="form-control"><span class="input-group-btn"><a data-toggle="tooltip" data-placement="right" title="Remove this handle" class="removeHandle btn btn-default glyphicon glyphicon-minus" style="margin-top:-2px;" /></span></div>');
-		$(".removeHandle").tooltip("enable");
-		$(".removeHandle").click(function(){
-			$(this).closest(".input-group").remove();
+	$(".addItem").tooltip("enable");
+	$(".addItem").click(function(){
+		$(".addItem").before($(".addItem").attr("data-insertion"));
+		$(".removeItem").tooltip("enable");
+		$(".removeItem").click(function(){
+			$(this).closest("div").remove();
 			resizeContentArea();
 		});
 		$("form input").keypress(function(e){
@@ -491,8 +618,8 @@ $(function(){
 		});
 		resizeContentArea();
 	});
-	$(".removeHandle").click(function(){
-		$(this).closest(".input-group").remove();
+	$(".removeItem").click(function(){
+		$(this).closest("div").remove();
 		resizeContentArea();
 	});
 
@@ -503,6 +630,10 @@ $(function(){
 	if($("#article-editor-form").length > 0){
 		$("#article-editor-form input[name = 'tags']").tokenfield(tokenFieldOptions);
 		$("#article-editor-form textarea[name = 'article-content']").ckeditor();
+		resizeContentArea();
+	}
+	if($("#game-editor-form").length > 0){
+		$("#game-editor-form textarea[name = 'description']").ckeditor();
 		resizeContentArea();
 	}
 	if($("#user-editor-form input[name = 'roles']").length > 0){
@@ -624,6 +755,19 @@ $(function(){
 				validators: {
 					notEmpty: {
 						message: "A title is required"
+					}
+				}
+			}
+		}
+	});
+
+	$("#game-editor-form").bootstrapValidator({
+		submitButtons: ".submitButton",
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: "A name is required"
 					}
 				}
 			}

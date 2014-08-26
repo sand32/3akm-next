@@ -59,7 +59,7 @@ block content
 					input.form-control(type = "text", name = "primaryHandle", placeholder = "Primary Handle")
 			.row
 				.form-group.col-xs-6
-					a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='input-group' style='margin-top:.5em;'><input type='text' name='tertiaryHandles' class='form-control'><span class='input-group-btn'><a data-toggle='tooltip' data-placement='right' title='Remove this handle' class='removeItem btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></span></div>", title = "Add another handle")
 			if user && user.hasRole("admin")
 				hr
 				.row
@@ -108,8 +108,8 @@ block content
 								div.input-group(style = "margin-top:.5em;")
 									input.form-control(type = "text", name = "tertiaryHandles", value = handle)
 									span.input-group-btn
-										a.removeHandle(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
-							a.addHandle(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", title = "Add another handle")
+										a.removeItem(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
+							a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='input-group' style='margin-top:.5em;'><input type='text' name='tertiaryHandles' class='form-control'><span class='input-group-btn'><a data-toggle='tooltip' data-placement='right' title='Remove this handle' class='removeItem btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></span></div>", title = "Add another handle")
 				.col-xs-3
 					if user.hasRole("admin")
 						.well

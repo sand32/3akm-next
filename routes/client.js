@@ -26,6 +26,7 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
 	Article = require("../model/article.js"),
+	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
 	User = require("../model/user.js"),
 	getFormattedTime = require("../utils.js").getFormattedTime;
@@ -254,6 +255,82 @@ module.exports = function(app, prefix){
 		res.render("laneditor", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
+		});
+	});
+
+	app.get(prefix + "/admin/lan/:lan", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.redirect("/");
+		}else if(!req.isAuthenticated()
+			  || !authorize(req.user)){
+			return res.redirect("/");
+		}
+		User.findById(req.params.lan)
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.render("laneditor", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					lan: doc,
+					getFormattedTime: getFormattedTime
+				});
+			}else{
+				res.redirect("/");
+			}
+		});
+	});
+
+	app.get(prefix + "/admin/game", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+
+		Game.find({}, "name version supplementalFiles")
+		.sort(req.query.sort)
+		.exec(function(err, docs){
+			res.render("gamemanager", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				games: docs,
+				sort: req.query.sort,
+				getSortClassForHeader: getSortClassForHeader,
+				getSortLinkForHeader: getSortLinkForHeader
+			});
+		});
+	});
+
+	app.get(prefix + "/admin/game/new", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+		res.render("gameeditor", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user,
+			containsEditor: true
+		});
+	});
+
+	app.get(prefix + "/admin/game/:game", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.redirect("/");
+		}else if(!req.isAuthenticated()
+			  || !authorize(req.user)){
+			return res.redirect("/");
+		}
+		Game.findById(req.params.game)
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.render("gameeditor", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					game: doc,
+					containsEditor: true
+				});
+			}else{
+				res.redirect("/");
+			}
 		});
 	});
 }
