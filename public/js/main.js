@@ -533,15 +533,6 @@ $(function(){
 	};
 
 	addGame = function(){
-		var data = {
-				name: $("#game-editor-form input[name = 'name']").val(),
-				version: $("#game-editor-form input[name = 'version']").val(),
-				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
-				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
-				description: $("#game-editor-form textarea[name = 'description']").val(),
-				supplementalFiles: getSupplementalFiles()
-			};
-			console.log(data);
 		$.ajax({
 			type: "POST",
 			url: "/api/game",
@@ -572,8 +563,10 @@ $(function(){
 			data: JSON.stringify({
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
-				supplementalFiles: getSupplementalFiles(),
-				description: $("#game-editor-form textarea[name = 'description']").val()
+				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
+				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
+				description: $("#game-editor-form textarea[name = 'description']").val(),
+				supplementalFiles: getSupplementalFiles()
 			}),
 			processData: false,
 			success: function(){
