@@ -84,7 +84,7 @@ module.exports = function(app, prefix){
 			res.render("games", {
 				isAuthenticated: req.isAuthenticated(),
 				user: req.user,
-				year: doc.beginDate.getFullYear(),
+				year: doc ? doc.beginDate.getFullYear() : 0,
 				games: doc ? doc.games : doc
 			});
 		});
@@ -116,7 +116,7 @@ module.exports = function(app, prefix){
 			return res.redirect("/");
 		}
 
-		Article.find({}, "title author created modifiedBy modified published tags")
+		Article.find({}, "title author created published")
 		.populate("author", "email firstName lastName")
 		.sort(req.query.sort)
 		.exec(function(err, docs){
@@ -223,6 +223,37 @@ module.exports = function(app, prefix){
 			}else{
 				res.redirect("/");
 			}
+		});
+	});
+
+	app.get(prefix + "/admin/lan", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+
+		Lan.find({}, "beginDate endDate active acceptingRsvps")
+		.sort(req.query.sort)
+		.exec(function(err, docs){
+			res.render("lanmanager", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				lans: docs,
+				sort: req.query.sort,
+				getSortClassForHeader: getSortClassForHeader,
+				getSortLinkForHeader: getSortLinkForHeader
+			});
+		});
+	});
+
+	app.get(prefix + "/admin/lan/new", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+		res.render("laneditor", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
 		});
 	});
 }

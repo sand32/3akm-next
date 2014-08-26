@@ -195,6 +195,63 @@ $(function(){
 		confirm("Are you sure you want to delete this article?", callback);
 	};
 
+	// LAN Manager
+	//----------------------------
+
+	reactOnLanSelect = function(){
+		if($("#lan-manager .lan-selector:checked").length > 0){
+			$("#lan-manager .global-operations [name = 'delete']").removeAttr("disabled");
+		}else{
+			$("#lan-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
+		}
+	};
+	if($("#lan-manager").length > 0){
+		reactOnLanSelect();
+		$("#lan-manager .lan-selector").click(reactOnLanSelect);
+	}
+
+	deleteSelectedLans = function(){
+		callback = function(){
+			var lans = $("#lan-manager .lan-selector:checked");
+			for(var i = 0; i < lans.length; i += 1){
+				if(i === lans.length - 1){
+					$.ajax({
+						type: "DELETE",
+						url: "/api/lan/" + $(lans[i]).next("input[type = 'hidden']").val(),
+						success: function(){
+							location.reload(true);
+						},
+						error: function(){
+							setErrorAlert("Unable to delete LAN(s).");
+						}
+					});
+				}else{
+					$.ajax({
+						type: "DELETE",
+						url: "/api/lan/" + $(lans[i]).next("input[type = 'hidden']").val()
+					});
+				}
+			}
+		};
+		confirm("Are you sure you want to delete the selected LAN(s)?", callback);
+	};
+
+	deleteLan = function(id){
+		callback = function(){
+			$.ajax({
+				type: "DELETE",
+				url: "/api/lan/" + id,
+				success: function(){
+					location.reload(true);
+				},
+				error: function(){
+					setErrorAlert("Unable to delete LAN.");
+				}
+			});
+		};
+		confirm("Are you sure you want to delete this LAN?", callback);
+	};
+
 	//----------------------------
 	// Form Submission
 	//----------------------------

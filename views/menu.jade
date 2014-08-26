@@ -46,6 +46,9 @@
 			if user.hasRole("admin") || user.hasRole("author")
 				li
 					a(href = "/authoring/article") Articles
+			if user.hasRole("admin")
+				li
+					a(href = "/admin/lan") LANs
 			li
 				a(href = "#", onclick = "logout();") Logout
 	else
