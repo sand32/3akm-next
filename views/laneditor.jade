@@ -28,4 +28,49 @@ block content
 	hr
 	form#lan-editor-form(role = "form")
 		if !lan
+			.row
+				.form-group.col-xs-4
+					label Begin Date
+					.input-group.date
+						input.form-control(type = "text", name = "beginDate")
+						span.input-group-btn
+							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
+				.form-group.col-xs-4
+					label End Date
+					.input-group.date
+						input.form-control(type = "text", name = "endDate")
+						span.input-group-btn
+							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
+				.form-group.col-xs-2
+					label Active
+					.btn-group(data-toggle = "buttons")
+						label(class = "btn btn-default")
+							input(type = "radio", name = "active-yes")
+							| Yes
+						label(class = "btn btn-default active")
+							input(type = "radio", name = "active-no")
+							| No
+				.form-group.col-xs-2
+					label RSVPs
+					.btn-group(data-toggle = "buttons")
+						label(class = "btn btn-default")
+							input(type = "radio", name = "acceptingRsvps-yes")
+							| Yes
+						label(class = "btn btn-default active")
+							input(type = "radio", name = "acceptingRsvps-no")
+							| No
+			.row
+				fieldset.col-xs-7
+					legend Food List
+					.row.foodList
+						.form-group.col-xs-9
+							label Name
+							input.form-control(type = "text", name = "foodName")
+						.form-group.col-xs-2
+							label Amount
+							input.form-control(type = "text", name = "foodAmount")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another item")
+			hr
+			a.submitButton(class = "btn btn-default", onclick = "addLAN();", disabled = "disabled") Submit
+			a(class = "btn btn-link" href = "/admin/lan") Cancel
 		else

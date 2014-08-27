@@ -515,6 +515,45 @@ $(function(){
 		});
 	};
 
+	// LAN Management
+	//----------------------------
+
+	getFoodList = function(){
+		var food = [],
+			foodFields = $("#lan-editor-form .foodList");
+		for(var i = 0; i < foodFields.length; i += 1){
+			if($(foodFields[i]).find("[name = 'foodName']").val() != ""){
+				food.push({
+					name: $(foodFields[i]).find("[name = 'foodName']").val(),
+					amount: $(foodFields[i]).find("[name = 'foodAmount']").val()
+				});
+			}
+		}
+		return food;
+	};
+
+	addLAN = function(){
+		$.ajax({
+			type: "POST",
+			url: "/api/lan",
+			contentType: "application/json",
+			data: JSON.stringify({
+				beginDate: $("#lan-editor-form input[name = 'beginDate']").val(),
+				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
+				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
+				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
+				supplementalFiles: getFoodList()
+			}),
+			processData: false,
+			success: function(){
+				location.replace("/admin/lan");
+			},
+			error: function(){
+				setErrorAlert("Error adding game.");
+			}
+		});
+	};
+
 	// Game Management
 	//----------------------------
 
@@ -633,6 +672,18 @@ $(function(){
 		$("#user-editor-form input[name = 'roles']").tokenfield(tokenFieldOptions);
 	}
 
+	// Add picker behavior to date fields
+	$(".date").datetimepicker({
+		pickTime: false
+	}).on("dp.change", function(e){
+		var validator = $(e.target).closest("form").data("bootstrapValidator"),
+			fieldName = $(e.target).find("input").attr("name");
+		console.log(validator);
+		if(validator.options.fields[fieldName]){
+			validator.validateField(fieldName);
+		}
+	});
+
 	//----------------------------
 	// Form Validation
 	//----------------------------
@@ -748,6 +799,26 @@ $(function(){
 				validators: {
 					notEmpty: {
 						message: "A title is required"
+					}
+				}
+			}
+		}
+	});
+
+	$("#lan-editor-form").bootstrapValidator({
+		submitButtons: ".submitButton",
+		fields: {
+			beginDate: {
+				validators: {
+					notEmpty: {
+						message: "A begin date is required"
+					}
+				}
+			},
+			endDate: {
+				validators: {
+					notEmpty: {
+						message: "An end date is required"
 					}
 				}
 			}

@@ -241,6 +241,7 @@ module.exports = function(app, prefix){
 				user: req.user,
 				lans: docs,
 				sort: req.query.sort,
+				getFormattedTime: getFormattedTime,
 				getSortClassForHeader: getSortClassForHeader,
 				getSortLinkForHeader: getSortLinkForHeader
 			});
@@ -254,7 +255,8 @@ module.exports = function(app, prefix){
 		}
 		res.render("laneditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+			user: req.user,
+			containsDateField: true
 		});
 	});
 
@@ -272,6 +274,7 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					lan: doc,
+					containsDateField: true,
 					getFormattedTime: getFormattedTime
 				});
 			}else{

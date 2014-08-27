@@ -50,8 +50,8 @@ block content
 						td
 							input.lan-selector(type = "checkbox", value = "")
 							input(type = "hidden", value = lan._id)
-						td #{lan.beginDate}
-						td #{lan.endDate}
+						td= getFormattedTime(lan.beginDate)
+						td= getFormattedTime(lan.endDate)
 						td
 							if lan.active
 								span(class = "glyphicon glyphicon-ok text-success")

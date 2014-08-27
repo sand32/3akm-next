@@ -94,6 +94,10 @@ a.btn-link:hover {
 	margin-top: 1.8em;
 }
 
+.input-group-btn .btn {
+	margin-top: -2px;
+}
+
 .addItem {
 	margin-top: .5em;
 }
