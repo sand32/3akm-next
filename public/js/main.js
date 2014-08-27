@@ -695,15 +695,17 @@ $(function(){
 	}
 
 	// Add picker behavior to date fields
-	$(".date").datetimepicker({
-		pickTime: false
-	}).on("dp.change", function(e){
-		var validator = $(e.target).closest("form").data("bootstrapValidator"),
-			fieldName = $(e.target).find("input").attr("name");
-		if(validator.options.fields[fieldName]){
-			validator.validateField(fieldName);
-		}
-	});
+	if($(".date").length > 0){
+		$(".date").datetimepicker({
+			pickTime: false
+		}).on("dp.change", function(e){
+			var validator = $(e.target).closest("form").data("bootstrapValidator"),
+				fieldName = $(e.target).find("input").attr("name");
+			if(validator.options.fields[fieldName]){
+				validator.validateField(fieldName);
+			}
+		});
+	}
 
 	//----------------------------
 	// Form Validation
