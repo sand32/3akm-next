@@ -549,7 +549,29 @@ $(function(){
 				location.replace("/admin/lan");
 			},
 			error: function(){
-				setErrorAlert("Error adding game.");
+				setErrorAlert("Error adding LAN.");
+			}
+		});
+	};
+
+	updateLAN = function(id){
+		$.ajax({
+			type: "PUT",
+			url: "/api/lan/" + id,
+			contentType: "application/json",
+			data: JSON.stringify({
+				beginDate: $("#lan-editor-form input[name = 'beginDate']").val(),
+				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
+				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
+				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
+				supplementalFiles: getFoodList()
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Successfully updated LAN.");
+			},
+			error: function(){
+				setErrorAlert("Error updating LAN.");
 			}
 		});
 	};

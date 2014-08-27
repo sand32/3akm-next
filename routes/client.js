@@ -267,7 +267,8 @@ module.exports = function(app, prefix){
 			  || !authorize(req.user)){
 			return res.redirect("/");
 		}
-		User.findById(req.params.lan)
+		Lan.findById(req.params.lan)
+		.populate("games.game")
 		.exec(function(err, doc){
 			if(!err && doc){
 				res.render("laneditor", {

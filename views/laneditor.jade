@@ -69,7 +69,7 @@ block content
 						.form-group.col-xs-2
 							label Amount
 							input.form-control(type = "text", name = "foodAmount")
-					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another item")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row foodList' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another item")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addLAN();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/admin/lan") Cancel
