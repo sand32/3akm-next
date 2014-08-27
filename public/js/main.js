@@ -525,7 +525,7 @@ $(function(){
 			if($(foodFields[i]).find("[name = 'foodName']").val() != ""){
 				food.push({
 					name: $(foodFields[i]).find("[name = 'foodName']").val(),
-					amount: $(foodFields[i]).find("[name = 'foodAmount']").val()
+					amount: Number($(foodFields[i]).find("[name = 'foodAmount']").val())
 				});
 			}
 		}
@@ -542,7 +542,7 @@ $(function(){
 				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
 				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
 				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
-				supplementalFiles: getFoodList()
+				foodRequired: getFoodList()
 			}),
 			processData: false,
 			success: function(){
@@ -564,7 +564,7 @@ $(function(){
 				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
 				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
 				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
-				supplementalFiles: getFoodList()
+				foodRequired: getFoodList()
 			}),
 			processData: false,
 			success: function(){
@@ -700,7 +700,6 @@ $(function(){
 	}).on("dp.change", function(e){
 		var validator = $(e.target).closest("form").data("bootstrapValidator"),
 			fieldName = $(e.target).find("input").attr("name");
-		console.log(validator);
 		if(validator.options.fields[fieldName]){
 			validator.validateField(fieldName);
 		}
