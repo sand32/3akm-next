@@ -75,4 +75,22 @@ module.exports = function(app, prefix){
 			}
 		});
 	});
+
+	app.delete(prefix + "/:lan", blendedAuthenticate, function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.status(404).end();
+		}else if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+
+		Lan.findByIdAndRemove(req.params.lan, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
+			}
+		});
+	});
 }
