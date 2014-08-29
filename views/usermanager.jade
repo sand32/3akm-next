@@ -32,7 +32,7 @@ block content
 				a(class = "btn btn-default", name = "new", href = "/admin/user/new")
 					span.button-icon(class = "glyphicon glyphicon-plus")
 					| New
-		table.table.table-hover
+		table.table.table-hover.table-selectable.table-sortable
 			thead
 				tr
 					th
@@ -46,7 +46,7 @@ block content
 				each editUser in editUsers
 					tr.article-row
 						td
-							input.user-selector(type = "checkbox", value = "")
+							input.row-selector(type = "checkbox", value = "")
 							input(type = "hidden", value = user._id)
 						td= editUser.firstName
 						td= editUser.lastName

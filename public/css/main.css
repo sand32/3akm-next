@@ -122,8 +122,7 @@ a.btn-link:hover {
 	margin-left: .5em;
 }
 
-#user-manager th,
-#article-manager th {
+.table-sortable th {
 	cursor: pointer;
 }
 

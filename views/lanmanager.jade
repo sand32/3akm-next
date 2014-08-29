@@ -32,10 +32,10 @@ block content
 				a(class = "btn btn-default", name = "new", href = "/admin/lan/new")
 					span.button-icon(class = "glyphicon glyphicon-plus")
 					| New
-				a(class = "btn btn-default", name = "delete", onclick = "deleteSelectedLans();")
+				a(class = "btn btn-default selection-only", name = "delete", onclick = "deleteSelectedLans();")
 					span.button-icon(class = "glyphicon glyphicon-trash")
 					| Delete
-		table.table.table-hover
+		table.table.table-hover.table-selectable.table-sortable
 			thead
 				tr
 					th
@@ -48,7 +48,7 @@ block content
 				each lan in lans
 					tr.lan-row
 						td
-							input.lan-selector(type = "checkbox", value = "")
+							input.row-selector(type = "checkbox", value = "")
 							input(type = "hidden", value = lan._id)
 						td= getFormattedTime(lan.beginDate, true)
 						td= getFormattedTime(lan.endDate, true)

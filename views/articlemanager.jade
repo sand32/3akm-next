@@ -32,10 +32,10 @@ block content
 				a(class = "btn btn-default", name = "new", href = "/authoring/article/new")
 					span.button-icon(class = "glyphicon glyphicon-plus")
 					| New
-				a(class = "btn btn-default", name = "delete", onclick = "deleteSelectedArticles();")
+				a(class = "btn btn-default selection-only", name = "delete", onclick = "deleteSelectedArticles();")
 					span.button-icon(class = "glyphicon glyphicon-trash")
 					| Delete
-		table.table.table-hover
+		table.table.table-hover.table-selectable.table-sortable
 			thead
 				tr
 					th
@@ -48,7 +48,7 @@ block content
 				each article in articles
 					tr.article-row
 						td
-							input.article-selector(type = "checkbox", value = "")
+							input.row-selector(type = "checkbox", value = "")
 							input(type = "hidden", value = article._id)
 						td #{article.title}
 						td #{article.author.firstName} #{article.author.lastName} (#{article.author.email})

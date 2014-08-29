@@ -93,6 +93,18 @@ $(function(){
 		$(".sort-desc").html($(".sort-desc").html() + "<span class='glyphicon glyphicon-chevron-down' />");
 	}
 
+	reactOnRowSelect = function(){
+		if($(".table-selectable .row-selector:checked").length > 0){
+			$(".global-operations .selection-only").removeAttr("disabled");
+		}else{
+			$(".global-operations .selection-only").attr("disabled", "disabled");
+		}
+	};
+	if($(".table-selectable").length > 0){
+		reactOnRowSelect();
+		$(".table-selectable .row-selector").click(reactOnRowSelect);
+	}
+
 	//----------------------------
 	// Alerts
 	//----------------------------
@@ -123,39 +135,12 @@ $(function(){
 		$("#changePasswordModal").modal("show");
 	};
 
-	// User Manager
-	//----------------------------
-
-	reactOnUserSelect = function(){
-		if($("#user-manager .user-selector:checked").length > 0){
-			$("#user-manager .global-operations [name = 'delete']").removeAttr("disabled");
-		}else{
-			$("#user-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
-		}
-	};
-	if($("#user-manager").length > 0){
-		reactOnUserSelect();
-		$("#user-manager .user-selector").click(reactOnUserSelect);
-	}
-
 	// Article Manager
 	//----------------------------
 
-	reactOnArticleSelect = function(){
-		if($("#article-manager .article-selector:checked").length > 0){
-			$("#article-manager .global-operations [name = 'delete']").removeAttr("disabled");
-		}else{
-			$("#article-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
-		}
-	};
-	if($("#article-manager").length > 0){
-		reactOnArticleSelect();
-		$("#article-manager .article-selector").click(reactOnArticleSelect);
-	}
-
 	deleteSelectedArticles = function(){
 		callback = function(){
-			var articles = $("#article-manager .article-selector:checked");
+			var articles = $("#article-manager .row-selector:checked");
 			for(var i = 0; i < articles.length; i += 1){
 				if(i === articles.length - 1){
 					$.ajax({
@@ -198,21 +183,9 @@ $(function(){
 	// LAN Manager
 	//----------------------------
 
-	reactOnLanSelect = function(){
-		if($("#lan-manager .lan-selector:checked").length > 0){
-			$("#lan-manager .global-operations [name = 'delete']").removeAttr("disabled");
-		}else{
-			$("#lan-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
-		}
-	};
-	if($("#lan-manager").length > 0){
-		reactOnLanSelect();
-		$("#lan-manager .lan-selector").click(reactOnLanSelect);
-	}
-
 	deleteSelectedLans = function(){
 		callback = function(){
-			var lans = $("#lan-manager .lan-selector:checked");
+			var lans = $("#lan-manager .row-selector:checked");
 			for(var i = 0; i < lans.length; i += 1){
 				if(i === lans.length - 1){
 					$.ajax({
@@ -255,21 +228,9 @@ $(function(){
 	// Game Manager
 	//----------------------------
 
-	reactOnGameSelect = function(){
-		if($("#game-manager .game-selector:checked").length > 0){
-			$("#game-manager .global-operations [name = 'delete']").removeAttr("disabled");
-		}else{
-			$("#game-manager .global-operations [name = 'delete']").attr("disabled", "disabled");
-		}
-	};
-	if($("#game-manager").length > 0){
-		reactOnGameSelect();
-		$("#game-manager .game-selector").click(reactOnGameSelect);
-	}
-
 	deleteSelectedGames = function(){
 		callback = function(){
-			var lans = $("#game-manager .game-selector:checked");
+			var lans = $("#game-manager .row-selector:checked");
 			for(var i = 0; i < lans.length; i += 1){
 				if(i === lans.length - 1){
 					$.ajax({
