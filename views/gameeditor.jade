@@ -50,16 +50,16 @@ block content
 							label Description Content
 							textarea.form-control.editorfield(type = "text", name = "description")
 			.row
-				fieldset.col-xs-10
+				fieldset.col-xs-12
 					legend Supplemental Files
 					.row.supplementalFiles
-						.form-group.col-xs-5
+						.form-group.col-xs-4
 							label Name
 							input.form-control(type = "text", name = "fileName")
-						.form-group.col-xs-6
+						.form-group.col-xs-7
 							label URL
 							input.form-control(type = "text", name = "fileUrl")
-					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-5'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-6'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addGame();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/admin/game") Cancel
@@ -86,34 +86,34 @@ block content
 							label Description Content
 							textarea.form-control.editorfield(type = "text", name = "description")= game.description
 			.row
-				fieldset.col-xs-10
+				fieldset.col-xs-12
 					legend Supplemental Files
 					if game.supplementalFiles.length > 0
 						.row.supplementalFiles
-							.form-group.col-xs-5
+							.form-group.col-xs-4
 								label Name
 								input.form-control(type = "text", name = "fileName", value = game.supplementalFiles[0].name)
-							.form-group.col-xs-6
+							.form-group.col-xs-7
 								label URL
 								input.form-control(type = "text", name = "fileUrl", value = game.supplementalFiles[0].url)
 						- for(var i = 1; i < game.supplementalFiles.length; i += 1){
 							.row.supplementalFiles(style = "margin-top:.5em;")
-								.col-xs-5
+								.col-xs-4
 									input.form-control(type = "text", name = "fileName", value = game.supplementalFiles[i].name)
-								.col-xs-6
+								.col-xs-7
 									input.form-control(type = "text", name = "fileUrl", value = game.supplementalFiles[i].url)
 								a.removeItem.col-xs-1(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
 						- }
-						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-5'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-6'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
+						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
 					else	
 						.row.supplementalFiles
-							.form-group.col-xs-5
+							.form-group.col-xs-4
 								label Name
 								input.form-control(type = "text", name = "fileName")
-							.form-group.col-xs-6
+							.form-group.col-xs-7
 								label URL
 								input.form-control(type = "text", name = "fileUrl")
-						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-5'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-6'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
+						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
 			hr
 			.btn-group
 				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "'); location.replace('/admin/game');") Save
