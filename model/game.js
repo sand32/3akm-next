@@ -30,7 +30,7 @@ var mongoose = require("mongoose"),
 		},
 		version: {
 			type: String,
-			required: true
+			default: "Current"
 		},
 		supplementalFiles: [{
 			name: {
