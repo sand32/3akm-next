@@ -700,6 +700,9 @@ $(function(){
 				fieldName = $(e.target).find("input").attr("name");
 			if(validator.options.fields[fieldName]){
 				validator.validateField(fieldName);
+				if(!validator.isValid()){
+					$(e.target).closest("form").find(".submitButton").attr("disabled", "disabled")
+				}
 			}
 		});
 	}
