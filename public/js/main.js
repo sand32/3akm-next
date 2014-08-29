@@ -677,10 +677,6 @@ $(function(){
 		resizeContentArea();
 	});
 
-	tokenFieldOptions = {
-		createTokensOnBlur: true
-	};
-
 	// Add ckeditor to editor fields
 	if($(".editorfield").length > 0){
 		$(".editorfield").ckeditor(function(){
