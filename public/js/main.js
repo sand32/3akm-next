@@ -681,24 +681,23 @@ $(function(){
 		createTokensOnBlur: true
 	};
 
-	if($("#article-editor-form").length > 0){
-		$("#article-editor-form input[name = 'tags']").tokenfield(tokenFieldOptions);
-		$("#article-editor-form textarea[name = 'article-content']").ckeditor(function(){
+	// Add ckeditor to editor fields
+	if($(".editorfield").length > 0){
+		$(".editorfield").ckeditor(function(){
 			resizeContentArea();
 		});
 	}
-	if($("#game-editor-form").length > 0){
-		$("#game-editor-form textarea[name = 'description']").ckeditor(function(){
-			resizeContentArea();
+
+	// Add tokenization behavior to token fields
+	if($(".tokenfield").length > 0){
+		$(".tokenfield").tokenfield({
+			createTokensOnBlur: true
 		});
-	}
-	if($("#user-editor-form input[name = 'roles']").length > 0){
-		$("#user-editor-form input[name = 'roles']").tokenfield(tokenFieldOptions);
 	}
 
 	// Add picker behavior to date fields
-	if($(".date").length > 0){
-		$(".date").datetimepicker({
+	if($(".datefield").length > 0){
+		$(".datefield").datetimepicker({
 			pickTime: false
 		}).on("dp.change", function(e){
 			var validator = $(e.target).closest("form").data("bootstrapValidator"),

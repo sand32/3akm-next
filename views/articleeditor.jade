@@ -35,7 +35,7 @@ block content
 			.row
 				.form-group.col-xs-6
 					label Tags
-					input.form-control(type = "text", name = "tags")
+					input.form-control.tokenfield(type = "text", name = "tags")
 				.form-group.col-xs-2
 					label Publish
 					.btn-group(data-toggle = "buttons")
@@ -52,7 +52,7 @@ block content
 			.row
 				.form-group.col-xs-12
 					label Content
-					textarea.form-control(type = "text", name = "article-content")
+					textarea.form-control.editorfield(type = "text", name = "article-content")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "submitNewArticle();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/authoring/article") Cancel
@@ -63,7 +63,7 @@ block content
 					input.form-control(type = "text", name = "title", value = article.title, autofocus)
 				.form-group.col-xs-6
 					label Tags
-					input.form-control(type = "text", name = "tags", value = article.tags)
+					input.form-control.tokenfield(type = "text", name = "tags", value = article.tags)
 			.row
 				.col-xs-6.well
 					.row
@@ -106,7 +106,7 @@ block content
 			.row
 				.form-group.col-xs-12
 					label Content
-					textarea.form-control(type = "text", name = "article-content")= article.content
+					textarea.form-control.editorfield(type = "text", name = "article-content")= article.content
 			hr
 			.btn-group
 				a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "'); location.replace('/authoring/article');") Save

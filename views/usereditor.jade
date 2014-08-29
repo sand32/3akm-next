@@ -65,7 +65,7 @@ block content
 				.row
 					.form-group.col-xs-6
 						label Roles
-						input.form-control(type = "text", name = "roles")
+						input.form-control.tokenfield(type = "text", name = "roles")
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "addUser();", disabled = "disabled") Submit
 			else
@@ -130,7 +130,7 @@ block content
 				.row
 					.form-group.col-xs-6
 						label Roles
-						input.form-control(type = "text", name = "roles", value = editUser.roles)
+						input.form-control.tokenfield(type = "text", name = "roles", value = editUser.roles)
 				hr
 				.btn-group
 					a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "'); location.replace('/admin/user')") Save
