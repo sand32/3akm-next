@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	Game = require("../model/game.js"),
+	Lan = require("../model/lan.js"),
 	authorize = require("../authorization.js"),
 	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
 
@@ -82,6 +83,18 @@ module.exports = function(app, prefix){
 			return res.status(403).end();
 		}
 
+		Lan.find({"games.game": req.params.game}, function(err, docs){
+			if(!err && docs){
+				for(var i = 0; i < docs.length; i += 1){
+					for(var j = 0; j < docs[i].games.length; j += 1){
+						if(docs[i].games[j].game.toString() == req.params.game){
+							docs[i].games.splice(j, 1);
+						}
+					}
+					docs[i].save();
+				}
+			}
+		});
 		Game.findByIdAndRemove(req.params.game, function(err, doc){
 			if(err){
 				res.status(400).end();
