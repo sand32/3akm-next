@@ -59,7 +59,7 @@ block content
 						.form-group.col-xs-7
 							label URL
 							input.form-control(type = "text", name = "fileUrl")
-					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another file")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addGame();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/admin/game") Cancel
@@ -104,7 +104,6 @@ block content
 									input.form-control(type = "text", name = "fileUrl", value = game.supplementalFiles[i].url)
 								a.removeItem.col-xs-1(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-2px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
 						- }
-						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
 					else	
 						.row.supplementalFiles
 							.form-group.col-xs-4
@@ -113,9 +112,9 @@ block content
 							.form-group.col-xs-7
 								label URL
 								input.form-control(type = "text", name = "fileUrl")
-						a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another file")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another file")
 			hr
 			.btn-group
 				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "'); location.replace('/admin/game');") Save
-				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Apply
+				a(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/game") Back

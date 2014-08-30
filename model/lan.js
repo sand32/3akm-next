@@ -68,4 +68,14 @@ var mongoose = require("mongoose"),
 		}]
 	});
 
+lanSchema.methods.hasGame = function(gameId){
+	for(var i = 0; i < this.games.length; i += 1){
+		if(this.games[i].game.toString() == gameId
+		|| this.games[i].game._id.toString() == gameId){
+			return true;
+		}
+	}
+	return false;
+}
+
 module.exports = mongoose.model("Lan", lanSchema);

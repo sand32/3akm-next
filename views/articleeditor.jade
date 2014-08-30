@@ -106,6 +106,6 @@ block content
 			hr
 			.btn-group
 				a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "'); location.replace('/authoring/article');") Save
-				a.submitButton(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Apply
+				a(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Apply
 			a(class = "btn btn-link" href = "/article/" + article._id) View
 			a(class = "btn btn-link" href = "/authoring/article") Back

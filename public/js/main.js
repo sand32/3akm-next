@@ -537,6 +537,7 @@ $(function(){
 				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
 				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
 				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
+				games: getGameList(),
 				foodRequired: getFoodList()
 			}),
 			processData: false,

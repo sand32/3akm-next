@@ -279,17 +279,22 @@ module.exports = function(app, prefix){
 		Lan.findById(req.params.lan)
 		.populate("games.game")
 		.exec(function(err, doc){
-			if(!err && doc){
-				res.render("laneditor", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					lan: doc,
-					containsDateField: true,
-					getFormattedTime: getFormattedTime
-				});
-			}else{
-				res.redirect("/");
-			}
+			Game.find({}, "name")
+			.sort("name")
+			.exec(function(err2, docs){
+				if(!err && !err2 && doc){
+					res.render("laneditor", {
+						isAuthenticated: req.isAuthenticated(),
+						user: req.user,
+						games: docs,
+						lan: doc,
+						containsDateField: true,
+						getFormattedTime: getFormattedTime
+					});
+				}else{
+					res.redirect("/");
+				}
+			});
 		});
 	});
 

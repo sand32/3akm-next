@@ -36,15 +36,20 @@ module.exports = {
 		passport.authenticate("basic")(req, res, next);
 	},
 
-	getFormattedTime: function(date, excludeTime){
+	getFormattedTime: function(date, excludeTime, forDateField){
 		var padTo2 = function(num){
-			var string = num.toString();
-			if(string.length < 2){
-				string = "0" + string;
-			}
-			return string;
-		};
-		var dateString = date.getFullYear() + "-" + padTo2(date.getMonth()+1) + "-" + padTo2(date.getDate());
+				var string = num.toString();
+				if(string.length < 2){
+					string = "0" + string;
+				}
+				return string;
+			},
+			dateString;
+		if(!forDateField){
+			dateString = date.getFullYear() + "-" + padTo2(date.getMonth()+1) + "-" + padTo2(date.getDate());
+		}else{
+			dateString = padTo2(date.getMonth()+1) + "/" + padTo2(date.getDate()) + "/" + date.getFullYear();
+		}
 		if(!excludeTime){
 			dateString += " " + (date.getHours()%12 === 0 ? "12" : padTo2(date.getHours()%12)) + ":" 
 			+ padTo2(date.getMinutes()) + ":" + padTo2(date.getSeconds()) 

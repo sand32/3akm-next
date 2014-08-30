@@ -134,7 +134,7 @@ block content
 				hr
 				.btn-group
 					a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "'); location.replace('/admin/user')") Save
-					a.submitButton(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "');") Apply
+					a(class = "btn btn-default", onclick = "updateUser('" + editUser._id + "');") Apply
 			else
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "updateUser('session');") Update

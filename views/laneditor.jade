@@ -30,13 +30,15 @@ block content
 		if !lan
 			.row
 				.form-group.col-xs-4
-					label Begin Date
+					label Begin Date 
+						span.text-danger (Required)
 					.input-group.datefield
 						input.form-control(type = "text", name = "beginDate")
 						span.input-group-btn
 							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
 				.form-group.col-xs-4
-					label End Date
+					label End Date 
+						span.text-danger (Required)
 					.input-group.datefield
 						input.form-control(type = "text", name = "endDate")
 						span.input-group-btn
@@ -79,8 +81,103 @@ block content
 						.form-group.col-xs-2
 							label Amount
 							input.form-control(type = "text", name = "foodAmount")
-					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row foodList' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-2px;' /></div>", title = "Add another item")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row foodList' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another item")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addLAN();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/admin/lan") Cancel
 		else
+			.row
+				.form-group.col-xs-4
+					label Begin Date 
+						span.text-danger (Required)
+					.input-group.datefield
+						input.form-control(type = "text", name = "beginDate", value = getFormattedTime(lan.beginDate, true, true))
+						span.input-group-btn
+							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
+				.form-group.col-xs-4
+					label End Date 
+						span.text-danger (Required)
+					.input-group.datefield
+						input.form-control(type = "text", name = "endDate", value = getFormattedTime(lan.endDate, true, true))
+						span.input-group-btn
+							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
+				.form-group.col-xs-2
+					label Active
+					.btn-group(data-toggle = "buttons")
+						if lan.active
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "active-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "active-no")
+								| No
+						else
+							label(class = "btn btn-default")
+								input(type = "radio", name = "active-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "active-no")
+								| No
+				.form-group.col-xs-2
+					label RSVPs
+					.btn-group(data-toggle = "buttons")
+						if lan.acceptingRsvps
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "acceptingRsvps-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "acceptingRsvps-no")
+								| No
+						else
+							label(class = "btn btn-default")
+								input(type = "radio", name = "acceptingRsvps-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "acceptingRsvps-no")
+								| No
+			.row
+				fieldset.col-xs-5
+					legend Games
+					.row.gameList
+						.well.col-xs-12
+							each game in games
+								.form-group.checkbox
+									label
+										if lan.hasGame(game._id)
+											input.game-selector(type = "checkbox", name = game._id, checked = "checked")
+										else
+											input.game-selector(type = "checkbox", name = game._id)
+										| #{game.name}
+			.row
+				fieldset.col-xs-7
+					legend Food List
+					if lan.foodRequired.length > 0
+						.row.foodList
+							.form-group.col-xs-9
+								label Name
+								input.form-control(type = "text", name = "foodName", value = lan.foodRequired[0].name)
+							.form-group.col-xs-2
+								label Amount
+								input.form-control(type = "text", name = "foodAmount", value = lan.foodRequired[0].amount)
+						- for(var i = 1; i < lan.foodRequired.length; i += 1){
+							.row.foodList(style = "margin-top:.5em;")
+								.col-xs-9
+									input.form-control(type = "text", name = "foodName", value = lan.foodRequired[i].name)
+								.col-xs-2
+									input.form-control(type = "text", name = "foodAmount", value = lan.foodRequired[i].amount)
+								a.removeItem.col-xs-1(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:-1px;", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
+						- }
+					else
+						.row.foodList
+							.form-group.col-xs-9
+								label Name
+								input.form-control(type = "text", name = "foodName")
+							.form-group.col-xs-2
+								label Amount
+								input.form-control(type = "text", name = "foodAmount")
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row foodList' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another item")
+			hr
+			.btn-group
+				a.submitButton(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "'); location.replace('/admin/lan');") Save
+				a(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "');") Apply
+			a(class = "btn btn-link" href = "/admin/lan") Cancel
