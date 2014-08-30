@@ -577,18 +577,22 @@ $(function(){
 	};
 
 	addGame = function(){
-		$.ajax({
-			type: "POST",
-			url: "/api/game",
-			contentType: "application/json",
-			data: JSON.stringify({
+		var data = {
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
 				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
 				supplementalFiles: getSupplementalFiles()
-			}),
+			};
+		if(data.version === ""){
+			delete data.version;
+		}
+		$.ajax({
+			type: "POST",
+			url: "/api/game",
+			contentType: "application/json",
+			data: JSON.stringify(data),
 			processData: false,
 			success: function(){
 				location.replace("/admin/game");
@@ -600,18 +604,22 @@ $(function(){
 	};
 
 	updateGame = function(id){
-		$.ajax({
-			type: "PUT",
-			url: "/api/game/" + id,
-			contentType: "application/json",
-			data: JSON.stringify({
+		var data = {
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
 				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
 				supplementalFiles: getSupplementalFiles()
-			}),
+			};
+		if(data.version === ""){
+			delete data.version;
+		}
+		$.ajax({
+			type: "PUT",
+			url: "/api/game/" + id,
+			contentType: "application/json",
+			data: JSON.stringify(data),
 			processData: false,
 			success: function(){
 				setSuccessAlert("Successfully updated game.");
