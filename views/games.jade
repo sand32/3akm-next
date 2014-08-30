@@ -25,8 +25,12 @@ extends layout.jade
 
 block content
 	if games
-		h1 Games for #{year}
+		h1 Games for LAN #{year}
 		hr
+		each game in games
+			.game-entry
+				.game-header(data-inactive-image = game.game.descriptionHeaderInactiveImage, data-active-image = game.game.descriptionHeaderImage)
+					h2= game.game.name
 	else
-		h1 No games defined
+		h1 No active LAN defined
 		hr

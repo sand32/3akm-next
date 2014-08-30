@@ -125,6 +125,15 @@ $(function(){
 	// Page-specific Behavior
 	//----------------------------
 
+	// Games
+	//----------------------------
+
+	$(".game-header").hover(function(){
+		$(this).css("background-image", $(this).attr("data-active-image"));
+	}, function(){
+		$(this).css("background-image", $(this).attr("data-inactive-image"));
+	});
+
 	// User Profile
 	//----------------------------
 

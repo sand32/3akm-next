@@ -79,15 +79,19 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/games", function(req, res){
-		Lan.findOne({active: true}, "games", {sort: {beginDate: "-1"}})
+		Lan.findOne({active: true}, null, {sort: {beginDate: "-1"}})
 		.populate("games.game")
 		.exec(function(err, doc){
-			res.render("games", {
-				isAuthenticated: req.isAuthenticated(),
-				user: req.user,
-				year: doc ? doc.beginDate.getFullYear() : 0,
-				games: doc ? doc.games : doc
-			});
+			if(!err){
+				res.render("games", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					year: doc ? doc.beginDate.getFullYear() : 0,
+					games: doc ? doc.games : null
+				});
+			}else{
+				res.redirect("/")
+			}
 		});
 	});
 

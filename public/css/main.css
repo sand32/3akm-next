@@ -90,6 +90,17 @@ a.btn-link:hover {
 	color: red;
 }
 
+.game-entry .game-header {
+	border-bottom: 1px #222 solid;
+	cursor: pointer;
+	text-align: right;
+}
+
+.game-entry:hover .game-header,
+.game-entry-open .game-header {
+	border-bottom: 1px red solid;
+}
+
 .field-align {
 	margin-top: 1.8em;
 }
