@@ -60,6 +60,16 @@ block content
 							input(type = "radio", name = "acceptingRsvps-no")
 							| No
 			.row
+				fieldset.col-xs-5
+					legend Games
+					.row.gameList
+						.well.col-xs-12
+							each game in games
+								.form-group.checkbox
+									label
+										input.game-selector(type = "checkbox", name = game._id)
+										| #{game.name}
+			.row
 				fieldset.col-xs-7
 					legend Food List
 					.row.foodList

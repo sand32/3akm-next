@@ -253,10 +253,19 @@ module.exports = function(app, prefix){
 		|| !authorize(req.user)){
 			return res.redirect("/");
 		}
-		res.render("laneditor", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
-			containsDateField: true
+		Game.find({}, "name")
+		.sort("name")
+		.exec(function(err, docs){
+			if(!err){
+				res.render("laneditor", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					games: docs,
+					containsDateField: true
+				});
+			}else{
+				res.status(500).end();
+			}
 		});
 	});
 

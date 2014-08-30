@@ -479,6 +479,17 @@ $(function(){
 	// LAN Management
 	//----------------------------
 
+	getGameList = function(){
+		var games = [];
+			gameFields = $("#lan-editor-form .game-selector:checked");
+		for(var i = 0; i < gameFields.length; i += 1){
+			games.push({
+				game: $(gameFields[i]).attr("name")
+			});
+		}
+		return games;
+	};
+
 	getFoodList = function(){
 		var food = [],
 			foodFields = $("#lan-editor-form .foodList");
@@ -503,6 +514,7 @@ $(function(){
 				endDate: $("#lan-editor-form input[name = 'endDate']").val(),
 				active: $("#lan-editor-form input[name = 'active-yes']").parent().hasClass("active"),
 				acceptingRsvps: $("#lan-editor-form input[name = 'acceptingRsvps-yes']").parent().hasClass("active"),
+				games: getGameList(),
 				foodRequired: getFoodList()
 			}),
 			processData: false,
