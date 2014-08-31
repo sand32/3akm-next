@@ -9,3 +9,6 @@ node_modules
 
 # Temp files
 *~
+
+# Upload Directory
+public/uploads/*
