@@ -22,27 +22,37 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path");
+var mongoose = require("mongoose"),
+	authorize = require("../authorization.js"),
+	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
+	multer = require("multer");
 
-module.exports = function(app){
-	var userApiRoutes = require("./userapi.js"),
-		articleApiRoutes = require("./articleapi.js"),
-		lanApiRoutes = require("./lanapi.js"),
-		gameApiRoutes = require("./gameapi.js"),
-		uploadRoutes = require("./uploadapi.js")
-		clientRoutes = require("./client.js");
+module.exports = function(app, prefix){
+	app.post(prefix + "/image", multer({
+		dest:"./public/uploads/images/",
+		fileSize: 4000000, // 4MB
+		limits: {
+			fields: 0,
+			files: 1
+		},
+		onFileUploadStart: function(file){
+			if(file.mimetype.indexOf("image/")){
+				return false;
+			}
+		},
+		onError: function(error, next){
+			console.log("Error uploading image: " + error);
+			next(error);
+		}
+	}), function(req, res){
+		if(req.files.file){
+			res.status(200).send(req.files.file);
+		}else{
+			res.status(400).end();
+		}
+	});
 
-	userApiRoutes(app, "/api/user");
-	articleApiRoutes(app, "/api/article");
-	lanApiRoutes(app, "/api/lan");
-	gameApiRoutes(app, "/api/game");
-	uploadRoutes(app, "/api/upload");
-	clientRoutes(app, "");
-
-	app.use(express.static('public'));
-
-	app.use(function(req, res){
-		res.status(404).end();
+	app.get(prefix + "/test", function(req, res){
+		res.send("<form action='/api/upload/image' method='post' enctype='multipart/form-data'><input type='file' name='file'/><input type='submit' value='Send'/></form>")
 	});
 }

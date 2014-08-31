@@ -105,6 +105,22 @@ $(function(){
 		$(".table-selectable .row-selector").click(reactOnRowSelect);
 	}
 
+	uploadImage = function(fileFieldName, pathFieldName){
+		var data = new FormData();
+		data.append(fileFieldName, $("input[name = '" + fileFieldName + "']")[0].files[0]);
+		$.ajax({
+			type: "POST",
+			url: "/api/upload/image",
+			contentType: "multipart/form-data",
+			data: data,
+			cache: false,
+			processData: false,
+			success: function(data){
+				$("input[name = '" + pathFieldName + "']").val(data.path.replace("public", ""));
+			}
+		});
+	};
+
 	//----------------------------
 	// Alerts
 	//----------------------------
