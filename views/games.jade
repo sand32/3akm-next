@@ -29,7 +29,7 @@ block content
 		hr
 		each game in games
 			.game-entry
-				.game-header(data-inactive-image = game.game.descriptionHeaderInactiveImage, data-active-image = game.game.descriptionHeaderImage)
+				.game-header.grayscale(style = "background-image:url(" + game.game.descriptionHeaderImage + ");")
 					h2= game.game.name
 	else
 		h1 No active LAN defined

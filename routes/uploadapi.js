@@ -53,6 +53,6 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/test", function(req, res){
-		res.send("<form action='/api/upload/image' method='post' enctype='multipart/form-data'><input type='file' name='file'/><input type='submit' value='Send'/></form>")
+		res.send("<form action='/api/upload/image' method='post' enctype='multipart/form-data'><input type='file' name='file'/><input type='submit' value='Send'/></form>");
 	});
 }

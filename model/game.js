@@ -41,7 +41,6 @@ var mongoose = require("mongoose"),
 		}],
 		preparationNotes: String,
 		descriptionHeaderImage: String,
-		descriptionHeaderInactiveImage: String,
 		description: String
 	});
 

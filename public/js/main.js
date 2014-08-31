@@ -145,9 +145,9 @@ $(function(){
 	//----------------------------
 
 	$(".game-header").hover(function(){
-		$(this).css("background-image", $(this).attr("data-active-image"));
+		$(this).removeClass("grayscale");
 	}, function(){
-		$(this).css("background-image", $(this).attr("data-inactive-image"));
+		$(this).addClass("grayscale");
 	});
 
 	// User Profile
@@ -597,7 +597,6 @@ $(function(){
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
-				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
 				supplementalFiles: getSupplementalFiles()
 			};
@@ -624,7 +623,6 @@ $(function(){
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
-				descriptionHeaderInactiveImage: $("#game-editor-form input[name = 'descriptionHeaderInactiveImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
 				supplementalFiles: getSupplementalFiles()
 			};
