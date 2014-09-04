@@ -26,8 +26,8 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
-	removeDuplicates = require("../utils.js").removeDuplicates;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	removeDuplicates = require("../utils/common.js").removeDuplicates;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){

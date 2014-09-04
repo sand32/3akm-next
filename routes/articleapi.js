@@ -25,8 +25,8 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Article = require("../model/article.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
-	removeDuplicates = require("../utils.js").removeDuplicates;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	removeDuplicates = require("../utils/common.js").removeDuplicates;
 
 module.exports = function(app, prefix){
 	app.post(prefix, blendedAuthenticate, function(req, res){

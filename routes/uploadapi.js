@@ -24,7 +24,7 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate,
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	multer = require("multer");
 
 module.exports = function(app, prefix){

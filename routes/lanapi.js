@@ -25,7 +25,7 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
 	app.post(prefix, blendedAuthenticate, function(req, res){

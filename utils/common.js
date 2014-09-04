@@ -22,9 +22,14 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport");
+var passport = require("passport"),
+	fs = require("fs");
 
 module.exports = {
+	loadConfig: function(file){
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	},
+
 	// Special authentication in order to support local sessions and basic auth 
 	// on API routes.
 	// 

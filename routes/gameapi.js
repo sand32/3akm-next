@@ -26,7 +26,7 @@ var mongoose = require("mongoose"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
 	authorize = require("../authorization.js"),
-	blendedAuthenticate = require("../utils.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
 	app.post(prefix, blendedAuthenticate, function(req, res){

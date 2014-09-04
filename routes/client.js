@@ -29,9 +29,9 @@ var passport = require("passport"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
 	User = require("../model/user.js"),
-	getFormattedTime = require("../utils.js").getFormattedTime;
-	getSortClassForHeader = require("../utils.js").getSortClassForHeader;
-	getSortLinkForHeader = require("../utils.js").getSortLinkForHeader;
+	getFormattedTime = require("../utils/common.js").getFormattedTime;
+	getSortClassForHeader = require("../utils/common.js").getSortClassForHeader;
+	getSortLinkForHeader = require("../utils/common.js").getSortLinkForHeader;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
