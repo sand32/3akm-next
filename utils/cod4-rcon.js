@@ -105,5 +105,27 @@ module.exports = {
 			}
 			callback(null, dataObj);
 		});
+	},
+
+	gametype: function(callback){
+		_sendAndReceiveSingleCommand("g_gametype", function(err, data){
+			if(err){
+				callback(err);
+				return;
+			}
+			var dataObj = {},
+				lines = data.replace("\r", "").split("\n"),
+				tokens;
+			for(var i = 0; i < lines.length; i += 1){
+				if(lines[i].indexOf("\"g_gametype\"") !== -1){
+					tokens = lines[i].split(" ");
+					dataObj.gametype = tokens[2].replace("\"", "").replace("^7", "");
+					dataObj.defaultGametype = tokens[4].replace("\"", "").replace("^7", "");
+				}else if(lines[i].indexOf("latched") !== -1){
+					tokens = lines[i].split(" ");
+					dataObj.latched = tokens[1].replace("\"", "");
+				}
+			}
+		});
 	}
 }

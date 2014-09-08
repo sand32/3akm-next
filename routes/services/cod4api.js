@@ -26,7 +26,7 @@ var cod4 = require("../../utils/cod4-rcon.js"),
 	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/map", function(req, res){
+	app.get(prefix + "/currentmap", function(req, res){
 		cod4.status(function(err, data){
 			if(!err){
 				res.status(200).send({
@@ -39,7 +39,37 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/map", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/currentmap", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		res.status(501).end();
+	});
+
+	app.get(prefix + "/maplist", function(req, res){
+		res.status(501).end();
+	});
+
+	app.get(prefix + "/maprotation", function(req, res){
+		res.status(501).end();
+	});
+
+	app.get(prefix + "/gametype", function(req, res){
+		cod4.gametype(function(err, data){
+			if(!err){
+				res.status(200).send({
+					gametype: data.gametype,
+					defaultGametype: data.defaultGametype,
+					latched: data.latched || ""
+				});
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
+	});
+
+	app.put(prefix + "/gametype", function(req, res){
 		if(!authorize(req.user)){
 			return res.status(403).end();
 		}
