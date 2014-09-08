@@ -6,6 +6,11 @@
 	"dbName": "3akm",
 	"dbUser": "",
 	"dbPassword": "",
+	"ts3": {
+		"address": "localhost",
+		"queryPort": "10011",
+		"password": "changeme"
+	},
 	"cod4": {
 		"address": "localhost",
 		"port": "28960",
