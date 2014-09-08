@@ -22,29 +22,27 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path");
+var cod4 = require("../../utils/cod4-rcon.js"),
+	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
 
-module.exports = function(app){
-	var userApiRoutes = require("./userapi.js"),
-		articleApiRoutes = require("./articleapi.js"),
-		lanApiRoutes = require("./lanapi.js"),
-		gameApiRoutes = require("./gameapi.js"),
-		uploadRoutes = require("./uploadapi.js"),
-		serviceRoutes = require("./services/serviceroutes.js"),
-		clientRoutes = require("./client.js");
+module.exports = function(app, prefix){
+	app.get(prefix + "/map", function(req, res){
+		cod4.status(function(err, data){
+			if(!err){
+				res.status(200).send({
+					map: data.map
+				});
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
+	});
 
-	userApiRoutes(app, "/api/user");
-	articleApiRoutes(app, "/api/article");
-	lanApiRoutes(app, "/api/lan");
-	gameApiRoutes(app, "/api/game");
-	uploadRoutes(app, "/api/upload");
-	serviceRoutes(app, "/api/service");
-	clientRoutes(app, "");
-
-	app.use(express.static('public'));
-
-	app.use(function(req, res){
-		res.status(404).end();
+	app.put(prefix + "/map", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		res.status(501).end();
 	});
 }

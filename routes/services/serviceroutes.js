@@ -22,29 +22,8 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path");
+module.exports = function(app, prefix){
+	var cod4Routes = require("./cod4api.js");
 
-module.exports = function(app){
-	var userApiRoutes = require("./userapi.js"),
-		articleApiRoutes = require("./articleapi.js"),
-		lanApiRoutes = require("./lanapi.js"),
-		gameApiRoutes = require("./gameapi.js"),
-		uploadRoutes = require("./uploadapi.js"),
-		serviceRoutes = require("./services/serviceroutes.js"),
-		clientRoutes = require("./client.js");
-
-	userApiRoutes(app, "/api/user");
-	articleApiRoutes(app, "/api/article");
-	lanApiRoutes(app, "/api/lan");
-	gameApiRoutes(app, "/api/game");
-	uploadRoutes(app, "/api/upload");
-	serviceRoutes(app, "/api/service");
-	clientRoutes(app, "");
-
-	app.use(express.static('public'));
-
-	app.use(function(req, res){
-		res.status(404).end();
-	});
+	cod4Routes(app, prefix + "/cod4");
 }

@@ -30,7 +30,7 @@ var express = require("express"),
 	mongoose = require("mongoose"),
 	authentication = require("./authentication.js"),
 	routes = require("./routes/routes.js"),
-	loadConfig = require("./utils/common.js").loadConfig;
+	loadConfig = require("./utils/common.js").loadConfig,
 	app = express(),
 	config = loadConfig(__dirname + "/config.json");
 

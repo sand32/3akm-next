@@ -5,5 +5,12 @@
 	"dbAddress": "localhost",
 	"dbName": "3akm",
 	"dbUser": "",
-	"dbPassword": ""
+	"dbPassword": "",
+	"cod4": {
+		"address": "localhost",
+		"port": "28960",
+		"password": "changeme",
+		"sequenceDelayMS": "1000",
+		"commandTimeout": "2000"
+	}
 }
