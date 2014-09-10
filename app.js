@@ -32,7 +32,7 @@ var express = require("express"),
 	routes = require("./routes/routes.js"),
 	loadConfig = require("./utils/common.js").loadConfig,
 	app = express(),
-	config = loadConfig(__dirname + "/config.json");
+	config = loadConfig(__dirname + "/config/config.json");
 
 // Establish database connection
 if(config.dbUser){

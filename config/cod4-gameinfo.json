@@ -1,0 +1,28 @@
+{
+	"gametypes": [
+		"dm",
+		"dom",
+		"koth",
+		"sab",
+		"sd",
+		"war"
+	],
+	"maps": [
+		"mp_backlot",
+		"mp_bloc",
+		"mp_bog",
+		"mp_cargoship",
+		"mp_citystreets",
+		"mp_convoy",
+		"mp_countdown",
+		"mp_crash",
+		"mp_crossfire",
+		"mp_farm",
+		"mp_overgrown",
+		"mp_pipeline",
+		"mp_shipment",
+		"mp_showdown",
+		"mp_strike",
+		"mp_vacant"
+	]
+}

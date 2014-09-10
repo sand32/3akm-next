@@ -24,7 +24,8 @@ misrepresented as being the original software.
 
 var dgram = require("dgram"),
 	loadConfig = require("./common.js").loadConfig,
-	config = loadConfig(__dirname + "/../config.json"),
+	config = loadConfig(__dirname + "/../config/config.json"),
+	gameinfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
 
 	_constructRconCommand = function(command){
 		var buffer = new Buffer(config.cod4.password.length + command.length + 12);
@@ -128,5 +129,8 @@ module.exports = {
 			}
 			callback(null, dataObj);
 		});
+	},
+
+	setGametype: function(gametype, callback){
 	}
 }
