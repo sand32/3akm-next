@@ -126,6 +126,7 @@ module.exports = {
 					dataObj.latched = tokens[1].replace("\"", "");
 				}
 			}
+			callback(null, dataObj);
 		});
 	}
 }
