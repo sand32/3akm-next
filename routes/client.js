@@ -355,4 +355,15 @@ module.exports = function(app, prefix){
 			}
 		});
 	});
+
+	app.get(prefix + "/admin/service/cod4", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+		res.render("cod4", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
+		});
+	});
 }
