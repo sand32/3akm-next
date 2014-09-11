@@ -125,7 +125,7 @@ module.exports = {
 					dataObj.defaultGametype = tokens[4].replace("\"", "").replace("^7\"", "");
 				}else if(lines[i].indexOf("latched") !== -1){
 					tokens = lines[i].split(" ");
-					dataObj.latched = tokens[1].replace("\"", "");
+					dataObj.latched = tokens[1].replace("\"", "").replace("\"", "");
 				}
 			}
 			callback(null, dataObj);
@@ -185,6 +185,59 @@ module.exports = {
 					});
 				}, config.cod4.sequenceDelayMS);
 			}
+		});
+	},
+
+	mapRotation: function(callback){
+		_sendAndReceiveSingleCommand("sv_mapRotationCurrent", function(err, data){
+			if(err){
+				callback(err);
+				return;
+			}
+			var dataObj = {
+					rotation: []
+				},
+				lines = data.replace("\r", "").split("\n"),
+				mapRotation, gametype, map, state;
+			for(var i = 0; i < lines.length; i += 1){
+				if(lines[i].indexOf("sv_mapRotationCurrent") !== -1){
+					mapRotation = lines[i].substring(29, lines[i].indexOf("^7"));
+					mapRotation = mapRotation.split(" ");
+					for(var j = 0; j < mapRotation.length; j += 1){
+						if(mapRotation[j] === "gametype"){
+							state = mapRotation[j];
+							if(gametype){
+								dataObj.rotation.push({
+									gametype: gametype,
+									map: map
+								});
+							}
+						}else if(mapRotation[j] === "map"){
+							state = mapRotation[j];
+						}else if(state === "gametype"){
+							gametype = mapRotation[j];
+						}else if(state === "map"){
+							map = mapRotation[j];
+						}
+					}
+					dataObj.rotation.push({
+						gametype: gametype,
+						map: map
+					});
+					break;
+				}
+			}
+			callback(null, dataObj);
+		});
+	},
+
+	rotateMap: function(callback){
+		_sendAndReceiveSingleCommand("map_rotate", function(err, data){
+			if(err){
+				callback(err);
+				return;
+			}
+			callback();
 		});
 	}
 }

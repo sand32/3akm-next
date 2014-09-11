@@ -24,7 +24,9 @@ misrepresented as being the original software.
 
 var cod4 = require("../../utils/cod4-rcon.js"),
 	authorize = require("../../authorization.js"),
-	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
+	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate,
+	loadConfig = require("../../utils/common.js").loadConfig,
+	gameinfo = loadConfig(__dirname + "/../../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/currentmap", function(req, res){
@@ -47,12 +49,37 @@ module.exports = function(app, prefix){
 		res.status(501).end();
 	});
 
-	app.get(prefix + "/maplist", function(req, res){
-		res.status(501).end();
+	app.post(prefix + "/rotate", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		cod4.rotateMap(function(err, data){
+			if(!err){
+				res.status(200).end();
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
 	});
 
 	app.get(prefix + "/maprotation", function(req, res){
-		res.status(501).end();
+		cod4.mapRotation(function(err, data){
+			if(!err){
+				res.status(200).send(data);
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
+	});
+
+	app.get(prefix + "/maps", function(req, res){
+		res.status(200).send(gameinfo.maps);
+	});
+
+	app.get(prefix + "/gametypes", function(req, res){
+		res.status(200).send(gameinfo.gametypes);
 	});
 
 	app.get(prefix + "/gametype", function(req, res){
@@ -70,7 +97,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/gametype", function(req, res){
+	app.put(prefix + "/gametype", blendedAuthenticate, function(req, res){
 		if(!authorize(req.user)){
 			return res.status(403).end();
 		}
