@@ -49,6 +49,20 @@ module.exports = function(app, prefix){
 		res.status(501).end();
 	});
 
+	app.get(prefix + "/status", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		cod4.status(function(err, data){
+			if(!err){
+				res.status(200).send(data);
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
+	});
+
 	app.post(prefix + "/rotate", blendedAuthenticate, function(req, res){
 		if(!authorize(req.user)){
 			return res.status(403).end();
