@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 var cod4 = require("../../utils/cod4-rcon.js"),
+	authorize = require("../../authorization.js"),
 	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
@@ -73,6 +74,13 @@ module.exports = function(app, prefix){
 		if(!authorize(req.user)){
 			return res.status(403).end();
 		}
-		res.status(501).end();
+		cod4.setGametype(req.body.gametype, function(err, data){
+			if(!err){
+				res.status(200).send(data);
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
 	});
 }

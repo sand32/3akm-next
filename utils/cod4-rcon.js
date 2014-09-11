@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 var dgram = require("dgram"),
 	loadConfig = require("./common.js").loadConfig,
+	shuffle = require("./common.js").shuffle,
 	config = loadConfig(__dirname + "/../config/config.json"),
 	gameinfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
 
@@ -132,5 +133,58 @@ module.exports = {
 	},
 
 	setGametype: function(gametype, callback){
+		if(!gametype){
+			callback(new Error("Invalid gametype!"));
+			return;
+		}
+		var dataObj = {}, mapRotation = "", mapRotation, configFile, maplist;
+		gametype = gametype.toLowerCase();
+
+		// Verify given gametype is valid
+		if(gameinfo.gametypes.indexOf(gametype) === -1){
+			callback(new Error("Invalid gametype!"));
+			return;
+		}
+
+		// Randomize and construct map rotation
+		maplist = shuffle(gameinfo.maps);
+		for(var i = 0; i < maplist.length; i += 1){
+			if(i !== 0){
+				mapRotation += " ";
+			}
+			mapRotation += "gametype " + gametype + " map " + maplist[i];
+		}
+		configFile = gametype + ".cfg";
+
+		dataObj.latched = gametype;
+		dataObj.mapRotation = maplist;
+
+		// Send our first command
+		_sendAndReceiveSingleCommand("set g_gametype \"" + gametype + "\"", function(err, data){
+			if(err){
+				callback(err);
+			}else{
+				// CoD4 won't respond if you send another command too quickly, so 
+				// let's stall for a bit
+				setTimeout(function(){
+					_sendAndReceiveSingleCommand("exec " + configFile, function(err, data){
+						if(err){
+							callback(err);
+						}else{
+							// And again...
+							setTimeout(function(){
+								_sendAndReceiveSingleCommand("set sv_mapRotationCurrent \"" + mapRotation + "\"", function(err, data){
+									if(err){
+										callback(err);
+									}else{
+										callback(null, dataObj);
+									}
+								});
+							}, config.cod4.sequenceDelayMS);
+						}
+					});
+				}, config.cod4.sequenceDelayMS);
+			}
+		});
 	}
 }
