@@ -21,6 +21,7 @@
 		"passport-local": "latest",
 		"bcrypt-nodejs": "latest",
 		"mongoose": "latest",
-		"jade": "latest"
+		"jade": "latest",
+		"node-teamspeak": "latest"
 	}
 }

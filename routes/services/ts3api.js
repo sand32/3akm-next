@@ -22,10 +22,22 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-module.exports = function(app, prefix){
-	var cod4Routes = require("./cod4api.js"),
-		ts3Routes = require("./ts3api.js");
+var ts3 = require("../../utils/ts3-serverquery.js"),
+	authorize = require("../../authorization.js"),
+	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
 
-	cod4Routes(app, prefix + "/cod4");
-	ts3Routes(app, prefix + "/ts3");
+module.exports = function(app, prefix){
+	app.get(prefix + "/version", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		ts3.version(function(err, data){
+			if(!err){
+				res.send(data).end();
+			}else{
+				res.status(500).end();
+				console.log(err);
+			}
+		})
+	});
 }
