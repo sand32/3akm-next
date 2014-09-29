@@ -145,35 +145,35 @@ var ServerQuery = require("node-teamspeak"),
 
 module.exports = {
 	version: function(callback){
-		_resultsOnly("version", null, null, null, callback);
+		_resultsOnly("version", {}, [], null, callback);
 	},
 
 	hostInfo: function(callback){
-		_resultsOnly("hostinfo", null, null, null, callback);
+		_resultsOnly("hostinfo", {}, [], null, callback);
 	},
 
 	instanceInfo: function(callback){
-		_resultsOnly("instanceinfo", null, null, null, callback);
+		_resultsOnly("instanceinfo", {}, [], null, callback);
 	},
 
 	editInstance: function(params, callback){
-		_resultsOnly("instanceedit", params, null, null, callback);
+		_resultsOnly("instanceedit", params, [], null, callback);
 	},
 
 	bindingList: function(callback){
-		_resultsOnly("bindinglist", null, null, null, callback);
+		_resultsOnly("bindinglist", {}, [], null, callback);
 	},
 
 	listServers: function(callback){
-		_resultsOnly("serverlist", null, null, null, callback);
+		_resultsOnly("serverlist", {}, [], null, callback);
 	},
 
 	serverIdByPort: function(port, callback){
-		_resultsOnly("serveridgetbyport", {virtualserver_port: port}, null, null, callback);
+		_resultsOnly("serveridgetbyport", {virtualserver_port: port}, [], null, callback);
 	},
 
 	deleteServer: function(serverId, callback){
-		_resultsOnly("serverdelete", {sid: serverId}, null, null, callback);
+		_resultsOnly("serverdelete", {sid: serverId}, [], null, callback);
 	},
 
 	createServer: function(properties, callback){
@@ -181,31 +181,31 @@ module.exports = {
 			callback("Error: Must provide a name for the new server.");
 			return;
 		}
-		_resultsOnly("servercreate", properties, null, null, callback);
+		_resultsOnly("servercreate", properties, [], null, callback);
 	},
 
 	startServer: function(serverId, callback){
-		_resultsOnly("serverstart", {sid: serverId}, null, null, callback);
+		_resultsOnly("serverstart", {sid: serverId}, [], null, callback);
 	},
 
 	stopServer: function(serverId, callback){
-		_resultsOnly("serverstop", {sid: serverId}, null, null, callback);
+		_resultsOnly("serverstop", {sid: serverId}, [], null, callback);
 	},
 
 	stopInstance: function(callback){
-		_resultsOnly("serverprocessstop", null, null, null, callback);
+		_resultsOnly("serverprocessstop", {}, [], null, callback);
 	},
 
 	serverInfo: function(serverId, callback){
-		_resultsOnly("serverinfo", null, null, serverId, callback);
+		_resultsOnly("serverinfo", {}, [], serverId, callback);
 	},
 
 	editServer: function(serverId, properties, callback){
-		_resultsOnly("serveredit", properties, null, serverId, callback);
+		_resultsOnly("serveredit", properties, [], serverId, callback);
 	},
 
 	serverConnectionInfo: function(serverId, callback){
-		_resultsOnly("serverrequestconnectioninfo", null, null, serverId, callback);
+		_resultsOnly("serverrequestconnectioninfo", {}, [], serverId, callback);
 	},
 
 	addTemporaryServerPassword: function(serverId, password, description, durationS, defaultChannel, channelPassword, callback){
@@ -215,19 +215,19 @@ module.exports = {
 			duration: durationS,
 			tcid: defaultChannel,
 			tcpw: channelPassword
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	deleteTemporaryServerPassword: function(serverId, password, callback){
-		_resultsOnly("servertemppassworddel", {pw: password}, null, serverId, callback);
+		_resultsOnly("servertemppassworddel", {pw: password}, [], serverId, callback);
 	},
 
 	listTemporaryServerPasswords: function(serverId, callback){
-		_resultsOnly("servertemppasswordlist", null, null, serverId, callback);
+		_resultsOnly("servertemppasswordlist", {}, [], serverId, callback);
 	},
 
 	listServerGroups: function(serverId, callback){
-		_resultsOnly("servergrouplist", null, null, serverId, callback);
+		_resultsOnly("servergrouplist", {}, [], serverId, callback);
 	},
 
 	addServerGroup: function(serverId, groupName, groupType, callback){
@@ -235,7 +235,7 @@ module.exports = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		_resultsOnly("servergroupadd", params, null, serverId, callback);
+		_resultsOnly("servergroupadd", params, [], serverId, callback);
 	},
 
 	deleteServerGroup: function(serverId, groupId, force, callback){
@@ -248,7 +248,7 @@ module.exports = {
 			callback("Error: Invalid force value, must be 0 or 1.");
 			return;
 		}
-		_resultsOnly("servergroupdel", params, null, serverId, callback);
+		_resultsOnly("servergroupdel", params, [], serverId, callback);
 	},
 
 	copyServerGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType, callback){
@@ -257,15 +257,15 @@ module.exports = {
 			tsgid: targetGroupId,
 			name: groupName,
 			type: groupType
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	renameServerGroup: function(serverId, groupId, newName, callback){
-		_resultsOnly("servergrouprename", {sgid: groupId, name: newName}, null, serverId, callback);
+		_resultsOnly("servergrouprename", {sgid: groupId, name: newName}, [], serverId, callback);
 	},
 
 	listServerGroupPermissions: function(serverId, groupId, callback){
-		_resultsOnly("servergrouppermlist", {sgid: groupId}, null, serverId, callback);
+		_resultsOnly("servergrouppermlist", {sgid: groupId}, [], serverId, callback);
 	},
 
 	addServerGroupPermissions: function(serverId, groupId, permissions, callback){
@@ -294,12 +294,12 @@ module.exports = {
 			_resultsOnly("servergroupdelperm", {
 				sgid: groupId,
 				permsid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}else{
 			_resultsOnly("servergroupdelperm", {
 				sgid: groupId,
 				permid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}
 	},
 
@@ -307,7 +307,7 @@ module.exports = {
 		if(names){
 			_resultsOnly("servergroupclientlist", {sgid: groupId}, ["names"], serverId, callback);
 		}else{
-			_resultsOnly("servergroupclientlist", {sgid: groupId}, null, serverId, callback);
+			_resultsOnly("servergroupclientlist", {sgid: groupId}, [], serverId, callback);
 		}
 	},
 
@@ -315,18 +315,18 @@ module.exports = {
 		_resultsOnly("servergroupaddclient", {
 			sgid: groupId,
 			cldbid: clientDbId
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	removeClientFromServerGroup: function(serverId, groupId, clientDbId, callback){
 		_resultsOnly("servergroupdelclient", {
 			sgid: groupId,
 			cldbid: clientDbId
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	serverGroupsContainingClient: function(serverId, clientDbId, callback){
-		_resultsOnly("servergroupsbyclientid", {cldbid: clientDbId}, null, serverId, callback);
+		_resultsOnly("servergroupsbyclientid", {cldbid: clientDbId}, [], serverId, callback);
 	},
 
 	autoAddPermissionsToServerGroupType: function(groupType, permissions, callback){
@@ -355,21 +355,21 @@ module.exports = {
 			_resultsOnly("servergroupautodelperm", {
 				sgtype: groupType,
 				permsid: permissions
-			}, null, null, callback);
+			}, [], null, callback);
 		}else{
 			_resultsOnly("servergroupautodelperm", {
 				sgtype: groupType,
 				permid: permissions
-			}, null, null, callback);
+			}, [], null, callback);
 		}
 	},
 
 	sendGeneralMessage: function(message, callback){
-		_resultsOnly("gm", {msg: message}, null, null, callback);
+		_resultsOnly("gm", {msg: message}, [], null, callback);
 	},
 
 	sendTargetedMessage: function(serverId, targetMode, target, message, callback){
-		_resultsOnly("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, null, serverId, callback);
+		_resultsOnly("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, [], serverId, callback);
 	},
 
 	listChannels: function(serverId, filters, callback){
@@ -377,6 +377,7 @@ module.exports = {
 			callback("Error: filters must be an array.");
 			return;
 		}
+		filters = filters || [];
 		for(var i = 0; i < filters.length; i += 1){
 			if(filters[i] !== "topic"
 			&& filters[i] !== "flags"
@@ -387,15 +388,15 @@ module.exports = {
 			}
 		}
 
-		_resultsOnly("channellist", null, filters, serverId, callback);
+		_resultsOnly("channellist", {}, filters, serverId, callback);
 	},
 
 	channelInfo: function(serverId, channelId, callback){
-		_resultsOnly("channelinfo", {cid: channelId}, null, serverId, callback);
+		_resultsOnly("channelinfo", {cid: channelId}, [], serverId, callback);
 	},
 
 	findChannel: function(serverId, pattern, callback){
-		_resultsOnly("channelfind", {pattern: pattern}, null, serverId, callback);
+		_resultsOnly("channelfind", {pattern: pattern}, [], serverId, callback);
 	},
 
 	moveChannel: function(serverId, channelId, newParentChannelId, sortOrder, callback){
@@ -408,7 +409,7 @@ module.exports = {
 			delete params.order;
 		}
 
-		_resultsOnly("channelfind", params, null, serverId, callback);
+		_resultsOnly("channelfind", params, [], serverId, callback);
 	},
 
 	createChannel: function(serverId, properties, callback){
@@ -416,7 +417,7 @@ module.exports = {
 			callback("Error: Must provide a name for the new channel.");
 			return;
 		}
-		_resultsOnly("channelcreate", properties, null, serverId, callback);
+		_resultsOnly("channelcreate", properties, [], serverId, callback);
 	},
 
 	editChannel: function(serverId, properties, callback){
@@ -424,7 +425,7 @@ module.exports = {
 			callback("Error: Must provide an ID for the channel you wish to edit.");
 			return;
 		}
-		_resultsOnly("channeledit", properties, null, serverId, callback);
+		_resultsOnly("channeledit", properties, [], serverId, callback);
 	},
 
 	deleteChannel: function(serverId, channelId, force, callback){
@@ -438,11 +439,11 @@ module.exports = {
 			return;
 		}
 
-		_resultsOnly("channeldelete", params, null, serverId, callback);
+		_resultsOnly("channeldelete", params, [], serverId, callback);
 	},
 
 	listChannelPermissions: function(serverId, channelId, callback){
-		_resultsOnly("channelpermlist", {cid: channelId}, null, serverId, callback);
+		_resultsOnly("channelpermlist", {cid: channelId}, [], serverId, callback);
 	},
 
 	addChannelPermissions: function(serverId, channelId, permissions, callback){
@@ -471,17 +472,17 @@ module.exports = {
 			_resultsOnly("channeldelperm", {
 				cid: channelId,
 				permsid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}else{
 			_resultsOnly("channeldelperm", {
 				cid: channelId,
 				permid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}
 	},
 
 	listChannelGroups: function(serverId, callback){
-		_resultsOnly("channelgrouplist", null, null, serverId, callback);
+		_resultsOnly("channelgrouplist", {}, [], serverId, callback);
 	},
 
 	addChannelGroup: function(serverId, groupName, groupType, callback){
@@ -489,7 +490,7 @@ module.exports = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		_resultsOnly("channelgroupadd", params, null, serverId, callback);
+		_resultsOnly("channelgroupadd", params, [], serverId, callback);
 	},
 
 	deleteChannelGroup: function(serverId, groupId, force, callback){
@@ -502,7 +503,7 @@ module.exports = {
 			callback("Error: Invalid force value, must be 0 or 1.");
 			return;
 		}
-		_resultsOnly("channelgroupdel", params, null, serverId, callback);
+		_resultsOnly("channelgroupdel", params, [], serverId, callback);
 	},
 
 	copyChannelGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType, callback){
@@ -511,18 +512,18 @@ module.exports = {
 			tcgid: targetGroupId,
 			name: groupName,
 			type: groupType
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	renameChannelGroup: function(serverId, groupId, newName, callback){
 		_resultsOnly("channelgrouprename", {
 			cgid: groupId,
 			name: newName
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	listChannelGroupPermissions: function(serverId, groupId, callback){
-		_resultsOnly("channelgrouppermlist", {cgid: groupId}, null, serverId, callback);
+		_resultsOnly("channelgrouppermlist", {cgid: groupId}, [], serverId, callback);
 	},
 
 	addChannelGroupPermissions: function(serverId, groupId, permissions, callback){
@@ -551,12 +552,12 @@ module.exports = {
 			_resultsOnly("channelgroupdelperm", {
 				cgid: groupId,
 				permsid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}else{
 			_resultsOnly("channelgroupdelperm", {
 				cgid: groupId,
 				permid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}
 	},
 
@@ -566,7 +567,7 @@ module.exports = {
 		if(clientDbId) params.cldbid = clientDbId;
 		if(groupId) params.cgid = groupId;
 
-		_resultsOnly("channelgroupclientlist", params, null, serverId, callback);
+		_resultsOnly("channelgroupclientlist", params, [], serverId, callback);
 	},
 
 	setClientChannelGroup: function(serverId, groupId, channelId, clientDbId, callback){
@@ -574,7 +575,7 @@ module.exports = {
 			cgid: groupId,
 			cid: channelId,
 			cldbid: clientDbId
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	listClients: function(serverId, filters, callback){
@@ -582,6 +583,7 @@ module.exports = {
 			callback("Error: filters must be an array.");
 			return;
 		}
+		filters = filters || [];
 		for(var i = 0; i < filters.length; i += 1){
 			if(filters[i] !== "uid"
 			&& filters[i] !== "away"
@@ -596,15 +598,15 @@ module.exports = {
 				return;
 			}
 		}
-		_resultsOnly("clientlist", null, filters, serverId, callback);
+		_resultsOnly("clientlist", {}, filters, serverId, callback);
 	},
 
 	clientInfo: function(serverId, clientId, callback){
-		_resultsOnly("clientinfo", {clid: clientId}, null, serverId, callback);
+		_resultsOnly("clientinfo", {clid: clientId}, [], serverId, callback);
 	},
 
 	findClient: function(serverId, pattern, callback){
-		_resultsOnly("clientfind", {pattern: pattern}, null, serverId, callback);
+		_resultsOnly("clientfind", {pattern: pattern}, [], serverId, callback);
 	},
 
 	editClient: function(serverId, properties, callback){
@@ -612,7 +614,7 @@ module.exports = {
 			callback("Error: Must provide an ID for the client you wish to edit.");
 			return;
 		}
-		_resultsOnly("clientedit", properties, null, serverId, callback);
+		_resultsOnly("clientedit", properties, [], serverId, callback);
 	},
 
 	listClientDbEntries: function(serverId, start, duration, count, callback){
@@ -628,12 +630,12 @@ module.exports = {
 		if(uid){
 			_resultsOnly("clientdbfind", {pattern: pattern}, ["uid"], serverId, callback);
 		}else{
-			_resultsOnly("clientdbfind", {pattern: pattern}, null, serverId, callback);
+			_resultsOnly("clientdbfind", {pattern: pattern}, [], serverId, callback);
 		}
 	},
 
 	clientDbEntryInfo: function(serverId, clientDbId, callback){
-		_resultsOnly("clientdbinfo", {cldbid: clientDbId}, null, serverId, callback);
+		_resultsOnly("clientdbinfo", {cldbid: clientDbId}, [], serverId, callback);
 	},
 
 	editClientDbEntry: function(serverId, properties, callback){
@@ -641,35 +643,35 @@ module.exports = {
 			callback("Error: Must provide an ID for the database client you wish to edit.");
 			return;
 		}
-		_resultsOnly("clientdbedit", properties, null, serverId, callback);
+		_resultsOnly("clientdbedit", properties, [], serverId, callback);
 	},
 
 	deleteClientDbEntry: function(serverId, clientDbId, callback){
-		_resultsOnly("clientdbdelete", {cldbid: clientDbId}, null, serverId, callback);
+		_resultsOnly("clientdbdelete", {cldbid: clientDbId}, [], serverId, callback);
 	},
 
 	clientByUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetids", {cluid: clientUid}, null, serverId, callback);
+		_resultsOnly("clientgetids", {cluid: clientUid}, [], serverId, callback);
 	},
 
 	clientDbIdFromUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetdbidfromuid", {cluid: clientUid}, null, serverId, callback);
+		_resultsOnly("clientgetdbidfromuid", {cluid: clientUid}, [], serverId, callback);
 	},
 
 	clientNameFromUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetnamefromuid", {cluid: clientUid}, null, serverId, callback);
+		_resultsOnly("clientgetnamefromuid", {cluid: clientUid}, [], serverId, callback);
 	},
 
 	clientNameFromDbId: function(serverId, clientDbId, callback){
-		_resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, null, serverId, callback);
+		_resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, [], serverId, callback);
 	},
 
 	setClientServerQueryLogin: function(newLoginName, callback){
-		_resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, null, null, callback);
+		_resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, [], null, callback);
 	},
 
 	updateClient: function(properties, callback){
-		_resultsOnly("clientupdate", properties, null, null, callback);
+		_resultsOnly("clientupdate", properties, [], null, callback);
 	},
 
 	moveClient: function(serverId, clientId, channelId, channelPassword, callback){
@@ -679,7 +681,7 @@ module.exports = {
 		}
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("clientmove", params, null, serverId, callback);
+		_resultsOnly("clientmove", params, [], serverId, callback);
 	},
 
 	kickClient: function(serverId, clientIds, reasonId, reasonMessage, callback){
@@ -689,15 +691,15 @@ module.exports = {
 		}
 		if(reasonMessage) params.reasonmsg = reasonMessage;
 
-		_resultsOnly("clientkick", params, null, serverId, callback);
+		_resultsOnly("clientkick", params, [], serverId, callback);
 	},
 
 	pokeClient: function(serverId, clientId, message, callback){
-		_resultsOnly("clientpoke", {clid: clientId, msg: message}, null, serverId, callback);
+		_resultsOnly("clientpoke", {clid: clientId, msg: message}, [], serverId, callback);
 	},
 
 	listClientPermissions: function(serverId, clientDbId, permsid, callback){
-		var option = null;
+		var option = [];
 		if(permsid) option = ["permsid"];
 		_resultsOnly("clientpermlist", {cldbid: clientDbId}, option, serverId, callback);
 	},
@@ -728,17 +730,17 @@ module.exports = {
 			_resultsOnly("channeldelperm", {
 				cldbid: clientDbId,
 				permsid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}else{
 			_resultsOnly("channeldelperm", {
 				cldbid: clientDbId,
 				permid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}
 	},
 
 	listChannelClientPermissions: function(serverId, channelId, clientDbId, permsid, callback){
-		var option = null;
+		var option = [];
 		if(permsid) option = ["permsid"];
 		_resultsOnly("channelclientpermlist", {
 			cid: channelId,
@@ -774,22 +776,22 @@ module.exports = {
 				cid: channelId,
 				cldbid: clientDbId,
 				permsid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}else{
 			_resultsOnly("channelclientdelperm", {
 				cid: channelId,
 				cldbid: clientDbId,
 				permid: permissions
-			}, null, serverId, callback);
+			}, [], serverId, callback);
 		}
 	},
 
 	listPermissions: function(callback){
-		_resultsOnly("permissionlist", null, null, null, callback);
+		_resultsOnly("permissionlist", {}, [], null, callback);
 	},
 
 	permissionByName: function(permissionName, callback){
-		_resultsOnly("permidgetbyname", {permsid: permissionName}, null, null, callback);
+		_resultsOnly("permidgetbyname", {permsid: permissionName}, [], null, callback);
 	},
 
 	clientPermissionsByChannel: function(serverId, channelId, clientDbId, permissionId, permissionName, callback){
@@ -800,7 +802,7 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permoverview", params, null, serverId, callback);
+		_resultsOnly("permoverview", params, [], serverId, callback);
 	},
 
 	currentPermissions: function(permissionId, permissionName, callback){
@@ -808,7 +810,7 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permget", params, null, null, callback);
+		_resultsOnly("permget", params, [], null, callback);
 	},
 
 	findPermissions: function(serverId, permissionId, permissionName, callback){
@@ -816,15 +818,15 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permfind", params, null, serverId, callback);
+		_resultsOnly("permfind", params, [], serverId, callback);
 	},
 
 	resetPermissions: function(serverId, callback){
-		_resultsOnly("permreset", null, null, serverId, callback);
+		_resultsOnly("permreset", {}, [], serverId, callback);
 	},
 
 	listPrivilegeKeys: function(serverId, callback){
-		_resultsOnly("privilegekeylist", null, null, serverId, callback);
+		_resultsOnly("privilegekeylist", {}, [], serverId, callback);
 	},
 
 	addPrivilegeKey: function(serverId, tokenType, tokenId1, tokenId2, tokenDesc, tokenCustomSet, callback){
@@ -842,19 +844,19 @@ module.exports = {
 		if(tokenDesc) params.tokendescription = tokenDesc;
 		if(tokenCustomSet) params.tokencustomset = tokenCustomSet;
 
-		_resultsOnly("privilegekeyadd", params, null, serverId, callback);
+		_resultsOnly("privilegekeyadd", params, [], serverId, callback);
 	},
 
 	deletePrivilegeKey: function(serverId, token, callback){
-		_resultsOnly("privilegekeydelete", {token: token}, null, serverId, callback);
+		_resultsOnly("privilegekeydelete", {token: token}, [], serverId, callback);
 	},
 
 	usePrivilegeKey: function(serverId, token, callback){
-		_resultsOnly("privilegekeyuse", {token: token}, null, serverId, callback);
+		_resultsOnly("privilegekeyuse", {token: token}, [], serverId, callback);
 	},
 
 	listMessages: function(callback){
-		_resultsOnly("messagelist", null, null, null, callback);
+		_resultsOnly("messagelist", {}, [], null, callback);
 	},
 
 	sendMessage: function(clientUid, subject, message, callback){
@@ -862,15 +864,15 @@ module.exports = {
 			cluid: clientUid,
 			subject: subject,
 			message: message
-		}, null, null, callback);
+		}, [], null, callback);
 	},
 
 	deleteMessage: function(messageId, callback){
-		_resultsOnly("messagedel", {msgid: messageId}, null, null, callback);
+		_resultsOnly("messagedel", {msgid: messageId}, [], null, callback);
 	},
 
 	retrieveMessage: function(messageId, callback){
-		_resultsOnly("messageget", {msgid: messageId}, null, null, callback);
+		_resultsOnly("messageget", {msgid: messageId}, [], null, callback);
 	},
 
 	updateMessageReadFlag: function(messageId, flagValue, callback){
@@ -882,36 +884,36 @@ module.exports = {
 		_resultsOnly("messageupdateflag", {
 			msgid: messageId,
 			flag: flagValue
-		}, null, null, callback);
+		}, [], null, callback);
 	},
 
 	listComplaints: function(serverId, targetClientDbId, callback){
 		var params = {};
 		if(targetClientDbId) params.tcldbid = targetClientDbId;
 
-		_resultsOnly("complainlist", params, null, serverId, callback);
+		_resultsOnly("complainlist", params, [], serverId, callback);
 	},
 
 	addComplaintAgainstClient: function(serverId, targetClientDbId, message, callback){
 		_resultsOnly("complainadd", {
 			tcldbid: targetClientDbId,
 			message: message
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	deleteAllComplaintsAgainstClient: function(serverId, targetClientDbId, callback){
-		_resultsOnly("complaindelall", {tcldbid: targetClientDbId}, null, serverId, callback);
+		_resultsOnly("complaindelall", {tcldbid: targetClientDbId}, [], serverId, callback);
 	},
 
 	deleteComplaint: function(serverId, targetClientDbId, sourceClientDbId, callback){
 		_resultsOnly("complaindel", {
 			tcldbid: targetClientDbId,
 			fcldbid: sourceClientDbId
-		}, null, serverId, callback);
+		}, [], serverId, callback);
 	},
 
 	listActiveBans: function(serverId, callback){
-		_resultsOnly("banlist", null, null, serverId, callback);
+		_resultsOnly("banlist", {}, [], serverId, callback);
 	},
 
 	banClient: function(serverId, clientId, durationS, reason, callback){
@@ -921,7 +923,7 @@ module.exports = {
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		_resultsOnly("banclient", params, null, serverId, callback);
+		_resultsOnly("banclient", params, [], serverId, callback);
 	},
 
 	addBan: function(serverId, ip, name, clientUid, durationS, reason, callback){
@@ -932,19 +934,19 @@ module.exports = {
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		_resultsOnly("banadd", params, null, serverId, callback);
+		_resultsOnly("banadd", params, [], serverId, callback);
 	},
 
 	deleteBan: function(serverId, banId, callback){
-		_resultsOnly("bandel", {banid: banId}, null, serverId, callback);
+		_resultsOnly("bandel", {banid: banId}, [], serverId, callback);
 	},
 
 	deleteAllActiveBans: function(serverId, callback){
-		_resultsOnly("bandelall", null, null, serverId, callback);
+		_resultsOnly("bandelall", {}, [], serverId, callback);
 	},
 
 	listActiveFileTransfers: function(serverId, callback){
-		_resultsOnly("ftlist", null, null, serverId, callback);
+		_resultsOnly("ftlist", {}, [], serverId, callback);
 	},
 
 	stopFileTransfer: function(serverId, transferId, deleteFile, callback){
@@ -953,7 +955,7 @@ module.exports = {
 			callback("Error: deleteFile must be 0 or 1.");
 			return;
 		}
-		_resultsOnly("ftstop", {serverftfid: transferId, "delete": deleteFile}, null, serverId, callback);
+		_resultsOnly("ftstop", {serverftfid: transferId, "delete": deleteFile}, [], serverId, callback);
 	},
 
 	listFiles: function(serverId, channelId, channelPassword, path, callback){
@@ -965,7 +967,7 @@ module.exports = {
 		if(channelPassword) params.cpw = channelPassword;
 		if(path) params.path = path;
 
-		_resultsOnly("ftgetfilelist", params, null, serverId, callback);
+		_resultsOnly("ftgetfilelist", params, [], serverId, callback);
 	},
 
 	fileInfo: function(serverId, channelId, channelPassword, filename, callback){
@@ -976,7 +978,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftgetfileinfo", params, null, serverId, callback);
+		_resultsOnly("ftgetfileinfo", params, [], serverId, callback);
 	},
 
 	deleteFile: function(serverId, channelId, channelPassword, filename, callback){
@@ -987,7 +989,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftdeletefile", params, null, serverId, callback);
+		_resultsOnly("ftdeletefile", params, [], serverId, callback);
 	},
 
 	createDirectory: function(serverId, channelId, channelPassword, directory, callback){
@@ -998,7 +1000,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftcreatedir", params, null, serverId, callback);
+		_resultsOnly("ftcreatedir", params, [], serverId, callback);
 	},
 
 	moveFile: function(serverId, sourceChannelId, sourceChannelPassword, sourceFileName, targetChannelId, targetChannelPassword, targetFileName, callback){
@@ -1012,10 +1014,10 @@ module.exports = {
 		if(targetChannelId) params.tcid = targetChannelId;
 		if(targetChannelPassword) params.tcpw = targetChannelPassword;
 
-		_resultsOnly("ftrenamefile", params, null, serverId, callback);
+		_resultsOnly("ftrenamefile", params, [], serverId, callback);
 	},
 
 	whoAmI: function(callback){
-		_resultsOnly("whoami", null, null, null, callback);
+		_resultsOnly("whoami", {}, [], null, callback);
 	}
 }

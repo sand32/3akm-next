@@ -583,7 +583,6 @@ module.exports = function(app, prefix){
 		if(req.query.limits) filters.push("limits");
 		if(req.query.icon) filters.push("icon");
 		if(req.query.secondsempty) filters.push("secondsempty");
-		if(filters.length === 0) filters = null;
 
 		ts3.listChannels(
 			req.params.serverId,
@@ -823,7 +822,7 @@ module.exports = function(app, prefix){
 
 		ts3.listFiles(
 			req.params.serverId,
-			req,params.channelId,
+			req.params.channelId,
 			channelPassword,
 			path
 		, function(err, data){
@@ -836,7 +835,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel/:channelId/files/:path", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel/:channelId/files/*", blendedAuthenticate, function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
@@ -850,9 +849,9 @@ module.exports = function(app, prefix){
 
 		ts3.fileInfo(
 			req.params.serverId,
-			req,params.channelId,
+			req.params.channelId,
 			channelPassword,
-			"/" + req.params.path
+			"/" + req.params[0]
 		, function(err, data){
 			if(!err){
 				res.send(data);
@@ -863,7 +862,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channel/:channelId/files/:path", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channel/:channelId/files/*", blendedAuthenticate, function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
@@ -877,9 +876,9 @@ module.exports = function(app, prefix){
 
 		ts3.deleteFile(
 			req.params.serverId,
-			req,params.channelId,
+			req.params.channelId,
 			channelPassword,
-			"/" + req.params.path
+			"/" + req.params[0]
 		, function(err, data){
 			if(!err){
 				res.status(200).end();
@@ -1512,7 +1511,6 @@ module.exports = function(app, prefix){
 		if(req.query.icon) filters.push("icon");
 		if(req.query.country) filters.push("country");
 		if(req.query.ip) filters.push("ip");
-		if(filters.length === 0) filters = null;
 
 		ts3.listClients(
 			req.params.serverId,
