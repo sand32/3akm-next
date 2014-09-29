@@ -222,7 +222,7 @@ module.exports = {
 		_resultsOnly("servertemppassworddel", {pw: password}, null, serverId, callback);
 	},
 
-	listTemporaryServerPassword: function(serverId, callback){
+	listTemporaryServerPasswords: function(serverId, callback){
 		_resultsOnly("servertemppasswordlist", null, null, serverId, callback);
 	},
 
@@ -230,8 +230,12 @@ module.exports = {
 		_resultsOnly("servergrouplist", null, null, serverId, callback);
 	},
 
-	addServerGroup: function(serverId, groupName, callback){
-		_resultsOnly("servergroupadd", {name: groupName}, null, serverId, callback);
+	addServerGroup: function(serverId, groupName, groupType, callback){
+		var params = {
+			name: groupName
+		};
+		if(groupType) params.type = groupType;
+		_resultsOnly("servergroupadd", params, null, serverId, callback);
 	},
 
 	deleteServerGroup: function(serverId, groupId, force, callback){
@@ -480,8 +484,12 @@ module.exports = {
 		_resultsOnly("channelgrouplist", null, null, serverId, callback);
 	},
 
-	addChannelGroup: function(serverId, groupName, callback){
-		_resultsOnly("channelgroupadd", {name: groupName}, null, serverId, callback);
+	addChannelGroup: function(serverId, groupName, groupType, callback){
+		var params = {
+			name: groupName
+		};
+		if(groupType) params.type = groupType;
+		_resultsOnly("channelgroupadd", params, null, serverId, callback);
 	},
 
 	deleteChannelGroup: function(serverId, groupId, force, callback){
@@ -580,7 +588,10 @@ module.exports = {
 			&& filters[i] !== "voice"
 			&& filters[i] !== "times"
 			&& filters[i] !== "groups"
-			&& filters[i] !== "info"){
+			&& filters[i] !== "info"
+			&& filters[i] !== "icon"
+			&& filters[i] !== "country"
+			&& filters[i] !== "ip"){
 				callback("Error: Invalid filter: \"" + filters[i] + "\"");
 				return;
 			}
@@ -604,12 +615,13 @@ module.exports = {
 		_resultsOnly("clientedit", properties, null, serverId, callback);
 	},
 
-	listClientDbEntries: function(serverId, start, duration, callback){
+	listClientDbEntries: function(serverId, start, duration, count, callback){
 		var params = {};
 		if(start) params.start = start;
 		if(duration) params.duration = duration;
+		if(count) count = ["count"];
 
-		_resultsOnly("clientdblist", params, null, serverId, callback);
+		_resultsOnly("clientdblist", params, count, serverId, callback);
 	},
 
 	findClientDbEntries: function(serverId, pattern, uid, callback){
@@ -632,6 +644,10 @@ module.exports = {
 		_resultsOnly("clientdbedit", properties, null, serverId, callback);
 	},
 
+	deleteClientDbEntry: function(serverId, clientDbId, callback){
+		_resultsOnly("clientdbdelete", {cldbid: clientDbId}, null, serverId, callback);
+	},
+
 	clientByUid: function(serverId, clientUid, callback){
 		_resultsOnly("clientgetids", {cluid: clientUid}, null, serverId, callback);
 	},
@@ -648,12 +664,12 @@ module.exports = {
 		_resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, null, serverId, callback);
 	},
 
-	setClientServerQueryLogin: function(serverId, newLoginName, callback){
-		_resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, null, serverId, callback);
+	setClientServerQueryLogin: function(newLoginName, callback){
+		_resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, null, null, callback);
 	},
 
-	updateClient: function(serverId, properties, callback){
-		_resultsOnly("clientupdate", properties, null, serverId, callback);
+	updateClient: function(properties, callback){
+		_resultsOnly("clientupdate", properties, null, null, callback);
 	},
 
 	moveClient: function(serverId, clientId, channelId, channelPassword, callback){
@@ -680,8 +696,10 @@ module.exports = {
 		_resultsOnly("clientpoke", {clid: clientId, msg: message}, null, serverId, callback);
 	},
 
-	listClientPermissions: function(serverId, clientDbId, callback){
-		_resultsOnly("clientpermlist", {cldbid: clientDbId}, null, serverId, callback);
+	listClientPermissions: function(serverId, clientDbId, permsid, callback){
+		var option = null;
+		if(permsid) option = ["permsid"];
+		_resultsOnly("clientpermlist", {cldbid: clientDbId}, option, serverId, callback);
 	},
 
 	addClientPermissions: function(serverId, clientDbId, permissions, callback){
@@ -719,8 +737,13 @@ module.exports = {
 		}
 	},
 
-	listChannelClientPermissions: function(serverId, channelId, clientDbId, callback){
-		_resultsOnly("channelclientpermlist", {cid: channelId, cldbid: clientDbId}, null, serverId, callback);
+	listChannelClientPermissions: function(serverId, channelId, clientDbId, permsid, callback){
+		var option = null;
+		if(permsid) option = ["permsid"];
+		_resultsOnly("channelclientpermlist", {
+			cid: channelId,
+			cldbid: clientDbId
+		}, option, serverId, callback);
 	},
 
 	addChannelClientPermissions: function(serverId, channelId, clientDbId, permissions, callback){
@@ -775,15 +798,23 @@ module.exports = {
 			cldbid: clientDbId
 		};
 		if(permissionId) params.permid = permissionId;
-		if(permissionName) params.permsid = permissionName;
+		else if(permissionName) params.permsid = permissionName;
 
 		_resultsOnly("permoverview", params, null, serverId, callback);
+	},
+
+	currentPermissions: function(permissionId, permissionName, callback){
+		var params = {};
+		if(permissionId) params.permid = permissionId;
+		else if(permissionName) params.permsid = permissionName;
+
+		_resultsOnly("permget", params, null, null, callback);
 	},
 
 	findPermissions: function(serverId, permissionId, permissionName, callback){
 		var params = {};
 		if(permissionId) params.permid = permissionId;
-		if(permissionName) params.permsid = permissionName;
+		else if(permissionName) params.permsid = permissionName;
 
 		_resultsOnly("permfind", params, null, serverId, callback);
 	},
