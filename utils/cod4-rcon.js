@@ -92,17 +92,19 @@ module.exports = {
 					inList = true;
 					dataObj.players = [];
 				}else if(inList === true){
-					dataObj.players.push({
-						num: lines[i].substring(0, 3),
-						score: lines[i].substring(4, 9),
-						ping: lines[i].substring(10, 14),
-						guid: lines[i].substring(15, 47),
-						name: lines[i].substring(48, 63),
-						lastmsg: lines[i].substring(64, 71),
-						address: lines[i].substring(72, 93),
-						qport: lines[i].substring(94, 99),
-						rate: lines[i].substring(100)
-					});
+					if(lines[i].substring(0, 3).trim() !== ""){
+						dataObj.players.push({
+							num: lines[i].substring(0, 3),
+							score: lines[i].substring(4, 9),
+							ping: lines[i].substring(10, 14),
+							guid: lines[i].substring(15, 47),
+							name: lines[i].substring(48, 63),
+							lastmsg: lines[i].substring(64, 71),
+							address: lines[i].substring(72, 93),
+							qport: lines[i].substring(94, 99),
+							rate: lines[i].substring(100)
+						});
+					}
 				}
 			}
 			callback(null, dataObj);
