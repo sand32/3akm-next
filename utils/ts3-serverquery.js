@@ -244,7 +244,7 @@ module.exports = {
 			force: force
 		};
 		if(params.force !== 0
-		|| params.force !== 1){
+		&& params.force !== 1){
 			callback("Error: Invalid force value, must be 0 or 1.");
 			return;
 		}
@@ -434,7 +434,7 @@ module.exports = {
 			force: force
 		};
 		if(params.force !== 0
-		|| params.force !== 1){
+		&& params.force !== 1){
 			callback("Error: Invalid force value, must be 0 or 1.");
 			return;
 		}
@@ -499,7 +499,7 @@ module.exports = {
 			force: force
 		};
 		if(params.force !== 0
-		|| params.force !== 1){
+		&& params.force !== 1){
 			callback("Error: Invalid force value, must be 0 or 1.");
 			return;
 		}
