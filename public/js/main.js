@@ -322,21 +322,19 @@ $(function(){
 					$(".empty-table").removeClass(".hidden");
 					$(".empty-table").html("No players online.");
 				}
-				setTimeout(function(){
-					$.ajax({
-						type: "GET",
-						url: "/api/service/cod4/gametype",
-						success: function(data){
-							$(".current-gametype").html(data.gametype);
-						},
-						error: function(){
-							setErrorAlert("Unable to retrieve current gametype.");
-						}
-					});
-				}, 500);
 			},
 			error: function(){
 				setErrorAlert("Unable to retrieve server status.");
+			}
+		});
+		$.ajax({
+			type: "GET",
+			url: "/api/service/cod4/gametype",
+			success: function(data){
+				$(".current-gametype").html(data.gametype);
+			},
+			error: function(){
+				setErrorAlert("Unable to retrieve current gametype.");
 			}
 		});
 	};

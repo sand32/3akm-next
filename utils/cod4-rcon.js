@@ -27,6 +27,7 @@ var dgram = require("dgram"),
 	shuffle = require("./common.js").shuffle,
 	config = loadConfig(__dirname + "/../config/config.json"),
 	gameinfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
+	commandQueue = [];
 
 	_constructRconCommand = function(command){
 		var buffer = new Buffer(config.cod4.password.length + command.length + 12);
@@ -68,15 +69,29 @@ var dgram = require("dgram"),
 				}, config.cod4.commandTimeout);
 			});
 		});
+	},
+
+	_queueCommand = function(command, callback){
+		commandQueue.push({command: command, callback: callback});
+	},
+
+	_executeQueuedCommand = function(){
+		var cmd;
+		if(commandQueue.length > 0){
+			cmd = commandQueue.shift();
+			_sendAndReceiveSingleCommand(cmd.command, cmd.callback);
+		}
 	};
+
+setInterval(_executeQueuedCommand, config.cod4.sequenceDelayMS);
 
 module.exports = {
 	raw: function(command, callback){
-		_sendAndReceiveSingleCommand(command, callback);
+		_queueCommand(command, callback);
 	},
 
 	status: function(callback){
-		_sendAndReceiveSingleCommand("status", function(err, data){
+		_queueCommand("status", function(err, data){
 			if(err){
 				callback(err);
 				return;
@@ -112,7 +127,7 @@ module.exports = {
 	},
 
 	gametype: function(callback){
-		_sendAndReceiveSingleCommand("g_gametype", function(err, data){
+		_queueCommand("g_gametype", function(err, data){
 			if(err){
 				callback(err);
 				return;
@@ -139,7 +154,8 @@ module.exports = {
 			callback(new Error("Invalid gametype!"));
 			return;
 		}
-		var dataObj = {}, mapRotation = "", mapRotation, configFile, maplist;
+		var dataObj = {}, mapRotation = "", 
+			mapRotation, configFile, maplist;
 		gametype = gametype.toLowerCase();
 
 		// Verify given gametype is valid
@@ -162,36 +178,29 @@ module.exports = {
 		dataObj.mapRotation = maplist;
 
 		// Send our first command
-		_sendAndReceiveSingleCommand("set g_gametype \"" + gametype + "\"", function(err, data){
+		_queueCommand("set g_gametype \"" + gametype + "\"", function(err, data){
 			if(err){
 				callback(err);
 			}else{
-				// CoD4 won't respond if you send another command too quickly, so 
-				// let's stall for a bit
-				setTimeout(function(){
-					_sendAndReceiveSingleCommand("exec " + configFile, function(err, data){
-						if(err){
-							callback(err);
-						}else{
-							// And again...
-							setTimeout(function(){
-								_sendAndReceiveSingleCommand("set sv_mapRotationCurrent \"" + mapRotation + "\"", function(err, data){
-									if(err){
-										callback(err);
-									}else{
-										callback(null, dataObj);
-									}
-								});
-							}, config.cod4.sequenceDelayMS);
-						}
-					});
-				}, config.cod4.sequenceDelayMS);
+				_queueCommand("exec " + configFile, function(err, data){
+					if(err){
+						callback(err);
+					}else{
+						_queueCommand("set sv_mapRotationCurrent \"" + mapRotation + "\"", function(err, data){
+							if(err){
+								callback(err);
+							}else{
+								callback(null, dataObj);
+							}
+						});
+					}
+				});
 			}
 		});
 	},
 
 	mapRotation: function(callback){
-		_sendAndReceiveSingleCommand("sv_mapRotationCurrent", function(err, data){
+		_queueCommand("sv_mapRotationCurrent", function(err, data){
 			if(err){
 				callback(err);
 				return;
@@ -234,7 +243,7 @@ module.exports = {
 	},
 
 	rotateMap: function(callback){
-		_sendAndReceiveSingleCommand("map_rotate", function(err, data){
+		_queueCommand("map_rotate", function(err, data){
 			if(err){
 				callback(err);
 				return;
