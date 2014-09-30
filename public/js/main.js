@@ -341,6 +341,28 @@ $(function(){
 		});
 	};
 
+	say = function(){
+		toggleApiActionElements();
+		$.ajax({
+			type: "POST",
+			url: "/api/service/cod4/say",
+			contentType: "application/json",
+			data: JSON.stringify({
+				message: $("#cod4-admin input[name = 'sayText']").val()
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Message sent.");
+				$("#cod4-admin input[name = 'sayText']").val("");
+				toggleApiActionElements();
+			},
+			error: function(){
+				setErrorAlert("Unable to send message.");
+				toggleApiActionElements();
+			}
+		});
+	};
+
 	reloadCoD4Info = function(){
 		$.ajax({
 			type: "GET",

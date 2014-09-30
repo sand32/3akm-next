@@ -28,32 +28,49 @@ block content
 	hr
 	#cod4-admin
 		.row
-			.col-xs-4
-				label Current Map:&nbsp;&nbsp;
-				.horizontal.current-map Loading...
-			.col-xs-4
-				label Current Gametype:&nbsp;&nbsp;
-				.horizontal.current-gametype Loading...
+			fieldset.col-xs-12
+				legend Match Control
+				.row
+					.col-xs-4
+						label Current Map:&nbsp;&nbsp;
+						.horizontal.current-map Loading...
+					.col-xs-4
+						label Current Gametype:&nbsp;&nbsp;
+						.horizontal.current-gametype Loading...
+				.row
+					.col-xs-4
+						a.api-action(class = "btn btn-default" onclick = "rotateMap();")
+							span.button-icon(class = "glyphicon glyphicon-repeat")
+							| Rotate Map
+					.col-xs-4
+						label Next Gametype:&nbsp;&nbsp;
+						.horizontal.dropdown
+							a.api-action.latched-gametype(type = "button", class = "btn btn-default dropdown-toggle", data-toggle = "dropdown", data-target = "#") Loading... 
+								span.caret
+							ul.dropdown-menu(role = "menu")
+								each gametype in cod4GameInfo.gametypes
+									li
+										a(class = "btn btn-link" data-target = "#", onclick = "setGametype('" + gametype + "');") #{gametype}
 		.row
-			.col-xs-4
-				a.api-action(class = "btn btn-default" onclick = "rotateMap();") Rotate Map
-			.col-xs-4
-				label Next Gametype:&nbsp;&nbsp;
-				.horizontal.dropdown
-					a.api-action.latched-gametype(type = "button", class = "btn btn-default dropdown-toggle", data-toggle = "dropdown", data-target = "#") Loading... 
-						span.caret
-					ul.dropdown-menu(role = "menu")
-						each gametype in cod4GameInfo.gametypes
-							li
-								a(class = "btn btn-link" data-target = "#", onclick = "setGametype('" + gametype + "');") #{gametype}
-		table.table.table-hover.table-selectable.playerList
-			thead
-				th
-				th #
-				th Name
-				th Score
-				th Ping
-				th Address
-				th
-			tbody
-		.empty-table Loading...
+			fieldset.col-xs-12
+				legend Player Roster
+				table.table.table-hover.table-selectable.playerList
+					thead
+						th
+						th #
+						th Name
+						th Score
+						th Ping
+						th Address
+						th
+					tbody
+				.empty-table Loading...
+		.row
+			fieldset.col-xs-8
+				legend Utilities
+				.input-group
+					input.form-control(type = "text", name = "sayText")
+					span.input-group-btn
+						a.api-action(class = "btn btn-default", onclick = "say();")
+							span.button-icon(class = "glyphicon glyphicon-comment")
+							| Say

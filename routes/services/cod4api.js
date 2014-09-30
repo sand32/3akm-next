@@ -124,4 +124,18 @@ module.exports = function(app, prefix){
 			}
 		});
 	});
+
+	app.post(prefix + "/say", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		cod4.say(req.body.message, function(err, data){
+			if(!err){
+				res.status(200).end();
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
+	});
 }

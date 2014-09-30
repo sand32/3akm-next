@@ -250,5 +250,15 @@ module.exports = {
 			}
 			callback();
 		});
+	},
+
+	say: function(message, callback){
+		_queueCommand("say \"" + message + "\"", function(err, data){
+			if(err){
+				callback(err);
+				return;
+			}
+			callback();
+		});
 	}
 }
