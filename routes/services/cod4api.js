@@ -29,7 +29,11 @@ var cod4 = require("../../utils/cod4-rcon.js"),
 	gameinfo = loadConfig(__dirname + "/../../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/currentmap", function(req, res){
+	app.get(prefix + "/maps", function(req, res){
+		res.send(gameinfo.maps);
+	});
+
+	app.get(prefix + "/map", function(req, res){
 		cod4.status(function(err, data){
 			if(!err){
 				res.status(200).send({
@@ -42,11 +46,25 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/currentmap", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/map", blendedAuthenticate, function(req, res){
 		if(!authorize(req.user)){
 			return res.status(403).end();
 		}
 		res.status(501).end();
+	});
+
+	app.post(prefix + "/map/rotate", blendedAuthenticate, function(req, res){
+		if(!authorize(req.user)){
+			return res.status(403).end();
+		}
+		cod4.rotateMap(function(err, data){
+			if(!err){
+				res.status(200).end();
+			}else{
+				res.status(500).end();
+				console.log("Error: " + err.message);
+			}
+		});
 	});
 
 	app.get(prefix + "/status", blendedAuthenticate, function(req, res){
@@ -63,33 +81,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/rotate", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-		cod4.rotateMap(function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				console.log("Error: " + err.message);
-			}
-		});
-	});
-
 	app.get(prefix + "/maprotation", function(req, res){
 		cod4.mapRotation(function(err, data){
 			if(!err){
-				res.status(200).send(data);
+				res.send(data);
 			}else{
 				res.status(500).end();
 				console.log("Error: " + err.message);
 			}
 		});
-	});
-
-	app.get(prefix + "/maps", function(req, res){
-		res.status(200).send(gameinfo.maps);
 	});
 
 	app.get(prefix + "/gametypes", function(req, res){
@@ -99,7 +99,7 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/gametype", function(req, res){
 		cod4.gametype(function(err, data){
 			if(!err){
-				res.status(200).send({
+				res.send({
 					gametype: data.gametype,
 					defaultGametype: data.defaultGametype,
 					latched: data.latched || ""
@@ -117,7 +117,7 @@ module.exports = function(app, prefix){
 		}
 		cod4.setGametype(req.body.gametype, function(err, data){
 			if(!err){
-				res.status(200).send(data);
+				res.send(data);
 			}else{
 				res.status(500).end();
 				console.log("Error: " + err.message);

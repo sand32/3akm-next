@@ -295,6 +295,56 @@ $(function(){
 		confirm("Are you sure you want to delete this game?", callback);
 	};
 
+	// CoD4 Service Admin
+	//----------------------------
+
+	reloadCoD4Info = function(){
+		$.ajax({
+			type: "GET",
+			url: "/api/service/cod4/status",
+			success: function(data){
+				var i, player;
+				$(".current-map").html(data.map);
+				if(data.players.length > 0){
+					$(".empty-table").addClass(".hidden");
+					for(i = 0; i < data.players.length; i += 1){
+						player = data.players[i];
+						$(".playerlist tbody").append("<tr><td></td><td>" + 
+							player.num + "</td><td>" + 
+							player.name + "</td><td>" + 
+							player.score + "</td><td>" + 
+							player.ping + "</td><td>" + 
+							player.address + "</td>" + 
+							"<td>Actions</td>" + 
+							"</tr>");
+					}
+				}else{
+					$(".empty-table").removeClass(".hidden");
+					$(".empty-table").html("No players online.");
+				}
+				setTimeout(function(){
+					$.ajax({
+						type: "GET",
+						url: "/api/service/cod4/gametype",
+						success: function(data){
+							$(".current-gametype").html(data.gametype);
+						},
+						error: function(){
+							setErrorAlert("Unable to retrieve current gametype.");
+						}
+					});
+				}, 500);
+			},
+			error: function(){
+				setErrorAlert("Unable to retrieve server status.");
+			}
+		});
+	};
+	if($("#cod4-admin").length !== 0){
+		reloadCoD4Info();
+		setInterval(reloadCoD4Info, 10000);
+	}
+
 	//----------------------------
 	// Form Submission
 	//----------------------------
