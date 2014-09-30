@@ -298,6 +298,49 @@ $(function(){
 	// CoD4 Service Admin
 	//----------------------------
 
+	toggleApiActionElements = function(){
+		$(".api-action").toggleClass("disabled");
+	};
+
+	setGametype = function(gametype){
+		toggleApiActionElements();
+		$.ajax({
+			type: "PUT",
+			url: "/api/service/cod4/gametype",
+			contentType: "application/json",
+			data: JSON.stringify({
+				gametype: gametype
+			}),
+			processData: false,
+			success: function(){
+				setSuccessAlert("Gametype successfully updated. Changes will take effect on next map rotate.");
+				toggleApiActionElements();
+				reloadCoD4Info();
+			},
+			error: function(){
+				setErrorAlert("Unable to set gametype.");
+				toggleApiActionElements();
+			}
+		});
+	};
+
+	rotateMap = function(){
+		toggleApiActionElements();
+		$.ajax({
+			type: "POST",
+			url: "/api/service/cod4/map/rotate",
+			success: function(){
+				setSuccessAlert("Map successfully rotated.");
+				toggleApiActionElements();
+				reloadCoD4Info();
+			},
+			error: function(){
+				setErrorAlert("Unable to set gametype.");
+				toggleApiActionElements();
+			}
+		});
+	};
+
 	reloadCoD4Info = function(){
 		$.ajax({
 			type: "GET",
@@ -331,7 +374,10 @@ $(function(){
 			type: "GET",
 			url: "/api/service/cod4/gametype",
 			success: function(data){
+				var latched = data.latched;
+				if(latched === "") latched = "None";
 				$(".current-gametype").html(data.gametype);
+				$(".latched-gametype").html(latched + "<span class='caret'></span>");
 			},
 			error: function(){
 				setErrorAlert("Unable to retrieve current gametype.");

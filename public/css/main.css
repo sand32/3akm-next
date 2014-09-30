@@ -143,6 +143,10 @@ a.btn-link:hover {
 	margin-left: .5em;
 }
 
+.horizontal {
+	display: inline;
+}
+
 .table-sortable th {
 	cursor: pointer;
 }

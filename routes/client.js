@@ -31,7 +31,9 @@ var passport = require("passport"),
 	User = require("../model/user.js"),
 	getFormattedTime = require("../utils/common.js").getFormattedTime;
 	getSortClassForHeader = require("../utils/common.js").getSortClassForHeader;
-	getSortLinkForHeader = require("../utils/common.js").getSortLinkForHeader;
+	getSortLinkForHeader = require("../utils/common.js").getSortLinkForHeader,
+	loadConfig = require("../utils/common.js").loadConfig,
+	cod4GameInfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
@@ -363,7 +365,8 @@ module.exports = function(app, prefix){
 		}
 		res.render("cod4", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+			user: req.user,
+			cod4GameInfo: cod4GameInfo
 		});
 	});
 }

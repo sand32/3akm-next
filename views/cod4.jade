@@ -28,13 +28,24 @@ block content
 	hr
 	#cod4-admin
 		.row
-			.col-xs-6
+			.col-xs-4
 				label Current Map:&nbsp;&nbsp;
-				span.current-map Loading...
-		.row
-			.col-xs-6
+				.horizontal.current-map Loading...
+			.col-xs-4
 				label Current Gametype:&nbsp;&nbsp;
-				span.current-gametype Loading...
+				.horizontal.current-gametype Loading...
+		.row
+			.col-xs-4
+				a.api-action(class = "btn btn-default" onclick = "rotateMap();") Rotate Map
+			.col-xs-4
+				label Latched Gametype:&nbsp;&nbsp;
+				.horizontal.dropdown
+					a.api-action.latched-gametype(type = "button", class = "btn btn-default dropdown-toggle", data-toggle = "dropdown", data-target = "#") Loading...
+						span.caret
+					ul.dropdown-menu(role = "menu")
+						each gametype in cod4GameInfo.gametypes
+							li
+								a(class = "btn btn-link" data-target = "#", onclick = "setGametype('" + gametype + "');") #{gametype}
 		table.table.table-hover.table-selectable.playerList
 			thead
 				th
