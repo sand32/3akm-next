@@ -375,7 +375,7 @@ $(function(){
 			url: "/api/service/cod4/gametype",
 			success: function(data){
 				var latched = data.latched;
-				if(latched === "") latched = "None";
+				if(latched === "") latched = data.gametype;
 				$(".current-gametype").html(data.gametype);
 				$(".latched-gametype").html(latched + "<span class='caret'></span>");
 			},
