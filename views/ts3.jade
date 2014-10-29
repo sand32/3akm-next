@@ -41,6 +41,7 @@ block content
 					th
 					th ID
 					th Name
+					th Port
 					th Clients Online
 					th Uptime
 					th Autostart
@@ -52,6 +53,7 @@ block content
 								input.row-selector(type = "checkbox", value = "")
 							td= server.virtualserver_id
 							td= server.virtualserver_name
+							td= server.virtualserver_port
 							td 
 								if server.virtualserver_status === "online"
 									| #{server.virtualserver_clientsonline} / #{server.virtualserver_maxclients}
