@@ -124,9 +124,11 @@ module.exports = function(app, prefix){
 		user.lastName = req.body.lastName;
 		user.primaryHandle = req.body.primaryHandle;
 		user.tertiaryHandles = req.body.tertiaryHandles;
+		user.lanInviteDesired = req.body.lanInviteDesired;
 
 		if(req.isAuthenticated() && req.user.hasRole("admin")){
 			user.vip = req.body.vip;
+			user.blacklisted = req.body.blacklisted;
 			user.roles = removeDuplicates(req.body.roles);
 			user.services = req.body.services;
 		}

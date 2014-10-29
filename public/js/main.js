@@ -589,6 +589,12 @@ $(function(){
 			primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
 			tertiaryHandles: getTertiaryHandles()
 		};
+		if($("#user-editor-form input[name = 'lanInviteDesired-yes']").length > 0){
+			data.lanInviteDesired = $("#user-editor-form input[name = 'lanInviteDesired-yes']").parent().hasClass("active");
+		}
+		if($("#user-editor-form input[name = 'blacklisted-yes']").length > 0){
+			data.blacklisted = $("#user-editor-form input[name = 'blacklisted-yes']").parent().hasClass("active");
+		}
 		if($("#user-editor-form input[name = 'roles']").length > 0){
 			data.roles = $("#user-editor-form input[name = 'roles']").val().split(",");
 		}
@@ -614,8 +620,12 @@ $(function(){
 			firstName: $("#user-editor-form input[name = 'firstName']").val(),
 			lastName: $("#user-editor-form input[name = 'lastName']").val(),
 			primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
-			tertiaryHandles: getTertiaryHandles()
+			tertiaryHandles: getTertiaryHandles(),
+			lanInviteDesired: $("#user-editor-form input[name = 'lanInviteDesired-yes']").parent().hasClass("active")
 		};
+		if($("#user-editor-form input[name = 'blacklisted-yes']").length > 0){
+			data.blacklisted = $("#user-editor-form input[name = 'blacklisted-yes']").parent().hasClass("active");
+		}
 		if($("#user-editor-form input[name = 'roles']").length > 0){
 			data.roles = $("#user-editor-form input[name = 'roles']").val().split(",");
 		}

@@ -61,7 +61,27 @@ block content
 				.form-group.col-xs-6
 					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='input-group' style='margin-top:.5em;'><input type='text' name='tertiaryHandles' class='form-control'><span class='input-group-btn input-group-align'><a data-toggle='tooltip' data-placement='right' title='Remove this handle' class='removeItem btn btn-default glyphicon glyphicon-minus' /></span></div>", title = "Add another handle")
 			if user && user.hasRole("admin")
+				.row
+					.form-group.col-xs-3
+						label LAN Invite Desired
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "lanInviteDesired-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "lanInviteDesired-no")
+								| No
 				hr
+				.row
+					.form-group.col-xs-2
+						label Blacklisted
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default")
+								input(type = "radio", name = "blacklisted-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "blacklisted-no")
+								| No
 				.row
 					.form-group.col-xs-6
 						label Roles
@@ -110,6 +130,24 @@ block content
 									span.input-group-btn.input-group-align
 										a.removeItem(class = "btn btn-default glyphicon glyphicon-minus", data-toggle = "tooltip", data-placement = "right", title = "Remove this handle")
 							a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='input-group' style='margin-top:.5em;'><input type='text' name='tertiaryHandles' class='form-control'><span class='input-group-btn input-group-align'><a data-toggle='tooltip' data-placement='right' title='Remove this handle' class='removeItem btn btn-default glyphicon glyphicon-minus' /></span></div>", title = "Add another handle")
+					.row
+						.form-group.col-xs-3
+							label LAN Invite Desired
+							.btn-group(data-toggle = "buttons")
+								if editUser.lanInviteDesired
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "lanInviteDesired-yes")
+										| Yes
+									label(class = "btn btn-default")
+										input(type = "radio", name = "lanInviteDesired-no")
+										| No
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "lanInviteDesired-yes")
+										| Yes
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "lanInviteDesired-no")
+										| No
 				.col-xs-3
 					if user.hasRole("admin")
 						.well
@@ -127,6 +165,24 @@ block content
 									p= getFormattedTime(editUser.accessed)
 			if user.hasRole("admin")
 				hr
+				.row
+					.form-group.col-xs-2
+						label Blacklisted
+						.btn-group(data-toggle = "buttons")
+							if editUser.blacklisted
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "blacklisted-yes")
+									| Yes
+								label(class = "btn btn-default")
+									input(type = "radio", name = "blacklisted-no")
+									| No
+							else
+								label(class = "btn btn-default")
+									input(type = "radio", name = "blacklisted-yes")
+									| Yes
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "blacklisted-no")
+									| No
 				.row
 					.form-group.col-xs-6
 						label Roles
