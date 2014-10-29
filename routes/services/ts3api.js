@@ -83,7 +83,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/instance/stop", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/instance/stop", blendedAuthenticate, function(req, res){
 		if(!authorize(req.user)){
 			return res.status(403).end();
 		}
@@ -226,7 +226,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/start", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/start", blendedAuthenticate, function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
@@ -243,7 +243,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/stop", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/stop", blendedAuthenticate, function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}

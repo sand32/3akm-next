@@ -63,6 +63,29 @@ module.exports = {
 		return dateString;
 	},
 
+	secondsToHumanReadableDuration: function(secondsDuration){
+		var seconds = secondsDuration % 60,
+			minutes = (secondsDuration / 60) % 60,
+			hours = (secondsDuration / 3600) % 24,
+			days = secondsDuration / 86400,
+			string = "";
+		if(days > 1){
+			string += parseInt(days) + "d ";
+		}
+		if(hours > 1 || string !== ""){
+			string += parseInt(hours) + "h ";
+		}
+		if(minutes > 1 || string !== ""){
+			string += parseInt(minutes) + "m ";
+		}
+		if(seconds > 1 || string !== ""){
+			string += parseInt(seconds) + "s";
+		}else{
+			string = "0s";
+		}
+		return string;
+	},
+
 	removeDuplicates: function(array){
 		if(!array || !Array.isArray(array)){
 			return array;

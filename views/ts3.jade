@@ -1,0 +1,80 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+extends layout.jade
+
+block content
+	h1 Teamspeak 3 Service Administration
+	hr
+	if serverlist
+		#ts3-admin
+			.global-operations
+				.button-row-left
+					a(class = "btn btn-default selection-only", name = "startServers", onclick = "startSelectedServerInstances();")
+						span.button-icon(class = "glyphicon glyphicon-play")
+						| Start
+					a(class = "btn btn-default selection-only", name = "stopServers", onclick = "stopSelectedServerInstances();")
+						span.button-icon(class = "glyphicon glyphicon-stop")
+						| Stop
+			table.table.table-hover.table-selectable
+				thead
+					th
+					th ID
+					th Name
+					th Clients Online
+					th Uptime
+					th Autostart
+					th
+				tbody
+					each server in serverlist
+						tr
+							td
+								input.row-selector(type = "checkbox", value = "")
+							td= server.virtualserver_id
+							td= server.virtualserver_name
+							td= server.virtualserver_clientsonline + " / " + server.virtualserver_maxclients
+							td.server-status
+								if server.virtualserver_status === "online"
+									span.text-success= secondsToHumanReadableDuration(server.virtualserver_uptime)
+								else
+									span.text-danger Offline
+							td
+								if server.virtualserver_autostart === 1
+									span(class = "glyphicon glyphicon-ok text-success")
+								else
+									span(class = "glyphicon glyphicon-remove text-danger")
+							td
+								.btn-group.button-row-right
+									if server.virtualserver_status === "online"
+										a(class = "btn btn-default btn-xs", name = "shutdown", onclick = "stopServerInstance(" + server.virtualserver_id + ")")
+											span.button-icon(class = "glyphicon glyphicon-stop")
+											| Stop
+									else
+										a(class = "btn btn-default btn-xs", name = "start", onclick = "startServerInstance(" + server.virtualserver_id + ")")
+											span.button-icon(class = "glyphicon glyphicon-play")
+											| Start
+									a(class = "btn btn-default btn-xs", name = "select", href = "/admin/service/ts3/" + server.virtualserver_id)
+										span.button-icon(class = "glyphicon glyphicon-chevron-right")
+										| Select
+	else
+		.empty-table No response from Teamspeak server.

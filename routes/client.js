@@ -29,11 +29,9 @@ var passport = require("passport"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
 	User = require("../model/user.js"),
-	getFormattedTime = require("../utils/common.js").getFormattedTime;
-	getSortClassForHeader = require("../utils/common.js").getSortClassForHeader;
-	getSortLinkForHeader = require("../utils/common.js").getSortLinkForHeader,
-	loadConfig = require("../utils/common.js").loadConfig,
-	cod4GameInfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json");
+	utils = require("../utils/common.js"),
+	ts3 = require("../utils/ts3-serverquery.js"),
+	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/", function(req, res){
@@ -45,13 +43,13 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					article: doc,
-					getFormattedTime: getFormattedTime
+					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
 				res.render("article", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
-					getFormattedTime: getFormattedTime
+					getFormattedTime: utils.getFormattedTime
 				});
 			}
 		});
@@ -76,7 +74,7 @@ module.exports = function(app, prefix){
 			user: req.user,
 			editUser: req.user,
 			containsTokenField: req.user.hasRole("admin"),
-			getFormattedTime: getFormattedTime
+			getFormattedTime: utils.getFormattedTime
 		});
 	});
 
@@ -109,7 +107,7 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					article: doc,
-					getFormattedTime: getFormattedTime
+					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
 				res.redirect("/");
@@ -132,9 +130,9 @@ module.exports = function(app, prefix){
 				user: req.user,
 				articles: docs,
 				sort: req.query.sort,
-				getFormattedTime: getFormattedTime,
-				getSortClassForHeader: getSortClassForHeader,
-				getSortLinkForHeader: getSortLinkForHeader
+				getFormattedTime: utils.getFormattedTime,
+				getSortClassForHeader: utils.getSortClassForHeader,
+				getSortLinkForHeader: utils.getSortLinkForHeader
 			});
 		});
 	});
@@ -169,7 +167,7 @@ module.exports = function(app, prefix){
 					article: doc,
 					containsTokenField: true,
 					containsEditor: true,
-					getFormattedTime: getFormattedTime
+					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
 				res.redirect("/");
@@ -191,9 +189,9 @@ module.exports = function(app, prefix){
 				user: req.user,
 				editUsers: docs,
 				sort: req.query.sort,
-				getFormattedTime: getFormattedTime,
-				getSortClassForHeader: getSortClassForHeader,
-				getSortLinkForHeader: getSortLinkForHeader
+				getFormattedTime: utils.getFormattedTime,
+				getSortClassForHeader: utils.getSortClassForHeader,
+				getSortLinkForHeader: utils.getSortLinkForHeader
 			});
 		});
 	});
@@ -225,7 +223,7 @@ module.exports = function(app, prefix){
 					user: req.user,
 					editUser: doc,
 					containsTokenField: true,
-					getFormattedTime: getFormattedTime
+					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
 				res.redirect("/");
@@ -247,9 +245,9 @@ module.exports = function(app, prefix){
 				user: req.user,
 				lans: docs,
 				sort: req.query.sort,
-				getFormattedTime: getFormattedTime,
-				getSortClassForHeader: getSortClassForHeader,
-				getSortLinkForHeader: getSortLinkForHeader
+				getFormattedTime: utils.getFormattedTime,
+				getSortClassForHeader: utils.getSortClassForHeader,
+				getSortLinkForHeader: utils.getSortLinkForHeader
 			});
 		});
 	});
@@ -295,7 +293,7 @@ module.exports = function(app, prefix){
 						games: docs,
 						lan: doc,
 						containsDateField: true,
-						getFormattedTime: getFormattedTime
+						getFormattedTime: utils.getFormattedTime
 					});
 				}else{
 					res.redirect("/");
@@ -318,8 +316,8 @@ module.exports = function(app, prefix){
 				user: req.user,
 				games: docs,
 				sort: req.query.sort,
-				getSortClassForHeader: getSortClassForHeader,
-				getSortLinkForHeader: getSortLinkForHeader
+				getSortClassForHeader: utils.getSortClassForHeader,
+				getSortLinkForHeader: utils.getSortLinkForHeader
 			});
 		});
 	});
@@ -367,6 +365,42 @@ module.exports = function(app, prefix){
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
 			cod4GameInfo: cod4GameInfo
+		});
+	});
+
+	app.get(prefix + "/admin/service/ts3", function(req, res){
+		if(!req.isAuthenticated()
+		|| !authorize(req.user)){
+			return res.redirect("/");
+		}
+		ts3.listServers(function(err, data){
+			res.render("ts3", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				serverlist: data ? (Array.isArray(data) ? data : [data]) : null,
+				secondsToHumanReadableDuration: utils.secondsToHumanReadableDuration
+			});
+		});
+	});
+
+	app.get(prefix + "/admin/service/ts3/:serverId", function(req, res){
+		if(isNaN(req.params.serverId)){
+			return res.redirect("/");
+		}else if(!req.isAuthenticated()
+			  || !authorize(req.user)){
+			return res.redirect("/");
+		}
+		ts3.serverInfo(req.params.serverId, function(err, data){
+			if(err){
+				res.status(404).end();
+			}else{
+				res.render("ts3serveredit", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					server: data ? data : null,
+					secondsToHumanReadableDuration: utils.secondsToHumanReadableDuration
+				});
+			}
 		});
 	});
 }

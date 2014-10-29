@@ -121,6 +121,10 @@ $(function(){
 		});
 	};
 
+	toggleApiActionElements = function(){
+		$(".api-action").toggleClass("disabled");
+	};
+
 	//----------------------------
 	// Alerts
 	//----------------------------
@@ -298,10 +302,6 @@ $(function(){
 	// CoD4 Service Admin
 	//----------------------------
 
-	toggleApiActionElements = function(){
-		$(".api-action").toggleClass("disabled");
-	};
-
 	setGametype = function(gametype){
 		toggleApiActionElements();
 		$.ajax({
@@ -411,6 +411,87 @@ $(function(){
 		setInterval(reloadCoD4Info, 10000);
 	}
 
+	// TS3 Service Admin
+	//----------------------------
+
+	startSelectedServerInstances = function(){
+		var servers = $("#ts3-admin .row-selector:checked");
+		for(var i = 0; i < servers.length; i += 1){
+			if(i === servers.length - 1){
+				$.ajax({
+					type: "POST",
+					url: "/api/service/ts3/server/" + $(servers[i]).parent().next("td").text() + "/start",
+					success: function(){
+						setTimeout(function(){location.reload(true);}, 100);
+					},
+					error: function(){
+						setErrorAlert("Unable to start virtual server(s).");
+					}
+				});
+			}else{
+				$.ajax({
+					type: "POST",
+					url: "/api/service/ts3/server/" + $(servers[i]).parent().next("td").text() + "/start"
+				});
+			}
+		}
+	};
+
+	stopSelectedServerInstances = function(){
+		callback = function(){
+			var servers = $("#ts3-admin .row-selector:checked");
+			for(var i = 0; i < servers.length; i += 1){
+				if(i === servers.length - 1){
+					$.ajax({
+						type: "POST",
+						url: "/api/service/ts3/server/" + $(servers[i]).parent().next("td").text() + "/stop",
+						success: function(){
+							setTimeout(function(){location.reload(true);}, 100);
+						},
+						error: function(){
+							setErrorAlert("Unable to stop virtual server(s).");
+						}
+					});
+				}else{
+					$.ajax({
+						type: "POST",
+						url: "/api/service/ts3/server/" + $(servers[i]).parent().next("td").text() + "/stop"
+					});
+				}
+			}
+		};
+		confirm("Are you sure you want to stop the selected virtual server(s)?", callback);
+	};
+
+	startServerInstance = function(serverId){
+		$.ajax({
+			type: "POST",
+			url: "/api/service/ts3/server/" + serverId + "/start",
+			success: function(){
+				setTimeout(function(){location.reload(true);}, 100);
+			},
+			error: function(){
+				setErrorAlert("Unable to start virtual server.");
+			}
+		});
+	};
+
+	stopServerInstance = function(serverId){
+		callback = function(){
+			$.ajax({
+				type: "POST",
+				url: "/api/service/ts3/server/" + serverId + "/stop",
+				success: function(){
+					setTimeout(function(){location.reload(true);}, 100);
+				},
+				error: function(){
+					setErrorAlert("Unable to stop virtual server.");
+				}
+			});
+		};
+		confirm("Are you sure you want to stop this virtual server?", callback);
+	};
+
 	//----------------------------
 	// Form Submission
 	//----------------------------
@@ -439,7 +520,7 @@ $(function(){
 			data: JSON.stringify({
 				email: $("#login-form input[name = 'email']").val(), 
 				password: $("#login-form input[name = 'password']").val()
-			}), 
+			}),
 			processData: false,
 			success: function(){
 				location.reload(true);
