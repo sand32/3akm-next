@@ -93,6 +93,7 @@ $(function(){
 		$(".sort-desc").html($(".sort-desc").html() + "<span class='glyphicon glyphicon-chevron-down' />");
 	}
 
+	// Handle table row selections
 	reactOnRowSelect = function(){
 		if($(".table-selectable .row-selector:checked").length > 0){
 			$(".global-operations .selection-only").removeAttr("disabled");
@@ -104,6 +105,17 @@ $(function(){
 		reactOnRowSelect();
 		$(".table-selectable .row-selector").click(reactOnRowSelect);
 	}
+
+	// Handle accordion section behavior
+	$(".section-header").hover(function(){
+			$(this).removeClass("grayscale");
+		}, function(){
+			$(this).addClass("grayscale");
+		}
+	);
+	$(".section-header").mousedown(function(e){
+		$(e.target).closest(".section-entry").toggleClass("section-entry-open");
+	});
 
 	uploadImage = function(fileFieldName, pathFieldName){
 		var data = new FormData();
@@ -144,15 +156,6 @@ $(function(){
 	//----------------------------
 	// Page-specific Behavior
 	//----------------------------
-
-	// Games
-	//----------------------------
-
-	$(".game-header").hover(function(){
-		$(this).removeClass("grayscale");
-	}, function(){
-		$(this).addClass("grayscale");
-	});
 
 	// User Profile
 	//----------------------------

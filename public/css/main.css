@@ -26,6 +26,15 @@ body {
 	background-color: #222;
 }
 
+a {
+	color: red;
+}
+
+a:hover {
+	color: red;
+	text-decoration: underline;
+}
+
 a.btn-link {
 	color: #222;
 }
@@ -98,17 +107,35 @@ a.btn-link:hover {
      filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale");
  }
 
-.game-entry .game-header {
+.section-entry .section-header {
 	background-repeat: no-repeat;
 	border-bottom: 1px #222 solid;
 	cursor: pointer;
 	text-align: right;
 	height: 5em;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
-.game-entry:hover .game-header,
-.game-entry-open .game-header {
+.section-entry .section-body {
+	display: none;
+}
+
+.section-entry:hover .section-header,
+.section-entry-open .section-header {
 	border-bottom: 1px red solid;
+}
+
+.section-entry-open .section-header {
+	margin-bottom: 1em;
+}
+
+.section-entry-open .section-body {
+	display: initial;
 }
 
 .field-align {

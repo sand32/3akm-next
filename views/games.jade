@@ -28,9 +28,18 @@ block content
 		h1 Games for LAN #{year}
 		hr
 		each game in games
-			.game-entry
-				.game-header.grayscale(style = "background-image:url(" + game.game.descriptionHeaderImage + ");")
+			.section-entry
+				.section-header.grayscale(style = "background-image:url(" + game.game.descriptionHeaderImage + ");")
 					h2= game.game.name
+				.section-body
+					if game.game.supplementalFiles.length > 0
+						.panel.panel-default(style = "float:right;")
+							.panel-heading Supplemental Files
+							.panel-body
+								each file in game.game.supplementalFiles
+									.file
+										a(href = file.url)= file.name
+					.desciprtion!= game.game.description
 	else
 		h1 No active LAN defined
 		hr
