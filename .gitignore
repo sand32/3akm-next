@@ -10,5 +10,8 @@ node_modules
 # Temp files
 *~
 
+# Hidden files
+.*
+
 # Upload Directory
 public/uploads/*
