@@ -33,8 +33,9 @@ block content
 					h2= game.game.name
 				.section-body
 					if game.game.supplementalFiles.length > 0
-						.panel.panel-default(style = "float:right;")
-							.panel-heading Supplemental Files
+						.files-panel(class = "panel panel-default")
+							.panel-heading
+								h3.panel-title Supplemental Files
 							.panel-body
 								each file in game.game.supplementalFiles
 									.file
