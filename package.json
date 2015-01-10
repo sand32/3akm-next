@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"description": "The site for the 3AK^M annual LAN party",
 	"private": true,
-	"main": "index.js",
+	"main": "app.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sand32/3akm-next.git"
