@@ -21,29 +21,7 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-doctype html
-html
-	include ./head.jade
-	body
-		.container
-			.row#header
-			.row#contentRow
-				#content(class = "col-md-9")
-					block content
-				#menu(class = "col-md-3 visible-md-block visible-lg-block")
-					include ./menu.jade
-			.row#footer
-				include ./footer.jade
-		.modal.fade#confirmationModal
-			.modal-dialog
-				.modal-content
-					.modal-header
-						button.close(type = "button", data-dismiss = "modal")
-							span.sr-only(aria-hidden = "true") &times;
-							span.sr-only Close
-						h4.modal-title Are you sure?
-					.modal-footer
-						a(class = "btn btn-link", data-dismiss = "modal") No
-						a(class = "btn btn-default", name = "yes", data-dismiss = "modal") Yes
-include ./globalscripts.jade
-block pageScripts
+script(src = "http://code.jquery.com/jquery-2.1.1.min.js")
+script(src = "/thirdparty/bootstrap/bootstrap.min.js")
+script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")
+script(src = "/js/main.js")

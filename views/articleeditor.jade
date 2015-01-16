@@ -109,3 +109,9 @@ block content
 				a(class = "btn btn-default", onclick = "updateArticle('" + article._id + "');") Apply
 			a(class = "btn btn-link" href = "/article/" + article._id) View
 			a(class = "btn btn-link" href = "/authoring/article") Back
+block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")
+	script(src = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.js")
+	script(src = "/thirdparty/ckeditor/ckeditor.js")
+	script(src = "/thirdparty/ckeditor/adapters/jquery.js")

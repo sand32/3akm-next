@@ -181,3 +181,7 @@ block content
 				a.submitButton(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "'); location.replace('/admin/lan');") Save
 				a(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/lan") Cancel
+block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css")
+	script(src = "/thirdparty/moment/moment.min.js")
+	script(src = "/thirdparty/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js")

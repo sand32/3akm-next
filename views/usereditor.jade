@@ -219,3 +219,8 @@ block content
 								a.submitButton(class = "btn btn-default", data-dismiss = "modal", onclick = "changePassword('" + editUser._id + "');", disabled = "disabled") Save
 							else
 								a.submitButton(class = "btn btn-default", data-dismiss = "modal", onclick = "changePassword('session');", disabled = "disabled") Save
+block pageScripts
+	if user && user.hasRole("admin")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")
+		script(src = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.js")

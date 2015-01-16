@@ -112,3 +112,6 @@ block content
 				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "'); location.replace('/admin/game');") Save
 				a(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/game") Back
+block pageScripts
+	script(src = "/thirdparty/ckeditor/ckeditor.js")
+	script(src = "/thirdparty/ckeditor/adapters/jquery.js")

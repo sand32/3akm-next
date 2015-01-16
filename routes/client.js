@@ -73,7 +73,6 @@ module.exports = function(app, prefix){
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user,
 			editUser: req.user,
-			containsTokenField: req.user.hasRole("admin"),
 			getFormattedTime: utils.getFormattedTime
 		});
 	});
@@ -144,9 +143,7 @@ module.exports = function(app, prefix){
 		}
 		res.render("articleeditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
-			containsTokenField: true,
-			containsEditor: true
+			user: req.user
 		});
 	});
 
@@ -165,8 +162,6 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					article: doc,
-					containsTokenField: true,
-					containsEditor: true,
 					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
@@ -203,8 +198,7 @@ module.exports = function(app, prefix){
 		}
 		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
-			containsTokenField: true
+			user: req.user
 		});
 	});
 
@@ -222,7 +216,6 @@ module.exports = function(app, prefix){
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
 					editUser: doc,
-					containsTokenField: true,
 					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
@@ -264,8 +257,7 @@ module.exports = function(app, prefix){
 				res.render("laneditor", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
-					games: docs,
-					containsDateField: true
+					games: docs
 				});
 			}else{
 				res.status(500).end();
@@ -292,7 +284,6 @@ module.exports = function(app, prefix){
 						user: req.user,
 						games: docs,
 						lan: doc,
-						containsDateField: true,
 						getFormattedTime: utils.getFormattedTime
 					});
 				}else{
@@ -329,8 +320,7 @@ module.exports = function(app, prefix){
 		}
 		res.render("gameeditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
-			containsEditor: true
+			user: req.user
 		});
 	});
 
@@ -347,8 +337,7 @@ module.exports = function(app, prefix){
 				res.render("gameeditor", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
-					game: doc,
-					containsEditor: true
+					game: doc
 				});
 			}else{
 				res.redirect("/");
