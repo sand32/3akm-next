@@ -52,11 +52,19 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:article", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
+			return res.status(404).end();
+		}
+
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(doc){
-				res.status(200).send(doc);
+				if(doc.published || authorize(req.user, {hasRoles: ["author"]})){
+					res.status(200).send(doc);
+				}else{
+					res.status(403).end();
+				}
 			}else{
 				res.status(404).end();
 			}
