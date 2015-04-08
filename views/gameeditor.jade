@@ -26,7 +26,7 @@ extends layout.jade
 block content
 	h1 Game Editor
 	hr
-	form#game-editor-form(role = "form")
+	form.validated-form#game-editor-form(role = "form")
 		if !game
 			.row
 				.form-group.col-xs-6
@@ -113,6 +113,7 @@ block content
 				a(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/game") Back
 block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	script(src = "/thirdparty/ckeditor/ckeditor.js")
 	script(src = "/thirdparty/ckeditor/adapters/jquery.js")
 	script(src = "/js/admin.js")

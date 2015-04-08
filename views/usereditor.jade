@@ -30,7 +30,7 @@ block content
 		else
 			h1 Registration Form
 		hr
-		form#user-editor-form(role = "form")
+		form.validated-form#user-editor-form(role = "form")
 			.row
 				.form-group.col-xs-6
 					label Email 
@@ -97,7 +97,7 @@ block content
 		else
 			h1 My Profile
 		hr
-		form#user-editor-form(role = "form")
+		form.validated-form#user-editor-form(role = "form")
 			.row
 				.col-xs-9
 					.row
@@ -198,7 +198,7 @@ block content
 		.modal.fade#changePasswordModal
 			.modal-dialog
 				.modal-content
-					form#change-password-form(role = "form")
+					form.validated-form#change-password-form(role = "form")
 						.modal-header
 							button.close(type = "button", data-dismiss = "modal")
 								span.sr-only(aria-hidden = "true") &times;
@@ -220,6 +220,7 @@ block content
 							else
 								a.submitButton(class = "btn btn-default", data-dismiss = "modal", onclick = "changePassword('session');", disabled = "disabled") Save
 block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	if user && user.hasRole("admin")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")

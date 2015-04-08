@@ -26,7 +26,7 @@ extends layout.jade
 block content
 	h1 LAN Editor
 	hr
-	form#lan-editor-form(role = "form")
+	form.validated-form#lan-editor-form(role = "form")
 		if !lan
 			.row
 				.form-group.col-xs-4
@@ -182,6 +182,7 @@ block content
 				a(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/lan") Cancel
 block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css")
 	script(src = "/thirdparty/moment/moment.min.js")
 	script(src = "/thirdparty/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js")

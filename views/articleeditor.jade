@@ -26,7 +26,7 @@ extends layout.jade
 block content
 	h1 Article Editor
 	hr
-	form#article-editor-form(role = "form")
+	form.validated-form#article-editor-form(role = "form")
 		if !article
 			.row
 				.form-group.col-xs-6
@@ -110,6 +110,7 @@ block content
 			a(class = "btn btn-link" href = "/article/" + article._id) View
 			a(class = "btn btn-link" href = "/authoring/article") Back
 block pageScripts
+	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")
 	script(src = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.js")

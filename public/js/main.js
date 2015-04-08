@@ -500,153 +500,117 @@ $(function(){
 	// Form Validation
 	//----------------------------
 
-	$("#register-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			email: {
-				validators: {
-					notEmpty: {
-						message: "Required"
-					},
-					emailAddress: {
-						message: "Must be a valid email address"
+	if($(".validated-form").length > 0){
+		$("#user-editor-form").bootstrapValidator({
+			submitButtons: ".submitButton",
+			fields: {
+				email: {
+					validators: {
+						notEmpty: {
+							message: "Required"
+						},
+						emailAddress: {
+							message: "Must be a valid email address"
+						}
 					}
-				}
-			},
-			password: {
-				validators: {
-					notEmpty: {
-						message: "Required"
-					},
-					identical: {
-						field: "confirmPassword",
-						message: "Passwords must match"
+				},
+				password: {
+					validators: {
+						notEmpty: {
+							message: "Required"
+						},
+						identical: {
+							field: "confirmPassword",
+							message: "Passwords must match"
+						}
 					}
-				}
-			},
-			confirmPassword: {
-				validators: {
-					notEmpty: {
-						message: "Passwords must match"
-					},
-					identical: {
-						field: "password",
-						message: "Passwords must match"
+				},
+				confirmPassword: {
+					validators: {
+						notEmpty: {
+							message: "Passwords must match"
+						},
+						identical: {
+							field: "password",
+							message: "Passwords must match"
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 
-	$("#user-editor-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			email: {
-				validators: {
-					notEmpty: {
-						message: "Required"
-					},
-					emailAddress: {
-						message: "Must be a valid email address"
+		$("#change-password-form").bootstrapValidator({
+			submitButtons: ".submitButton",
+			fields: {
+				newPassword: {
+					validators: {
+						notEmpty: {
+							message: "Required"
+						},
+						identical: {
+							field: "confirmPassword",
+							message: "Passwords must match"
+						}
 					}
-				}
-			},
-			password: {
-				validators: {
-					notEmpty: {
-						message: "Required"
-					},
-					identical: {
-						field: "confirmPassword",
-						message: "Passwords must match"
-					}
-				}
-			},
-			confirmPassword: {
-				validators: {
-					notEmpty: {
-						message: "Passwords must match"
-					},
-					identical: {
-						field: "password",
-						message: "Passwords must match"
+				},
+				confirmPassword: {
+					validators: {
+						notEmpty: {
+							message: "Passwords must match"
+						},
+						identical: {
+							field: "newPassword",
+							message: "Passwords must match"
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 
-	$("#change-password-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			newPassword: {
-				validators: {
-					notEmpty: {
-						message: "Required"
-					},
-					identical: {
-						field: "confirmPassword",
-						message: "Passwords must match"
-					}
-				}
-			},
-			confirmPassword: {
-				validators: {
-					notEmpty: {
-						message: "Passwords must match"
-					},
-					identical: {
-						field: "newPassword",
-						message: "Passwords must match"
+		$("#article-editor-form").bootstrapValidator({
+			submitButtons: ".submitButton",
+			fields: {
+				title: {
+					validators: {
+						notEmpty: {
+							message: "A title is required"
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 
-	$("#article-editor-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			title: {
-				validators: {
-					notEmpty: {
-						message: "A title is required"
+		$("#lan-editor-form").bootstrapValidator({
+			submitButtons: ".submitButton",
+			fields: {
+				beginDate: {
+					validators: {
+						notEmpty: {
+							message: "A begin date is required"
+						}
+					}
+				},
+				endDate: {
+					validators: {
+						notEmpty: {
+							message: "An end date is required"
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 
-	$("#lan-editor-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			beginDate: {
-				validators: {
-					notEmpty: {
-						message: "A begin date is required"
-					}
-				}
-			},
-			endDate: {
-				validators: {
-					notEmpty: {
-						message: "An end date is required"
+		$("#game-editor-form").bootstrapValidator({
+			submitButtons: ".submitButton",
+			fields: {
+				name: {
+					validators: {
+						notEmpty: {
+							message: "A name is required"
+						}
 					}
 				}
 			}
-		}
-	});
-
-	$("#game-editor-form").bootstrapValidator({
-		submitButtons: ".submitButton",
-		fields: {
-			name: {
-				validators: {
-					notEmpty: {
-						message: "A name is required"
-					}
-				}
-			}
-		}
-	});
+		});
+	}
 });
