@@ -221,6 +221,7 @@ block content
 								a.submitButton(class = "btn btn-default", data-dismiss = "modal", onclick = "changePassword('session');", disabled = "disabled") Save
 block pageScripts
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
+	script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")
 	if user && user.hasRole("admin")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")
