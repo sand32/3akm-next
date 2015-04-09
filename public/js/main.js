@@ -425,6 +425,40 @@ $(function(){
 		confirm("Are you sure you want to delete this article?", callback);
 	};
 
+	// RSVPs
+	//----------------------------
+
+	stringifyRsvpStatus = function(){
+		if($("#rsvp-submission-form input[name = 'status-yes']").parent().hasClass("active")){
+			return "Yes";
+		}else if($("#rsvp-submission-form input[name = 'status-maybe']").parent().hasClass("active")){
+			return "Maybe";
+		}else{
+			return "No";
+		}
+	};
+
+	submitRsvp = function(userId, year){
+		$.ajax({
+			type: "PUT",
+			url: "/api/user/" + userId + "/rsvp/" + year,
+			contentType: "application/json",
+			data: JSON.stringify({
+				status: stringifyRsvpStatus(),
+				playing: $("#rsvp-submission-form input[name = 'playing-yes']").parent().hasClass("active"),
+				guests: $("#rsvp-submission-form input[name = 'guests']").val(),
+				cleaning: $("#rsvp-submission-form input[name = 'cleaning-yes']").parent().hasClass("active")
+			}),
+			processData: false,
+			success: function(){
+				location.replace("/");//location.replace("/appearances");
+			},
+			error: function(){
+				setErrorAlert("Unable to submit RSVP.");
+			}
+		});
+	};
+
 	//----------------------------
 	// Form Behavior
 	//----------------------------
