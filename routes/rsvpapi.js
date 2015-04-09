@@ -97,7 +97,6 @@ module.exports = function(app, prefix){
 							}
 						});
 					}else{
-						console.log("inelse");
 						rsvpDoc.status = req.body.status;
 						rsvpDoc.playing = req.body.playing;
 						rsvpDoc.guests = req.body.guests;
