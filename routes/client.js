@@ -83,7 +83,8 @@ module.exports = function(app, prefix){
 				res.render("rsvpsubmit", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
-					year: doc ? doc.beginDate.getFullYear() : 0
+					year: doc ? doc.beginDate.getFullYear() : 0,
+					lan: doc
 				});
 			}else{
 				res.redirect("/");

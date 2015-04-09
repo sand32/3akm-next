@@ -66,6 +66,25 @@ block content
 							label(class = "btn btn-default active")
 								input(type = "radio", name = "cleaning-no")
 								| No
+				.row
+					- var hasTourney = false;
+					- for(var i = 0; i < lan.games.length; i+=1){
+					-     if(lan.games[i].tournament) hasTourney = true;
+					- }
+					if hasTourney
+						.well.col-xs-6
+							each game in lan.games
+								if game.tournament
+									.row
+										.form-group
+											label game.tournamentName
+											.btn-group(data-toggle = "buttons")
+												label(class = "btn btn-default active")
+													input(type = "radio", name = "tourney-yes")
+													| Yes
+												label(class = "btn btn-default")
+													input(type = "radio", name = "tourney-no")
+													| No
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "submitRsvp('session', " + year + ");") Submit
 		else
