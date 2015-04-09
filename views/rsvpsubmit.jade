@@ -26,56 +26,59 @@ extends layout.jade
 block content
 	h1 RSVP Submission Form
 	hr
-	if isAuthenticated
-		form.validated-form#rsvp-submission-form(role = "form")
-			.row
-				.form-group.col-xs-3
-					label Will you be attending?
-					.btn-group(data-toggle = "buttons")
-						label(class = "btn btn-default active")
-							input(type = "radio", name = "status-yes")
-							| Yes
-						label(class = "btn btn-default")
-							input(type = "radio", name = "status-maybe")
-							| Maybe
-						label(class = "btn btn-default")
-							input(type = "radio", name = "status-no")
-							| No
-			.row
-				.form-group.col-xs-3
-					label Will you be playing?
-					.btn-group(data-toggle = "buttons")
-						label(class = "btn btn-default active")
-							input(type = "radio", name = "playing-yes")
-							| Yes
-						label(class = "btn btn-default")
-							input(type = "radio", name = "playing-no")
-							| No
-			.row
-				.form-group.col-xs-6
-					label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
-					input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
-			.row
-				.form-group.col-xs-5
-					label Will you be assisting in the cleanup afterward?
-					.btn-group(data-toggle = "buttons")
-						label(class = "btn btn-default")
-							input(type = "radio", name = "cleaning-yes")
-							| Yes
-						label(class = "btn btn-default active")
-							input(type = "radio", name = "cleaning-no")
-							| No
-			hr
-			a.submitButton(class = "btn btn-default", onclick = "submitRsvp();") Submit
+	if year !== 0
+		if isAuthenticated
+			form.validated-form#rsvp-submission-form(role = "form")
+				.row
+					.form-group.col-xs-3
+						label Will you be attending?
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "status-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "status-maybe")
+								| Maybe
+							label(class = "btn btn-default")
+								input(type = "radio", name = "status-no")
+								| No
+				.row
+					.form-group.col-xs-3
+						label Will you be playing?
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "playing-yes")
+								| Yes
+							label(class = "btn btn-default")
+								input(type = "radio", name = "playing-no")
+								| No
+				.row
+					.form-group.col-xs-6
+						label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
+						input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
+				.row
+					.form-group.col-xs-5
+						label Will you be assisting in the cleanup afterward?
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default")
+								input(type = "radio", name = "cleaning-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "cleaning-no")
+								| No
+				hr
+				a.submitButton(class = "btn btn-default", onclick = "submitRsvp();") Submit
+		else
+			.empty-table 
+				p Please log in or 
+					a(href = "/register") register
+					|  in order to RSVP.
+				p Since this is the first year we're using actual user accounts, 
+					| we'll be associating your RSVP history to your new account by hand. 
+					| Your history will be accessible via your user dashboard at a later 
+					| date.
 	else
-		.empty-table 
-			p Please log in or 
-				a(href = "/register") register
-				|  in order to RSVP.
-			p Since this is the first year we're using actual user accounts, 
-				| we'll be associating your RSVP history to your new account by hand. 
-				| Your history will be accessible via your user dashboard at a later 
-				| date.
+		.empty-table RSVPs are no longer being accepted. Hope to see you at LAN!
 block pageScripts
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")

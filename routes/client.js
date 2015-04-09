@@ -78,9 +78,16 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/rsvp", function(req, res){
-		res.render("rsvpsubmit", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+		Lan.findOne({active: true, acceptingRsvps: true, beginDate: {$gt: Date.now()}}, null, {sort: {beginDate: "-1"}}, function(err, doc){
+			if(!err){
+				res.render("rsvpsubmit", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					year: doc ? doc.beginDate.getFullYear() : 0
+				});
+			}else{
+				res.redirect("/");
+			}
 		});
 	});
 
