@@ -77,6 +77,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/rsvp", function(req, res){
+		res.render("rsvpsubmit", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
+		});
+	});
+
 	app.get(prefix + "/games", function(req, res){
 		Lan.findOne({active: true}, null, {sort: {beginDate: "-1"}})
 		.populate("games.game")
