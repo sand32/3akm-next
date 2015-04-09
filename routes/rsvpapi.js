@@ -78,7 +78,7 @@ module.exports = function(app, prefix){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: queryUser._id, lan: lanDoc._id}, function(err, rsvpDoc){
+				Rsvp.findOne({user: queryUser, lan: lanDoc._id}, function(err, rsvpDoc){
 					if(err || !rsvpDoc){
 						var rsvp = new Rsvp();
 						rsvp.user = queryUser;
@@ -97,6 +97,7 @@ module.exports = function(app, prefix){
 							}
 						});
 					}else{
+						console.log("inelse");
 						rsvpDoc.status = req.body.status;
 						rsvpDoc.playing = req.body.playing;
 						rsvpDoc.guests = req.body.guests;
@@ -136,7 +137,7 @@ module.exports = function(app, prefix){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: queryUser._id, lan: lanDoc._id}, function(err, rsvpDoc){
+				Rsvp.findOne({user: queryUser, lan: lanDoc._id}, function(err, rsvpDoc){
 					if(err || !rsvpDoc){
 						res.status(404).end();
 					}else{
