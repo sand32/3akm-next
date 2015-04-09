@@ -167,51 +167,6 @@ $(function(){
 		$("#changePasswordModal").modal("show");
 	};
 
-	// Article Manager
-	//----------------------------
-
-	deleteSelectedArticles = function(){
-		callback = function(){
-			var articles = $("#article-manager .row-selector:checked");
-			for(var i = 0; i < articles.length; i += 1){
-				if(i === articles.length - 1){
-					$.ajax({
-						type: "DELETE",
-						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val(),
-						success: function(){
-							location.reload(true);
-						},
-						error: function(){
-							setErrorAlert("Unable to delete article(s).");
-						}
-					});
-				}else{
-					$.ajax({
-						type: "DELETE",
-						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val()
-					});
-				}
-			}
-		};
-		confirm("Are you sure you want to delete the selected article(s)?", callback);
-	};
-
-	deleteArticle = function(id){
-		callback = function(){
-			$.ajax({
-				type: "DELETE",
-				url: "/api/article/" + id,
-				success: function(){
-					location.reload(true);
-				},
-				error: function(){
-					setErrorAlert("Unable to delete article.");
-				}
-			});
-		};
-		confirm("Are you sure you want to delete this article?", callback);
-	};
-
 	//----------------------------
 	// Form Submission
 	//----------------------------
@@ -426,6 +381,48 @@ $(function(){
 				setErrorAlert("Error updating article.");
 			}
 		});
+	};
+
+	deleteSelectedArticles = function(){
+		callback = function(){
+			var articles = $("#article-manager .row-selector:checked");
+			for(var i = 0; i < articles.length; i += 1){
+				if(i === articles.length - 1){
+					$.ajax({
+						type: "DELETE",
+						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val(),
+						success: function(){
+							location.reload(true);
+						},
+						error: function(){
+							setErrorAlert("Unable to delete article(s).");
+						}
+					});
+				}else{
+					$.ajax({
+						type: "DELETE",
+						url: "/api/article/" + $(articles[i]).next("input[type = 'hidden']").val()
+					});
+				}
+			}
+		};
+		confirm("Are you sure you want to delete the selected article(s)?", callback);
+	};
+
+	deleteArticle = function(id){
+		callback = function(){
+			$.ajax({
+				type: "DELETE",
+				url: "/api/article/" + id,
+				success: function(){
+					location.reload(true);
+				},
+				error: function(){
+					setErrorAlert("Unable to delete article.");
+				}
+			});
+		};
+		confirm("Are you sure you want to delete this article?", callback);
 	};
 
 	//----------------------------
