@@ -30,6 +30,7 @@ module.exports = function(app){
 		articleApiRoutes = require("./articleapi.js"),
 		lanApiRoutes = require("./lanapi.js"),
 		gameApiRoutes = require("./gameapi.js"),
+		rsvpApiRoutes = require("./rsvpapi.js"),
 		uploadRoutes = require("./uploadapi.js"),
 		serviceRoutes = require("./services/serviceroutes.js"),
 		clientRoutes = require("./client.js");
@@ -38,6 +39,7 @@ module.exports = function(app){
 	articleApiRoutes(app, "/api/article");
 	lanApiRoutes(app, "/api/lan");
 	gameApiRoutes(app, "/api/game");
+	rsvpApiRoutes(app, "/api/user/:user/rsvp");
 	uploadRoutes(app, "/api/upload");
 	serviceRoutes(app, "/api/service");
 	clientRoutes(app, "");
