@@ -44,9 +44,10 @@ module.exports = function(app, prefix){
 
 		Lan.findOne({
 			active: true,
-			acceptingRsvps: true,
-			beginDate: {$where: "this.beginDate.getFullYear() === " + req.params.year}
-		}, function(err, lanDoc){
+			acceptingRsvps: true
+		})
+		.$where("this.beginDate.getFullYear() === " + req.params.year)
+		.exec(function(err, lanDoc){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
@@ -70,16 +71,17 @@ module.exports = function(app, prefix){
 
 		Lan.findOne({
 			active: true,
-			acceptingRsvps: true,
-			beginDate: {$where: "this.beginDate.getFullYear() === " + req.params.year}
-		}, function(err, lanDoc){
+			acceptingRsvps: true
+		})
+		.$where("this.beginDate.getFullYear() === " + req.params.year)
+		.exec(function(err, lanDoc){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
 				Rsvp.findOne({user: queryUser._id, lan: lanDoc._id}, function(err, rsvpDoc){
 					if(err || !rsvpDoc){
 						var rsvp = new Rsvp();
-						rsvp.user = queryUser._id;
+						rsvp.user = queryUser;
 						rsvp.lan = lanDoc._id;
 						rsvp.status = req.body.status;
 						rsvp.playing = req.body.playing;
@@ -127,9 +129,10 @@ module.exports = function(app, prefix){
 
 		Lan.findOne({
 			active: true,
-			acceptingRsvps: true,
-			beginDate: {$where: "this.beginDate.getFullYear() === " + req.params.year}
-		}, function(err, lanDoc){
+			acceptingRsvps: true
+		})
+		.$where("this.beginDate.getFullYear() === " + req.params.year)
+		.exec(function(err, lanDoc){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
