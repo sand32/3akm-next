@@ -28,7 +28,7 @@ block content
 	hr
 	if year !== 0
 		if isAuthenticated
-			form.validated-form#rsvp-submission-form(role = "form")
+			form#rsvp-submission-form(role = "form")
 				.row
 					.form-group.col-xs-3
 						label Will you be attending?
@@ -72,18 +72,20 @@ block content
 					-     if(lan.games[i].tournament) hasTourney = true;
 					- }
 					if hasTourney
+						p.col-xs-12
+							label What tournament(s) would you like to participate in?
 						.well.col-xs-6
 							each game in lan.games
 								if game.tournament
-									.row
-										.form-group
-											label game.tournamentName
-											.btn-group(data-toggle = "buttons")
-												label(class = "btn btn-default active")
-													input(type = "radio", name = "tourney-yes")
-													| Yes
+									.row.tournament(name = game.game)
+										.form-group.col-xs-12
+											label.form-control-static.col-xs-6= game.tournamentName
+											.btn-group.col-xs-6(data-toggle = "buttons")
 												label(class = "btn btn-default")
-													input(type = "radio", name = "tourney-no")
+													input(type = "radio", name = "tournament-yes")
+													| Yes
+												label(class = "btn btn-default active")
+													input(type = "radio", name = "tournament-no")
 													| No
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "submitRsvp('session', " + year + ");") Submit

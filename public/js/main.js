@@ -438,6 +438,17 @@ $(function(){
 		}
 	};
 
+	getTournamentParticipation = function(){
+		var tournaments = [],
+			tournamentFields = $("#rsvp-submission-form .active input[name = 'tournament-yes']");
+		for(var i = 0; i < tournamentFields.length; i += 1){
+			tournaments.push({
+				tournament: $(tournamentFields[i]).closest(".tournament").attr("name")
+			});
+		}
+		return tournaments;
+	};
+
 	submitRsvp = function(userId, year){
 		$.ajax({
 			type: "PUT",
@@ -447,7 +458,8 @@ $(function(){
 				status: stringifyRsvpStatus(),
 				playing: $("#rsvp-submission-form input[name = 'playing-yes']").parent().hasClass("active"),
 				guests: $("#rsvp-submission-form input[name = 'guests']").val(),
-				cleaning: $("#rsvp-submission-form input[name = 'cleaning-yes']").parent().hasClass("active")
+				cleaning: $("#rsvp-submission-form input[name = 'cleaning-yes']").parent().hasClass("active"),
+				tournaments: getTournamentParticipation()
 			}),
 			processData: false,
 			success: function(){

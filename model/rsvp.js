@@ -56,6 +56,13 @@ var mongoose = require("mongoose"),
 			type: Boolean,
 			default: false
 		},
+		tournaments: [{
+			tournament: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Game",
+				required: true
+			}
+		}],
 		food: [{
 			name: {
 				type: String,
