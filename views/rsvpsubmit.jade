@@ -55,7 +55,7 @@ block content
 				.row
 					.form-group.col-xs-6
 						label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
-						input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
+						input.form-control.nonnegative(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
 				.row
 					.form-group.col-xs-5
 						label Will you be assisting in the cleanup afterward?
@@ -98,6 +98,3 @@ block content
 					| date.
 	else
 		.empty-table RSVPs are no longer being accepted. Hope to see you at LAN!
-block pageScripts
-	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
-	script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")

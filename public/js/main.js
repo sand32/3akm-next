@@ -475,7 +475,7 @@ $(function(){
 		}
 	});
 
-	// Dynamic behavior for adding multiple handles in the registration form
+	// Dynamic behavior for adding multiple array field entries
 	$(".addItem").tooltip("enable");
 	$(".addItem").click(function(){
 		$(".addItem").before($(".addItem").attr("data-insertion"));
@@ -523,6 +523,17 @@ $(function(){
 				if(!validator.isValid()){
 					$(e.target).closest("form").find(".submitButton").attr("disabled", "disabled")
 				}
+			}
+		});
+	}
+
+	// Force numeric fields to only accept numeric text
+	if($("input[type = 'number']").length > 0){
+		$("input[type = 'number']").keypress(function(e){
+			if($(e.target).hasClass("nonnegative")){
+				return String.fromCharCode(e.keyCode).match(/^\d+$/) !== null;
+			}else{
+				return String.fromCharCode(e.keyCode).match(/^[0-9\-]+$/) !== null;
 			}
 		});
 	}

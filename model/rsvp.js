@@ -55,7 +55,17 @@ var mongoose = require("mongoose"),
 		cleaning: {
 			type: Boolean,
 			default: false
-		}
+		},
+		food: [{
+			name: {
+				type: String,
+				required: true
+			},
+			amount: {
+				type: Number,
+				default: 1
+			}
+		}]
 	});
 
 module.exports = mongoose.model("Rsvp", rsvpSchema);
