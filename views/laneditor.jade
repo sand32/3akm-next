@@ -62,15 +62,26 @@ block content
 							input(type = "radio", name = "acceptingRsvps-no")
 							| No
 			.row
-				fieldset.col-xs-5
+				fieldset.col-xs-12
 					legend Games
 					.row.gameList
 						.well.col-xs-12
 							each game in games
-								.form-group.checkbox
-									label
-										input.game-selector(type = "checkbox", name = game._id)
-										| #{game.name}
+								.row
+									.col-xs-4
+										.form-group.checkbox
+											label
+												input(type = "checkbox", name = "game-selector")
+												| #{game.name}
+									.col-xs-4
+										.form-group.checkbox
+											label
+												input(type = "checkbox", name = "tournament-selector")
+												| Tournament
+									.col-xs-4
+										.form-group
+											label Tournament Name
+											input(type = "text", name = "tournament-name")
 			.row
 				fieldset.col-xs-7
 					legend Food List
@@ -136,18 +147,30 @@ block content
 								input(type = "radio", name = "acceptingRsvps-no")
 								| No
 			.row
-				fieldset.col-xs-5
+				fieldset.col-xs-12
 					legend Games
 					.row.gameList
 						.well.col-xs-12
 							each game in games
-								.form-group.checkbox
-									label
-										if lan.hasGame(game._id)
-											input.game-selector(type = "checkbox", name = game._id, checked = "checked")
-										else
-											input.game-selector(type = "checkbox", name = game._id)
-										| #{game.name}
+								.game(name = game._id)
+									.col-xs-4
+										.form-group.checkbox
+											if lan.hasGame(game._id)
+												input(type = "checkbox", name = "game-selector", checked = "checked")
+											else
+												input(type = "checkbox", name = "game-selector")
+											| #{game.name}
+									.col-xs-4
+										.form-group.checkbox
+											if lan.game(game._id).tournament
+												input(type = "checkbox", name = "tournament-selector", checked = "checked")
+											else
+												input(type = "checkbox", name = "tournament-selector")
+											| Tournament
+									.col-xs-4
+										.form-group
+											label Tournament Name
+											input(type = "text", name = "tournament-name", value = lan.game(game._id).tournamentName)
 			.row
 				fieldset.col-xs-7
 					legend Food List

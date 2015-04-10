@@ -78,4 +78,14 @@ lanSchema.methods.hasGame = function(gameId){
 	return false;
 }
 
+lanSchema.methods.game = function(gameId){
+	for(var i = 0; i < this.games.length; i += 1){
+		if(this.games[i].game.toString() == gameId
+		|| this.games[i].game._id.toString() == gameId){
+			return this.games[i];
+		}
+	}
+	return null;
+}
+
 module.exports = mongoose.model("Lan", lanSchema);

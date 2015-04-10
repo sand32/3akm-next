@@ -38,10 +38,13 @@ $(function(){
 
 	getGameList = function(){
 		var games = [];
-			gameFields = $("#lan-editor-form .game-selector:checked");
+			gameFields = $("#lan-editor-form input[name = 'game-selector']:checked").closest(".game");
 		for(var i = 0; i < gameFields.length; i += 1){
+			var tourney = $(gameFields[i]).find("input[name = 'tournament-selector']").is(":checked");
 			games.push({
-				game: $(gameFields[i]).attr("name")
+				game: $(gameFields[i]).attr("name"),
+				tournament: tourney,
+				tournamentName: tourney ? $(gameFields[i]).find("input[name = 'tournament-name']").val() : ""
 			});
 		}
 		return games;
