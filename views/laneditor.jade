@@ -67,7 +67,7 @@ block content
 					.row.gameList
 						.well.col-xs-12
 							each game in games
-								.row
+								.game(name = game._id)
 									.col-xs-4
 										.form-group.checkbox
 											label
@@ -162,7 +162,7 @@ block content
 											| #{game.name}
 									.col-xs-4
 										.form-group.checkbox
-											if lan.game(game._id).tournament
+											if lan.hasGame(game._id) && lan.game(game._id).tournament
 												input(type = "checkbox", name = "tournament-selector", checked = "checked")
 											else
 												input(type = "checkbox", name = "tournament-selector")
@@ -170,7 +170,7 @@ block content
 									.col-xs-4
 										.form-group
 											label Tournament Name
-											input(type = "text", name = "tournament-name", value = lan.game(game._id).tournamentName)
+											input(type = "text", name = "tournament-name", value = lan.hasGame(game._id) ? lan.game(game._id).tournamentName : "")
 			.row
 				fieldset.col-xs-7
 					legend Food List
