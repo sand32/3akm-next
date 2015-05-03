@@ -109,6 +109,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/prep", function(req, res){
+		res.render("prep", {
+			isAuthenticated: req.isAuthenticated(),
+			user: req.user
+		});
+	});
+
 	app.get(prefix + "/article/:article", function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.redirect("/");
