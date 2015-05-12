@@ -89,6 +89,7 @@ block content
 													| No
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "submitRsvp('session', " + year + ");") Submit
+				a(class = "btn btn-link" href = "/appearances") Back
 		else
 			.empty-table 
 				p Please log in or 
@@ -96,7 +97,7 @@ block content
 					|  in order to RSVP.
 				p Since this is the first year we're using actual user accounts, 
 					| we'll be associating your RSVP history to your new account by hand. 
-					| Your history will be accessible via your user dashboard at a later 
-					| date.
+					| Your history will be accessible via your user dashboard (currently under development) 
+					| at a later date.
 	else
-		.empty-table RSVPs are no longer being accepted. Hope to see you at LAN!
+		.empty-table RSVPs are no longer being accepted. Hope to see you next LAN!

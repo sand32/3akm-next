@@ -28,6 +28,7 @@ var passport = require("passport"),
 	Article = require("../model/article.js"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
+	Rsvp = require("../model/rsvp.js"),
 	User = require("../model/user.js"),
 	utils = require("../utils/common.js"),
 	ts3 = require("../utils/ts3-serverquery.js"),
@@ -104,7 +105,7 @@ module.exports = function(app, prefix){
 					games: doc ? doc.games : null
 				});
 			}else{
-				res.redirect("/")
+				res.redirect("/");
 			}
 		});
 	});
@@ -113,6 +114,41 @@ module.exports = function(app, prefix){
 		res.render("prep", {
 			isAuthenticated: req.isAuthenticated(),
 			user: req.user
+		});
+	});
+
+	app.get(prefix + "/appearances", function(req, res){
+		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
+		.exec(function(err, lan){
+			if(!err && lan){
+				Rsvp.find({lan: lan._id})
+				.where("status").ne("No")
+				.populate("user")
+				.exec(function(err2, rsvps){
+					if(!err2){
+						res.render("appearances", {
+							isAuthenticated: req.isAuthenticated(),
+							user: req.user,
+							lan: lan,
+							rsvps: rsvps
+						});
+					}else{
+						res.render("appearances", {
+							isAuthenticated: req.isAuthenticated(),
+							user: req.user,
+							lan: lan,
+							rsvps: null
+						});
+					}
+				});
+			}else{
+				res.render("appearances", {
+					isAuthenticated: req.isAuthenticated(),
+					user: req.user,
+					lan: null,
+					rsvps: null
+				});
+			}
 		});
 	});
 

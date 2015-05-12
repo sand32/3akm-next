@@ -463,7 +463,7 @@ $(function(){
 			}),
 			processData: false,
 			success: function(){
-				location.replace("/");//location.replace("/appearances");
+				location.replace("/appearances");
 			},
 			error: function(){
 				setErrorAlert("Unable to submit RSVP.");
