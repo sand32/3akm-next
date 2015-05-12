@@ -44,7 +44,8 @@ block content
 						span.input-group-btn
 							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
 				.form-group.col-xs-2
-					label Active
+					label Active 
+						.glyphicon.glyphicon-question-sign(data-toggle = "tooltip", data-placement = "bottom", title = "Determines whether a LAN is visible to the public. Affects: Games page, RSVP form, Appearances page.")
 					.btn-group(data-toggle = "buttons")
 						label(class = "btn btn-default")
 							input(type = "radio", name = "active-yes")
@@ -53,7 +54,8 @@ block content
 							input(type = "radio", name = "active-no")
 							| No
 				.form-group.col-xs-2
-					label RSVPs
+					label RSVPs 
+						.glyphicon.glyphicon-question-sign(data-toggle = "tooltip", data-placement = "bottom", title = "Determines whether a LAN is accepting RSVPs. Most utilities will also use the Begin Date of the LAN to determine behavior. Affects: RSVP form, Appearances page.")
 					.btn-group(data-toggle = "buttons")
 						label(class = "btn btn-default")
 							input(type = "radio", name = "acceptingRsvps-yes")
@@ -113,7 +115,8 @@ block content
 						span.input-group-btn
 							span.btn.btn-default(class = "glyphicon glyphicon-calendar")
 				.form-group.col-xs-2
-					label Active
+					label Active 
+						.glyphicon.glyphicon-question-sign(data-toggle = "tooltip", data-placement = "bottom", title = "Determines whether a LAN is visible to the public. Affects: Games page, RSVP form, Appearances page.")
 					.btn-group(data-toggle = "buttons")
 						if lan.active
 							label(class = "btn btn-default active")
@@ -130,7 +133,8 @@ block content
 								input(type = "radio", name = "active-no")
 								| No
 				.form-group.col-xs-2
-					label RSVPs
+					label RSVPs 
+						.glyphicon.glyphicon-question-sign(data-toggle = "tooltip", data-placement = "bottom", title = "Determines whether a LAN is accepting RSVPs. Most utilities will also use the Begin Date of the LAN to determine behavior. Affects: RSVP form, Appearances page.")
 					.btn-group(data-toggle = "buttons")
 						if lan.acceptingRsvps
 							label(class = "btn btn-default active")

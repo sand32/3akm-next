@@ -385,6 +385,8 @@ $(function(){
 		setInterval(reloadCoD4Info, 10000);
 	}
 
+	$('[data-toggle="tooltip"]').tooltip();
+
 	// TS3 Service Admin
 	//----------------------------
 
