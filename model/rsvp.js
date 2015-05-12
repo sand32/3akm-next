@@ -63,16 +63,10 @@ var mongoose = require("mongoose"),
 				required: true
 			}
 		}],
-		food: [{
-			name: {
-				type: String,
-				required: true
-			},
-			amount: {
-				type: Number,
-				default: 1
-			}
-		}]
+		bringingFood: {
+			type: Boolean,
+			default: false
+		}
 	});
 
 module.exports = mongoose.model("Rsvp", rsvpSchema);

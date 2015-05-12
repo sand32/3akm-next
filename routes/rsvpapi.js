@@ -88,6 +88,7 @@ module.exports = function(app, prefix){
 						rsvp.guests = req.body.guests;
 						rsvp.cleaning = req.body.cleaning;
 						rsvp.tournaments = req.body.tournaments;
+						rsvp.bringingFood = req.body.bringingFood;
 						rsvp.save(function(err){
 							if(err){
 								res.status(500).end();
@@ -103,6 +104,7 @@ module.exports = function(app, prefix){
 						rsvpDoc.guests = req.body.guests;
 						rsvpDoc.cleaning = req.body.cleaning;
 						rsvpDoc.tournaments = req.body.tournaments;
+						rsvpDoc.bringingFood = req.body.bringingFood;
 						rsvpDoc.save(function(err){
 							if(err){
 								res.status(500).end();

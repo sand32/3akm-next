@@ -67,6 +67,16 @@ block content
 								input(type = "radio", name = "cleaning-no")
 								| No
 				.row
+					.form-group.col-xs-5
+						label Will you be bringing food to share with a large quantity of attendees?
+						.btn-group(data-toggle = "buttons")
+							label(class = "btn btn-default")
+								input(type = "radio", name = "food-yes")
+								| Yes
+							label(class = "btn btn-default active")
+								input(type = "radio", name = "food-no")
+								| No
+				.row
 					- var hasTourney = false;
 					- for(var i = 0; i < lan.games.length; i+=1){
 					-     if(lan.games[i].tournament) hasTourney = true;

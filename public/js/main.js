@@ -459,7 +459,8 @@ $(function(){
 				playing: $("#rsvp-submission-form input[name = 'playing-yes']").parent().hasClass("active"),
 				guests: $("#rsvp-submission-form input[name = 'guests']").val(),
 				cleaning: $("#rsvp-submission-form input[name = 'cleaning-yes']").parent().hasClass("active"),
-				tournaments: getTournamentParticipation()
+				tournaments: getTournamentParticipation(),
+				bringingFood: $("#rsvp-submission-form input[name = 'food-yes']").parent().hasClass("active")
 			}),
 			processData: false,
 			success: function(){
