@@ -27,10 +27,14 @@ var passport = require("passport"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates;
 
 module.exports = function(app, prefix){
-	app.post(prefix + "/register", passport.authenticate("register"), function(req, res){
+	app.post(prefix + "/register", 
+		verifyRecaptcha, 
+		passport.authenticate("register"), 
+	function(req, res){
 		if(req.isAuthenticated()){
 			req.user.firstName = req.body.firstName;
 			req.user.lastName = req.body.lastName;

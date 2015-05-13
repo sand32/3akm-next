@@ -89,6 +89,7 @@ block content
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "addUser();", disabled = "disabled") Submit
 			else
+				.g-recaptcha(data-sitekey = recaptchaSiteKey)
 				hr
 				a.submitButton(class = "btn btn-default", onclick = "register();", disabled = "disabled") Register
 	else
@@ -222,6 +223,8 @@ block content
 block pageScripts
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	script(src = "/thirdparty/bootstrap-validator/bootstrapValidator.min.js")
+	if !user
+		script(src = "https://www.google.com/recaptcha/api.js", async, defer)
 	if user && user.hasRole("admin")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/bootstrap-tokenfield.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-tokenfield/tokenfield-typeahead.min.css")

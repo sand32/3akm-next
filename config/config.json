@@ -2,6 +2,8 @@
 	"port": 8080,
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",
+	"recaptchaSiteKey": "changeme",
+	"recaptchaSecret": "changeme",
 	"dbAddress": "localhost",
 	"dbName": "3akm",
 	"dbUser": "",

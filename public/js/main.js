@@ -227,7 +227,8 @@ $(function(){
 				firstName: $("#user-editor-form input[name = 'firstName']").val(),
 				lastName: $("#user-editor-form input[name = 'lastName']").val(),
 				primaryHandle: $("#user-editor-form input[name = 'primaryHandle']").val(),
-				tertiaryHandles: getTertiaryHandles()
+				tertiaryHandles: getTertiaryHandles(),
+				recaptchaResponse: grecaptcha.getResponse()
 			}),
 			processData: false,
 			success: function(){

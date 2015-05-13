@@ -23,7 +23,8 @@ misrepresented as being the original software.
 */
 
 var passport = require("passport"),
-	fs = require("fs");
+	fs = require("fs"),
+	http = require("http");
 
 module.exports = {
 	loadConfig: function(file){
@@ -39,6 +40,33 @@ module.exports = {
 			return next();
 		}
 		passport.authenticate("basic")(req, res, next);
+	},
+
+	verifyRecaptcha: function(req, res, next){
+		var config = module.exports.loadConfig(__dirname + "/../config/config.json"),
+			postData = {
+				secret: config.recaptchaSecret,
+				response: req.body.recaptchaResponse
+			},
+			requestingScope = this;
+
+		if(config.recaptchaSecret !== "changeme"){
+			http.request({
+				method: "POST",
+				hostname: "www.google.com",
+				path: "/recaptcha/api/siteverify"
+			}, function(res){
+				if(res.success){
+					requestingScope.next();
+				}else if(res.error-codes.length){
+					console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(res.error-codes));
+				}else{
+					res.status(403).end();
+				}
+			});
+		}else{
+			next();
+		}
 	},
 
 	getFormattedTime: function(date, excludeTime, forDateField){

@@ -57,12 +57,14 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/register", function(req, res){
+		var config = utils.loadConfig(__dirname + "/../config/config.json");
 		if(req.isAuthenticated()){
 			return res.redirect("/");
 		}
 		res.render("usereditor", {
 			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+			user: req.user,
+			recaptchaSiteKey: config.recaptchaSiteKey
 		});
 	});
 
