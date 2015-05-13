@@ -23,8 +23,9 @@ misrepresented as being the original software.
 */
 
 var passport = require("passport"),
+	querystring = require("querystring"),
 	fs = require("fs"),
-	http = require("http");
+	request = require("request");
 
 module.exports = {
 	loadConfig: function(file){
@@ -44,24 +45,26 @@ module.exports = {
 
 	verifyRecaptcha: function(req, res, next){
 		var config = module.exports.loadConfig(__dirname + "/../config/config.json"),
-			postData = {
+			url = "https://www.google.com/recaptcha/api/siteverify",
+			data = querystring.stringify({
 				secret: config.recaptchaSecret,
 				response: req.body.recaptchaResponse
-			},
-			requestingScope = this;
+			});
 
 		if(config.recaptchaSecret !== "changeme"){
-			http.request({
-				method: "POST",
-				hostname: "www.google.com",
-				path: "/recaptcha/api/siteverify"
-			}, function(res){
-				if(res.success){
-					requestingScope.next();
-				}else if(res.error-codes.length){
-					console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(res.error-codes));
+			request.get(url + "?" + data, function(err, recaptchaResponse, body){
+				if(!err){
+					body = JSON.parse(body);
+					if(body.success){
+						next();
+					}else if(body["error-codes"].length > 1 || body["error-codes"][0] !== "missing-input-response"){
+						console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
+						res.status(500).end();
+					}else{
+						res.status(400).end();
+					}
 				}else{
-					res.status(403).end();
+					res.status(500).end();
 				}
 			});
 		}else{

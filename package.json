@@ -22,6 +22,7 @@
 		"bcrypt-nodejs": "latest",
 		"mongoose": "latest",
 		"jade": "latest",
+		"request": "latest",
 		"node-teamspeak": "latest"
 	}
 }
