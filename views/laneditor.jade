@@ -97,7 +97,7 @@ block content
 					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row foodList' style='margin-top:.5em;'><div class='col-xs-9'><input type='text' name='foodName' class='form-control'></div><div class='col-xs-2'><input type='text' name='foodAmount' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this item' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another item")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addLAN();", disabled = "disabled") Submit
-			a(class = "btn btn-link" href = "/admin/lan") Cancel
+			a(class = "btn btn-link" href = "/admin/lan") Back
 		else
 			.row
 				.form-group.col-xs-4
@@ -207,7 +207,7 @@ block content
 			.btn-group
 				a.submitButton(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "'); location.replace('/admin/lan');") Save
 				a(class = "btn btn-default", onclick = "updateLAN('" + lan._id + "');") Apply
-			a(class = "btn btn-link" href = "/admin/lan") Cancel
+			a(class = "btn btn-link" href = "/admin/lan") Back
 block pageScripts
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-validator/bootstrapValidator.min.css")
 	link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css")
