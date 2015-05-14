@@ -83,12 +83,25 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/rsvp", function(req, res){
 		Lan.findOne({active: true, acceptingRsvps: true, beginDate: {$gt: Date.now()}}, null, {sort: {beginDate: "-1"}}, function(err, doc){
 			if(!err){
-				res.render("rsvpsubmit", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					year: doc ? doc.beginDate.getFullYear() : 0,
-					lan: doc
-				});
+				if(req.user){
+					Rsvp.findOne({user: req.user._id, lan: doc._id}, function(err, rsvp){
+						res.render("rsvpsubmit", {
+							isAuthenticated: req.isAuthenticated(),
+							user: req.user,
+							year: doc ? doc.beginDate.getFullYear() : 0,
+							lan: doc,
+							existingRsvp: rsvp
+						});
+					});
+				}else{
+					res.render("rsvpsubmit", {
+						isAuthenticated: req.isAuthenticated(),
+						user: null,
+						year: doc ? doc.beginDate.getFullYear() : 0,
+						lan: doc,
+						existingRsvp: null
+					});
+				}
 			}else{
 				res.redirect("/");
 			}

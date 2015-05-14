@@ -28,78 +28,200 @@ block content
 	hr
 	if year !== 0
 		if isAuthenticated
-			form#rsvp-submission-form(role = "form")
-				.row
-					.form-group.col-xs-3
-						label Will you be attending?
-						.btn-group(data-toggle = "buttons")
-							label(class = "btn btn-default active")
-								input(type = "radio", name = "status-yes")
-								| Yes
-							label(class = "btn btn-default")
-								input(type = "radio", name = "status-maybe")
-								| Maybe
-							label(class = "btn btn-default")
-								input(type = "radio", name = "status-no")
-								| No
-				.row
-					.form-group.col-xs-3
-						label Will you be playing?
-						.btn-group(data-toggle = "buttons")
-							label(class = "btn btn-default active")
-								input(type = "radio", name = "playing-yes")
-								| Yes
-							label(class = "btn btn-default")
-								input(type = "radio", name = "playing-no")
-								| No
-				.row
-					.form-group.col-xs-6
-						label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
-						input.form-control.nonnegative(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
-				.row
-					.form-group.col-xs-5
-						label Will you be assisting in the cleanup afterward?
-						.btn-group(data-toggle = "buttons")
-							label(class = "btn btn-default")
-								input(type = "radio", name = "cleaning-yes")
-								| Yes
-							label(class = "btn btn-default active")
-								input(type = "radio", name = "cleaning-no")
-								| No
-				.row
-					.form-group.col-xs-5
-						label Will you be bringing food to share with a large quantity of attendees?
-						.btn-group(data-toggle = "buttons")
-							label(class = "btn btn-default")
-								input(type = "radio", name = "food-yes")
-								| Yes
-							label(class = "btn btn-default active")
-								input(type = "radio", name = "food-no")
-								| No
-				.row
-					- var hasTourney = false;
-					- for(var i = 0; i < lan.games.length; i+=1){
-					-     if(lan.games[i].tournament) hasTourney = true;
-					- }
-					if hasTourney
-						p.col-xs-12
-							label What tournament(s) would you like to participate in?
-						.well.col-xs-6
-							each game in lan.games
-								if game.tournament
-									.row.tournament(name = game.game)
-										.form-group.col-xs-12
-											label.form-control-static.col-xs-6= game.tournamentName
-											.btn-group.col-xs-6(data-toggle = "buttons")
-												label(class = "btn btn-default")
-													input(type = "radio", name = "tournament-yes")
-													| Yes
-												label(class = "btn btn-default active")
-													input(type = "radio", name = "tournament-no")
-													| No
-				hr
-				a.submitButton(class = "btn btn-default", onclick = "submitRsvp('session', " + year + ");") Submit
-				a(class = "btn btn-link" href = "/appearances") Back
+			if existingRsvp
+				form#rsvp-submission-form(role = "form")
+					.row
+						.form-group.col-xs-3
+							label Will you be attending?
+							.btn-group(data-toggle = "buttons")
+								if existingRsvp.status === "Yes"
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "status-yes")
+										| Yes
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "status-yes")
+										| Yes
+								if existingRsvp.status === "Maybe"
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "status-maybe")
+										| Maybe
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "status-maybe")
+										| Maybe
+								if existingRsvp.status === "No"
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "status-no")
+										| No
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "status-no")
+										| No
+					.row
+						.form-group.col-xs-3
+							label Will you be playing?
+							.btn-group(data-toggle = "buttons")
+								if existingRsvp.playing
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "playing-yes")
+										| Yes
+									label(class = "btn btn-default")
+										input(type = "radio", name = "playing-no")
+										| No
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "playing-yes")
+										| Yes
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "playing-no")
+										| No
+					.row
+						.form-group.col-xs-6
+							label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
+							input.form-control.nonnegative(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0", value = existingRsvp.guests)
+					.row
+						.form-group.col-xs-5
+							label Will you be assisting in the cleanup afterward?
+							.btn-group(data-toggle = "buttons")
+								if existingRsvp.cleaning
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "cleaning-yes")
+										| Yes
+									label(class = "btn btn-default")
+										input(type = "radio", name = "cleaning-no")
+										| No
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "cleaning-yes")
+										| Yes
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "cleaning-no")
+										| No
+					.row
+						.form-group.col-xs-5
+							label Will you be bringing food to share with a large quantity of attendees?
+							.btn-group(data-toggle = "buttons")
+								if existingRsvp.bringingFood
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "food-yes")
+										| Yes
+									label(class = "btn btn-default")
+										input(type = "radio", name = "food-no")
+										| No
+								else
+									label(class = "btn btn-default")
+										input(type = "radio", name = "food-yes")
+										| Yes
+									label(class = "btn btn-default active")
+										input(type = "radio", name = "food-no")
+										| No
+					.row
+						- var hasTourney = false;
+						- for(var i = 0; i < lan.games.length; i+=1){
+						-     if(lan.games[i].tournament) hasTourney = true;
+						- }
+						if hasTourney
+							p.col-xs-12
+								label What tournament(s) would you like to participate in?
+							.well.col-xs-6
+								each game in lan.games
+									if game.tournament
+										.row.tournament(name = game.game)
+											.form-group.col-xs-12
+												label.form-control-static.col-xs-6= game.tournamentName
+												.btn-group.col-xs-6(data-toggle = "buttons")
+													- var isCompeting = false;
+													- for(var i = 0; i < existingRsvp.tournaments.length; i+=1){
+													-     if(existingRsvp.tournaments[i].tournament.toString() === game.game.toString()) isCompeting = true;
+													- }
+													if isCompeting
+														label(class = "btn btn-default active")
+															input(type = "radio", name = "tournament-yes")
+															| Yes
+														label(class = "btn btn-default")
+															input(type = "radio", name = "tournament-no")
+															| No
+													else
+														label(class = "btn btn-default")
+															input(type = "radio", name = "tournament-yes")
+															| Yes
+														label(class = "btn btn-default active")
+															input(type = "radio", name = "tournament-no")
+															| No
+			else
+				form#rsvp-submission-form(role = "form")
+					.row
+						.form-group.col-xs-3
+							label Will you be attending?
+							.btn-group(data-toggle = "buttons")
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "status-yes")
+									| Yes
+								label(class = "btn btn-default")
+									input(type = "radio", name = "status-maybe")
+									| Maybe
+								label(class = "btn btn-default")
+									input(type = "radio", name = "status-no")
+									| No
+					.row
+						.form-group.col-xs-3
+							label Will you be playing?
+							.btn-group(data-toggle = "buttons")
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "playing-yes")
+									| Yes
+								label(class = "btn btn-default")
+									input(type = "radio", name = "playing-no")
+									| No
+					.row
+						.form-group.col-xs-6
+							label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
+							input.form-control.nonnegative(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0")
+					.row
+						.form-group.col-xs-5
+							label Will you be assisting in the cleanup afterward?
+							.btn-group(data-toggle = "buttons")
+								label(class = "btn btn-default")
+									input(type = "radio", name = "cleaning-yes")
+									| Yes
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "cleaning-no")
+									| No
+					.row
+						.form-group.col-xs-5
+							label Will you be bringing food to share with a large quantity of attendees?
+							.btn-group(data-toggle = "buttons")
+								label(class = "btn btn-default")
+									input(type = "radio", name = "food-yes")
+									| Yes
+								label(class = "btn btn-default active")
+									input(type = "radio", name = "food-no")
+									| No
+					.row
+						- var hasTourney = false;
+						- for(var i = 0; i < lan.games.length; i+=1){
+						-     if(lan.games[i].tournament) hasTourney = true;
+						- }
+						if hasTourney
+							p.col-xs-12
+								label What tournament(s) would you like to participate in?
+							.well.col-xs-6
+								each game in lan.games
+									if game.tournament
+										.row.tournament(name = game.game)
+											.form-group.col-xs-12
+												label.form-control-static.col-xs-6= game.tournamentName
+												.btn-group.col-xs-6(data-toggle = "buttons")
+													label(class = "btn btn-default")
+														input(type = "radio", name = "tournament-yes")
+														| Yes
+													label(class = "btn btn-default active")
+														input(type = "radio", name = "tournament-no")
+														| No
+			hr
+			a.submitButton(class = "btn btn-default", onclick = "submitRsvp('session', " + year + ");") Submit
+			a(class = "btn btn-link" href = "/appearances") Back
 		else
 			.empty-table 
 				p Please log in or 
