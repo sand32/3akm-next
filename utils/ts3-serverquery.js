@@ -59,7 +59,7 @@ var ServerQuery = require("node-teamspeak"),
 	_send = function(command, params, options, virtualServer, callback){
 		if(virtualServer){
 			sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
-				if(err.id === 0){
+				if(!err){
 					sq.send(command, params, options, callback);
 				}else{
 					callback(err, response, rawResponse);
@@ -73,7 +73,7 @@ var ServerQuery = require("node-teamspeak"),
 	_sequentialSend = function(commands, results, callback){
 		var current = commands[results.length];
 		sq.send(current.command, current.params, current.options, function(err, response, rawResponse){
-			if(err.id === 0){
+			if(!err){
 				results.push(response);
 				if(results.length !== commands.length){
 					_sequentialSend(commands, results, callback);
@@ -96,9 +96,9 @@ var ServerQuery = require("node-teamspeak"),
 
 	_resultsOnly = function(command, params, options, virtualServer, callback){
 		_login(function(err, response, rawResponse){
-			if(err.id === 0){
+			if(!err){
 				_send(command, params, options, virtualServer, function(err, response, rawResponse){
-					if(err.id === 0){
+					if(!err){
 						callback(null, response);
 					}else{
 						callback(_errorMessage(err));
@@ -114,11 +114,11 @@ var ServerQuery = require("node-teamspeak"),
 
 	_sequentialResultsOnly = function(commands, results, virtualServer, callback){
 		_login(function(err, response, rawResponse){
-			if(err.id === 0){
+			if(!err){
 				if(virtualServer){
 					sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
 						_sequentialSend(commands, results, function(err, response, rawResponse){
-							if(err.id === 0){
+							if(!err){
 								callback(null, response);
 							}else{
 								callback(_errorMessage(err));
@@ -128,7 +128,7 @@ var ServerQuery = require("node-teamspeak"),
 					});
 				}else{
 					_sequentialSend(commands, results, function(err, response, rawResponse){
-						if(err.id === 0){
+						if(!err){
 							callback(null, response);
 						}else{
 							callback(_errorMessage(err));
