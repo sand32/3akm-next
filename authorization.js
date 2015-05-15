@@ -73,7 +73,7 @@ module.exports = {
 	authorizeSessionUser: function(ruleset){
 		return function(req, res, next){
 			if(req.params.user === "session"){
-				req.params.user = req.user._id;
+				req.params.user = req.user._id.toString();
 			}
 			if(module.exports.isAuthorized(req.user, ruleset) 
 			&& module.exports.isAuthorized(req.user, {isUser: req.params.user})){
