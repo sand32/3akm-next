@@ -282,7 +282,7 @@ $(function(){
 			data: JSON.stringify(data),
 			processData: false,
 			success: function(){
-				location.replace("/");
+				location.replace("/admin/user");
 			},
 			error: function(){
 				setErrorAlert("Failed to register user.");
