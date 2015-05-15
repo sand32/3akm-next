@@ -69,10 +69,18 @@ module.exports = {
 		};
 	},
 
-	// If we find the value "session" in the user parameter, replace it with the current user
-	userOrSessionUser: function(req, res, next){
-		if(req.params.user === "session")
-			req.params.user = req.user._id;
-		next();
+	// Same as above, but use 
+	authorizeSessionUser: function(ruleset){
+		return function(req, res, next){
+			if(req.params.user === "session"){
+				req.params.user = req.user._id;
+			}
+			if(module.exports.isAuthorized(req.user, ruleset) 
+			&& module.exports.isAuthorized(req.user, {isUser: req.params.user})){
+				next();
+			}else{
+				res.status(403).end();
+			}
+		};
 	}
 }

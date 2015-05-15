@@ -29,7 +29,10 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.post(prefix, blendedAuthenticate, authorize(), function(req, res){
+	app.post(prefix, 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		var game = new Game(req.body);
 		game.save(function(err){
 			if(err){
@@ -42,7 +45,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:game", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/:game", 
+		blendedAuthenticate, 
+	function(req, res){
 		Game.findById(req.params.game)
 		.exec(function(err, doc){
 			if(doc){
@@ -53,7 +58,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:game", blendedAuthenticate, authorize(), function(req, res){
+	app.put(prefix + "/:game", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
@@ -70,7 +78,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:game", blendedAuthenticate, authorize(), function(req, res){
+	app.delete(prefix + "/:game", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}

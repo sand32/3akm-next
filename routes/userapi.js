@@ -26,7 +26,7 @@ var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
-	userOrSessionUser = require("../authorization.js").userOrSessionUser,
+	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates;
@@ -83,8 +83,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/:user/verify", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		// Resend verification email
 		res.status(200).end();
@@ -92,8 +91,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:user/verified", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		// Retrieve and return the "verified" value
 		User.findById(req.params.user, function(err, doc){
@@ -134,8 +132,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:user", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		User.findById(req.params.user, function(err, doc){
 			if(doc){
@@ -162,8 +159,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:user", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		// Ignore the following fields unless sent by an admin
 		if(!req.user.hasRole("admin")){
@@ -196,8 +192,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:user/password", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		// Record this modification
 		var update = {

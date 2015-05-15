@@ -26,14 +26,13 @@ var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
-	userOrSessionUser = require("../authorization.js").userOrSessionUser,
+	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/:year", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
@@ -55,8 +54,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:year", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
@@ -113,8 +111,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:year/attended", 
 		blendedAuthenticate, 
-		userOrSessionUser, 
-		authorize({isUser: req.params.user}), 
+		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
