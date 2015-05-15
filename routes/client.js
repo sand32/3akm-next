@@ -24,7 +24,7 @@ misrepresented as being the original software.
 
 var passport = require("passport"),
 	mongoose = require("mongoose"),
-	authorize = require("../authorization.js"),
+	isAuthorized = require("../authorization.js").isAuthorized,
 	Article = require("../model/article.js"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
@@ -174,7 +174,7 @@ module.exports = function(app, prefix){
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
-			if(!err && doc && (doc.published || authorize(req.user, {hasRoles:["author"]}))){
+			if(!err && doc && (doc.published || isAuthorized(req.user, {hasRoles:["author"]}))){
 				res.render("article", {
 					isAuthenticated: req.isAuthenticated(),
 					user: req.user,
@@ -189,7 +189,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/authoring/article", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user, {hasRoles:["author"]})){
+		|| !isAuthorized(req.user, {hasRoles:["author"]})){
 			return res.redirect("/");
 		}
 
@@ -211,7 +211,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/authoring/article/new", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user, {hasRoles:["author"]})){
+		|| !isAuthorized(req.user, {hasRoles:["author"]})){
 			return res.redirect("/");
 		}
 		res.render("articleeditor", {
@@ -224,7 +224,7 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user, {hasRoles: ["author"]})){
+			  || !isAuthorized(req.user, {hasRoles: ["author"]})){
 			return res.redirect("/");
 		}
 		Article.findById(req.params.article)
@@ -245,7 +245,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/user", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 
@@ -266,7 +266,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/user/new", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		res.render("usereditor", {
@@ -279,7 +279,7 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user)){
+			  || !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		User.findById(req.params.user)
@@ -299,7 +299,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/lan", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 
@@ -320,7 +320,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/lan/new", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		Game.find({}, "name")
@@ -342,7 +342,7 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user)){
+			  || !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		Lan.findById(req.params.lan)
@@ -368,7 +368,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/game", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 
@@ -388,7 +388,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/game/new", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		res.render("gameeditor", {
@@ -401,7 +401,7 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user)){
+			  || !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		Game.findById(req.params.game)
@@ -420,7 +420,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/service/cod4", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		res.render("cod4", {
@@ -432,7 +432,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/admin/service/ts3", function(req, res){
 		if(!req.isAuthenticated()
-		|| !authorize(req.user)){
+		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		ts3.listServers(function(err, data){
@@ -449,7 +449,7 @@ module.exports = function(app, prefix){
 		if(isNaN(req.params.serverId)){
 			return res.redirect("/");
 		}else if(!req.isAuthenticated()
-			  || !authorize(req.user)){
+			  || !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
 		ts3.serverInfo(req.params.serverId, function(err, data){

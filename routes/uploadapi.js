@@ -23,12 +23,15 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	authorize = require("../authorization.js"),
+	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	multer = require("multer");
 
 module.exports = function(app, prefix){
-	app.post(prefix + "/image", multer({
+	app.post(prefix + "/image", 
+		blendedAuthenticate, 
+		authorize(), 
+	multer({
 		dest:"./public/uploads/images/",
 		fileSize: 4000000, // 4MB
 		limits: {
@@ -50,9 +53,5 @@ module.exports = function(app, prefix){
 		}else{
 			res.status(400).end();
 		}
-	});
-
-	app.get(prefix + "/test", function(req, res){
-		res.send("<form action='/api/upload/image' method='post' enctype='multipart/form-data'><input type='file' name='file'/><input type='submit' value='Send'/></form>");
 	});
 }

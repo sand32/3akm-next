@@ -24,15 +24,11 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
-	authorize = require("../authorization.js"),
+	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.post(prefix, blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.post(prefix, blendedAuthenticate, authorize(), function(req, res){
 		var lan = new Lan(req.body);
 		lan.save(function(err){
 			if(err){
@@ -57,11 +53,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:lan", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/:lan", blendedAuthenticate, authorize(), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();
-		}else if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		// Apply the update
@@ -76,11 +70,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:lan", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/:lan", blendedAuthenticate, authorize(), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();
-		}else if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		Lan.findByIdAndRemove(req.params.lan, function(err, doc){

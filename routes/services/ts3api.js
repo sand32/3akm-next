@@ -23,14 +23,14 @@ misrepresented as being the original software.
 */
 
 var ts3 = require("../../utils/ts3-serverquery.js"),
-	authorize = require("../../authorization.js"),
+	authorize = require("../../authorization.js").authorize,
 	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/version", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/version", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.version(function(err, data){
 			if(!err){
 				res.send(data);
@@ -41,10 +41,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/host", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/host", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.hostInfo(function(err, data){
 			if(!err){
 				res.send(data);
@@ -55,10 +55,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/instance", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/instance", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.instanceInfo(function(err, data){
 			if(!err){
 				res.send(data);
@@ -69,10 +69,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/instance", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.put(prefix + "/instance", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.editInstance(req.body, function(err, data){
 			if(!err){
 				res.send(data);
@@ -83,10 +83,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/instance/stop", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.post(prefix + "/instance/stop", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.stopInstance(function(err, data){
 			if(!err){
 				res.send(data);
@@ -97,10 +97,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/binding", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/binding", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.bindingList(function(err, data){
 			if(!err){
 				res.send(data);
@@ -111,13 +111,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/serverByPort/:port", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/serverByPort/:port", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.port)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.serverIdByPort(req.params.port, function(err, data){
 			if(!err){
 				res.send(data);
@@ -128,10 +129,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/server", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.listServers(function(err, data){
 			if(!err){
 				res.send(data);
@@ -142,10 +143,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.post(prefix + "/server", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.createServer(req.body, function(err, data){
 			if(!err){
 				res.status(201)
@@ -158,13 +159,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.serverInfo(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -175,13 +177,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/server/:serverId", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/server/:serverId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.editServer(req.params.serverId, req.body, function(err, data){
 			if(!err){
 				res.send(data);
@@ -192,13 +195,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.deleteServer(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -209,13 +213,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/connection", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/connection", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.serverConnectionInfo(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -226,13 +231,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/start", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/start", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.startServer(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -243,13 +249,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/stop", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/stop", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.stopServer(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -260,13 +267,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/temporarypassword", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/temporarypassword", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.listTemporaryServerPasswords(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -277,13 +285,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/temporarypassword", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/temporarypassword", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.addTemporaryServerPassword(
 			req.params.serverId,
 			req.body.password,
@@ -301,13 +310,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/temporarypassword", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/temporarypassword", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.deleteTemporaryServerPassword(
 			req.params.serverId,
 			req.body.password
@@ -321,13 +331,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/group", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/group", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.listServerGroups(req.params.serverId, function(err, data){
 			if(!err){
 				res.send(data);
@@ -338,13 +349,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/group", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/group", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.addServerGroup(
 			req.params.serverId,
 			req.body.groupName,
@@ -361,14 +373,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/group/:groupId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/group/:groupId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.deleteServerGroup(
 			req.params.serverId,
 			req.params.groupId,
@@ -383,14 +396,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/group/:groupId/copy", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/group/:groupId/copy", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.copyServerGroup(
 			req.params.serverId,
 			req.params.groupId,
@@ -409,14 +423,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/group/:groupId/rename", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/group/:groupId/rename", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.renameServerGroup(
 			req.params.serverId,
 			req.params.groupId,
@@ -431,14 +446,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/group/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/group/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.listServerGroupPermissions(
 			req.params.serverId,
 			req.params.groupId
@@ -452,14 +468,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/group/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/group/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.addServerGroupPermissions(
 			req.params.serverId,
 			req.params.groupId,
@@ -474,14 +491,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/group/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/group/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.deleteServerGroupPermissions(
 			req.params.serverId,
 			req.params.groupId,
@@ -496,13 +514,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/group/:groupId/clients", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/group/:groupId/clients", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var names = null;
@@ -524,14 +542,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/group/:groupId/clients", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/group/:groupId/clients", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.addClientToServerGroup(
 			req.params.serverId,
 			req.params.groupId,
@@ -546,14 +565,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/group/:groupId/clients", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/group/:groupId/clients", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.removeClientFromServerGroup(
 			req.params.serverId,
 			req.params.groupId,
@@ -568,12 +588,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var filters = [];
@@ -597,13 +617,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channel", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channel", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.createChannel(
@@ -621,12 +641,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channel/search", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channel/search", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.findChannel(
@@ -642,13 +662,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel/:channelId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.channelInfo(
@@ -664,13 +684,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/server/:serverId/channel/:channelId", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/server/:serverId/channel/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		req.body.cid = req.params.channelId;
@@ -688,13 +708,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channel/:channelId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channel/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteChannel(
@@ -711,13 +731,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel/:channelId/permissions", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel/:channelId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listChannelPermissions(
@@ -733,13 +753,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channel/:channelId/permissions", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channel/:channelId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addChannelPermissions(
@@ -756,13 +776,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channel/:channelId/permissions", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channel/:channelId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteChannelPermissions(
@@ -779,13 +799,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channel/:channelId/move", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channel/:channelId/move", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var order = null;
@@ -806,13 +826,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel/:channelId/files", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel/:channelId/files", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelPassword = null,
@@ -835,13 +855,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channel/:channelId/files/*", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channel/:channelId/files/*", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelPassword = null;
@@ -862,13 +882,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channel/:channelId/files/*", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channel/:channelId/files/*", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelPassword = null;
@@ -889,12 +909,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channelgroup", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channelgroup", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listChannelGroups(
@@ -909,12 +929,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channelgroup", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channelgroup", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addChannelGroup(
@@ -932,13 +952,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channelgroup/:groupId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channelgroup/:groupId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteChannelGroup(
@@ -955,13 +975,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channelgroup/:groupId/copy", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channelgroup/:groupId/copy", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.copyChannelGroup(
@@ -982,13 +1002,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channelgroup/:groupId/rename", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channelgroup/:groupId/rename", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.renameChannelGroup(
@@ -1005,13 +1025,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channelgroup/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listChannelGroupPermissions(
@@ -1027,13 +1047,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/channelgroup/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addChannelGroupPermissions(
@@ -1050,13 +1070,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/channelgroup/:groupId/permissions", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteChannelGroupPermissions(
@@ -1073,12 +1093,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/channelgroup/clients", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/channelgroup/clients", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelId = null,
@@ -1103,12 +1123,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var start = null,
@@ -1133,12 +1153,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/search", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/search", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var uid = null;
@@ -1158,12 +1178,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/byuid", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/byuid", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.clientNameFromUid(
@@ -1179,13 +1199,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.clientDbEntryInfo(
@@ -1201,13 +1221,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/server/:serverId/knownclient/:clientDbId", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/server/:serverId/knownclient/:clientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		req.body.cldbid = req.params.clientDbId;
@@ -1225,13 +1245,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteClientDbEntry(
@@ -1247,14 +1267,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/name", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/name", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.clientNameFromDbId(
 			req.params.serverId,
 			req.params.clientDbId
@@ -1268,14 +1289,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/groups", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/groups", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.serverGroupsContainingClient(
 			req.params.serverId,
 			req.params.clientDbId
@@ -1289,13 +1311,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelgroup", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelgroup", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 		ts3.setClientChannelGroup(
 			req.params.serverId,
@@ -1312,13 +1334,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var permsid = null;
@@ -1338,13 +1360,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addClientPermissions(
@@ -1361,13 +1383,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteClientPermissions(
@@ -1384,14 +1406,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var permsid = null;
@@ -1412,14 +1434,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId/bypermission", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId/bypermission", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var permid = null,
@@ -1443,14 +1465,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addChannelClientPermissions(
@@ -1468,14 +1490,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
 		|| isNaN(req.params.channelId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteChannelClientPermissions(
@@ -1493,12 +1515,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/client", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/client", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var filters = [];
@@ -1525,12 +1547,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/client/search", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/client/search", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.findClient(
@@ -1546,12 +1568,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/client/byuid", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/client/byuid", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.clientByUid(
@@ -1567,13 +1589,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/client/:clientId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/client/:clientId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.clientInfo(
@@ -1589,13 +1611,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/server/:serverId/client/:clientId", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/server/:serverId/client/:clientId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		req.body.clid = req.params.clientId;
@@ -1613,13 +1635,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/client/:clientId/move", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/client/:clientId/move", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelPassword = null;
@@ -1640,13 +1662,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/client/:clientId/kick", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/client/:clientId/kick", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var reasonMessage = null;
@@ -1667,13 +1689,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/client/:clientId/poke", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/client/:clientId/poke", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.pokeClient(
@@ -1690,13 +1712,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/client/:clientId/ban", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/client/:clientId/ban", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var time = null,
@@ -1719,12 +1741,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/privilegekey", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/privilegekey", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listPrivilegeKeys(req.params.serverId, function(err, data){
@@ -1737,12 +1759,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/privilegekey", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/privilegekey", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var channelId = null,
@@ -1771,12 +1793,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/privilegekey/:token", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/privilegekey/:token", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.usePrivilegeKey(
@@ -1792,12 +1814,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/privilegekey/:token", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/privilegekey/:token", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deletePrivilegeKey(
@@ -1813,12 +1835,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/complaint", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/complaint", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var clientDbId = null;
@@ -1837,13 +1859,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/complaint/:targetClientDbId", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/complaint/:targetClientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.addComplaintAgainstClient(
@@ -1860,13 +1882,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteAllComplaintsAgainstClient(
@@ -1882,14 +1904,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId/:sourceClientDbId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId/:sourceClientDbId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)
 		|| isNaN(req.params.sourceClientDbId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteComplaint(
@@ -1906,12 +1928,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/ban", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/ban", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listActiveBans(
@@ -1926,12 +1948,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/ban", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/ban", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteAllActiveBans(
@@ -1946,12 +1968,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/ban", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/ban", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		var ip = null,
@@ -1984,13 +2006,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/ban/:banId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/ban/:banId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.banId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteBan(
@@ -2006,12 +2028,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/server/:serverId/filetransfer", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/server/:serverId/filetransfer", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.listActiveFileTransfers(
@@ -2026,13 +2048,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/server/:serverId/filetransfer/:fileTransferId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/server/:serverId/filetransfer/:fileTransferId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.fileTransferId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.stopFileTransfer(
@@ -2049,13 +2071,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/sendtext", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/sendtext", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.sendTargetedMessage(
 			req.params.serverId,
 			req.body.targetMode,
@@ -2071,13 +2094,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/server/:serverId/resetpermissions", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/server/:serverId/resetpermissions", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.resetPermissions(req.params.serverId, function(err, data){
 			if(!err){
 				res.status(200).end();
@@ -2088,11 +2112,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/message", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.get(prefix + "/message", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.listMessages(function(err, data){
 			if(!err){
 				res.send(data);
@@ -2103,11 +2126,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/message", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.post(prefix + "/message", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.sendMessage(
 			req.body.recipientClientUid,
 			req.body.subject,
@@ -2122,12 +2144,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/message/:messageId", blendedAuthenticate, function(req, res){
+	app.get(prefix + "/message/:messageId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.retrieveMessage(req.params.messageId, function(err, data){
@@ -2140,12 +2162,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/message/:messageId", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/message/:messageId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.updateMessageReadFlag(
@@ -2161,12 +2183,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/message/:messageId", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/message/:messageId", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
-		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		ts3.deleteMessage(req.params.messageId, function(err, data){
@@ -2179,10 +2201,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/permission", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/permission", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.listPermissions(function(err, data){
 			if(!err){
 				res.send(data);
@@ -2193,11 +2215,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/permission/current", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.get(prefix + "/permission/current", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		var permid = null,
 			permsid = null;
 		if(req.query.permissionId) permid = req.query.permissionId;
@@ -2213,11 +2234,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/permission/search", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.get(prefix + "/permission/search", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		var permid = null,
 			permsid = null;
 		if(req.query.permissionId) permid = req.query.permissionId;
@@ -2233,10 +2253,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/permission/byname", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.get(prefix + "/permission/byname", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.permissionByName(req.query.permissionName, function(err, data){
 			if(!err){
 				res.send(data);
@@ -2247,13 +2267,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/grouptype/:groupType/permission", blendedAuthenticate, function(req, res){
+	app.post(prefix + "/grouptype/:groupType/permission", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.groupType)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.autoAddPermissionsToServerGroupType(
 			req.params.groupType,
 			req.body
@@ -2267,13 +2288,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/grouptype/:groupType/permission", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/grouptype/:groupType/permission", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		if(isNaN(req.params.groupType)){
 			return res.status(404).end();
 		}
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+
 		ts3.autoAddPermissionsToServerGroupType(
 			req.params.groupType,
 			req.body
@@ -2287,10 +2309,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/gm", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.post(prefix + "/gm", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.sendGeneralMessage(req.body.message, function(err, data){
 			if(!err){
 				res.status(200).end();
@@ -2301,10 +2323,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/updatecredentials", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.post(prefix + "/updatecredentials", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.setClientServerQueryLogin(req.body.newLogin, function(err, data){
 			if(!err){
 				res.send(data);
@@ -2315,10 +2337,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/updatesettings", blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
+	app.post(prefix + "/updatesettings", 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		ts3.updateClient(req.body, function(err, data){
 			if(!err){
 				res.status(200).end();

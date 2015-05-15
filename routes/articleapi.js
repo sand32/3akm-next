@@ -24,16 +24,13 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	Article = require("../model/article.js"),
-	authorize = require("../authorization.js"),
+	isAuthorized = require("../authorization.js").isAuthorized,
+	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	removeDuplicates = require("../utils/common.js").removeDuplicates;
 
 module.exports = function(app, prefix){
-	app.post(prefix, blendedAuthenticate, function(req, res){
-		if(!authorize(req.user, {hasRoles: ["author"]})){
-			return res.status(403).end();
-		}
-
+	app.post(prefix, blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
 		var article = new Article();
 		article.title = req.body.title;
 		article.author = req.user._id;
@@ -60,7 +57,7 @@ module.exports = function(app, prefix){
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
 			if(doc){
-				if(doc.published || authorize(req.user, {hasRoles: ["author"]})){
+				if(doc.published || isAuthorized(req.user, {hasRoles: ["author"]})){
 					res.status(200).send(doc);
 				}else{
 					res.status(403).end();
@@ -71,11 +68,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:article", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/:article", blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
-		}else if(!authorize(req.user, {hasRoles: ["author"]})){
-			return res.status(403).end();
 		}
 
 		// Remove duplicate tags
@@ -101,11 +96,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:article", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/:article", blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
-		}else if(!authorize(req.user, {hasRoles: ["author"]})){
-			return res.status(403).end();
 		}
 
 		Article.findByIdAndRemove(req.params.article, function(err, doc){

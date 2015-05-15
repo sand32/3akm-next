@@ -25,15 +25,11 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
-	authorize = require("../authorization.js"),
+	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.post(prefix, blendedAuthenticate, function(req, res){
-		if(!authorize(req.user)){
-			return res.status(403).end();
-		}
-
+	app.post(prefix, blendedAuthenticate, authorize(), function(req, res){
 		var game = new Game(req.body);
 		game.save(function(err){
 			if(err){
@@ -57,11 +53,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:game", blendedAuthenticate, function(req, res){
+	app.put(prefix + "/:game", blendedAuthenticate, authorize(), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
-		}else if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		// Apply the update
@@ -76,11 +70,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:game", blendedAuthenticate, function(req, res){
+	app.delete(prefix + "/:game", blendedAuthenticate, authorize(), function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
-		}else if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		Lan.find({"games.game": req.params.game}, function(err, docs){

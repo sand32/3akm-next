@@ -41,18 +41,38 @@ rules = {
 	}
 }
 
-// Authorizes a user based on the given ruleset
-// 
-// The acceptable rules are as follows, all rules are optional:
-// {
-//     isUser: (User)
-//     hasRoles: [String]
-// }
-module.exports = function(user, ruleset, combination){
-	if(!ruleset || user.hasRole("admin")){
-		return true;
-	}
+module.exports = {
+	// Authorizes a user based on the given ruleset
+	// 
+	// The acceptable rules are as follows, all rules are optional:
+	// {
+	//     isUser: (User)
+	//     hasRoles: [String]
+	// }
+	isAuthorized: function(user, ruleset){
+		if(!ruleset || user.hasRole("admin")){
+			return true;
+		}
 
-	return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
-			(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
+		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
+				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
+	},
+
+	// Middleware for denying connections without authorization
+	authorize: function(ruleset){
+		return function(req, res, next){
+			if(module.exports.isAuthorized(req.user, ruleset)){
+				next();
+			}else{
+				res.status(403).end();
+			}
+		};
+	},
+
+	// If we find the value "session" in the user parameter, replace it with the current user
+	userOrSessionUser: function(req, res, next){
+		if(req.params.user === "session")
+			req.params.user = req.user._id;
+		next();
+	}
 }

@@ -25,7 +25,8 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
-	authorize = require("../authorization.js"),
+	authorize = require("../authorization.js").authorize,
+	userOrSessionUser = require("../authorization.js").userOrSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates;
@@ -80,38 +81,22 @@ module.exports = function(app, prefix){
 		res.status(200).end();
 	});
 
-	app.post(prefix + "/:user/verify", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
-		}
-
+	app.post(prefix + "/:user/verify", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
 		// Resend verification email
 		res.status(200).end();
 	});
 
-	app.get(prefix + "/:user/verified", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
-		}
-
+	app.get(prefix + "/:user/verified", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
 		// Retrieve and return the "verified" value
-		User.findById(queryUser, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(doc){
 				res.status(200).send({verified: doc.verified});
 			}else{
@@ -120,7 +105,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix, function(req, res){
+	app.post(prefix, 
+		blendedAuthenticate, 
+		authorize(), 
+	function(req, res){
 		var user = new User();
 		user.email = req.body.email;
 		user.passwordHash = user.hash(req.body.password);
@@ -129,13 +117,10 @@ module.exports = function(app, prefix){
 		user.primaryHandle = req.body.primaryHandle;
 		user.tertiaryHandles = req.body.tertiaryHandles;
 		user.lanInviteDesired = req.body.lanInviteDesired;
-
-		if(req.isAuthenticated() && req.user.hasRole("admin")){
-			user.vip = req.body.vip;
-			user.blacklisted = req.body.blacklisted;
-			user.roles = removeDuplicates(req.body.roles);
-			user.services = req.body.services;
-		}
+		user.vip = req.body.vip;
+		user.blacklisted = req.body.blacklisted;
+		user.roles = removeDuplicates(req.body.roles);
+		user.services = req.body.services;
 		user.save(function(err){
 			if(err){
 				res.status(400).end();
@@ -147,20 +132,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:user", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
-		}
-
-		User.findById(queryUser, function(err, doc){
+	app.get(prefix + "/:user", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
+		User.findById(req.params.user, function(err, doc){
 			if(doc){
 				res.status(200).send({
 					email: doc.email,
@@ -183,19 +160,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:user", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
-		}
-
+	app.put(prefix + "/:user", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
 		// Ignore the following fields unless sent by an admin
 		if(!req.user.hasRole("admin")){
 			delete req.body.verified;
@@ -214,7 +183,7 @@ module.exports = function(app, prefix){
 		req.body.modified = Date.now();
 
 		// Update the user 
-		User.findByIdAndUpdate(queryUser, req.body, function(err, doc){
+		User.findByIdAndUpdate(req.params.user, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
@@ -225,19 +194,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:user/password", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
-		}
-
+	app.put(prefix + "/:user/password", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
 		// Record this modification
 		var update = {
 			modified: Date.now(),

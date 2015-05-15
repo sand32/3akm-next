@@ -25,21 +25,18 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
-	authorize = require("../authorization.js"),
+	authorize = require("../authorization.js").authorize,
+	userOrSessionUser = require("../authorization.js").userOrSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/:year", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+	app.get(prefix + "/:year", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
 		}
 
 		Lan.findOne({
@@ -56,17 +53,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:year", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+	app.put(prefix + "/:year", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
-		}
-
-		// Only the user in the URL can access this resource
-		if(!authorize(req.user, {isUser: queryUser})){
-			return res.status(403).end();
 		}
 
 		Lan.findOne({
@@ -78,10 +71,10 @@ module.exports = function(app, prefix){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: queryUser, lan: lanDoc._id}, function(err, rsvpDoc){
+				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, rsvpDoc){
 					if(err || !rsvpDoc){
 						var rsvp = new Rsvp();
-						rsvp.user = queryUser;
+						rsvp.user = req.params.user;
 						rsvp.lan = lanDoc._id;
 						rsvp.status = req.body.status;
 						rsvp.playing = req.body.playing;
@@ -118,17 +111,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:year/attended", blendedAuthenticate, function(req, res){
-		var queryUser = req.params.user;
-		if(req.params.user === "session"){
-			queryUser = req.user._id;
-		}else if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+	app.put(prefix + "/:year/attended", 
+		blendedAuthenticate, 
+		userOrSessionUser, 
+		authorize({isUser: req.params.user}), 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
-		}
-
-		// Only an admin can access this resource
-		if(!authorize(req.user)){
-			return res.status(403).end();
 		}
 
 		Lan.findOne({
@@ -140,7 +129,7 @@ module.exports = function(app, prefix){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: queryUser, lan: lanDoc._id}, function(err, rsvpDoc){
+				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, rsvpDoc){
 					if(err || !rsvpDoc){
 						res.status(404).end();
 					}else{
