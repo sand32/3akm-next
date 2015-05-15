@@ -33,7 +33,17 @@ block content
 				| .
 		else
 			p RSVPs are no longer being accepted. Have fun at LAN!
-		h3 #{lan.beginDate.getFullYear()} Attendee Total: #{rsvps.length}
+		- var yesCount = 0, maybeCount = 0;
+		- for(var i = 0; i < rsvps.length; i += 1){
+		-     if(rsvps[i].status === "Yes"){
+		-         yesCount += 1 + rsvps[i].guests;
+		-     }else if(rsvps[i].status === "Maybe"){
+		-         maybeCount += 1 + rsvps[i].guests;
+		-     }
+		- }
+		h3 #{lan.beginDate.getFullYear()} Attendee Total: #{yesCount} 
+			if maybeCount > 0
+				| and #{maybeCount} maybes
 		p
 			each rsvp in rsvps
 				| #{rsvp.user.firstName} #{rsvp.user.lastName} [#{rsvp.user.primaryHandle}]
