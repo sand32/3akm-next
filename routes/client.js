@@ -238,7 +238,7 @@ module.exports = function(app, prefix){
 					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
-				res.redirect("/");
+				res.redirect("/authoring/article");
 			}
 		});
 	});
@@ -292,7 +292,7 @@ module.exports = function(app, prefix){
 					getFormattedTime: utils.getFormattedTime
 				});
 			}else{
-				res.redirect("/");
+				res.redirect("/admin/user");
 			}
 		});
 	});
