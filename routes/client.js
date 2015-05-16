@@ -360,7 +360,7 @@ module.exports = function(app, prefix){
 						getFormattedTime: utils.getFormattedTime
 					});
 				}else{
-					res.redirect("/");
+					res.redirect("/admin/lan");
 				}
 			});
 		});
@@ -413,7 +413,7 @@ module.exports = function(app, prefix){
 					game: doc
 				});
 			}else{
-				res.redirect("/");
+				res.redirect("/admin/game");
 			}
 		});
 	});
