@@ -492,7 +492,7 @@ $(function(){
 	// Dynamic behavior for adding multiple array field entries
 	$(".addItem").tooltip("enable");
 	$(".addItem").click(function(){
-		$(".addItem").before($(".addItem").attr("data-insertion"));
+		$(this).before($(".addItem").attr("data-insertion"));
 		$(".removeItem").tooltip("enable");
 		$(".removeItem").click(function(){
 			$(this).closest("div").remove();
