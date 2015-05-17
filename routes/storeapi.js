@@ -23,8 +23,7 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	Game = require("../model/game.js"),
-	Lan = require("../model/lan.js"),
+	Store = require("../model/store.js"),
 	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
@@ -33,34 +32,22 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorize(), 
 	function(req, res){
-		var uniqueStores = [];
-		for(var i = 0; i < req.body.stores.length; i += 1){
-			if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
-				return res.status(400).end();
-			}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
-				return res.status(400).end();
-			}else{
-				uniqueStores.push(req.body.stores[i].store);
-			}
-		}
-
-		var game = new Game(req.body);
-		game.save(function(err){
+		var store = new Store(req.body);
+		store.save(function(err){
 			if(err){
 				res.status(400).end();
 			}else{
 				res.status(201)
-				.location(prefix + "/" + game._id)
+				.location(prefix + "/" + store._id)
 				.end();
 			}
 		});
 	});
 
-	app.get(prefix + "/:game", 
+	app.get(prefix + "/:store", 
 		blendedAuthenticate, 
 	function(req, res){
-		Game.findById(req.params.game)
-		.exec(function(err, doc){
+		Store.findById(req.params.store, function(err, doc){
 			if(doc){
 				res.status(200).send(doc);
 			}else{
@@ -69,29 +56,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:game", 
+	app.put(prefix + "/:store", 
 		blendedAuthenticate, 
 		authorize(), 
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
-		if(req.body.stores && Array.isArray(req.body.stores)){
-			var uniqueStores = [];
-			for(var i = 0; i < req.body.stores.length; i += 1){
-				if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
-					return res.status(400).end();
-				}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
-					return res.status(400).end();
-				}else{
-					uniqueStores.push(req.body.stores[i].store);
-				}
-			}
-		}
-
-		// Apply the update
-		Game.findByIdAndUpdate(req.params.game, req.body, function(err, doc){
+		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
@@ -102,27 +71,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:game", 
+	app.delete(prefix + "/:store", 
 		blendedAuthenticate, 
 		authorize(), 
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
-		Lan.find({"games.game": req.params.game}, function(err, docs){
-			if(!err && docs){
-				for(var i = 0; i < docs.length; i += 1){
-					for(var j = 0; j < docs[i].games.length; j += 1){
-						if(docs[i].games[j].game.toString() == req.params.game){
-							docs[i].games.splice(j, 1);
-						}
-					}
-					docs[i].save();
-				}
-			}
-		});
-		Game.findByIdAndRemove(req.params.game, function(err, doc){
+		Store.findByIdAndRemove(req.params.store, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){

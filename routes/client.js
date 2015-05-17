@@ -30,6 +30,7 @@ var passport = require("passport"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
 	User = require("../model/user.js"),
+	Store = require("../model/store.js"),
 	utils = require("../utils/common.js"),
 	ts3 = require("../utils/ts3-serverquery.js"),
 	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json");
@@ -109,15 +110,23 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/games", function(req, res){
-		Lan.findOne({active: true}, null, {sort: {beginDate: "-1"}})
-		.populate("games.game")
-		.exec(function(err, doc){
+		Store.find()
+		.exec(function(err, docs){
 			if(!err){
-				res.render("games", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					year: doc ? doc.beginDate.getFullYear() : 0,
-					games: doc ? doc.games : null
+				Lan.findOne({active: true}, null, {sort: {beginDate: "-1"}})
+				.populate("games.game")
+				.exec(function(err2, doc){
+					if(!err2){
+						res.render("games", {
+							isAuthenticated: req.isAuthenticated(),
+							user: req.user,
+							year: doc ? doc.beginDate.getFullYear() : 0,
+							games: doc ? doc.games : null,
+							stores: docs
+						});
+					}else{
+						res.redirect("/");
+					}
 				});
 			}else{
 				res.redirect("/");
@@ -391,9 +400,13 @@ module.exports = function(app, prefix){
 		|| !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
-		res.render("gameeditor", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user
+		Store.find()
+		.exec(function(err, docs){
+			res.render("gameeditor", {
+				isAuthenticated: req.isAuthenticated(),
+				user: req.user,
+				stores: docs
+			});
 		});
 	});
 
@@ -404,17 +417,22 @@ module.exports = function(app, prefix){
 			  || !isAuthorized(req.user)){
 			return res.redirect("/");
 		}
-		Game.findById(req.params.game)
-		.exec(function(err, doc){
-			if(!err && doc){
-				res.render("gameeditor", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					game: doc
-				});
-			}else{
-				res.redirect("/admin/game");
-			}
+		Store.find()
+		.exec(function(err, docs){
+			Game.findById(req.params.game)
+			.populate("stores.store")
+			.exec(function(err2, doc){
+				if(!err2 && doc){
+					res.render("gameeditor", {
+						isAuthenticated: req.isAuthenticated(),
+						user: req.user,
+						game: doc,
+						stores: docs
+					});
+				}else{
+					res.redirect("/admin/game");
+				}
+			});
 		});
 	});
 

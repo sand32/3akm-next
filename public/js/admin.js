@@ -169,13 +169,28 @@ $(function(){
 		return files;
 	};
 
+	getGameStores = function(){
+		var stores = [],
+			storeFields = $("#game-editor-form .storeLinks");
+		for(var i = 0; i < storeFields.length; i += 1){
+			if($(storeFields[i]).find(".selected-store").html() != "Select Store <span class='caret'></span>"){
+				stores.push({
+					store: $(storeFields[i]).find(".selected-store").attr("name"),
+					appid: $(storeFields[i]).find("[name = 'appid']").val()
+				});
+			}
+		}
+		return stores;
+	};
+
 	addGame = function(){
 		var data = {
 				name: $("#game-editor-form input[name = 'name']").val(),
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
-				supplementalFiles: getSupplementalFiles()
+				supplementalFiles: getSupplementalFiles(),
+				stores: getGameStores()
 			};
 		if(data.version === ""){
 			delete data.version;
@@ -201,7 +216,8 @@ $(function(){
 				version: $("#game-editor-form input[name = 'version']").val(),
 				descriptionHeaderImage: $("#game-editor-form input[name = 'descriptionHeaderImage']").val(),
 				description: $("#game-editor-form textarea[name = 'description']").val(),
-				supplementalFiles: getSupplementalFiles()
+				supplementalFiles: getSupplementalFiles(),
+				stores: getGameStores()
 			};
 		if(data.version === ""){
 			delete data.version;

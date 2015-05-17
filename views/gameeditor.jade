@@ -27,6 +27,13 @@ block content
 	h1 Game Editor
 	hr
 	form.validated-form#game-editor-form(role = "form")
+		//- This is why I so badly need to redo the front-end
+		- var storeItemInsertion = "<div class='row storeLinks' style='margin-top:.5em;'><div class='form-group col-xs-2' style='padding-right:0px;'><div class='dropdown'><a class='btn btn-default dropdown-toggle selected-store' style='width:100%;' type='button' data-toggle='dropdown', data-target='#'>Select Store <span class='caret'></span></a><ul class='dropdown-menu' role='menu'>";
+		- var end = "</ul></div></div><div class='col-xs-5'><input type='text' name='appid' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this store' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>";
+		- for(var i = 0; i < stores.length; i += 1){
+		-     storeItemInsertion = storeItemInsertion + "<li><a class='btn btn-link' data-target='#' onclick=\"$(this).closest('.dropdown').find('.selected-store').html('" + stores[i].name + " <span></span>'); $(this).closest('.dropdown').find('.selected-store span').addClass('caret'); $(this).closest('.dropdown').find('.selected-store').attr('name', '" + stores[i]._id + "');\">" + stores[i].name + "</a>";
+		- }
+		- storeItemInsertion += end;
 		if !game
 			.row
 				.form-group.col-xs-6
@@ -57,6 +64,10 @@ block content
 							label URL
 							input.form-control(type = "text", name = "fileUrl")
 					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another file")
+			.row
+				fieldset.col-xs-12
+					legend Stores
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = storeItemInsertion, title = "Add a store")
 			hr
 			a.submitButton(class = "btn btn-default", onclick = "addGame();", disabled = "disabled") Submit
 			a(class = "btn btn-link" href = "/admin/game") Cancel
@@ -107,9 +118,34 @@ block content
 								label URL
 								input.form-control(type = "text", name = "fileUrl")
 					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = "<div class='row supplementalFiles' style='margin-top:.5em;'><div class='col-xs-4'><input type='text' name='fileName' class='form-control'></div><div class='col-xs-7'><input type='text' name='fileUrl' class='form-control'></div><a data-toggle='tooltip' data-placement='right' title='Remove this file' class='removeItem col-xs-1 btn btn-default glyphicon glyphicon-minus' style='margin-top:-1px;' /></div>", title = "Add another file")
+			.row
+				fieldset.col-xs-12
+					legend Stores
+					- for(var i = 0; i < game.stores.length; i += 1){
+						.row.storeLinks
+							.form-group.col-xs-2(style = "padding-right:0px;")
+								if i === 0
+									label Store
+								.dropdown
+									a.selected-store(style = "width:100%;", type = "button", class = "btn btn-default dropdown-toggle", data-toggle = "dropdown", data-target = "#", name = game.stores[i].store._id) #{game.stores[i].store.name} 
+										span.caret
+									ul.dropdown-menu(role = "menu")
+										each store in stores
+											li
+												a.btn.btn-link(data-target = "#", onclick = "$(this).closest('.dropdown').find('.selected-store').html('" + store.name + " <span class=\"caret\"></span>'); $(this).closest('.dropdown').find('.selected-store').attr('name', '" + store._id + "');") #{store.name}
+							.form-group.col-xs-5
+								if i === 0
+									label App ID
+								input.form-control(type = "text", name = "appid" value = game.stores[i].appid)
+							if i === 0
+								a.removeItem.col-xs-1(class = "btn btn-default glyphicon glyphicon-minus", style = "margin-top:1.7em;", data-toggle = "tooltip", data-placement = "right", title = "Remove this store")
+							else
+								a.removeItem.col-xs-1(class = "btn btn-default glyphicon glyphicon-minus", data-toggle = "tooltip", data-placement = "right", title = "Remove this store")
+					- }
+					a.addItem(class = "btn btn-default glyphicon glyphicon-plus", data-toggle = "tooltip", data-placement = "right", data-insertion = storeItemInsertion, title = "Add a store")
 			hr
 			.btn-group
-				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "'); location.replace('/admin/game');") Save
+				a.submitButton(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Save
 				a(class = "btn btn-default", onclick = "updateGame('" + game._id + "');") Apply
 			a(class = "btn btn-link" href = "/admin/game") Back
 block pageScripts

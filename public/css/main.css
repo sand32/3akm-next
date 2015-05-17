@@ -142,9 +142,14 @@ a.btn-link:hover {
 	display: initial;
 }
 
-.files-panel {
+.game-info-panel {
 	float: right;
 	margin-left: 1em;
+}
+
+.store-icon {
+	margin-right: .5em;
+	margin-bottom: .5em;
 }
 
 .field-align {

@@ -23,36 +23,23 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	gameSchema = mongoose.Schema({
+	storeSchema = mongoose.Schema({
 		name: {
 			type: String,
 			required: true
 		},
-		version: {
+		icon: {
 			type: String,
-			default: "Current"
+			required: true
 		},
-		supplementalFiles: [{
-			name: {
-				type: String,
-				required: true
-			},
-			url: String
-		}],
-		stores: [{
-			store: {
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "Store",
-				required: true
-			},
-			appid: {
-				type: String,
-				required: true
-			}
-		}],
-		preparationNotes: String,
-		descriptionHeaderImage: String,
-		description: String
+		baseUrl: {
+			type: String,
+			required: true
+		},
+		appUrl: {
+			type: String,
+			required: true
+		}
 	});
 
-module.exports = mongoose.model("Game", gameSchema);
+module.exports = mongoose.model("Store", storeSchema);

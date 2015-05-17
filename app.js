@@ -31,6 +31,7 @@ var express = require("express"),
 	authentication = require("./authentication.js"),
 	routes = require("./routes/routes.js"),
 	loadConfig = require("./utils/common.js").loadConfig,
+	startup = require("./utils/startup.js"),
 	app = express(),
 	config = loadConfig(__dirname + "/config/config.json");
 
@@ -68,6 +69,9 @@ authentication();
 
 // Define routes
 routes(app);
+
+// Other startup tasks (initializing DB values, etc.)
+startup();
 
 // Go
 app.listen(config.port);
