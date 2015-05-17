@@ -29,9 +29,9 @@ module.exports = function(){
 		if(!err && !doc){
 			var store = new Store({
 				name: "Steam",
-				icon: "/images/steam20.png",
+				icon: "/images/steam28.png",
 				baseUrl: "http://store.steampowered.com/",
-				appUrl: "http://store.steampowered.com/app/[appid]/"
+				appUrl: "steam://store/[appid]/"
 			});
 			store.save(function(err){
 				if(err){
@@ -44,7 +44,7 @@ module.exports = function(){
 		if(!err && !doc){
 			var store = new Store({
 				name: "GOG",
-				icon: "/images/gog20.png",
+				icon: "/images/gog28.png",
 				baseUrl: "http://www.gog.com/",
 				appUrl: "http://www.gog.com/game/[appid]/"
 			});
