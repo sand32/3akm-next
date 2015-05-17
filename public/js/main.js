@@ -114,7 +114,9 @@ $(function(){
 		}
 	);
 	$(".section-header").mousedown(function(e){
-		$(e.target).closest(".section-entry").toggleClass("section-entry-open");
+		var entry = $(e.target).closest(".section-entry");
+		entry.find(".section-body").height(Math.max(entry.find(".section-body").height(), entry.find(".game-info-panel").height()));
+		entry.toggleClass("section-entry-open");
 	});
 
 	uploadImage = function(fileFieldName, pathFieldName){

@@ -139,7 +139,7 @@ a.btn-link:hover {
 }
 
 .section-entry-open .section-body {
-	display: initial;
+	display: block;
 }
 
 .game-info-panel {
