@@ -22,33 +22,26 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path");
+(function(){
+	angular
+		.module("3akm.frontend", ["ui.router"])
+		.config(Config);
 
-module.exports = function(app){
-	var userApiRoutes = require("./userapi.js"),
-		articleApiRoutes = require("./articleapi.js"),
-		lanApiRoutes = require("./lanapi.js"),
-		gameApiRoutes = require("./gameapi.js"),
-		rsvpApiRoutes = require("./rsvpapi.js"),
-		storeApiRoutes = require("./storeapi.js"),
-		uploadRoutes = require("./uploadapi.js"),
-		serviceRoutes = require("./services/serviceroutes.js"),
-		clientRoutes = require("./client.js");
+	var Config = function($stateProvider, $urlRouterProvider){
+		$urlRouterProvider.otherwise("/404");
 
-	userApiRoutes(app, "/api/user");
-	articleApiRoutes(app, "/api/article");
-	lanApiRoutes(app, "/api/lan");
-	gameApiRoutes(app, "/api/game");
-	rsvpApiRoutes(app, "/api/user/:user/rsvp");
-	storeApiRoutes(app, "/api/store");
-	uploadRoutes(app, "/api/upload");
-	serviceRoutes(app, "/api/service");
-	clientRoutes(app, "/partial");
-
-	app.use(express.static('public'));
-
-	app.use(function(req, res){
-		res.render("index");
-	});
-}
+		$stateProvider
+			.state("default", {
+				url: "/",
+				templateUrl: "/partial/articles"
+			})
+			.state("games", {
+				url: "/games",
+				templateUrl: "/partial/games"
+			})
+			.state("404", {
+				url: "/404",
+				templateUrl: "/partial/404"
+			});
+	};
+})();

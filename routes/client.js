@@ -36,7 +36,7 @@ var passport = require("passport"),
 	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/", function(req, res){
+	app.get(prefix + "/articles", function(req, res){
 		Article.findOne({})
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
