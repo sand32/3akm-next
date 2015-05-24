@@ -13,5 +13,8 @@ node_modules
 # Hidden files
 .*
 
+# Client JS Output Directory
+public/js/*
+
 # Upload Directory
 public/uploads/*
