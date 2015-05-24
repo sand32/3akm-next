@@ -31,7 +31,6 @@ misrepresented as being the original software.
 					var contentHeight = angular.element(document.querySelector(".header"))[0].offsetHeight 
 										+ angular.element(document.querySelector(".contentRow"))[0].offsetHeight 
 										+ angular.element(document.querySelector(".footer"))[0].offsetHeight,
-						contentRow = angular.element(document.querySelector(".contentRow")),
 						containerHeight = element[0].offsetHeight,
 						windowHeight = $window.innerHeight;
 
