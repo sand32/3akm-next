@@ -56,13 +56,28 @@ module.exports = function(app, prefix){
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
-			if(doc){
+			if(!err && doc){
 				if(doc.published || isAuthorized(req.user, {hasRoles: ["author"]})){
 					res.status(200).send(doc);
 				}else{
 					res.status(403).end();
 				}
 			}else{
+				res.status(404).end();
+			}
+		});
+	});
+
+	app.get(prefix + "/newest", function(req, res){
+		console.error("OH NO!");
+		Article.findOne({published: true})
+		.sort("-created")
+		.populate("author modifiedBy", "email firstName lastName")
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.status(200).send(doc);
+			}else{
+				console.error("OH NO!");
 				res.status(404).end();
 			}
 		});

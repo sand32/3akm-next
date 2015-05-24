@@ -22,31 +22,16 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./articles/articlecontroller.js");
+require("./articleservice.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
-		$urlRouterProvider.otherwise("/404");
-		$locationProvider.html5Mode(true);
-
-		$stateProvider
-			.state("default", {
-				url: "/",
-				templateUrl: "/partial/articles"
-			})
-			.state("404", {
-				url: "/404",
-				templateUrl: "/partial/404"
-			});
+	var ArticleController = function(articleService){
+		this.article = articleService.retrieveNewest();
 	};
 
 	angular
-		.module("3akm.frontend", 
-			[
-				"ui.router",
-				"article"
-			])
-		.config(Config);
+		.module("article")
+		.controller("ArticleController", ArticleController);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider"];
+	ArticleController.$inject = ["ArticleService"];
 })();

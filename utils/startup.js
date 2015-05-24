@@ -26,56 +26,60 @@ var fs = require("fs"),
 	browserify = require("browserify"),
 	Store = require("../model/store.js");
 
-module.exports = function(){
-	Store.findOne({name: "Steam"}, function(err, doc){
-		if(!err && !doc){
-			var store = new Store({
-				name: "Steam",
-				icon: "/images/steam28.png",
-				baseUrl: "http://store.steampowered.com/",
-				appUrl: "steam://store/[appid]/"
-			});
-			store.save(function(err){
-				if(err){
-					console.error("Error: " + err);
-				}
-			});
-		}
-	});
-	Store.findOne({name: "GOG"}, function(err, doc){
-		if(!err && !doc){
-			var store = new Store({
-				name: "GOG",
-				icon: "/images/gog28.png",
-				baseUrl: "http://www.gog.com/",
-				appUrl: "http://www.gog.com/game/[appid]/"
-			});
-			store.save(function(err){
-				if(err){
-					console.error("Error: " + err);
-				}
-			});
-		}
-	});
-	Store.findOne({name: "Mac"}, function(err, doc){
-		if(!err && !doc){
-			var store = new Store({
-				name: "Mac",
-				icon: "/images/mac28.png",
-				baseUrl: "https://itunes.apple.com/us/genre/mac/id39?mt=12",
-				appUrl: "macappstore://itunes.apple.com/app/id[appid]?mt=12"
-			});
-			store.save(function(err){
-				if(err){
-					console.error("Error: " + err);
-				}
-			});
-		}
-	});
+module.exports = {
+	initializeDatabase: function(){
+		Store.findOne({name: "Steam"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Steam",
+					icon: "/images/steam28.png",
+					baseUrl: "http://store.steampowered.com/",
+					appUrl: "steam://store/[appid]/"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
+		Store.findOne({name: "GOG"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "GOG",
+					icon: "/images/gog28.png",
+					baseUrl: "http://www.gog.com/",
+					appUrl: "http://www.gog.com/game/[appid]/"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
+		Store.findOne({name: "Mac"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Mac",
+					icon: "/images/mac28.png",
+					baseUrl: "https://itunes.apple.com/us/genre/mac/id39?mt=12",
+					appUrl: "macappstore://itunes.apple.com/app/id[appid]?mt=12"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
+	},
 
-	// Bundle client javascript
-	var b = browserify();
-	b.add("client/frontend.js");
-	var outputFileStream = fs.createWriteStream("public/js/frontend.js");
-	b.bundle().pipe(outputFileStream);
+	bundleClientJS: function(){
+		// Bundle client javascript
+		var b = browserify();
+		b.add("client/frontend.js");
+		var outputFileStream = fs.createWriteStream("public/js/frontend.js");
+		b.bundle().pipe(outputFileStream);
+	}
 };

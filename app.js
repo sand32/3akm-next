@@ -71,7 +71,8 @@ authentication();
 routes(app);
 
 // Other startup tasks (initializing DB values, etc.)
-startup();
+startup.initializeDatabase();
+startup.bundleClientJS();
 
 // Go
 app.listen(config.port);
