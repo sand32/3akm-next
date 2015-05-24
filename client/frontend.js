@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 require("./articles/articlecontroller.js");
+require("./frontend-common/stylingdirectives.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
@@ -44,6 +45,7 @@ require("./articles/articlecontroller.js");
 		.module("3akm.frontend", 
 			[
 				"ui.router",
+				"3akm.frontend.styling",
 				"article"
 			])
 		.config(Config);
