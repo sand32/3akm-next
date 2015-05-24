@@ -12,6 +12,7 @@
 	"license": "zlib/libpng",
 	"dependencies": {
 		"browserify": "latest",
+		"minifyify": "latest",
 		"express": "latest",
 		"express-session": "latest",
 		"body-parser": "latest",
@@ -24,6 +25,7 @@
 		"mongoose": "latest",
 		"jade": "latest",
 		"request": "latest",
-		"node-teamspeak": "latest"
+		"node-teamspeak": "latest",
+		"q": "latest"
 	}
 }

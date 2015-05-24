@@ -23,7 +23,9 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
-	path = require("path");
+	path = require("path"),
+	loadConfig = require("../utils/common.js").loadConfig,
+	config = loadConfig(__dirname + "/../config/config.json");
 
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
@@ -49,6 +51,19 @@ module.exports = function(app){
 	app.use(express.static('public'));
 
 	app.use(function(req, res){
-		res.render("index");
+		if(config.debugMode){
+			var startup = require("../utils/startup.js");
+			startup.bundleClientJS()
+			.then(
+				function(){
+					res.render("index");
+				},
+				function(){
+					res.status(500).end();
+				}
+			);
+		}else{
+			res.render("index");
+		}
 	});
 }

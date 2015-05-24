@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 var fs = require("fs"),
 	browserify = require("browserify"),
+	q = require("q"),
 	Store = require("../model/store.js");
 
 module.exports = {
@@ -77,9 +78,21 @@ module.exports = {
 
 	bundleClientJS: function(){
 		// Bundle client javascript
-		var b = browserify();
+		var b = browserify(),
+			deferred = q.defer();
+
 		b.add("client/frontend.js");
+
+		b.plugin("minifyify", {map: false});
+
 		var outputFileStream = fs.createWriteStream("public/js/frontend.js");
+		outputFileStream.on("finish", function(){
+			deferred.resolve();
+		}).on("error", function(){
+			deferred.reject("Failed to write JS bundle");
+		});
 		b.bundle().pipe(outputFileStream);
+
+		return deferred.promise;
 	}
 };

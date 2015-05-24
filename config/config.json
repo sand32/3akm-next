@@ -1,5 +1,6 @@
 {
 	"port": 8080,
+	"debugMode": true,
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",
 	"recaptchaSiteKey": "changeme",
