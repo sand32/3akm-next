@@ -25,7 +25,9 @@ misrepresented as being the original software.
 var fs = require("fs"),
 	browserify = require("browserify"),
 	q = require("q"),
-	Store = require("../model/store.js");
+	Store = require("../model/store.js"),
+	loadConfig = require("../utils/common.js").loadConfig,
+	config = loadConfig(__dirname + "/../config/config.json");
 
 module.exports = {
 	initializeDatabase: function(){
@@ -83,7 +85,9 @@ module.exports = {
 
 		b.add("client/frontend.js");
 
-		b.plugin("minifyify", {map: false});
+		if(!config.debugMode){
+			b.plugin("minifyify", {map: false});
+		}
 
 		var outputFileStream = fs.createWriteStream("public/js/frontend.js");
 		outputFileStream.on("finish", function(){

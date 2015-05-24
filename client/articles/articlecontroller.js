@@ -25,13 +25,20 @@ misrepresented as being the original software.
 require("./articleservice.js");
 
 (function(){
-	var ArticleController = function(articleService){
-		this.article = articleService.retrieveNewest();
+	var ArticleController = function($sce, articleService){
+		var article = this;
+		articleService.retrieveNewest()
+		.then(
+			function(data){
+				article.title = data.title;
+				article.content = $sce.trustAsHtml(data.content);
+			}
+		);
 	};
 
 	angular
 		.module("article")
 		.controller("ArticleController", ArticleController);
 
-	ArticleController.$inject = ["ArticleService"];
+	ArticleController.$inject = ["$sce", "ArticleService"];
 })();

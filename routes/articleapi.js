@@ -48,6 +48,19 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/newest", function(req, res){
+		Article.findOne({published: true})
+		.sort("-created")
+		.populate("author modifiedBy", "email firstName lastName")
+		.exec(function(err, doc){
+			if(!err && doc){
+				res.status(200).send(doc);
+			}else{
+				res.status(404).end();
+			}
+		});
+	});
+
 	app.get(prefix + "/:article", function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
@@ -63,21 +76,6 @@ module.exports = function(app, prefix){
 					res.status(403).end();
 				}
 			}else{
-				res.status(404).end();
-			}
-		});
-	});
-
-	app.get(prefix + "/newest", function(req, res){
-		console.error("OH NO!");
-		Article.findOne({published: true})
-		.sort("-created")
-		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(!err && doc){
-				res.status(200).send(doc);
-			}else{
-				console.error("OH NO!");
 				res.status(404).end();
 			}
 		});
