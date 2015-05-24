@@ -11,6 +11,7 @@
 	"author": "Seth Anderson <seth.anderson32@gmail.com> (https://github.com/sand32)",
 	"license": "zlib/libpng",
 	"dependencies": {
+		"browserify": "latest",
 		"express": "latest",
 		"express-session": "latest",
 		"body-parser": "latest",

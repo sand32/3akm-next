@@ -36,25 +36,12 @@ var passport = require("passport"),
 	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
+	app.get(prefix + "/404", function(req, res){
+		res.render("partial/404.jade");
+	});
+
 	app.get(prefix + "/articles", function(req, res){
-		Article.findOne({})
-		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(!err && doc && doc.published){
-				res.render("article", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					article: doc,
-					getFormattedTime: utils.getFormattedTime
-				});
-			}else{
-				res.render("article", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					getFormattedTime: utils.getFormattedTime
-				});
-			}
-		});
+		res.render("partial/article.jade");
 	});
 
 	app.get(prefix + "/register", function(req, res){

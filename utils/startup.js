@@ -22,7 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var Store = require("../model/store.js");
+var fs = require("fs"),
+	browserify = require("browserify"),
+	Store = require("../model/store.js");
 
 module.exports = function(){
 	Store.findOne({name: "Steam"}, function(err, doc){
@@ -70,4 +72,10 @@ module.exports = function(){
 			});
 		}
 	});
+
+	// Bundle client javascript
+	var b = browserify();
+	b.add("client/frontend.js");
+	var outputFileStream = fs.createWriteStream("public/js/frontend.js");
+	b.bundle().pipe(outputFileStream);
 };

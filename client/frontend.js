@@ -23,25 +23,24 @@ misrepresented as being the original software.
 */
 
 (function(){
-	angular
-		.module("3akm.frontend", ["ui.router"])
-		.config(Config);
-
-	var Config = function($stateProvider, $urlRouterProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
 		$urlRouterProvider.otherwise("/404");
+		$locationProvider.html5Mode(true);
 
 		$stateProvider
 			.state("default", {
 				url: "/",
 				templateUrl: "/partial/articles"
 			})
-			.state("games", {
-				url: "/games",
-				templateUrl: "/partial/games"
-			})
 			.state("404", {
 				url: "/404",
 				templateUrl: "/partial/404"
 			});
 	};
+
+	angular
+		.module("3akm.frontend", ["ui.router"])
+		.config(Config);
+
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider"];
 })();
