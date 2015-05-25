@@ -70,7 +70,7 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("user", [])
+		.module("3akm.user", [])
 		.factory("UserService", UserService);
 
 	UserService.$inject = ["$http", "$q"];

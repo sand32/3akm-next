@@ -33,27 +33,25 @@ var passport = require("passport"),
 	Store = require("../model/store.js"),
 	utils = require("../utils/common.js"),
 	ts3 = require("../utils/ts3-serverquery.js"),
-	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json");
+	cod4GameInfo = utils.loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
+	config = utils.loadConfig(__dirname + "/../config/config.json");
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/404", function(req, res){
-		res.render("partial/404.jade");
-	});
-
-	app.get(prefix + "/articles", function(req, res){
-		res.render("partial/article.jade");
-	});
-
-	app.get(prefix + "/register", function(req, res){
-		var config = utils.loadConfig(__dirname + "/../config/config.json");
-		if(req.isAuthenticated()){
-			return res.redirect("/");
-		}
-		res.render("usereditor", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
+	app.get(prefix + "/registrationform", function(req, res){
+		res.render("partial/registrationform.jade", {
 			recaptchaSiteKey: config.recaptchaSiteKey
 		});
+	});
+
+	app.get(prefix + "/*", function(req, res){
+		// res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
+		// 	if(err){
+		// 		res.redirect("/partial/404");
+		// 	}else{
+		// 		res.send(html);
+		// 	}
+		// });
+		res.render("partial/" + req.params[0] + ".jade");
 	});
 
 	app.get(prefix + "/profile", function(req, res){

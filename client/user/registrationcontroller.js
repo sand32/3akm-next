@@ -22,41 +22,36 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./articles/articlecontroller.js");
-require("./user/registrationcontroller.js");
-require("./common/arrayentrydirectives.js");
-require("./frontend-common/stylingdirectives.js");
+require("./userservice.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
-		$urlRouterProvider.otherwise("/404");
-		$locationProvider.html5Mode(true);
+	var RegistrationController = function($location, UserService){
+		var reg = this;
+		reg.tertiaryHandles = [];
 
-		$stateProvider
-			.state("default", {
-				url: "/",
-				templateUrl: "/partial/article"
+		reg.register = function(){
+			UserService.register({
+				email: reg.email,
+				password: reg.pass,
+				firstName: reg.firstName,
+				lastName: reg.lastName,
+				primaryHandle: reg.primaryHandle,
+				tertiaryHandles: reg.tertiaryHandles
 			})
-			.state("registration", {
-				url: "/register",
-				templateUrl: "/partial/registrationform"
-			})
-			.state("404", {
-				url: "/404",
-				templateUrl: "/partial/404"
-			});
-	};
+			.then(
+				function(){
+					$location.url("/");
+				},
+				function(){
+					// TODO: Set error message
+				}
+			);
+		};
+	}
 
 	angular
-		.module("3akm.frontend", 
-			[
-				"ui.router",
-				"3akm.common.arrayentry",
-				"3akm.frontend.styling",
-				"3akm.user",
-				"article"
-			])
-		.config(Config);
+		.module("3akm.user")
+		.controller("RegistrationController", RegistrationController);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider"];
+	RegistrationController.$inject = ["$location", "UserService"];
 })();

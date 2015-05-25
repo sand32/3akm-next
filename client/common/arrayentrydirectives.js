@@ -22,41 +22,33 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./articles/articlecontroller.js");
-require("./user/registrationcontroller.js");
-require("./common/arrayentrydirectives.js");
-require("./frontend-common/stylingdirectives.js");
-
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
-		$urlRouterProvider.otherwise("/404");
-		$locationProvider.html5Mode(true);
-
-		$stateProvider
-			.state("default", {
-				url: "/",
-				templateUrl: "/partial/article"
-			})
-			.state("registration", {
-				url: "/register",
-				templateUrl: "/partial/registrationform"
-			})
-			.state("404", {
-				url: "/404",
-				templateUrl: "/partial/404"
-			});
+	var SimpleArrayEntry = function(){
+		return {
+			restrict: "E",
+			replace: true,
+			templateUrl: "/partial/simplearrayentry",
+			scope: {
+				items: "=arrayModel",
+				additionTooltip: "@",
+				removalTooltip: "@"
+			},
+			link: function(scope, element, attrs){
+				scope.addItem = function(){
+					scope.items.push("");
+					scope.$emit("ResizeContentArea");
+				}
+				scope.removeItem = function(index){
+					scope.items.splice(index, 1);
+					scope.$emit("ResizeContentArea");
+				};
+			}
+		}
 	};
 
 	angular
-		.module("3akm.frontend", 
-			[
-				"ui.router",
-				"3akm.common.arrayentry",
-				"3akm.frontend.styling",
-				"3akm.user",
-				"article"
-			])
-		.config(Config);
+		.module("3akm.common.arrayentry", [])
+		.directive("simpleArrayEntry", SimpleArrayEntry);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider"];
+	SimpleArrayEntry.$inject = [];
 })();
