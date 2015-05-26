@@ -114,7 +114,7 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("article", [])
+		.module("3akm.article", [])
 		.factory("ArticleService", ArticleService);
 
 	ArticleService.$inject = ["$http", "$q"];

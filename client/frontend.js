@@ -54,7 +54,7 @@ require("./frontend-common/stylingdirectives.js");
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
 				"3akm.user",
-				"article"
+				"3akm.article"
 			])
 		.config(Config);
 
