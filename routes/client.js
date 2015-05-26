@@ -44,14 +44,17 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/*", function(req, res){
-		// res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
-		// 	if(err){
-		// 		res.redirect("/partial/404");
-		// 	}else{
-		// 		res.send(html);
-		// 	}
-		// });
-		res.render("partial/" + req.params[0] + ".jade");
+		if(config.debugMode){
+			res.render("partial/" + req.params[0] + ".jade");
+		}else{
+			res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
+				if(err){
+					res.redirect("/partial/404");
+				}else{
+					res.send(html);
+				}
+			});
+		}
 	});
 
 	app.get(prefix + "/profile", function(req, res){
