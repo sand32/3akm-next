@@ -68,6 +68,7 @@ module.exports = {
 				}
 			});
 		}else{
+			console.warn("Warning: reCAPTCHA secret not set, allowing all registration requests");
 			next();
 		}
 	},
