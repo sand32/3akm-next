@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("./userservice.js");
 
 (function(){
-	var RegistrationController = function($location, UserService){
+	var RegistrationController = function($state, UserService){
 		var reg = this;
 		reg.tertiaryHandles = [];
 
@@ -40,7 +40,7 @@ require("./userservice.js");
 			})
 			.then(
 				function(){
-					$location.url("/");
+					$state.go("default");
 				},
 				function(){
 					// TODO: Set error message
@@ -53,5 +53,5 @@ require("./userservice.js");
 		.module("3akm.user")
 		.controller("RegistrationController", RegistrationController);
 
-	RegistrationController.$inject = ["$location", "UserService"];
+	RegistrationController.$inject = ["$state", "UserService"];
 })();
