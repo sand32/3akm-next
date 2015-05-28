@@ -56,3 +56,4 @@ form(novalidate, ng-controller = "RegistrationController as regCtrl")
 	.g-recaptcha(data-sitekey = recaptchaSiteKey)
 	hr
 	a.submitButton(class = "btn btn-default", ng-click = "regCtrl.register()") Register
+script(src = "https://www.google.com/recaptcha/api.js", type = "text/javascript-lazy", async, defer)

@@ -51,6 +51,7 @@ require("./frontend-common/stylingdirectives.js");
 		.module("3akm.frontend", 
 			[
 				"ui.router",
+				"ngLoadScript",
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
 				"3akm.user",
