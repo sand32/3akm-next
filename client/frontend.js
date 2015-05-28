@@ -37,6 +37,10 @@ require("./frontend-common/stylingdirectives.js");
 				url: "/",
 				templateUrl: "/partial/article"
 			})
+			.state("article", {
+				url: "/article/:articleId",
+				templateUrl: "/partial/article"
+			})
 			.state("registration", {
 				url: "/register",
 				templateUrl: "/partial/registrationform"

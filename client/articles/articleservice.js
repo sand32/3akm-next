@@ -27,25 +27,7 @@ misrepresented as being the original software.
 		return {
 			retrieve: function(id){
 				var deferred = $q.defer();
-				$http.get("/api/article/" + id)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						if(response.status === 404){
-							deferred.reject("No such article exists.");
-						}else{
-							deferred.reject("Failed to retrieve article.");
-						}
-					}
-				);
-				return deferred.promise;
-			},
-
-			retrieveNewest: function(){
-				var deferred = $q.defer();
-				$http.get("/api/article/newest")
+				$http.get("/api/article/" + (id || "newest"))
 				.then(
 					function(response){
 						deferred.resolve(response.data);

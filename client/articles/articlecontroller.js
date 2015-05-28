@@ -25,9 +25,9 @@ misrepresented as being the original software.
 require("./articleservice.js");
 
 (function(){
-	var ArticleController = function($sce, ArticleService){
+	var ArticleController = function($stateParams, $sce, ArticleService){
 		var article = this;
-		ArticleService.retrieveNewest()
+		ArticleService.retrieve($stateParams.articleId)
 		.then(
 			function(data){
 				article.title = data.title;
@@ -40,5 +40,5 @@ require("./articleservice.js");
 		.module("3akm.article")
 		.controller("ArticleController", ArticleController);
 
-	ArticleController.$inject = ["$sce", "ArticleService"];
+	ArticleController.$inject = ["$stateParams", "$sce", "ArticleService"];
 })();
