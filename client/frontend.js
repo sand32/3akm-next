@@ -26,6 +26,7 @@ require("./articles/articlecontroller.js");
 require("./user/registrationcontroller.js");
 require("./common/arrayentrydirectives.js");
 require("./frontend-common/stylingdirectives.js");
+require("./frontend-common/validationdirectives.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
@@ -58,6 +59,7 @@ require("./frontend-common/stylingdirectives.js");
 				"ngLoadScript",
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
+				"3akm.frontend.validation",
 				"3akm.user",
 				"3akm.article"
 			])

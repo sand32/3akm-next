@@ -23,37 +23,41 @@
 
 h1 Registration Form
 hr
-form(novalidate, ng-controller = "RegistrationController as regCtrl")
+form(name = "registrationForm", novalidate, ng-controller = "RegistrationController as regCtrl")
 	.row
 		.form-group.col-xs-6
 			label Email 
 				span.text-danger (Required)
-			input.form-control(type = "text", autofocus, ng-model = "regCtrl.email")
+			input.form-control(type = "email", name = "email", autofocus, ng-model = "regCtrl.email", required)
+			span.text-danger(ng-show = "registrationForm.email.$error.required && !registrationForm.email.$pristine") An email is required
+			span.text-danger(ng-show = "registrationForm.email.$error.email && !registrationForm.email.$pristine") Invalid email
 	.row
 		.form-group.col-xs-6
 			label Password 
 				span.text-danger (Required)
-			input.form-control(type = "password", ng-model = "regCtrl.pass")
+			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required)
+			span.text-danger(ng-show = "registrationForm.password.$error.required && !registrationForm.password.$pristine") A password is required
 	.row
 		.form-group.col-xs-6
 			label Confirm Password
-			input.form-control(type = "password", name = "confirmPassword")
+			input.form-control(type = "password", name = "confirmPassword", ng-model = "regCtrl.confirmPass", compare-to = "regCtrl.pass")
+			span.text-danger(ng-show = "registrationForm.confirmPassword.$error.compareTo && !registrationForm.confirmPassword.$pristine") Passwords must match
 	hr
 	.row
 		.form-group.col-xs-4
 			label First Name
-			input.form-control(type = "text", ng-model = "regCtrl.firstName")
+			input.form-control(type = "text", name = "firstName", ng-model = "regCtrl.firstName")
 		.form-group.col-xs-4
 			label Last Name
-			input.form-control(type = "text", ng-model = "regCtrl.lastName")
+			input.form-control(type = "text", name = "lastName", ng-model = "regCtrl.lastName")
 	.row
 		.form-group.col-xs-6
 			label Handles
-			input.form-control(type = "text", ng-model = "regCtrl.primaryHandle", placeholder = "Primary Handle")
+			input.form-control(type = "text", name = "primaryHandle", ng-model = "regCtrl.primaryHandle", placeholder = "Primary Handle")
 	.row
 		.form-group.col-xs-6
 			simple-array-entry(array-model = "regCtrl.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
 	.g-recaptcha(data-sitekey = recaptchaSiteKey)
 	hr
-	a.submitButton(class = "btn btn-default", ng-click = "regCtrl.register()") Register
+	a.submitButton(class = "btn btn-default", ng-click = "regCtrl.register()", ng-disabled = "registrationForm.$invalid") Register
 script(src = "https://www.google.com/recaptcha/api.js", type = "text/javascript-lazy", async, defer)
