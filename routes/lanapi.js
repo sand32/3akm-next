@@ -28,26 +28,22 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/:lan", 
-		blendedAuthenticate, 
+	app.get(prefix + "/next", 
 	function(req, res){
-		Lan.findById(req.params.lan)
+		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
 		.populate("games.game")
 		.exec(function(err, doc){
-			if(err){
+			if(err || !doc){
 				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
 			}else{
 				res.status(200).send(doc);
 			}
 		});
 	});
 
-	app.get(prefix + "/next", 
-		blendedAuthenticate, 
+	app.get(prefix + "/:lan", 
 	function(req, res){
-		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
+		Lan.findById(req.params.lan)
 		.populate("games.game")
 		.exec(function(err, doc){
 			if(err){
