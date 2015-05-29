@@ -42,6 +42,10 @@ require("./frontend-common/validationdirectives.js");
 				url: "/article/:articleId",
 				templateUrl: "/partial/article"
 			})
+			.state("prep", {
+				url: "/prep",
+				templateUrl: "/partial/prep"
+			})
 			.state("registration", {
 				url: "/register",
 				templateUrl: "/partial/registrationform"
