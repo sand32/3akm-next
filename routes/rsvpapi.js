@@ -29,7 +29,34 @@ var mongoose = require("mongoose"),
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
-module.exports = function(app, prefix){
+module.exports = function(app, prefix, prefix2){
+	app.get(prefix2 + "/:year",
+		blendedAuthenticate,
+		authorize(),
+	function(req, res){
+		Lan.findOne({
+			active: true,
+			acceptingRsvps: true
+		})
+		.$where("this.beginDate.getFullYear() === " + req.params.year)
+		.exec(function(err, lan){
+			if(err){
+				res.status(500).end();
+			}else if(!lan){
+				res.status(404).end();
+			}else{
+				Rsvp.find({lan: lan._id})
+				.exec(function(err, rsvps){
+					if(err){
+						res.status(500).end();
+					}else{
+						res.send(rsvps);
+					}
+				});
+			}
+		});
+	});
+
 	app.get(prefix + "/:year", 
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
@@ -43,11 +70,21 @@ module.exports = function(app, prefix){
 			acceptingRsvps: true
 		})
 		.$where("this.beginDate.getFullYear() === " + req.params.year)
-		.exec(function(err, lanDoc){
-			if(err || !lanDoc){
+		.exec(function(err, lan){
+			if(err){
+				res.status(500).end();
+			}else if(!lan){
 				res.status(404).end();
 			}else{
-				res.send(lanDoc);
+				Rsvp.findOne({user: req.params.user}, function(err, rsvp){
+					if(err){
+						res.status(500).end();
+					}else if(!rsvp){
+						res.status(404).end();
+					}else{
+						res.send(rsvp);
+					}
+				});
 			}
 		});
 	});

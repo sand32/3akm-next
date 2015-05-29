@@ -122,13 +122,6 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/prep", function(req, res){
-		res.render("prep", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user
-		});
-	});
-
 	app.get(prefix + "/appearances", function(req, res){
 		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
 		.exec(function(err, lan){
@@ -160,26 +153,6 @@ module.exports = function(app, prefix){
 					lan: null,
 					rsvps: null
 				});
-			}
-		});
-	});
-
-	app.get(prefix + "/article/:article", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
-			return res.redirect("/");
-		}
-		Article.findById(req.params.article)
-		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(!err && doc && (doc.published || isAuthorized(req.user, {hasRoles:["author"]}))){
-				res.render("article", {
-					isAuthenticated: req.isAuthenticated(),
-					user: req.user,
-					article: doc,
-					getFormattedTime: utils.getFormattedTime
-				});
-			}else{
-				res.redirect("/");
 			}
 		});
 	});

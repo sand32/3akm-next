@@ -42,7 +42,7 @@ module.exports = function(app){
 	articleApiRoutes(app, "/api/article");
 	lanApiRoutes(app, "/api/lan");
 	gameApiRoutes(app, "/api/game");
-	rsvpApiRoutes(app, "/api/user/:user/rsvp");
+	rsvpApiRoutes(app, "/api/user/:user/rsvp", "/api/rsvp");
 	storeApiRoutes(app, "/api/store");
 	uploadRoutes(app, "/api/upload");
 	serviceRoutes(app, "/api/service");
