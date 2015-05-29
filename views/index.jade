@@ -35,7 +35,7 @@ html(ng-app = "3akm.frontend")
 			.row.contentRow
 				.content.col-md-9(ui-view)
 				.menu.col-md-3.visible-md-block.visible-lg-block
-			.row.footer
+			.row
 				.footer.col-xs-12
 					p Copyright &copy; 2014-#{new Date().getFullYear()} Seth Anderson
 					p Source available under the zlib/libpng license on
@@ -43,6 +43,7 @@ html(ng-app = "3akm.frontend")
 						a(href = "https://github.com/sand32/3akm-next", target = "_blank")
 							img(src = "/images/GitHub_Logo.png")
 	script(src = "/thirdparty/angular.min.js")
+	script(src = "/thirdparty/angular-messages.min.js")
 	script(src = "/thirdparty/angular-ui-router.min.js")
 	script(src = "/thirdparty/angular-loadscript.js")
 	script(src = "/thirdparty/ui-bootstrap-tpls-0.13.0.min.js")

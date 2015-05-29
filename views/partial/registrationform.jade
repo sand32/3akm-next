@@ -29,19 +29,22 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 			label Email 
 				span.text-danger (Required)
 			input.form-control(type = "email", name = "email", autofocus, ng-model = "regCtrl.email", required)
-			span.text-danger(ng-show = "registrationForm.email.$error.required && !registrationForm.email.$pristine") An email is required
-			span.text-danger(ng-show = "registrationForm.email.$error.email && !registrationForm.email.$pristine") Invalid email
+			.form-feedback.text-danger(ng-messages = "registrationForm.email.$error", ng-if = "registrationForm.email.$dirty", role = "alert")
+				div(ng-message = "required") An email is required
+				div(ng-message = "email") Invalid email
 	.row
 		.form-group.col-xs-6
 			label Password 
 				span.text-danger (Required)
 			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required)
-			span.text-danger(ng-show = "registrationForm.password.$error.required && !registrationForm.password.$pristine") A password is required
+			.form-feedback.text-danger(ng-messages = "registrationForm.password.$error", ng-if = "registrationForm.password.$dirty", role = "alert")
+				div(ng-message = "required") A password is required
 	.row
 		.form-group.col-xs-6
 			label Confirm Password
 			input.form-control(type = "password", name = "confirmPassword", ng-model = "regCtrl.confirmPass", compare-to = "regCtrl.pass")
-			span.text-danger(ng-show = "registrationForm.confirmPassword.$error.compareTo && !registrationForm.confirmPassword.$pristine") Passwords must match
+			.form-feedback.text-danger(ng-messages = "registrationForm.confirmPassword.$error", ng-if = "registrationForm.confirmPassword.$dirty", role = "alert")
+				div(ng-message = "compareTo") Passwords must match
 	hr
 	.row
 		.form-group.col-xs-4

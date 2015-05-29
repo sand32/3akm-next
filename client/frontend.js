@@ -57,6 +57,7 @@ require("./frontend-common/validationdirectives.js");
 			[
 				"ui.router",
 				"ngLoadScript",
+				"ngMessages",
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
 				"3akm.frontend.validation",
