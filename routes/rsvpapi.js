@@ -31,8 +31,6 @@ var mongoose = require("mongoose"),
 
 module.exports = function(app, prefix, prefix2){
 	app.get(prefix2 + "/:year",
-		blendedAuthenticate,
-		authorize(),
 	function(req, res){
 		Lan.findOne({
 			active: true,
