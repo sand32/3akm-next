@@ -84,6 +84,7 @@ a.btn-link:hover {
 	border-left: 2px #222 solid;
 }
 
+.menu-list li.current,
 .menu-list li:hover {
 	border-left: 2px red solid;
 }
@@ -92,6 +93,7 @@ a.btn-link:hover {
 	color: #222;
 }
 
+.menu-list li.current a,
 .menu-list a:hover {
 	color: red;
 }

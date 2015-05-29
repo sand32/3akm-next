@@ -35,6 +35,19 @@ html(ng-app = "3akm.frontend")
 			.row.contentRow
 				.content.col-md-9(ui-view)
 				.menu.col-md-3.visible-md-block.visible-lg-block
+					.menu-container.affix-top
+					a(ui-sref = "default")
+						.logo
+
+					ul.menu-list(class = "nav nav-stacked")
+						li(ui-sref-active = "current")
+							a(ui-sref = "default") Home
+						li(ui-sref-active = "current")
+							a(ui-sref = "games") Games
+						li(ui-sref-active = "current")
+							a(ui-sref = "prep") Preparation
+						li(ui-sref-active = "current")
+							a(ui-sref = "appearances") Confirmed Appearances
 			.row
 				.footer.col-xs-12
 					p Copyright &copy; 2014-#{new Date().getFullYear()} Seth Anderson
