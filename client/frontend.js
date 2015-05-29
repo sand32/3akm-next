@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 require("./articles/articlecontroller.js");
+require("./rsvp/appearancescontroller.js");
 require("./user/registrationcontroller.js");
 require("./common/arrayentrydirectives.js");
 require("./frontend-common/stylingdirectives.js");
@@ -46,6 +47,10 @@ require("./frontend-common/validationdirectives.js");
 				url: "/prep",
 				templateUrl: "/partial/prep"
 			})
+			.state("appearances", {
+				url: "/appearances",
+				templateUrl: "/partial/appearances"
+			})
 			.state("registration", {
 				url: "/register",
 				templateUrl: "/partial/registrationform"
@@ -65,8 +70,9 @@ require("./frontend-common/validationdirectives.js");
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
 				"3akm.frontend.validation",
-				"3akm.user",
-				"3akm.article"
+				"3akm.article",
+				"3akm.appearances",
+				"3akm.user"
 			])
 		.config(Config);
 

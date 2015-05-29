@@ -46,6 +46,7 @@ module.exports = function(app, prefix, prefix2){
 				res.status(404).end();
 			}else{
 				Rsvp.find({lan: lan._id})
+				.populate("user", "email firstName lastName primaryHandle")
 				.exec(function(err, rsvps){
 					if(err){
 						res.status(500).end();
