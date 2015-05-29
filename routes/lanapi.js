@@ -28,6 +28,38 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
+	app.get(prefix + "/:lan", 
+		blendedAuthenticate, 
+	function(req, res){
+		Lan.findById(req.params.lan)
+		.populate("games.game")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).send(doc);
+			}
+		});
+	});
+
+	app.get(prefix + "/next", 
+		blendedAuthenticate, 
+	function(req, res){
+		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
+		.populate("games.game")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).send(doc);
+			}
+		});
+	});
+
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize(), 
@@ -40,20 +72,6 @@ module.exports = function(app, prefix){
 				res.status(201)
 				.location(prefix + "/" + lan._id)
 				.end();
-			}
-		});
-	});
-
-	app.get(prefix + "/:lan", 
-		blendedAuthenticate, 
-	function(req, res){
-		Lan.findById(req.params.lan)
-		.populate("games.game")
-		.exec(function(err, doc){
-			if(doc){
-				res.status(200).send(doc);
-			}else{
-				res.status(404).end();
 			}
 		});
 	});
