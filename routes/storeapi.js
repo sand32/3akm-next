@@ -28,6 +28,27 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
+	app.get(prefix, function(req, res){
+		Store.find({}, function(err, docs){
+			if(err){
+				res.status(500).end();
+			}else{
+				res.status(200).send(doc);
+			}
+		});
+	});
+
+	app.get(prefix + "/:store", 
+	function(req, res){
+		Store.findById(req.params.store, function(err, doc){
+			if(doc){
+				res.status(200).send(doc);
+			}else{
+				res.status(404).end();
+			}
+		});
+	});
+
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize(), 
@@ -40,18 +61,6 @@ module.exports = function(app, prefix){
 				res.status(201)
 				.location(prefix + "/" + store._id)
 				.end();
-			}
-		});
-	});
-
-	app.get(prefix + "/:store", 
-		blendedAuthenticate, 
-	function(req, res){
-		Store.findById(req.params.store, function(err, doc){
-			if(doc){
-				res.status(200).send(doc);
-			}else{
-				res.status(404).end();
 			}
 		});
 	});

@@ -23,67 +23,35 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var LanService = function($http, $q){
+	var StoreService = function($http, $q){
 		return {
+			retrieveAll: function(){
+				var deferred = $q.defer();
+				$http.get("/api/store")
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject("Failed to retrieve stores.");
+					}
+				);
+				return deferred.promise;
+			},
+
 			retrieve: function(id){
 				var deferred = $q.defer();
-				$http.get("/api/lan/" + id)
+				$http.get("/api/store/" + id)
 				.then(
 					function(response){
 						deferred.resolve(response.data);
 					},
 					function(response){
 						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
+							deferred.reject("No such store exists.");
 						}else{
-							deferred.reject("Failed to retrieve LAN.");
+							deferred.reject("Failed to retrieve store.");
 						}
-					}
-				);
-				return deferred.promise;
-			},
-
-			retrieveNext: function(){
-				var deferred = $q.defer();
-				$http.get("/api/lan/next")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject("Failed to retrieve LAN.");
-					}
-				);
-				return deferred.promise;
-			},
-
-			retrieveGames: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/lan/" + id + "/games")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to retrieve LAN.");
-						}
-					}
-				);
-				return deferred.promise;
-			},
-
-			retrieveGamesNext: function(){
-				var deferred = $q.defer();
-				$http.get("/api/lan/next/games")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject("Failed to retrieve LAN.");
 					}
 				);
 				return deferred.promise;
@@ -91,13 +59,13 @@ misrepresented as being the original software.
 
 			create: function(postData){
 				var deferred = $q.defer();
-				$http.post("/api/lan", postData)
+				$http.post("/api/store", postData)
 				.then(
 					function(){
 						deferred.resolve();
 					},
 					function(){
-						deferred.reject("Failed to create LAN.");
+						deferred.reject("Failed to create store.");
 					}
 				);
 				return deferred.promise;
@@ -105,16 +73,16 @@ misrepresented as being the original software.
 
 			edit: function(id, putData){
 				var deferred = $q.defer();
-				$http.put("/api/lan/" + id, putData)
+				$http.put("/api/store/" + id, putData)
 				.then(
 					function(){
 						deferred.resolve();
 					},
 					function(response){
 						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
+							deferred.reject("No such store exists.");
 						}else{
-							deferred.reject("Failed to edit LAN.");
+							deferred.reject("Failed to edit store.");
 						}
 					}
 				);
@@ -123,16 +91,16 @@ misrepresented as being the original software.
 
 			delete: function(id){
 				var deferred = $q.defer();
-				$http.put("/api/lan/" + id)
+				$http.put("/api/store/" + id)
 				.then(
 					function(){
 						deferred.resolve();
 					},
 					function(response){
 						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
+							deferred.reject("No such store exists.");
 						}else{
-							deferred.reject("Failed to delete LAN.");
+							deferred.reject("Failed to delete store.");
 						}
 					}
 				);
@@ -142,8 +110,8 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("3akm.lan", [])
-		.factory("LanService", LanService);
+		.module("3akm.store", [])
+		.factory("StoreService", StoreService);
 
-	LanService.$inject = ["$http", "$q"];
+	StoreService.$inject = ["$http", "$q"];
 })();

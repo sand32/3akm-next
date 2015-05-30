@@ -139,6 +139,7 @@ a.btn-link:hover {
 
 .section-entry-open .section-body {
 	display: block;
+	overflow: hidden;
 }
 
 .game-info-panel {

@@ -23,36 +23,87 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
+	q = require("q"),
 	Lan = require("../model/lan.js"),
+	Game = require("../model/game.js"),
 	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/next", 
-	function(req, res){
-		Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
-		.populate("games.game")
-		.exec(function(err, doc){
-			if(err || !doc){
-				res.status(500).end();
-			}else{
-				res.status(200).send(doc);
-			}
-		});
-	});
-
 	app.get(prefix + "/:lan", 
 	function(req, res){
-		Lan.findById(req.params.lan)
-		.populate("games.game")
-		.exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).send(doc);
+		if(req.params.lan === "next"){
+			Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
+			.populate("games.game")
+			.exec(function(err, doc){
+				if(err || !doc){
+					res.status(500).end();
+				}else{
+					res.status(200).send(doc);
+				}
+			});
+		}else{
+			Lan.findById(req.params.lan)
+			.populate("games.game")
+			.exec(function(err, doc){
+				if(err){
+					res.status(500).end();
+				}else if(!doc){
+					res.status(404).end();
+				}else{
+					res.status(200).send(doc);
+				}
+			});
+		}
+	});
+
+	app.get(prefix + "/:lan/games", 
+	function(req, res){
+		var deferred = q.defer(),
+			year;
+		if(req.params.lan === "next"){
+			Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
+			.exec(function(err, doc){
+				if(err || !doc){
+					deferred.reject(err);
+				}else{
+					year = doc.beginDate.getFullYear();
+					deferred.resolve(doc.games);
+				}
+			});
+		}else{
+			Lan.findById(req.params.lan)
+			.exec(function(err, doc){
+				if(err){
+					deferred.reject(err);
+				}else if(!doc){
+					res.status(404).end();
+				}else{
+					year = doc.beginDate.getFullYear();
+					deferred.resolve(doc.games);
+				}
+			});
+		}
+
+		deferred.promise.then(function(data){
+			var gameIds = [];
+			for(var i = 0; i < data.length; i += 1){
+				gameIds.push(data[i].game);
 			}
+			Game.find({_id: {$in: gameIds}})
+			.populate("stores.store")
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else{
+					res.send({
+						year: year,
+						games: docs
+					});
+				}
+			});
+		}, function(err){
+			res.status(500).end();
 		});
 	});
 

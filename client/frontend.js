@@ -23,6 +23,7 @@ misrepresented as being the original software.
 */
 
 require("./articles/articlecontroller.js");
+require("./game/gamelistcontroller.js");
 require("./rsvp/appearancescontroller.js");
 require("./user/registrationcontroller.js");
 require("./user/usermenudirective.js");
@@ -31,7 +32,7 @@ require("./frontend-common/stylingdirectives.js");
 require("./frontend-common/validationdirectives.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider){
 		$urlRouterProvider.otherwise("/404");
 		$locationProvider.html5Mode(true);
 
@@ -43,6 +44,10 @@ require("./frontend-common/validationdirectives.js");
 			.state("article", {
 				url: "/article/:articleId",
 				templateUrl: "/partial/article"
+			})
+			.state("games", {
+				url: "/games",
+				templateUrl: "/partial/games"
 			})
 			.state("prep", {
 				url: "/prep",
@@ -60,6 +65,8 @@ require("./frontend-common/validationdirectives.js");
 				url: "/404",
 				templateUrl: "/partial/404"
 			});
+
+		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 	};
 
 	angular
@@ -73,9 +80,10 @@ require("./frontend-common/validationdirectives.js");
 				"3akm.frontend.validation",
 				"3akm.article",
 				"3akm.appearances",
+				"3akm.gameList",
 				"3akm.user"
 			])
 		.config(Config);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider"];
 })();
