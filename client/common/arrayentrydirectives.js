@@ -47,7 +47,7 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("3akm.common.arrayentry", ["ui.bootstrap"])
+		.module("3akm.common.arrayentry", [])
 		.directive("simpleArrayEntry", SimpleArrayEntry);
 
 	SimpleArrayEntry.$inject = [];

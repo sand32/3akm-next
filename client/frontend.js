@@ -25,6 +25,7 @@ misrepresented as being the original software.
 require("./articles/articlecontroller.js");
 require("./game/gamelistcontroller.js");
 require("./rsvp/appearancescontroller.js");
+require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
@@ -57,6 +58,10 @@ require("./frontend-common/validationdirectives.js");
 				url: "/appearances",
 				templateUrl: "/partial/appearances"
 			})
+			.state("rsvp", {
+				url: "/rsvp",
+				templateUrl: "/partial/rsvpform"
+			})
 			.state("registration", {
 				url: "/register",
 				templateUrl: "/partial/registrationform"
@@ -79,8 +84,9 @@ require("./frontend-common/validationdirectives.js");
 				"3akm.frontend.styling",
 				"3akm.frontend.validation",
 				"3akm.article",
-				"3akm.appearances",
 				"3akm.gameList",
+				"3akm.appearances",
+				"3akm.rsvpSubmission",
 				"3akm.user"
 			])
 		.config(Config);

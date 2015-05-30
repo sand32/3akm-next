@@ -26,7 +26,7 @@ hr
 div(ng-controller = "AppearancesController as appCtrl")
 	div(ng-if = "appCtrl.activeLanDefined")
 		em(ng-if = "appCtrl.stillAcceptingRsvps") To get your name on this list or update your status, please fill out the 
-			a(href = "/rsvp") RSVP form
+			a(ui-sref = "rsvp") RSVP form
 			| .
 		p(ng-if = "!appCtrl.stillAcceptingRsvps") RSVPs are no longer being accepted. Have fun at LAN!
 		h3 {{appCtrl.lanYear}} Attendee Total: {{appCtrl.yesCount}} 
