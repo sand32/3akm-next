@@ -40,7 +40,11 @@ module.exports = {
 		if(req.isAuthenticated()){
 			return next();
 		}
-		passport.authenticate("basic")(req, res, next);
+		if(req.params.user !== "session"){
+			passport.authenticate("basic")(req, res, next);
+		}else{
+			res.status(403).end();
+		}
 	},
 
 	verifyRecaptcha: function(req, res, next){
