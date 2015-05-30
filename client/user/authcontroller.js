@@ -25,22 +25,23 @@ misrepresented as being the original software.
 require("./userservice.js");
 
 (function(){
-	var AuthController = function(UserService, $scope, $rootScope){
+	var AuthController = function(UserService, $scope, $rootScope, $state){
 		var ctrl = this;
 		ctrl.isLoggedIn = false;
 		ctrl.currentUser = null;
 
 		UserService.isLoggedIn()
-		.then(function(data){
-			$scope.$emit("AuthChanged", data);
+		.then(function(user){
+			$scope.$emit("AuthChanged", user);
 		});
 
 		ctrl.login = function(){
 			UserService.login(ctrl.email, ctrl.password)
-			.then(function(data){
+			.then(function(user){
 				ctrl.email = "";
 				ctrl.password = "";
-				$scope.$emit("AuthChanged", data);
+				$scope.$emit("AuthChanged", user);
+				$state.go($state.current, {}, {reload: true});
 			}, function(){
 				// Set error message
 			});
@@ -50,6 +51,7 @@ require("./userservice.js");
 			UserService.logout()
 			.then(function(){
 				$scope.$emit("AuthChanged", null);
+				$state.go($state.current, {}, {reload: true});
 			});
 		};
 
@@ -63,5 +65,5 @@ require("./userservice.js");
 		.module("3akm.user")
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["UserService", "$scope", "$rootScope"];
+	AuthController.$inject = ["UserService", "$scope", "$rootScope", "$state"];
 })();
