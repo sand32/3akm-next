@@ -28,19 +28,18 @@ require("./userservice.js");
 	var AuthController = function(UserService, $scope, $rootScope, $state){
 		var ctrl = this;
 		ctrl.isLoggedIn = false;
-		ctrl.currentUser = null;
 
 		UserService.isLoggedIn()
-		.then(function(user){
-			$scope.$emit("AuthChanged", user);
+		.then(function(loggedIn){
+			$scope.$emit("AuthChanged", loggedIn);
 		});
 
 		ctrl.login = function(){
 			UserService.login(ctrl.email, ctrl.password)
-			.then(function(user){
+			.then(function(){
 				ctrl.email = "";
 				ctrl.password = "";
-				$scope.$emit("AuthChanged", user);
+				$scope.$emit("AuthChanged", true);
 				$state.go($state.current, {}, {reload: true});
 			}, function(){
 				// Set error message
@@ -50,14 +49,13 @@ require("./userservice.js");
 		ctrl.logout = function(){
 			UserService.logout()
 			.then(function(){
-				$scope.$emit("AuthChanged", null);
+				$scope.$emit("AuthChanged", false);
 				$state.go($state.current, {}, {reload: true});
 			});
 		};
 
-		$rootScope.$on("AuthChanged", function(e, user){
-			ctrl.isLoggedIn = user ? true : false;
-			ctrl.currentUser = user;
+		$rootScope.$on("AuthChanged", function(e, loggedIn){
+			ctrl.isLoggedIn = loggedIn;
 		});
 	};
 

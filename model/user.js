@@ -44,11 +44,11 @@ var mongoose = require("mongoose"),
 		},
 		modified: {
 			type: Date,
-			default: Date.now
+			default: null
 		},
 		accessed: {
 			type: Date,
-			default: Date.now
+			default: null
 		},
 		vip: {
 			type: Boolean,

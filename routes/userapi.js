@@ -70,21 +70,7 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			req.user.accessed = Date.now();
 			req.user.save();
-			res.send({
-				email: req.user.email,
-				verified: req.user.verified,
-				created: req.user.created,
-				modified: req.user.modified,
-				accessed: req.user.accessed,
-				vip: req.user.vip,
-				lanInviteDesired: req.user.lanInviteDesired,
-				firstName: req.user.firstName,
-				lastName: req.user.lastName,
-				primaryHandle: req.user.primaryHandle,
-				tertiaryHandles: req.user.tertiaryHandles,
-				roles: req.user.roles,
-				services: req.user.services
-			});
+			res.status(200).end();
 		}else{
 			res.status(403).end();
 		}
@@ -96,25 +82,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/isloggedin", function(req, res){
-		if(req.isAuthenticated()){
-			res.send({
-				email: req.user.email,
-				verified: req.user.verified,
-				created: req.user.created,
-				modified: req.user.modified,
-				accessed: req.user.accessed,
-				vip: req.user.vip,
-				lanInviteDesired: req.user.lanInviteDesired,
-				firstName: req.user.firstName,
-				lastName: req.user.lastName,
-				primaryHandle: req.user.primaryHandle,
-				tertiaryHandles: req.user.tertiaryHandles,
-				roles: req.user.roles,
-				services: req.user.services
-			});
-		}else{
-			res.status(200).end();
-		}
+		res.send({isLoggedIn: req.isAuthenticated()});
 	});
 
 	app.post(prefix + "/:user/verify", 
@@ -171,8 +139,12 @@ module.exports = function(app, prefix){
 		authorizeSessionUser(), 
 	function(req, res){
 		User.findById(req.params.user, function(err, doc){
-			if(doc){
-				res.status(200).send({
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				var responseData = {
 					email: doc.email,
 					verified: doc.verified,
 					created: doc.created,
@@ -186,9 +158,13 @@ module.exports = function(app, prefix){
 					tertiaryHandles: doc.tertiaryHandles,
 					roles: doc.roles,
 					services: doc.services
-				});
-			}else{
-				res.status(404).end();
+				};
+
+				if(req.user.hasRole("admin")){
+					responseData.blacklisted = doc.blacklisted;
+				}
+
+				res.send(responseData);
 			}
 		});
 	});
