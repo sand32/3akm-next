@@ -1,0 +1,67 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2015 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+h1 RSVP Submission Form
+hr
+.rsvp-submission(ng-controller = "RsvpController as rsvp", ng-show = "rsvp.loaded")
+	.empty-table(ng-if = "rsvp.year === 0") RSVPs are no longer being accepted. Hope to see you next LAN!
+	.empty-table(ng-if = "rsvp.year !== 0 && !rsvp.isLoggedIn")
+		p Please log in or 
+			a(ui-sref = "registration") register
+			|  in order to RSVP.
+		p Since this is the first year we're using actual user accounts, 
+			| we'll be associating your RSVP history to your new account by hand. 
+			| Your history will be accessible via your user dashboard (currently under development) 
+			| at a later date.
+	form(name = "rsvpForm", role = "form", ng-submit = "rsvp.submit()", ng-if = "rsvp.year !== 0 && rsvp.isLoggedIn")
+		.row
+			.form-group.col-xs-3
+				label Will you be attending?
+				enum-select(current = "rsvp.current.status", possibles = "rsvp.statusPossibles")
+		.row
+			.form-group.col-xs-3
+				label Will you be playing?
+				enum-select(current = "rsvp.current.playing", possibles = "rsvp.boolPossibles")
+		.row
+			.form-group.col-xs-6
+				label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
+				input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0", ng-model = "rsvp.current.guests")
+		.row
+			.form-group.col-xs-5
+				label Will you be assisting in the cleanup afterward?
+				enum-select(current = "rsvp.current.cleaning", possibles = "rsvp.boolPossibles")
+		.row
+			.form-group.col-xs-5
+				label Will you be bringing food to share with a large quantity of attendees?
+				enum-select(current = "rsvp.current.bringingFood", possibles = "rsvp.boolPossibles")
+		.row(ng-if = "rsvp.tournaments.length > 0")
+			p.col-xs-12
+				label What tournament(s) would you like to participate in?
+			.well.col-xs-6
+				.row.tournament(ng-repeat = "tournament in rsvp.tournaments")
+					.form-group.col-xs-12
+						label.form-control-static.col-xs-6 {{tournament.name}}
+						enum-select(current = "tournament.signedUp", possibles = "rsvp.boolPossibles")
+		hr
+		input.btn.btn-default(type = "submit", value = "Submit")
+		a.btn.btn-link(ui-sref = "appearances") Back
