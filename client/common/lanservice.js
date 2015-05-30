@@ -33,11 +33,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to retrieve LAN.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -51,7 +47,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Failed to retrieve LAN.");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -65,11 +61,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to retrieve LAN.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -83,7 +75,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Failed to retrieve LAN.");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -96,8 +88,8 @@ misrepresented as being the original software.
 					function(){
 						deferred.resolve();
 					},
-					function(){
-						deferred.reject("Failed to create LAN.");
+					function(response){
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -111,11 +103,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to edit LAN.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -129,11 +117,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to delete LAN.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;

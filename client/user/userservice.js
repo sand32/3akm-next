@@ -33,7 +33,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Failed to check if user is logged in");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -47,7 +47,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Unable to register user");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -61,7 +61,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Invalid username or password");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -75,7 +75,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						deferred.reject();
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;

@@ -33,11 +33,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such LAN exists.");
-						}else{
-							deferred.reject("Failed to retrieve RSVPs.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -51,11 +47,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such RSVP exists.");
-						}else{
-							deferred.reject("Failed to retrieve RSVP.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -69,11 +61,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such user exists.");
-						}else{
-							deferred.reject("Failed to submit RSVP.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -87,11 +75,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such RSVP exists.");
-						}else{
-							deferred.reject("Failed to mark as attended.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;

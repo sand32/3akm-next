@@ -33,11 +33,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such game exists.");
-						}else{
-							deferred.reject("Failed to retrieve game.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -50,8 +46,8 @@ misrepresented as being the original software.
 					function(){
 						deferred.resolve();
 					},
-					function(){
-						deferred.reject("Failed to create game.");
+					function(response){
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -65,11 +61,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such game exists.");
-						}else{
-							deferred.reject("Failed to edit game.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -83,11 +75,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such game exists.");
-						}else{
-							deferred.reject("Failed to delete game.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;

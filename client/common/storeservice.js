@@ -33,7 +33,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						deferred.reject("Failed to retrieve stores.");
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -47,11 +47,7 @@ misrepresented as being the original software.
 						deferred.resolve(response.data);
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such store exists.");
-						}else{
-							deferred.reject("Failed to retrieve store.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -64,8 +60,8 @@ misrepresented as being the original software.
 					function(){
 						deferred.resolve();
 					},
-					function(){
-						deferred.reject("Failed to create store.");
+					function(response){
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -79,11 +75,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such store exists.");
-						}else{
-							deferred.reject("Failed to edit store.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
@@ -97,11 +89,7 @@ misrepresented as being the original software.
 						deferred.resolve();
 					},
 					function(response){
-						if(response.status === 404){
-							deferred.reject("No such store exists.");
-						}else{
-							deferred.reject("Failed to delete store.");
-						}
+						deferred.reject(response.status);
 					}
 				);
 				return deferred.promise;
