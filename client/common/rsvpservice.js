@@ -41,7 +41,7 @@ misrepresented as being the original software.
 
 			retrieve: function(userId, year){
 				var deferred = $q.defer();
-				$http.get("/api/" + userId + "/rsvp/" + year)
+				$http.get("/api/user/" + userId + "/rsvp/" + year)
 				.then(
 					function(response){
 						deferred.resolve(response.data);
@@ -55,7 +55,7 @@ misrepresented as being the original software.
 
 			createOrEdit: function(userId, year, putData){
 				var deferred = $q.defer();
-				$http.put("/api/" + userId + "/rsvp/" + year, putData)
+				$http.put("/api/user/" + userId + "/rsvp/" + year, putData)
 				.then(
 					function(){
 						deferred.resolve();
@@ -69,7 +69,7 @@ misrepresented as being the original software.
 
 			markAsAttended: function(userId, year){
 				var deferred = $q.defer();
-				$http.put("/api/" + userId + "/rsvp/" + year + "/attended")
+				$http.put("/api/user/" + userId + "/rsvp/" + year + "/attended")
 				.then(
 					function(){
 						deferred.resolve();
