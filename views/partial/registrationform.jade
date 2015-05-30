@@ -23,7 +23,7 @@
 
 h1 Registration Form
 hr
-form(name = "registrationForm", novalidate, ng-controller = "RegistrationController as regCtrl")
+form(name = "registrationForm", novalidate, ng-controller = "RegistrationController as regCtrl", ng-submit = "regCtrl.register()")
 	.row
 		.form-group.col-xs-6
 			label Email 
@@ -62,5 +62,5 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 			simple-array-entry(array-model = "regCtrl.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
 	.g-recaptcha(data-sitekey = recaptchaSiteKey)
 	hr
-	a.submitButton(class = "btn btn-default", ng-click = "regCtrl.register()", ng-disabled = "registrationForm.$invalid") Register
+	input.btn.btn-default(type = "submit", value = "Register", ng-disabled = "registrationForm.$invalid")
 script(src = "https://www.google.com/recaptcha/api.js", type = "text/javascript-lazy", async, defer)
