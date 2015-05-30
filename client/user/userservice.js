@@ -25,6 +25,20 @@ misrepresented as being the original software.
 (function(){
 	var UserService = function($http, $q){
 		return {
+			isLoggedIn: function(){
+				var deferred = $q.defer();
+				$http.get("/api/user/isloggedin")
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject("Failed to check if user is logged in");
+					}
+				);
+				return deferred.promise;
+			},
+
 			register: function(postData){
 				var deferred = $q.defer();
 				$http.post("/api/user/register", postData)
@@ -44,7 +58,7 @@ misrepresented as being the original software.
 				$http.post("/api/user/login", {email: email, password: pass})
 				.then(
 					function(response){
-						deferred.resolve();
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject("Invalid username or password");

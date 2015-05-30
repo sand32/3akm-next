@@ -70,7 +70,21 @@ module.exports = function(app, prefix){
 		if(req.isAuthenticated()){
 			req.user.accessed = Date.now();
 			req.user.save();
-			res.status(200).end();
+			res.send({
+				email: req.user.email,
+				verified: req.user.verified,
+				created: req.user.created,
+				modified: req.user.modified,
+				accessed: req.user.accessed,
+				vip: req.user.vip,
+				lanInviteDesired: req.user.lanInviteDesired,
+				firstName: req.user.firstName,
+				lastName: req.user.lastName,
+				primaryHandle: req.user.primaryHandle,
+				tertiaryHandles: req.user.tertiaryHandles,
+				roles: req.user.roles,
+				services: req.user.services
+			});
 		}else{
 			res.status(403).end();
 		}
@@ -79,6 +93,28 @@ module.exports = function(app, prefix){
 	app.post(prefix + "/logout", function(req, res){
 		req.logout();
 		res.status(200).end();
+	});
+
+	app.get(prefix + "/isloggedin", function(req, res){
+		if(req.isAuthenticated()){
+			res.send({
+				email: req.user.email,
+				verified: req.user.verified,
+				created: req.user.created,
+				modified: req.user.modified,
+				accessed: req.user.accessed,
+				vip: req.user.vip,
+				lanInviteDesired: req.user.lanInviteDesired,
+				firstName: req.user.firstName,
+				lastName: req.user.lastName,
+				primaryHandle: req.user.primaryHandle,
+				tertiaryHandles: req.user.tertiaryHandles,
+				roles: req.user.roles,
+				services: req.user.services
+			});
+		}else{
+			res.status(200).end();
+		}
 	});
 
 	app.post(prefix + "/:user/verify", 

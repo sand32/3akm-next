@@ -25,6 +25,7 @@ misrepresented as being the original software.
 require("./articles/articlecontroller.js");
 require("./rsvp/appearancescontroller.js");
 require("./user/registrationcontroller.js");
+require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
 require("./frontend-common/stylingdirectives.js");
 require("./frontend-common/validationdirectives.js");
