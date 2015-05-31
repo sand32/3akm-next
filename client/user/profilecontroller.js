@@ -22,8 +22,8 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./userservice.js");
 require("./changepasswordcontroller.js");
+require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){

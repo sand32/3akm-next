@@ -22,7 +22,7 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./articleservice.js");
+require("../common/articleservice.js");
 
 (function(){
 	var ArticleController = function($stateParams, $sce, ArticleService){

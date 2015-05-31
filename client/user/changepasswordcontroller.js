@@ -22,7 +22,7 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("./userservice.js");
+require("../common/userservice.js");
 require("./profilecontroller.js");
 
 (function(){
