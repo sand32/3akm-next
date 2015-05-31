@@ -23,10 +23,11 @@ misrepresented as being the original software.
 */
 
 require("./userservice.js");
+require("./changepasswordcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ProfileController = function($scope, $state, UserService){
+	var ProfileController = function($scope, $state, $modal, UserService){
 		var profile = this;
 		profile.loaded = false;
 		profile.boolPossibles = [
@@ -94,15 +95,38 @@ require("../common/enumselectdirective.js");
 				}
 			);
 		};
+
+		profile.openChangePasswordModal = function(){
+			var modalInstance = $modal.open({
+				templateUrl: "/partial/changepasswordmodal",
+				controller: "ChangePasswordController as changePass"
+			});
+
+			modalInstance.result.then(
+				function(newPassword){
+					UserService.changePassword("session", newPassword)
+					then(
+						function(){
+							// TODO: Set success message
+						},
+						function(){
+							// TODO: Set error message
+						}
+					);
+				}
+			);
+		};
 	}
 
 	angular
 		.module("3akm.profile", 
 			[
+				"ui.bootstrap",
 				"3akm.user",
+				"3akm.changePassword",
 				"3akm.common.enumselect"
 			])
 		.controller("ProfileController", ProfileController);
 
-	ProfileController.$inject = ["$scope", "$state", "UserService"];
+	ProfileController.$inject = ["$scope", "$state", "$modal", "UserService"];
 })();

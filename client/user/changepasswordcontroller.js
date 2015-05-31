@@ -23,45 +23,25 @@ misrepresented as being the original software.
 */
 
 require("./userservice.js");
+require("./profilecontroller.js");
 
 (function(){
-	var AuthController = function(UserService, $scope, $rootScope, $state){
+	var ChangePasswordController = function($modalInstance, UserService){
 		var ctrl = this;
-		ctrl.isLoggedIn = false;
+		ctrl.newPass = "";
 
-		UserService.isLoggedIn()
-		.then(function(loggedIn){
-			$scope.$emit("AuthChanged", loggedIn.isLoggedIn);
-		});
-
-		ctrl.login = function(){
-			UserService.login(ctrl.email, ctrl.password)
-			.then(function(){
-				ctrl.email = "";
-				ctrl.password = "";
-				$scope.$emit("AuthChanged", true);
-				$state.go($state.current, {}, {reload: true});
-			}, function(){
-				// Set error message
-			});
+		ctrl.ok = function(){
+			$modalInstance.close(ctrl.newPass);
 		};
 
-		ctrl.logout = function(){
-			UserService.logout()
-			.then(function(){
-				$scope.$emit("AuthChanged", false);
-				$state.go($state.current, {}, {reload: true});
-			});
+		ctrl.cancel = function(){
+			$modalInstance.dismiss("cancel");
 		};
-
-		$rootScope.$on("AuthChanged", function(e, loggedIn){
-			ctrl.isLoggedIn = loggedIn;
-		});
 	};
 
 	angular
-		.module("3akm.user")
-		.controller("AuthController", AuthController);
+		.module("3akm.changePassword", [])
+		.controller("ChangePasswordController", ChangePasswordController);
 
-	AuthController.$inject = ["UserService", "$scope", "$rootScope", "$state"];
+	ChangePasswordController.$inject = ["$modalInstance", "UserService"];
 })();

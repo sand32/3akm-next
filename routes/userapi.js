@@ -213,7 +213,7 @@ module.exports = function(app, prefix){
 		}
 
 		// Update the user 
-		User.findByIdAndUpdate(queryUser, update, function(err, doc){
+		User.findByIdAndUpdate(req.params.user, update, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
