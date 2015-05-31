@@ -27,7 +27,7 @@ require("../common/rsvpservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, LanService, RsvpService){
+	var RsvpController = function($scope, $state, ngToast, LanService, RsvpService){
 		var ctrl = this;
 		ctrl.year = 0;
 		ctrl.tournaments = [];
@@ -104,9 +104,14 @@ require("../common/enumselectdirective.js");
 				}
 			}
 			RsvpService.createOrEdit("session", ctrl.year, ctrl.current)
-			.then(function(){
-				$state.go("appearances");
-			});
+			.then(
+				function(){
+					ngToast.create("RSVP successfully submitted.");
+					$state.go("appearances");
+				}, function(){
+					ngToast.danger("Failed to submit RSVP.");
+				}
+			);
 		};
 	};
 
@@ -118,5 +123,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "ngToast", "LanService", "RsvpService"];
 })();
