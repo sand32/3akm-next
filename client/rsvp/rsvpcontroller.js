@@ -42,6 +42,13 @@ require("../common/enumselectdirective.js");
 			{label: "Yes", value: true}, 
 			{label: "No", value: false}
 		];
+		ctrl.current = {
+			status: "Yes",
+			playing: true,
+			guests: 0,
+			cleaning: false,
+			bringingFood: false
+		};
 
 		LanService.retrieveNext()
 		.then(function(lan){
@@ -80,7 +87,9 @@ require("../common/enumselectdirective.js");
 		}, function(status){
 			if(status === 403){
 				ctrl.isLoggedIn = false;
-				$scope.$emit("AuthChanged", null);
+				$scope.$emit("AuthChanged", false);
+			}else{
+				ctrl.isLoggedIn = true;
 			}
 			ctrl.loaded = true;
 		});
