@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("./userservice.js");
 
 (function(){
-	var RegistrationController = function($state, UserService){
+	var RegistrationController = function($scope, $state, UserService){
 		var reg = this;
 		reg.tertiaryHandles = [];
 
@@ -40,6 +40,7 @@ require("./userservice.js");
 			})
 			.then(
 				function(){
+					$scope.$emit("AuthChanged", true);
 					$state.go("default");
 				},
 				function(){
@@ -53,5 +54,5 @@ require("./userservice.js");
 		.module("3akm.user")
 		.controller("RegistrationController", RegistrationController);
 
-	RegistrationController.$inject = ["$state", "UserService"];
+	RegistrationController.$inject = ["$scope", "$state", "UserService"];
 })();
