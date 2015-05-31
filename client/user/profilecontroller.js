@@ -27,7 +27,7 @@ require("./changepasswordcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ProfileController = function($scope, $state, $modal, UserService){
+	var ProfileController = function($scope, $state, $modal, ngToast, UserService){
 		var profile = this;
 		profile.loaded = false;
 		profile.boolPossibles = [
@@ -57,18 +57,19 @@ require("../common/enumselectdirective.js");
 			if(status === 403){
 				$scope.$emit("AuthChanged", false);
 				$state.go("default");
+			}else{
+				ngToast.danger("Failed to retrieve user.");
 			}
-			// TODO: Set error message
 		});
 
 		profile.resendVerificationEmail = function(){
 			UserService.resendVerificationEmail()
 			.then(
 				function(){
-					// TODO: Set success message
+					ngToast.create("Verification email sent.");
 				},
 				function(){
-					// TODO: Set error message
+					ngToast.danger("Failed to send verification email.");
 				}
 			);
 		};
@@ -85,13 +86,14 @@ require("../common/enumselectdirective.js");
 			})
 			.then(
 				function(){
+					ngToast.create("User successfully updated.");
 				},
 				function(status){
 					if(status === 403){
 						$scope.$emit("AuthChanged", false);
 						$state.go("default");
 					}
-					// TODO: Set error message
+					ngToast.danger("Failed to update user.");
 				}
 			);
 		};
@@ -107,10 +109,10 @@ require("../common/enumselectdirective.js");
 					UserService.changePassword("session", newPassword)
 					then(
 						function(){
-							// TODO: Set success message
+							ngToast.create("Password successfully changed.");
 						},
 						function(){
-							// TODO: Set error message
+							ngToast.danger("Failed to change password.");
 						}
 					);
 				}
@@ -128,5 +130,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ProfileController", ProfileController);
 
-	ProfileController.$inject = ["$scope", "$state", "$modal", "UserService"];
+	ProfileController.$inject = ["$scope", "$state", "$modal", "ngToast", "UserService"];
 })();

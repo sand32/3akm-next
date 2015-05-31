@@ -34,7 +34,7 @@ require("./frontend-common/stylingdirectives.js");
 require("./frontend-common/validationdirectives.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
 		$urlRouterProvider.otherwise("/404");
 		$locationProvider.html5Mode(true);
 
@@ -77,14 +77,22 @@ require("./frontend-common/validationdirectives.js");
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
+
+		ngToastProvider.configure({
+			dismissButton: true,
+			animation: "slide"
+		});
 	};
 
 	angular
 		.module("3akm.frontend", 
 			[
 				"ui.router",
+				"ui.bootstrap",
 				"ngLoadScript",
 				"ngMessages",
+				"ngAnimate",
+				"ngToast",
 				"3akm.common.arrayentry",
 				"3akm.frontend.styling",
 				"3akm.frontend.validation",
@@ -97,5 +105,5 @@ require("./frontend-common/validationdirectives.js");
 			])
 		.config(Config);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "ngToastProvider"];
 })();

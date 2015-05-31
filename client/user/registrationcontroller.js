@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("./userservice.js");
 
 (function(){
-	var RegistrationController = function($scope, $state, UserService){
+	var RegistrationController = function($scope, $state, ngToast, UserService){
 		var reg = this;
 		reg.tertiaryHandles = [];
 
@@ -40,11 +40,12 @@ require("./userservice.js");
 			})
 			.then(
 				function(){
+					ngToast.create("User successfully registered.");
 					$scope.$emit("AuthChanged", true);
 					$state.go("default");
 				},
 				function(){
-					// TODO: Set error message
+					ngToast.danger("Failed to register user.");
 				}
 			);
 		};
@@ -54,5 +55,5 @@ require("./userservice.js");
 		.module("3akm.user")
 		.controller("RegistrationController", RegistrationController);
 
-	RegistrationController.$inject = ["$scope", "$state", "UserService"];
+	RegistrationController.$inject = ["$scope", "$state", "ngToast", "UserService"];
 })();

@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("./userservice.js");
 
 (function(){
-	var AuthController = function(UserService, $scope, $rootScope, $state){
+	var AuthController = function($scope, $rootScope, $state, ngToast, UserService){
 		var ctrl = this;
 		ctrl.isLoggedIn = false;
 
@@ -42,7 +42,7 @@ require("./userservice.js");
 				$scope.$emit("AuthChanged", true);
 				$state.go($state.current, {}, {reload: true});
 			}, function(){
-				// Set error message
+				ngToast.danger("Invalid username or password.");
 			});
 		};
 
@@ -63,5 +63,5 @@ require("./userservice.js");
 		.module("3akm.user")
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["UserService", "$scope", "$rootScope", "$state"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "ngToast", "UserService"];
 })();
