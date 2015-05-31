@@ -50,20 +50,20 @@ module.exports = function(app){
 
 	app.use(express.static('public'));
 
-	app.use(function(req, res){
+	app.get("*", function(req, res){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()
 			.then(
 				function(){
-					res.render("index");
+					res.render("frontend");
 				},
 				function(){
 					res.status(500).end();
 				}
 			);
 		}else{
-			res.render("index");
+			res.render("frontend");
 		}
 	});
 }
