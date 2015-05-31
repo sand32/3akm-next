@@ -79,6 +79,76 @@ misrepresented as being the original software.
 					}
 				);
 				return deferred.promise;
+			},
+
+			resendVerificationEmail: function(id){
+				var deferred = $q.defer();
+				$http.post("/api/user/" + id + "verify")
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			create: function(id, postData){
+				var deferred = $q.defer();
+				$http.post("/api/user", postData)
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			retrieve: function(id){
+				var deferred = $q.defer();
+				$http.get("/api/user/" + id)
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			edit: function(id, putData){
+				var deferred = $q.defer();
+				$http.put("/api/user/" + id, putData)
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			changePassword: function(id, newPassword){
+				var deferred = $q.defer();
+				$http.put("/api/user/" + id + "/password", {password: newPassword})
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
 			}
 		};
 	};

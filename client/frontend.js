@@ -27,6 +27,7 @@ require("./game/gamelistcontroller.js");
 require("./rsvp/appearancescontroller.js");
 require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
+require("./user/profilecontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
 require("./frontend-common/stylingdirectives.js");
@@ -66,6 +67,10 @@ require("./frontend-common/validationdirectives.js");
 				url: "/register",
 				templateUrl: "/partial/registrationform"
 			})
+			.state("profile", {
+				url: "/profile",
+				templateUrl: "/partial/profile"
+			})
 			.state("404", {
 				url: "/404",
 				templateUrl: "/partial/404"
@@ -87,6 +92,7 @@ require("./frontend-common/validationdirectives.js");
 				"3akm.gameList",
 				"3akm.appearances",
 				"3akm.rsvpSubmission",
+				"3akm.profile",
 				"3akm.user"
 			])
 		.config(Config);
