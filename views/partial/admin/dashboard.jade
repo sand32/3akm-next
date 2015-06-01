@@ -33,7 +33,7 @@
 			md-card.panel
 				md-card-content(layout = "column", flex, md-theme = "default-light")
 					.panel-header(layout = "row")
-						h2.md-primary(ng-bind = "panel.name")
+						h2(ng-bind = "panel.name")
 					.panel-content(layout = "row", layout-align="center center", flex, ng-if = "!panel.loaded")
 						md-progress-circular(md-mode = "indeterminate")
 					.panel-content(layout = "row", flex, ng-show = "panel.loaded")
