@@ -36,4 +36,5 @@ div(ng-controller = "AppearancesController as appCtrl")
 				span(ng-if = "rsvp.user.primaryHandle !== ''")  [{{rsvp.user.primaryHandle}}]
 				span(ng-if = "rsvp.guests > 0")  +{{rsvp.guests}}
 				span(ng-if = "rsvp.status === 'Maybe'")  (Maybe)
+				br
 	.empty-table(ng-if = "!appCtrl.activeLanDefined") No previous LAN defined.
