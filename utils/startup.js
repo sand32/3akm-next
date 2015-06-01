@@ -81,22 +81,40 @@ module.exports = {
 	bundleClientJS: function(){
 		// Bundle client javascript
 		var b = browserify(),
-			deferred = q.defer();
-
-		b.add("client/frontend.js");
+			frontendDeferred = q.defer(),
+			adminDeferred = q.defer(),
+			promise = q.all([frontendDeferred.promise, adminDeferred.promise]);
 
 		if(!config.debugMode){
 			b.plugin("minifyify", {map: false});
 		}
 
+		// Bundle frontend
+		b.add("client/frontend.js");
 		var outputFileStream = fs.createWriteStream("public/js/frontend.js");
 		outputFileStream.on("finish", function(){
-			deferred.resolve();
+			frontendDeferred.resolve();
 		}).on("error", function(){
-			deferred.reject("Failed to write JS bundle");
+			frontendDeferred.reject("Failed to write JS bundle");
 		});
 		b.bundle().pipe(outputFileStream);
 
-		return deferred.promise;
+		b = browserify();
+
+		if(!config.debugMode){
+			b.plugin("minifyify", {map: false});
+		}
+
+		// Bundle admin portal
+		b.add("client/admin.js");
+		outputFileStream = fs.createWriteStream("public/js/admin.js");
+		outputFileStream.on("finish", function(){
+			adminDeferred.resolve();
+		}).on("error", function(){
+			adminDeferred.reject("Failed to write JS bundle");
+		});
+		b.bundle().pipe(outputFileStream);
+
+		return promise;
 	}
 };

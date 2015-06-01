@@ -57,18 +57,6 @@ module.exports = function(app, prefix){
 		}
 	});
 
-	app.get(prefix + "/profile", function(req, res){
-		if(!req.isAuthenticated()){
-			return res.redirect("/");
-		}
-		res.render("usereditor", {
-			isAuthenticated: req.isAuthenticated(),
-			user: req.user,
-			editUser: req.user,
-			getFormattedTime: utils.getFormattedTime
-		});
-	});
-
 	app.get(prefix + "/authoring/article", function(req, res){
 		if(!req.isAuthenticated()
 		|| !isAuthorized(req.user, {hasRoles:["author"]})){

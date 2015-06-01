@@ -50,6 +50,23 @@ module.exports = function(app){
 
 	app.use(express.static('public'));
 
+	app.get("/admin*", function(req, res){
+		if(config.debugMode){
+			var startup = require("../utils/startup.js");
+			startup.bundleClientJS()
+			.then(
+				function(){
+					res.render("admin");
+				},
+				function(){
+					res.status(500).end();
+				}
+			);
+		}else{
+			res.render("admin");
+		}
+	});
+
 	app.get("*", function(req, res){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
