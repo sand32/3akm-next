@@ -32,8 +32,10 @@ module.exports = function(app, prefix){
 		Store.find({}, function(err, docs){
 			if(err){
 				res.status(500).end();
+			}else if(!docs){
+				res.status(404).end();
 			}else{
-				res.status(200).send(doc);
+				res.status(200).send(docs);
 			}
 		});
 	});
