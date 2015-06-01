@@ -109,7 +109,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix, 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var user = new User();
 		user.email = req.body.email;

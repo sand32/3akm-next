@@ -31,7 +31,7 @@ var mongoose = require("mongoose"),
 module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var uniqueStores = [];
 		for(var i = 0; i < req.body.stores.length; i += 1){
@@ -71,7 +71,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:game", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
@@ -104,7 +104,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/:game", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();

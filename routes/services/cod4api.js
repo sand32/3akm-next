@@ -48,14 +48,14 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/map", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		res.status(501).end();
 	});
 
 	app.post(prefix + "/map/rotate", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.rotateMap(function(err, data){
 			if(!err){
@@ -69,7 +69,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/status", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.status(function(err, data){
 			if(!err){
@@ -113,7 +113,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/gametype", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.setGametype(req.body.gametype, function(err, data){
 			if(!err){
@@ -127,7 +127,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/say", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.say(req.body.message, function(err, data){
 			if(!err){

@@ -30,7 +30,7 @@ var mongoose = require("mongoose"),
 module.exports = function(app, prefix){
 	app.post(prefix + "/image", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	multer({
 		dest:"./public/uploads/images/",
 		fileSize: 4000000, // 4MB

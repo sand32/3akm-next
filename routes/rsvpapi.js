@@ -25,7 +25,6 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
-	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 

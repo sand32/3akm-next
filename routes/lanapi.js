@@ -109,7 +109,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix, 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var lan = new Lan(req.body);
 		lan.save(function(err){
@@ -125,7 +125,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:lan", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();
@@ -145,7 +145,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/:lan", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();

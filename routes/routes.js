@@ -24,6 +24,8 @@ misrepresented as being the original software.
 
 var express = require("express"),
 	path = require("path"),
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authorize = require("../authorization.js").authorize,
 	loadConfig = require("../utils/common.js").loadConfig,
 	config = loadConfig(__dirname + "/../config/config.json");
 
@@ -50,7 +52,10 @@ module.exports = function(app){
 
 	app.use(express.static('public'));
 
-	app.get("/admin*", function(req, res){
+	app.get("/admin*", 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["admin"]}), 
+	function(req, res){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()

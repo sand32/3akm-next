@@ -54,8 +54,8 @@ module.exports = {
 			return true;
 		}
 
-		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : false) ||
-				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : false);
+		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : true) &&
+				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : true);
 	},
 
 	// Middleware for denying connections without authorization

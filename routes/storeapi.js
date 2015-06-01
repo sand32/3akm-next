@@ -53,7 +53,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix, 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var store = new Store(req.body);
 		store.save(function(err){
@@ -69,7 +69,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/:store", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
 			if(err){
@@ -84,7 +84,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/:store", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		Store.findByIdAndRemove(req.params.store, function(err, doc){
 			if(err){

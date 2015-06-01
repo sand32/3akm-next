@@ -29,7 +29,7 @@ var ts3 = require("../../utils/ts3-serverquery.js"),
 module.exports = function(app, prefix){
 	app.get(prefix + "/version", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.version(function(err, data){
 			if(!err){
@@ -43,7 +43,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/host", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.hostInfo(function(err, data){
 			if(!err){
@@ -57,7 +57,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/instance", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.instanceInfo(function(err, data){
 			if(!err){
@@ -71,7 +71,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/instance", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.editInstance(req.body, function(err, data){
 			if(!err){
@@ -85,7 +85,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/instance/stop", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.stopInstance(function(err, data){
 			if(!err){
@@ -99,7 +99,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/binding", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.bindingList(function(err, data){
 			if(!err){
@@ -113,7 +113,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/serverByPort/:port", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.port)){
 			return res.status(404).end();
@@ -131,7 +131,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.listServers(function(err, data){
 			if(!err){
@@ -145,7 +145,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.createServer(req.body, function(err, data){
 			if(!err){
@@ -161,7 +161,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -179,7 +179,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/server/:serverId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -197,7 +197,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -215,7 +215,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/connection", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -233,7 +233,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/start", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -251,7 +251,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/stop", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -269,7 +269,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/temporarypassword", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -287,7 +287,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/temporarypassword", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -312,7 +312,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/temporarypassword", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -333,7 +333,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/group", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -351,7 +351,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/group", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -375,7 +375,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/group/:groupId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -398,7 +398,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/group/:groupId/copy", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -425,7 +425,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/group/:groupId/rename", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -448,7 +448,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/group/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -470,7 +470,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/group/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -493,7 +493,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/group/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -516,7 +516,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/group/:groupId/clients", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -544,7 +544,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/group/:groupId/clients", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -567,7 +567,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/group/:groupId/clients", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -590,7 +590,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channel", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -619,7 +619,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channel", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -643,7 +643,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channel/search", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -664,7 +664,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channel/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -686,7 +686,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/server/:serverId/channel/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -710,7 +710,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/channel/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -733,7 +733,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channel/:channelId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -755,7 +755,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channel/:channelId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -778,7 +778,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/channel/:channelId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -801,7 +801,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channel/:channelId/move", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -828,7 +828,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channel/:channelId/files", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -857,7 +857,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channel/:channelId/files/*", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -884,7 +884,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/channel/:channelId/files/*", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.channelId)){
@@ -911,7 +911,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channelgroup", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -931,7 +931,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channelgroup", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -954,7 +954,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/channelgroup/:groupId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -977,7 +977,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channelgroup/:groupId/copy", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -1004,7 +1004,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channelgroup/:groupId/rename", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -1027,7 +1027,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -1049,7 +1049,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -1072,7 +1072,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/channelgroup/:groupId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.groupId)){
@@ -1095,7 +1095,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/channelgroup/clients", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1125,7 +1125,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1155,7 +1155,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/search", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1180,7 +1180,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/byuid", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1201,7 +1201,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1223,7 +1223,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/server/:serverId/knownclient/:clientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1247,7 +1247,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1269,7 +1269,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/name", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1291,7 +1291,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/groups", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1313,7 +1313,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelgroup", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1336,7 +1336,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1362,7 +1362,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1385,7 +1385,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/permissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)){
@@ -1408,7 +1408,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
@@ -1436,7 +1436,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId/bypermission", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
@@ -1467,7 +1467,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
@@ -1492,7 +1492,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/knownclient/:clientDbId/channelpermissions/:channelId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientDbId)
@@ -1517,7 +1517,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/client", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1549,7 +1549,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/client/search", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1570,7 +1570,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/client/byuid", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1591,7 +1591,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/client/:clientId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1613,7 +1613,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/server/:serverId/client/:clientId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1637,7 +1637,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/client/:clientId/move", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1664,7 +1664,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/client/:clientId/kick", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1691,7 +1691,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/client/:clientId/poke", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1714,7 +1714,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/client/:clientId/ban", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.clientId)){
@@ -1743,7 +1743,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/privilegekey", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1761,7 +1761,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/privilegekey", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1795,7 +1795,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/privilegekey/:token", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1816,7 +1816,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/privilegekey/:token", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1837,7 +1837,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/complaint", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1861,7 +1861,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/complaint/:targetClientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)){
@@ -1884,7 +1884,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)){
@@ -1906,7 +1906,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/complaint/:targetClientDbId/:sourceClientDbId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.targetClientDbId)
@@ -1930,7 +1930,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/ban", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1950,7 +1950,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/ban", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -1970,7 +1970,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/ban", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -2008,7 +2008,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/ban/:banId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.banId)){
@@ -2030,7 +2030,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/server/:serverId/filetransfer", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -2050,7 +2050,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/server/:serverId/filetransfer/:fileTransferId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)
 		|| isNaN(req.params.fileTransferId)){
@@ -2073,7 +2073,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/sendtext", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -2096,7 +2096,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/server/:serverId/resetpermissions", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.serverId)){
 			return res.status(404).end();
@@ -2114,7 +2114,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/message", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.listMessages(function(err, data){
 			if(!err){
@@ -2128,7 +2128,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/message", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.sendMessage(
 			req.body.recipientClientUid,
@@ -2146,7 +2146,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/message/:messageId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
@@ -2164,7 +2164,7 @@ module.exports = function(app, prefix){
 
 	app.put(prefix + "/message/:messageId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
@@ -2185,7 +2185,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/message/:messageId", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.messageId)){
 			return res.status(404).end();
@@ -2203,7 +2203,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/permission", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.listPermissions(function(err, data){
 			if(!err){
@@ -2217,7 +2217,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/permission/current", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var permid = null,
 			permsid = null;
@@ -2236,7 +2236,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/permission/search", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		var permid = null,
 			permsid = null;
@@ -2255,7 +2255,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/permission/byname", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.permissionByName(req.query.permissionName, function(err, data){
 			if(!err){
@@ -2269,7 +2269,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/grouptype/:groupType/permission", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.groupType)){
 			return res.status(404).end();
@@ -2290,7 +2290,7 @@ module.exports = function(app, prefix){
 
 	app.delete(prefix + "/grouptype/:groupType/permission", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(isNaN(req.params.groupType)){
 			return res.status(404).end();
@@ -2311,7 +2311,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/gm", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.sendGeneralMessage(req.body.message, function(err, data){
 			if(!err){
@@ -2325,7 +2325,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/updatecredentials", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.setClientServerQueryLogin(req.body.newLogin, function(err, data){
 			if(!err){
@@ -2339,7 +2339,7 @@ module.exports = function(app, prefix){
 
 	app.post(prefix + "/updatesettings", 
 		blendedAuthenticate, 
-		authorize(), 
+		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		ts3.updateClient(req.body, function(err, data){
 			if(!err){
