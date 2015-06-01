@@ -22,6 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+/* primary: rgb(0, 150, 136) */
+/* accent: rgb(96, 125, 139) */
+
 body {
 	background-color: #252938;
 }
@@ -48,8 +51,9 @@ md-card.panel {
 	width: 100%;
 }
 
-.panel-header {
-	display: block;
+.panel-header h2,
+.dynamic-value {
+	color: rgb(96, 125, 139);
 }
 
 .more {

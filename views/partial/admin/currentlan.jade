@@ -26,11 +26,11 @@ div(layout = "row", ng-controller = "CurrentLanController as lan", flex)
 		bar-chart(data = "lan.rsvpGraphData", options = "lan.rsvpGraphOptions", auto-update = "true")
 	div(flex)
 		p.md-headline 
-			span(ng-bind = "lan.daysLeft") 
+			span.dynamic-value(ng-bind = "lan.daysLeft") 
 			|  days until LAN
 		p.md-headline
 			| Out of 
-			span(ng-bind = "lan.invitationCount")
+			span.dynamic-value(ng-bind = "lan.invitationCount")
 			|  invitations, 
-			span(ng-bind = "lan.rsvpCount")
+			span.dynamic-value(ng-bind = "lan.rsvpCount")
 			|  responded
