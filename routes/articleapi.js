@@ -30,7 +30,73 @@ var mongoose = require("mongoose"),
 	removeDuplicates = require("../utils/common.js").removeDuplicates;
 
 module.exports = function(app, prefix){
-	app.post(prefix, blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
+	app.get(prefix, function(req, res){
+		if(isAuthorized(req.user, {hasRoles: ["author"]})){
+			Article.find({})
+			.sort("-created")
+			.populate("author modifiedBy", "email firstName lastName")
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else if(!docs){
+					res.status(404).end();
+				}else{
+					res.send(docs);
+				}
+			});
+		}else{
+			Article.find({published: true})
+			.sort("-created")
+			.populate("author modifiedBy", "email firstName lastName")
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else if(!docs){
+					res.status(404).end();
+				}else{
+					res.send(docs);
+				}
+			});
+		}
+	});
+
+	app.get(prefix + "/newest", function(req, res){
+		Article.findOne({published: true})
+		.sort("-created")
+		.populate("author modifiedBy", "email firstName lastName")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.send(doc);
+			}
+		});
+	});
+
+	app.get(prefix + "/:article", function(req, res){
+		Article.findById(req.params.article)
+		.populate("author modifiedBy", "email firstName lastName")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				if(doc.published || isAuthorized(req.user, {hasRoles: ["author"]})){
+					res.status(200).send(doc);
+				}else{
+					res.status(403).end();
+				}
+			}
+		});
+	});
+
+	app.post(prefix, 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["author"]}), 
+	function(req, res){
 		var article = new Article();
 		article.title = req.body.title;
 		article.author = req.user._id;
@@ -48,40 +114,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/newest", function(req, res){
-		Article.findOne({published: true})
-		.sort("-created")
-		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(!err && doc){
-				res.status(200).send(doc);
-			}else{
-				res.status(404).end();
-			}
-		});
-	});
-
-	app.get(prefix + "/:article", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
-			return res.status(404).end();
-		}
-
-		Article.findById(req.params.article)
-		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(!err && doc){
-				if(doc.published || isAuthorized(req.user, {hasRoles: ["author"]})){
-					res.status(200).send(doc);
-				}else{
-					res.status(403).end();
-				}
-			}else{
-				res.status(404).end();
-			}
-		});
-	});
-
-	app.put(prefix + "/:article", blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
+	app.put(prefix + "/:article", 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["author"]}), 
+	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
 		}
@@ -109,14 +145,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.delete(prefix + "/:article", blendedAuthenticate, authorize({hasRoles: ["author"]}), function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
-			return res.status(404).end();
-		}
-
+	app.delete(prefix + "/:article", 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["author"]}), 
+	function(req, res){
 		Article.findByIdAndRemove(req.params.article, function(err, doc){
 			if(err){
-				res.status(400).end();
+				res.status(500).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
