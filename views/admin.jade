@@ -29,32 +29,33 @@ html(ng-app = "3akm.admin")
 		link(rel = "stylesheet", type = "tsxt/css", href = "/css/admin.css")
 		meta(name = "viewport", content = "width=device-width, initial-scale=1")
 	body
-		base(href = "/admin")
+		base(href = "/admin/")
 		.content-area(layout = "row")
 			.nav(flex-gt-md = "10", flex-md = "0", flex-sm = "0")
-				.logo
+				a(ui-sref = "default")
+					.logo
 				md-list
 					md-list-item
 						a.md-button.md-default-theme.md-primary(flex, ui-sref = "default", ui-sref-active = "md-accent")
 							| Dashboard
 					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "articles", ui-sref-active = "md-accent")
+						a.md-button.md-default-theme.md-primary(flex, ui-sref = "articleList", ui-sref-active = "md-accent")
 							| Articles
 					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "users", ui-sref-active = "md-accent")
+						a.md-button.md-default-theme.md-primary(flex, ui-sref = "userList", ui-sref-active = "md-accent")
 							| Users
 					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "games", ui-sref-active = "md-accent")
+						a.md-button.md-default-theme.md-primary(flex, ui-sref = "gameList", ui-sref-active = "md-accent")
 							| Games
 					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "lans", ui-sref-active = "md-accent")
+						a.md-button.md-default-theme.md-primary(flex, ui-sref = "lanList", ui-sref-active = "md-accent")
 							| LANs
 					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "rsvps", ui-sref-active = "md-accent")
+						a.md-button.md-default-theme.md-primary(flex, ui-sref = "rsvpList", ui-sref-active = "md-accent")
 							| RSVPs
+					md-divider
 					md-list-item
-					md-list-item
-						a.md-button.md-default-theme.md-warn(flex, href = "/", target = "_self")
+						a.md-button.md-default-theme.md-primary(flex, href = "/", target = "_self")
 							| Frontend
 			md-content(md-theme = "default-light", flex, ui-view)
 	script(src = "/thirdparty/angular.min.js")
