@@ -77,51 +77,6 @@ module.exports = {
 		}
 	},
 
-	getFormattedTime: function(date, excludeTime, forDateField){
-		var padTo2 = function(num){
-				var string = num.toString();
-				if(string.length < 2){
-					string = "0" + string;
-				}
-				return string;
-			},
-			dateString;
-		if(!forDateField){
-			dateString = date.getFullYear() + "-" + padTo2(date.getMonth()+1) + "-" + padTo2(date.getDate());
-		}else{
-			dateString = padTo2(date.getMonth()+1) + "/" + padTo2(date.getDate()) + "/" + date.getFullYear();
-		}
-		if(!excludeTime){
-			dateString += " " + (date.getHours()%12 === 0 ? "12" : padTo2(date.getHours()%12)) + ":" 
-			+ padTo2(date.getMinutes()) + ":" + padTo2(date.getSeconds()) 
-			+ " " + (date.getHours() > 12 ? "PM" : "AM");
-		}
-		return dateString;
-	},
-
-	secondsToHumanReadableDuration: function(secondsDuration){
-		var seconds = secondsDuration % 60,
-			minutes = (secondsDuration / 60) % 60,
-			hours = (secondsDuration / 3600) % 24,
-			days = secondsDuration / 86400,
-			string = "";
-		if(days > 1){
-			string += parseInt(days) + "d ";
-		}
-		if(hours > 1 || string !== ""){
-			string += parseInt(hours) + "h ";
-		}
-		if(minutes > 1 || string !== ""){
-			string += parseInt(minutes) + "m ";
-		}
-		if(seconds > 1 || string !== ""){
-			string += parseInt(seconds) + "s";
-		}else{
-			string = "0s";
-		}
-		return string;
-	},
-
 	removeDuplicates: function(array){
 		if(!array || !Array.isArray(array)){
 			return array;
@@ -152,29 +107,5 @@ module.exports = {
 			array[index] = temp;
 		}
 		return array;
-	},
-
-	getSortClassForHeader: function(sort, header){
-		if(sort && sort.indexOf(header) !== -1){
-			if(sort.indexOf("-") !== -1){
-				return "sort-desc";
-			}else{
-				return "sort-asc";
-			}
-		}else{
-			return "";
-		}
-	},
-
-	getSortLinkForHeader: function(sort, header){
-		if(sort && sort.indexOf(header) !== -1){
-			if(sort.indexOf("-") !== -1){
-				return header;
-			}else{
-				return "-" + header;
-			}
-		}else{
-			return header;
-		}
 	}
 }
