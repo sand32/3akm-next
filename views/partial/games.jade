@@ -39,7 +39,7 @@
 					.panel-body
 						.file(ng-repeat = "file in game.supplementalFiles")
 							a(href = "{{file.url}}") {{file.name}}
-			.desciprtion(ng-bind-html = "game.description")
+			.description(ng-bind-html = "game.description")
 	.games-not-found(ng-if = "ctrl.loaded && !ctrl.games")
 		h1 No active LAN defined
 		hr
