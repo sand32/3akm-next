@@ -32,7 +32,7 @@ require("../common/sectionentrydirective.js");
 		ctrl.games = null;
 		ctrl.year = 0;
 
-		LanService.retrieveGamesNext()
+		LanService.retrieveGames("current")
 		.then(function(data){
 			ctrl.games = data.games;
 			for(var i = 0; i < ctrl.games.length; i += 1){

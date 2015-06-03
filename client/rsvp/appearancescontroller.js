@@ -28,7 +28,7 @@ require("../common/rsvpservice.js");
 (function(){
 	var AppearancesController = function($stateParams, $sce, LanService, RsvpService){
 		var app = this;
-		LanService.retrieveNext()
+		LanService.retrieve("current")
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			app.activeLanDefined = true;

@@ -32,58 +32,51 @@ var mongoose = require("mongoose"),
 module.exports = function(app, prefix){
 	app.get(prefix + "/:lan", 
 	function(req, res){
-		if(req.params.lan === "next"){
-			Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
-			.populate("games.game")
-			.exec(function(err, doc){
-				if(err || !doc){
-					res.status(500).end();
-				}else{
-					res.status(200).send(doc);
-				}
-			});
+		var query = null;
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
 		}else{
-			Lan.findById(req.params.lan)
-			.populate("games.game")
-			.exec(function(err, doc){
-				if(err){
-					res.status(500).end();
-				}else if(!doc){
-					res.status(404).end();
-				}else{
-					res.status(200).send(doc);
-				}
-			});
+			query = Lan.findById(req.params.lan);
 		}
+
+		query.populate("games.game")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).send(doc);
+			}
+		});
 	});
 
 	app.get(prefix + "/:lan/games", 
 	function(req, res){
 		var deferred = q.defer(),
+			query = null,
 			year;
-		if(req.params.lan === "next"){
-			Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}})
-			.exec(function(err, doc){
-				if(err || !doc){
-					deferred.reject(err);
-				}else{
-					year = doc.beginDate.getFullYear();
-					deferred.resolve(doc.games);
-				}
-			});
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
 		}else{
-			Lan.findById(req.params.lan)
-			.exec(function(err, doc){
-				if(err){
-					deferred.reject(err);
-				}else if(!doc){
-					res.status(404).end();
-				}else{
-					year = doc.beginDate.getFullYear();
-					deferred.resolve(doc.games);
-				}
-			});
+			Lan.findById(req.params.lan);
 		}
+		query.exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				year = doc.beginDate.getFullYear();
+				deferred.resolve(doc.games);
+			}
+		});
 
 		deferred.promise.then(function(data){
 			var gameIds = [];

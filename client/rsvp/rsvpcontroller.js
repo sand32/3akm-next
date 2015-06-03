@@ -50,7 +50,7 @@ require("../common/enumselectdirective.js");
 			bringingFood: false
 		};
 
-		LanService.retrieveNext()
+		LanService.retrieve("next")
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();

@@ -39,37 +39,9 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
-			retrieveNext: function(){
-				var deferred = $q.defer();
-				$http.get("/api/lan/next")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
-				return deferred.promise;
-			},
-
 			retrieveGames: function(id){
 				var deferred = $q.defer();
 				$http.get("/api/lan/" + id + "/games")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
-				return deferred.promise;
-			},
-
-			retrieveGamesNext: function(){
-				var deferred = $q.defer();
-				$http.get("/api/lan/next/games")
 				.then(
 					function(response){
 						deferred.resolve(response.data);
