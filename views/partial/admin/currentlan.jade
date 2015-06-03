@@ -21,7 +21,7 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-div(layout = "row", ng-controller = "CurrentLanController as lan", flex)
+div(layout = "row", ng-controller = "CurrentLanController as lan", flex, style = "overflow: hidden;")
 	.chart(flex = "33")
 		bar-chart(data = "lan.rsvpGraphData", options = "lan.rsvpGraphOptions", auto-update = "true")
 	div(flex)

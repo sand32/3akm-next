@@ -40,7 +40,7 @@ misrepresented as being the original software.
 						margin = {top: parentHeight * 0.05, right: parentWidth * 0.12, bottom: parentHeight * 0.08, left: parentWidth * 0.19},
 						chartWidth = parentWidth - margin.left - margin.right,
 						chartHeight = parentHeight - margin.top - margin.bottom,
-						barWidth = 30;
+						barWidth = chartWidth / scope.data.length - chartWidth / scope.data.length / 2;
 
 					var x = d3.scale.ordinal()
 						.domain(scope.options.labels)
@@ -98,11 +98,7 @@ misrepresented as being the original software.
 				};
 				$rootScope.$on("ResizeContentArea", render);
 				angular.element($window)
-					.on("load", render)
-					.on("resize", function(){
-						chart.attr("width", parentWidth);
-						chart.attr("height", parentWidth / aspect);
-					});
+					.on("load resize", render);
 				if(scope.autoUpdate()){
 					scope.$watch("data", render);
 				}

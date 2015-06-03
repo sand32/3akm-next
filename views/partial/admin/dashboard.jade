@@ -24,12 +24,18 @@
 .content-area(ng-controller = "DashboardController as dash", flex)
 	md-grid-list.grid-contents(
 		md-cols-sm = "1",
-		md-cols-md = "2",
-		md-cols-gt-md = "6",
+		md-cols-md = "1",
+		md-cols-lg = "4",
+		md-cols-gt-lg = "6",
 		md-row-height = "1:1",
 		md-gutter = ".5em"
 	)
-		md-grid-tile(ng-repeat = "panel in dash.panels", md-colspan = "{{panel.colSpan}}", md-rowspan = "{{panel.rowSpan}}")
+		md-grid-tile(
+			ng-repeat = "panel in dash.panels",
+			md-colspan-gt-md = "{{panel.colSpan}}",
+			md-rowspan-gt-md = "{{panel.rowSpan}}",
+			md-colspan-md = "1",
+			md-rowspan-md = "1")
 			md-card.panel
 				md-card-content(layout = "column", flex, md-theme = "default-light")
 					.panel-header(layout = "row")
