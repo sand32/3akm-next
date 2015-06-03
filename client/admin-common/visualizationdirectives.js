@@ -42,6 +42,11 @@ misrepresented as being the original software.
 						chartHeight = parentHeight - margin.top - margin.bottom,
 						barWidth = chartWidth / scope.data.length - chartWidth / scope.data.length / 2;
 
+					if(parentWidth === 0
+					|| parentHeight === 0){
+						return;
+					}
+
 					var x = d3.scale.ordinal()
 						.domain(scope.options.labels)
 						.rangeRoundBands([0, chartWidth], .1);
