@@ -23,7 +23,8 @@ misrepresented as being the original software.
 */
 
 require("./admin-common/stylingdirectives.js");
-require("./admin-dashboard/dashboardcontroller.js");
+require("./admin/dashboard/dashboardcontroller.js");
+require("./admin/articlelistcontroller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $mdThemingProvider){
@@ -32,8 +33,12 @@ require("./admin-dashboard/dashboardcontroller.js");
 
 		$stateProvider
 			.state("default", {
-				url: "/admin",
+				url: "/",
 				templateUrl: "/partial/admin/dashboard"
+			})
+			.state("articleList", {
+				url: "/articlelist",
+				templateUrl: "/partial/admin/articlelist"
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
@@ -61,7 +66,8 @@ require("./admin-dashboard/dashboardcontroller.js");
 				"ngAnimate",
 				"ngMaterial",
 				"3akm.admin.styling",
-				"3akm.admin.dashboard"
+				"3akm.admin.dashboard",
+				"3akm.admin.articleList"
 			])
 		.config(Config);
 

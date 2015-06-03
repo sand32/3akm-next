@@ -1,0 +1,45 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2015 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+md-content.content-area(ng-controller = "ArticleListController as articles", flex)
+	.page-title
+		.md-display-3 Article List
+	md-content(layout = "row")
+		md-card.panel.list(flex)
+			md-card-content.table-card(md-theme = "default-light")
+				table
+					thead
+						tr
+							th.md-title Title
+							th.md-title Author
+							th.md-title Created
+							th.md-title Published
+							th  
+					tbody
+						tr(ng-repeat = "article in articles.list")
+							td.md-body-1 {{article.title}}
+							td.md-body-1 {{article.author.firstName}} {{article.author.lastName}}
+							td.md-body-1 {{article.created | date: "medium"}}
+							td.md-body-1 {{article.published}}
+							td.md-body-1 Hello
+		.visualizations(flex)

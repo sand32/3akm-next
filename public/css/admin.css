@@ -22,6 +22,7 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+/* Dark Theme */
 /* primary: rgb(0, 150, 136) */
 /* accent: rgb(96, 125, 139) */
 
@@ -39,6 +40,10 @@ body {
 	background: url('/images/3ak_transx_short_light.png') no-repeat center;
 	height: 120px;
 	margin-bottom: 1.5em;
+}
+
+md-content.content-area {
+	padding: 2em;
 }
 
 .grid-contents {
@@ -69,4 +74,45 @@ bar-chart .axis line {
 
 bar-chart .x.axis path {
 	display: none;
+}
+
+.page-title {
+	margin-left: 1em;
+	margin-bottom: 1em;
+}
+
+md-card-content.table-card {
+	padding: 0;
+}
+
+table {
+	text-align: left;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+tr {
+	height: 2.5em;
+}
+
+thead {
+	border-bottom: 1px solid #DDD;
+}
+
+tbody tr:hover {
+	background-color: #a7ffeb;
+}
+
+th {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 10px;
+	padding-right: 0;
+}
+
+td {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 10px;
+	padding-right: 0;
 }

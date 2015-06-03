@@ -22,9 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("../common/lanservice.js");
-require("../common/rsvpservice.js");
-require("../admin-common/visualizationdirectives.js");
+require("../../common/lanservice.js");
+require("../../common/rsvpservice.js");
+require("../../admin-common/visualizationdirectives.js");
 
 (function(){
 	var CurrentLanController = function(LanService, RsvpService){
@@ -44,10 +44,9 @@ require("../admin-common/visualizationdirectives.js");
 		LanService.retrieveNext()
 		.then(
 			function(lan){
-				currentLan.beginDate = lan.beginDate;
-				currentLan.endDate = lan.endDate;
+				currentLan.year = new Date(lan.beginDate).getFullYear();
 				currentLan.daysLeft = Math.round((new Date(lan.beginDate) - new Date())/(1000*60*60*24));
-				return RsvpService.retrieveAllForYear(new Date(lan.beginDate).getFullYear());
+				return RsvpService.retrieveAllForYear(currentLan.year);
 			}
 		)
 		.then(
