@@ -101,6 +101,7 @@ thead {
 
 tbody tr:hover {
 	background-color: #a7ffeb;
+	cursor: pointer;
 }
 
 th {

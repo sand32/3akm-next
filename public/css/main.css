@@ -121,7 +121,9 @@ a.btn-link:hover {
 }
 
 .section-entry .section-body {
-	display: none;
+	margin-top: 1em;
+	display: block;
+	overflow: hidden;
 }
 
 .section-entry:hover .section-header,
@@ -130,16 +132,10 @@ a.btn-link:hover {
 }
 
 .section-entry-open .section-header {
-	margin-bottom: 1em;
 	-moz-filter: none;
 	-o-filter: none;
 	-webkit-filter: none;
 	filter: none;
-}
-
-.section-entry-open .section-body {
-	display: block;
-	overflow: hidden;
 }
 
 .game-info-panel {

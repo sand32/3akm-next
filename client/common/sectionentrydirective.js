@@ -35,6 +35,7 @@ misrepresented as being the original software.
 			templateUrl: "/partial/sectionentry",
 			link: function(scope, element, attrs){
 				angular.element(element.children()[0]).css("background-image", "url(" + scope.headerImage + ")");
+				scope.collapsed = true;
 
 				scope.toggleSection = function(){
 					var sectionBody = angular.element(element.children()[1]);
@@ -42,6 +43,7 @@ misrepresented as being the original software.
 						height: sectionBody.offsetHeight
 					});
 					element.toggleClass("section-entry-open");
+					scope.collapsed = !scope.collapsed;
 					scope.$emit("ResizeContentArea");
 				}
 			}
@@ -49,7 +51,7 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("3akm.common.sectionentry", [])
+		.module("3akm.common.sectionentry", ["ui.bootstrap"])
 		.directive("sectionEntry", SectionEntry);
 
 	SectionEntry.$inject = [];
