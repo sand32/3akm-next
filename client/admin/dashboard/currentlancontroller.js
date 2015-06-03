@@ -41,7 +41,7 @@ require("../../admin-common/visualizationdirectives.js");
 			color: "rgb(0, 150, 136)"
 		};
 
-		LanService.retrieveNext()
+		LanService.retrieve("current")
 		.then(
 			function(lan){
 				currentLan.year = new Date(lan.beginDate).getFullYear();
