@@ -35,9 +35,11 @@ misrepresented as being the original software.
 				var render = function(){
 					element.empty();
 
-					var margin = {top: 20, right: 30, bottom: 30, left: 50},
-						chartWidth = element.parent()[0].offsetWidth - margin.left - margin.right,
-						chartHeight = element.parent()[0].offsetHeight - margin.top - margin.bottom,
+					var parentWidth = element.parent()[0].offsetWidth,
+						parentHeight = element.parent()[0].offsetHeight,
+						margin = {top: parentHeight * 0.05, right: parentWidth * 0.12, bottom: parentHeight * 0.08, left: parentWidth * 0.19},
+						chartWidth = parentWidth - margin.left - margin.right,
+						chartHeight = parentHeight - margin.top - margin.bottom,
 						barWidth = 30;
 
 					var x = d3.scale.ordinal()
@@ -54,9 +56,12 @@ misrepresented as being the original software.
 						.orient("left")
 						.tickFormat(d3.format("d"));
 
+					var aspect = parentWidth / parentHeight;
 					var chart = d3.select(element[0]).append("svg")
-						.attr("width", chartWidth + margin.left + margin.right)
-						.attr("height", chartHeight + margin.top + margin.bottom)
+						.attr("width", parentWidth)
+						.attr("height", parentHeight)
+						.attr("viewBox", "0 0 " + parentWidth + " " + parentHeight)
+						.attr("preserveAspectRatio", "xMidYMid")
 						.append("g")
 							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -70,7 +75,7 @@ misrepresented as being the original software.
 						.call(yAxis)
 						.append("text")
 							.attr("transform", "rotate(90)")
-							.attr("x", (chartHeight + margin.top + margin.bottom) / 2)
+							.attr("x", parentHeight / 2)
 							.attr("y", margin.left - 10)
 							.attr("dy", ".6em")
 							.style("text-anchor", "end")
@@ -92,7 +97,12 @@ misrepresented as being the original software.
 							});
 				};
 				$rootScope.$on("ResizeContentArea", render);
-				angular.element($window).on("load resize", render);
+				angular.element($window)
+					.on("load", render)
+					.on("resize", function(){
+						chart.attr("width", parentWidth);
+						chart.attr("height", parentWidth / aspect);
+					});
 				if(scope.autoUpdate()){
 					scope.$watch("data", render);
 				}
