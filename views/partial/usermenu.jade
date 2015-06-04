@@ -34,5 +34,7 @@
 	ul.menu-list(class = "nav nav-stacked", ng-if = "auth.isLoggedIn")
 		li(ui-sref-active = "current")
 			a(ui-sref = "profile") Profile
+		li(ng-if = "auth.isAdmin")
+			a(href = "/admin", target = "_self") Admin Portal
 		li
 			a(href = "#" ng-click = "auth.logout()") Log Out

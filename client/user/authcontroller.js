@@ -28,6 +28,7 @@ require("../common/userservice.js");
 	var AuthController = function($scope, $rootScope, $state, ngToast, UserService){
 		var ctrl = this;
 		ctrl.isLoggedIn = false;
+		ctrl.isAdmin = false;
 
 		UserService.isLoggedIn()
 		.then(function(loggedIn){
@@ -56,6 +57,15 @@ require("../common/userservice.js");
 
 		$rootScope.$on("AuthChanged", function(e, loggedIn){
 			ctrl.isLoggedIn = loggedIn;
+			ctrl.isAdmin = false;
+			if(loggedIn){
+				UserService.retrieve("session")
+				.then(function(user){
+					if(user.roles.indexOf("admin") !== -1){
+						ctrl.isAdmin = true;
+					}
+				});
+			}
 		});
 	};
 
