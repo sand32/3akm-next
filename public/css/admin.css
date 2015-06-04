@@ -26,43 +26,56 @@ misrepresented as being the original software.
 /* primary: rgb(0, 150, 136) */
 /* accent: rgb(96, 125, 139) */
 
-body {
-	background-color: #252938;
+.container-fluid {
+	padding: 0;
 }
 
-.nav {
-	background-color: #252938;
-	margin-left: 1em;
-	margin-right: 1em;
+.content {
+	background-color: white;
+	padding-top: 1em;
 }
 
 .logo {
 	background: url('/images/3ak_transx_short_light.png') no-repeat center;
-	height: 120px;
+	height: 100px;
+	margin-top: 1.5em;
 	margin-bottom: 1.5em;
 }
 
-md-content.content-area {
-	padding: 2em;
+.menu {
+	background-color: #222;
+	padding: 0;
 }
 
-.grid-contents {
-	height: 100%;
+.menu-list a {
+	padding-left: 2em;
+	padding-right: 2em;
+	color: #AAA;
+	text-align: center;
+	font-size: 12pt;
+	font-weight: bolder;
 }
 
-md-card.panel {
-	background-color: white;
-	height: 90%;
-	width: 100%;
+.menu-list li a:hover {
+	background-color: #444;
+	color: #AAA;
+	text-align: center;
+}
+
+.menu-list hr {
+	margin-left: 2em;
+	margin-right: 2em;
+	border-color: #444;
+}
+
+.panel {
+	border: 1px solid #CCC;
+	box-shadow: 2px 3px 2px #AAA;
 }
 
 .panel-header h2,
 .dynamic-value {
 	color: rgb(96, 125, 139);
-}
-
-.more {
-	float: right;
 }
 
 bar-chart .axis path,
@@ -79,10 +92,6 @@ bar-chart .x.axis path {
 .page-title {
 	margin-left: 1em;
 	margin-bottom: 1em;
-}
-
-md-card-content.table-card {
-	padding: 0;
 }
 
 table {

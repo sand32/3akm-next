@@ -22,6 +22,7 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+require("../../admin-common/stylingdirectives.js");
 require("./currentlancontroller.js");
 
 (function(){
@@ -41,6 +42,7 @@ require("./currentlancontroller.js");
 	angular
 		.module("3akm.admin.dashboard", 
 			[
+				"3akm.admin.styling",
 				"3akm.admin.currentLan"
 			])
 		.controller("DashboardController", DashboardController);

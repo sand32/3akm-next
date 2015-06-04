@@ -29,12 +29,18 @@ misrepresented as being the original software.
 			link: function(scope, element, attrs){
 				var resizeContentArea = function(){
 					var contentHeight = element[0].offsetHeight,
-						windowHeight = $window.innerHeight;
+						windowHeight = $window.innerHeight,
+						newCss = {
+							height: Math.max(windowHeight, contentHeight) + "px"
+						},
+						children;
 
 					// Set content area to full height of window
-					element.css({
-						height: Math.max(windowHeight, contentHeight) + "px"
-					});
+					element.css(newCss);
+					children = element.children();
+					for(var i = 0; i < children.length; i += 1){
+						angular.element(children[i]).css(newCss);
+					}
 				};
 				$rootScope.$on("ResizeContentArea", resizeContentArea);
 				angular.element($window).on("load resize", resizeContentArea);

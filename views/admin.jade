@@ -25,46 +25,46 @@ doctype html
 html(ng-app = "3akm.admin")
 	head
 		title 3AK^M Administrative Portal
-		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/material/angular-material.min.css")
+		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
 		link(rel = "stylesheet", type = "tsxt/css", href = "/css/admin.css")
 		meta(name = "viewport", content = "width=device-width, initial-scale=1")
 	body
 		base(href = "/admin/")
-		.content-area(layout = "row")
-			.nav(flex-gt-md = "10", flex-md = "0", flex-sm = "0")
+		.container-fluid.content-area
+			.menu.col-xs-2
 				a(ui-sref = "default")
 					.logo
-				md-list
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "default", ui-sref-active = "md-accent")
+				ul.menu-list.nav.nav-stacked
+					li(ui-sref-active = "current")
+						a(ui-sref = "default")
 							| Dashboard
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "articleList", ui-sref-active = "md-accent")
+					li(ui-sref-active = "current")
+						a(ui-sref = "articleList")
 							| Articles
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "userList", ui-sref-active = "md-accent")
+					li(ui-sref-active = "current")
+						a(ui-sref = "userList")
 							| Users
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "gameList", ui-sref-active = "md-accent")
+					li(ui-sref-active = "current")
+						a(ui-sref = "gameList")
 							| Games
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "lanList", ui-sref-active = "md-accent")
+					li(ui-sref-active = "current")
+						a(ui-sref = "lanList")
 							| LANs
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, ui-sref = "rsvpList", ui-sref-active = "md-accent")
+					li(ui-sref-active = "current")
+						a(ui-sref = "rsvpList")
 							| RSVPs
-					md-divider
-					md-list-item
-						a.md-button.md-default-theme.md-primary(flex, href = "/", target = "_self")
+					hr
+					li
+						a(href = "/", target = "_self")
 							| Frontend
-			md-content(md-theme = "default-light", flex, ui-view)
+			.content.col-xs-10(ui-view)
 	script(src = "/thirdparty/angular.min.js")
 	script(src = "/thirdparty/angular-messages.min.js")
 	script(src = "/thirdparty/angular-animate.min.js")
-	script(src = "/thirdparty/angular-aria.min.js")
-	script(src = "/thirdparty/material/angular-material.min.js")
 	script(src = "/thirdparty/angular-sanitize.min.js")
 	script(src = "/thirdparty/angular-ui-router.min.js")
 	script(src = "/thirdparty/angular-loadscript.js")
+	script(src = "/thirdparty/ui-bootstrap-tpls-0.13.0.min.js")
+	script(src = "/thirdparty/ngToast/ngToast.min.js")
 	script(src = "/thirdparty/d3.min.js")
 	script(src = "/js/admin.js")

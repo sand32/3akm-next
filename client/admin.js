@@ -27,7 +27,7 @@ require("./admin/dashboard/dashboardcontroller.js");
 require("./admin/articlelistcontroller.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $mdThemingProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider){
 		$urlRouterProvider.otherwise("/admin");
 		$locationProvider.html5Mode(true);
 
@@ -42,19 +42,6 @@ require("./admin/articlelistcontroller.js");
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
-
-		$mdThemingProvider.theme("default")
-			.primaryPalette("teal")
-			.accentPalette("blue-grey")
-			.backgroundPalette("blue-grey")
-			.dark();
-
-		$mdThemingProvider.theme("default-light")
-			.primaryPalette("teal")
-			.accentPalette("red")
-			.backgroundPalette("blue-grey");
-
-		$mdThemingProvider.setDefaultTheme("default");
 	};
 
 	angular
@@ -64,12 +51,11 @@ require("./admin/articlelistcontroller.js");
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
-				"ngMaterial",
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
 				"3akm.admin.articleList"
 			])
 		.config(Config);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "$mdThemingProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider"];
 })();
