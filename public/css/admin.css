@@ -87,6 +87,10 @@ misrepresented as being the original software.
 	height: 100%;
 }
 
+.no-padding {
+	padding: 0;
+}
+
 bar-chart .axis path,
 bar-chart .axis line {
 	fill: none;
