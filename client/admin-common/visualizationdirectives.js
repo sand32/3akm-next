@@ -35,6 +35,10 @@ misrepresented as being the original software.
 				var render = function(){
 					element.empty();
 
+					if(!scope.data || scope.data.length === 0){
+						return;
+					}
+
 					var parentWidth = element.parent()[0].offsetWidth,
 						parentHeight = element.parent()[0].offsetHeight,
 						margin = {top: parentHeight * 0.05, right: parentWidth * 0.12, bottom: parentHeight * 0.08, left: parentWidth * 0.19},
