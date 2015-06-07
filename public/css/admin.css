@@ -73,9 +73,13 @@ misrepresented as being the original software.
 	box-shadow: 2px 3px 2px #AAA;
 }
 
-.panel-header h2,
+.panel-header h2 {
+	margin-top: .5em;
+	margin-left: .5em;
+	color: rgb(96, 125, 139);
+}
+
 .dynamic-value {
-	margin-top: 0;
 	color: rgb(96, 125, 139);
 }
 
