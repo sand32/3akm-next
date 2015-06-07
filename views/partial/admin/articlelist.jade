@@ -21,25 +21,25 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-md-content.content-area(ng-controller = "ArticleListController as articles", flex)
+.article-list(ng-controller = "ArticleListController as articles")
 	.page-title
-		.md-display-3 Article List
-	md-content(layout = "row")
-		md-card.panel.list(flex)
-			md-card-content.table-card(md-theme = "default-light")
+		h2 Article List
+	.page-content
+		.panel.col-xs-6
+			.panel-content
 				table
 					thead
 						tr
-							th.md-title Title
-							th.md-title Author
-							th.md-title Created
-							th.md-title Published
+							th Title
+							th Author
+							th Created
+							th Published
 							th  
 					tbody
 						tr(ng-repeat = "article in articles.list")
-							td.md-body-1 {{article.title}}
-							td.md-body-1 {{article.author.firstName}} {{article.author.lastName}}
-							td.md-body-1 {{article.created | date: "medium"}}
-							td.md-body-1 {{article.published}}
-							td.md-body-1 Hello
-		.visualizations(flex)
+							td {{article.title}}
+							td {{article.author.firstName}} {{article.author.lastName}}
+							td {{article.created | date: "medium"}}
+							td {{article.published}}
+							td Hello
+		.visualizations.col-xs-6
