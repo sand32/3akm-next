@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var ContentArea = function($rootScope, $window){
+	var ContentArea = function($rootScope, $window, $timeout){
 		return {
 			restrict: "C",
 			link: function(scope, element, attrs){
@@ -43,6 +43,9 @@ misrepresented as being the original software.
 					}
 				};
 				$rootScope.$on("ResizeContentArea", resizeContentArea);
+				$rootScope.$on("$viewContentLoaded", function(){
+					$timeout(resizeContentArea, 200);
+				});
 				angular.element($window).on("load resize", resizeContentArea);
 				$rootScope.$emit("ResizeContentArea");
 			}
@@ -53,5 +56,5 @@ misrepresented as being the original software.
 		.module("3akm.frontend.styling", [])
 		.directive("contentArea", ContentArea);
 
-	ContentArea.$inject = ["$rootScope", "$window"];
+	ContentArea.$inject = ["$rootScope", "$window", "$timeout"];
 })();
