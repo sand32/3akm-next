@@ -28,9 +28,9 @@ require("./currentlancontroller.js");
 (function(){
 	var DashboardController = function(){
 		var dash = this;
+		dash.rowHeight = "200";
 		dash.panels = [
 			{
-				name: "Current LAN",
 				templateUrl: "/partial/admin/currentlan",
 				colSpan: 3,
 				rowSpan: 2,

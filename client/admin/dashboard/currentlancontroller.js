@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 require("../../common/lanservice.js");
 require("../../common/rsvpservice.js");
+require("../../admin-common/stylingdirectives.js");
 require("../../admin-common/visualizationdirectives.js");
 
 (function(){
@@ -71,6 +72,7 @@ require("../../admin-common/visualizationdirectives.js");
 		.module("3akm.admin.currentLan", 
 			[
 				"3akm.admin.visualization",
+				"3akm.admin.styling",
 				"3akm.lan",
 				"3akm.rsvp"
 			])

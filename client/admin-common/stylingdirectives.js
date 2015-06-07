@@ -49,9 +49,36 @@ misrepresented as being the original software.
 		};
 	};
 
+	var RowExpand = function(){
+		return {
+			restrict: "C",
+			link: function(scope, element, attrs){
+				var resizeRow = function(){
+					var parentHeight = element.parent()[0].offsetHeight,
+						otherRowHeights = 0,
+						siblings = element.parent().children();
+					for(var i = 0; i < siblings.length; i += 1){
+						var siblingElement = angular.element(siblings[i]);
+						if(siblingElement.hasClass("row")
+						&& !siblingElement.hasClass("row-expand")){
+							otherRowHeights += siblingElement[0].offsetHeight;
+						}
+					}
+					element.css({
+						height: (parentHeight - otherRowHeights) + "px"
+					});
+				};
+				element.parent().on("resize", resizeRow);
+				resizeRow();
+			}
+		};
+	};
+
 	angular
 		.module("3akm.admin.styling", [])
-		.directive("contentArea", ContentArea);
+		.directive("contentArea", ContentArea)
+		.directive("rowExpand", RowExpand);
 
 	ContentArea.$inject = ["$rootScope", "$window"];
+	RowExpand.$inject = [];
 })();

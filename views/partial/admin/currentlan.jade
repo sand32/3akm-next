@@ -21,14 +21,16 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-div(layout = "row", ng-controller = "CurrentLanController as lan", flex, style = "overflow: hidden;")
-	.chart(flex = "33")
+.panel-header.row
+	h2 Current LAN
+.row.row-expand(ng-controller = "CurrentLanController as lan", style = "overflow: hidden; height: 300px;")
+	.chart.col-xs-5(style = "height: 300px;")
 		bar-chart(data = "lan.rsvpGraphData", options = "lan.rsvpGraphOptions", auto-update = "true")
-	div(flex)
-		p.md-headline 
+	.col-xs-7
+		p
 			span.dynamic-value(ng-bind = "lan.daysLeft") 
 			|  days until LAN
-		p.md-headline
+		p
 			| Out of 
 			span.dynamic-value(ng-bind = "lan.invitationCount")
 			|  invitations, 

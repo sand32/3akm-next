@@ -75,7 +75,12 @@ misrepresented as being the original software.
 
 .panel-header h2,
 .dynamic-value {
+	margin-top: 0;
 	color: rgb(96, 125, 139);
+}
+
+.panel-content {
+	height: 100%;
 }
 
 bar-chart .axis path,
