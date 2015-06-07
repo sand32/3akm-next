@@ -63,7 +63,8 @@ module.exports = function(app){
 				function(){
 					res.render("admin");
 				},
-				function(){
+				function(error){
+					console.error("Error: " + error);
 					res.status(500).end();
 				}
 			);
@@ -80,7 +81,8 @@ module.exports = function(app){
 				function(){
 					res.render("frontend");
 				},
-				function(){
+				function(error){
+					console.error("Error: " + error);
 					res.status(500).end();
 				}
 			);
