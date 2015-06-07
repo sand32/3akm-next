@@ -23,7 +23,7 @@
 
 .panel-header.row
 	h2 Current LAN
-.row.row-expand(ng-controller = "CurrentLanController as lan", style = "overflow: hidden; height: 300px;")
+.row.row-expand(ng-controller = "CurrentLanController as lan", style = "overflow: hidden;")
 	.chart.col-xs-5(style = "height: inherit;")
 		bar-chart(data = "lan.rsvpGraphData", options = "lan.rsvpGraphOptions", auto-update = "true")
 	.col-xs-7
