@@ -27,7 +27,8 @@
 	.page-content
 		.panel.no-padding.col-xs-6
 			.panel-content
-				table
+				.empty-table(ng-if = "articles.list.length === 0") No articles defined
+				table(ng-if = "articles.list.length > 0")
 					thead
 						tr
 							th Title
