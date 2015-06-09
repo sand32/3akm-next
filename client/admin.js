@@ -53,6 +53,7 @@ require("./admin/articlelistcontroller.js");
 		.module("3akm.admin", 
 			[
 				"ui.router",
+				"ui.bootstrap",
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",

@@ -24,10 +24,11 @@ misrepresented as being the original software.
 
 require("../common/articleservice.js");
 require("../common/arrayentrydirectives.js");
+require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleListController = function(ngToast, ArticleService){
+	var ArticleListController = function(ngToast, $modal, ArticleService){
 		var articles = this, updateModel;
 		articles.list = [];
 		articles.current = null;
@@ -81,6 +82,31 @@ require("../common/enumselectdirective.js");
 				);
 			}
 		};
+
+		articles.delete = function(id){
+			var modalInstance = $modal.open({
+				templateUrl: "/partial/confirmmodal",
+				controller: "ConfirmController as confirm",
+				resolve: {
+					message: function(){return "Are you sure you want to delete this article?";}
+				}
+			});
+
+			modalInstance.result.then(
+				function(){
+					ArticleService.delete(id)
+					.then(
+						function(){
+							updateModel();
+							articles.current = null;
+							ngToast.create("Article deleted.");
+						}, function(){
+							ngToast.danger("Failed to delete article.")
+						}
+					);
+				}
+			);
+		};
 	};
 
 	angular
@@ -88,10 +114,11 @@ require("../common/enumselectdirective.js");
 			[
 				"textAngular",
 				"3akm.article",
+				"3akm.confirmModal",
 				"3akm.common.arrayentry",
 				"3akm.common.enumselect"
 			])
 		.controller("ArticleListController", ArticleListController);
 
-	ArticleListController.$inject = ["ngToast", "ArticleService"];
+	ArticleListController.$inject = ["ngToast", "$modal", "ArticleService"];
 })();

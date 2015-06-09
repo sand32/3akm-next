@@ -83,7 +83,7 @@ misrepresented as being the original software.
 
 			delete: function(id){
 				var deferred = $q.defer();
-				$http.put("/api/article/" + id)
+				$http.delete("/api/article/" + id)
 				.then(
 					function(){
 						deferred.resolve();
