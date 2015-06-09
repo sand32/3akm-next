@@ -27,7 +27,7 @@ require("./admin/dashboard/dashboardcontroller.js");
 require("./admin/articlelistcontroller.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
 		$urlRouterProvider.otherwise("/admin");
 		$locationProvider.html5Mode(true);
 
@@ -42,6 +42,11 @@ require("./admin/articlelistcontroller.js");
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
+
+		ngToastProvider.configure({
+			dismissButton: true,
+			animation: "slide"
+		});
 	};
 
 	angular
@@ -51,11 +56,12 @@ require("./admin/articlelistcontroller.js");
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
+				"ngToast",
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
 				"3akm.admin.articleList"
 			])
 		.config(Config);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "ngToastProvider"];
 })();

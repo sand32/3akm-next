@@ -23,26 +23,75 @@ misrepresented as being the original software.
 */
 
 require("../common/articleservice.js");
+require("../common/arrayentrydirectives.js");
+require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleListController = function(ArticleService){
-		var articles = this;
+	var ArticleListController = function(ngToast, ArticleService){
+		var articles = this, updateModel;
 		articles.list = [];
+		articles.current = null;
+		articles.boolPossibles = [
+			{label: "Yes", value: true}, 
+			{label: "No", value: false}
+		];
 
-		ArticleService.retrieveAll()
-		.then(
-			function(data){
-				articles.list = data;
+		updateModel = function(article){
+			if(article && article._id){
+				for(var i = 0; i < articles.list.length; i += 1){
+					if(articles.list[i]._id === article._id){
+						articles.list[i] = angular.copy(article);
+					}
+				}
+			}else{
+				ArticleService.retrieveAll()
+				.then(
+					function(data){
+						articles.list = data;
+					}
+				);
 			}
-		);
+		};
+		updateModel();
+
+		articles.select = function(index){
+			articles.current = angular.copy(articles.list[index]);
+		};
+
+		articles.save = function(){
+			if(!articles.current._id){
+				ArticleService.create(articles.current)
+				.then(
+					function(){
+						updateModel();
+						ngToast.create("Article created.");
+					}, function(){
+						ngToast.danger("Failed to create article.");
+					}
+				);
+			}else{
+				ArticleService.edit(articles.current._id, articles.current)
+				.then(
+					function(){
+						updateModel(articles.current);
+						ngToast.create("Article updated.");
+					}, function(){
+						ngToast.danger("Failed to update article.");
+					}
+				);
+			}
+		};
 	};
 
 	angular
 		.module("3akm.admin.articleList", 
 			[
-				"3akm.article"
+				"textAngular",
+				"3akm.article",
+				"3akm.common.arrayentry",
+				"3akm.common.enumselect"
 			])
 		.controller("ArticleListController", ArticleListController);
 
-	ArticleListController.$inject = ["ArticleService"];
+	ArticleListController.$inject = ["ngToast", "ArticleService"];
 })();

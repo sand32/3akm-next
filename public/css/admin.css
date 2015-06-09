@@ -35,6 +35,11 @@ misrepresented as being the original software.
 	padding-top: 1em;
 }
 
+a.btn-link,
+a.btn-link:hover {
+	color: rgb(96, 125, 139);
+}
+
 .logo {
 	background: url('/images/3ak_transx_short_light.png') no-repeat center;
 	height: 100px;
@@ -107,6 +112,13 @@ bar-chart .x.axis path {
 	margin-bottom: 1em;
 }
 
+.no-selection {
+	color: lightgrey;
+	text-align: center;
+	font-size: 20pt;
+	font-weight: bolder;
+}
+
 table {
 	text-align: left;
 	width: 100%;
@@ -138,4 +150,32 @@ td {
 	padding-bottom: 0;
 	padding-left: 10px;
 	padding-right: 0;
+}
+
+table .selected {
+	background-color: #96E6D4;
+}
+
+.array-item {
+	margin-top: .5em;
+}
+
+.button-icon {
+	margin-right: .5em;
+}
+
+.button-row-left {
+	float: left;
+}
+
+.button-row-right {
+	float: right;
+}
+
+.button-row-left .btn {
+	margin-right: .5em;
+}
+
+.button-row-right .btn {
+	margin-left: .5em;
 }

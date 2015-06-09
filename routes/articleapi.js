@@ -126,6 +126,8 @@ module.exports = function(app, prefix){
 		req.body.tags = removeDuplicates(req.body.tags);
 
 		// Remove fields that should not be updated
+		delete req.body._v;
+		delete req.body._id;
 		delete req.body.author;
 		delete req.body.created;
 

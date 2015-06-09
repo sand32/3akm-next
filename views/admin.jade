@@ -26,10 +26,15 @@ html(ng-app = "3akm.admin")
 	head
 		title 3AK^M Administrative Portal
 		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast-animations.min.css")
+		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/fontawesome/css/font-awesome.min.css")
+		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/textangular/textAngular.css")
 		link(rel = "stylesheet", type = "tsxt/css", href = "/css/admin.css")
 		meta(name = "viewport", content = "width=device-width, initial-scale=1")
 	body
 		base(href = "/admin/")
+		toast
 		.container-fluid.content-area
 			.menu.col-xs-2
 				a(ui-sref = "default")
@@ -65,6 +70,9 @@ html(ng-app = "3akm.admin")
 	script(src = "/thirdparty/angular-ui-router.min.js")
 	script(src = "/thirdparty/angular-loadscript.js")
 	script(src = "/thirdparty/ui-bootstrap-tpls-0.13.0.min.js")
+	script(src = "/thirdparty/textangular/textAngular-rangy.min.js")
+	script(src = "/thirdparty/textangular/textAngular-sanitize.min.js")
+	script(src = "/thirdparty/textangular/textAngular.min.js")
 	script(src = "/thirdparty/ngToast/ngToast.min.js")
 	script(src = "/thirdparty/d3.min.js")
 	script(src = "/js/admin.js")
