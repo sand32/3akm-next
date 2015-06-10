@@ -95,9 +95,9 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
-			create: function(id, postData){
+			retrieveAll: function(){
 				var deferred = $q.defer();
-				$http.post("/api/user", postData)
+				$http.get("/api/user")
 				.then(
 					function(response){
 						deferred.resolve(response.data);
@@ -112,6 +112,20 @@ misrepresented as being the original software.
 			retrieve: function(id){
 				var deferred = $q.defer();
 				$http.get("/api/user/" + id)
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			create: function(id, postData){
+				var deferred = $q.defer();
+				$http.post("/api/user", postData)
 				.then(
 					function(response){
 						deferred.resolve(response.data);

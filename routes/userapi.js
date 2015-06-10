@@ -107,29 +107,15 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix, 
+	app.get(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		var user = new User();
-		user.email = req.body.email;
-		user.passwordHash = user.hash(req.body.password);
-		user.firstName = req.body.firstName;
-		user.lastName = req.body.lastName;
-		user.primaryHandle = req.body.primaryHandle;
-		user.tertiaryHandles = req.body.tertiaryHandles;
-		user.lanInviteDesired = req.body.lanInviteDesired;
-		user.vip = req.body.vip;
-		user.blacklisted = req.body.blacklisted;
-		user.roles = removeDuplicates(req.body.roles);
-		user.services = req.body.services;
-		user.save(function(err){
+		User.find({}, function(err, docs){
 			if(err){
-				res.status(400).end();
+				res.status(500).end();
 			}else{
-				res.status(201)
-				.location(prefix + "/" + user._id)
-				.send({_id: user._id});
+				res.send(docs || []);
 			}
 		});
 	});
@@ -165,6 +151,33 @@ module.exports = function(app, prefix){
 				}
 
 				res.send(responseData);
+			}
+		});
+	});
+
+	app.post(prefix, 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["admin"]}), 
+	function(req, res){
+		var user = new User();
+		user.email = req.body.email;
+		user.passwordHash = user.hash(req.body.password);
+		user.firstName = req.body.firstName;
+		user.lastName = req.body.lastName;
+		user.primaryHandle = req.body.primaryHandle;
+		user.tertiaryHandles = req.body.tertiaryHandles;
+		user.lanInviteDesired = req.body.lanInviteDesired;
+		user.vip = req.body.vip;
+		user.blacklisted = req.body.blacklisted;
+		user.roles = removeDuplicates(req.body.roles);
+		user.services = req.body.services;
+		user.save(function(err){
+			if(err){
+				res.status(400).end();
+			}else{
+				res.status(201)
+				.location(prefix + "/" + user._id)
+				.send({_id: user._id});
 			}
 		});
 	});
