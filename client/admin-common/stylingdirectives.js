@@ -27,11 +27,19 @@ misrepresented as being the original software.
 		return {
 			restrict: "C",
 			link: function(scope, element, attrs){
-				var resizeContentArea = function(){
-					var contentHeight = element[0].offsetHeight,
+				var getDocHeight = function() {
+				    return Math.max(
+				        document.body.scrollHeight, document.documentElement.scrollHeight,
+				        document.body.offsetHeight, document.documentElement.offsetHeight,
+				        document.body.clientHeight, document.documentElement.clientHeight
+				    );
+				},
+
+				resizeContentArea = function(){
+					var documentHeight = getDocHeight(),
 						windowHeight = $window.innerHeight,
 						newCss = {
-							height: Math.max(windowHeight, contentHeight) + "px"
+							height: Math.max(windowHeight, documentHeight) + "px"
 						},
 						children;
 

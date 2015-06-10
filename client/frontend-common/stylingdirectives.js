@@ -27,20 +27,22 @@ misrepresented as being the original software.
 		return {
 			restrict: "C",
 			link: function(scope, element, attrs){
-				var resizeContentArea = function(){
-					var contentHeight = angular.element(document.querySelector(".header"))[0].offsetHeight 
-										+ angular.element(document.querySelector(".contentRow"))[0].offsetHeight 
-										+ angular.element(document.querySelector(".footer"))[0].offsetHeight,
-						containerHeight = element[0].offsetHeight,
+				var getDocHeight = function() {
+				    return Math.max(
+				        document.body.scrollHeight, document.documentElement.scrollHeight,
+				        document.body.offsetHeight, document.documentElement.offsetHeight,
+				        document.body.clientHeight, document.documentElement.clientHeight
+				    );
+				},
+
+				resizeContentArea = function(){
+					var documentHeight = getDocHeight(),
 						windowHeight = $window.innerHeight;
 
 					// Set content area to full height of window
-					if(windowHeight > containerHeight
-					|| contentHeight > containerHeight){
-						element.css({
-							height: Math.max(windowHeight, contentHeight) + "px"
-						});
-					}
+					element.css({
+						height: Math.max(windowHeight, documentHeight) + "px"
+					});
 				};
 				$rootScope.$on("ResizeContentArea", resizeContentArea);
 				$rootScope.$on("$viewContentLoaded", function(){
