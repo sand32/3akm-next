@@ -25,7 +25,7 @@
 	.page-title
 		h2 Article List
 	.page-content
-		.col-xs-6
+		.col-lg-6
 			.button-row
 				.button-row-left.button-row-padded
 					a.btn.btn-default(ng-click = "articles.startNew()")
@@ -53,7 +53,7 @@
 									span.text-success.glyphicon.glyphicon-ok(ng-if = "article.published")
 									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!article.published")
 								td Hello
-		.col-xs-6
+		.col-lg-6
 			.no-selection(ng-if = "!articles.current")
 				| No article selected
 			.panel.unrolling(ng-if = "articles.current")
