@@ -28,7 +28,7 @@
 		.col-lg-6
 			.button-row
 				.button-row-left.button-row-padded
-					a.btn.btn-default(ng-click = "articles.startNew()")
+					a.btn.btn-default(ui-sref = ".detail({articleId: 'new'})")
 						span.button-icon.glyphicon.glyphicon-plus
 						| New
 			.panel.no-padding
@@ -44,8 +44,8 @@
 								th
 						tbody
 							tr(ng-repeat = "article in articles.list",
-								ng-click = "articles.select($index)",
-								ng-class = "articles.list[$index]._id === articles.current._id ? 'selected' : ''")
+								ui-sref = ".detail({articleId: articles.list[$index]._id})",
+								ng-class = "articles.list[$index]._id === articles.selectedArticle ? 'selected' : ''")
 								td {{article.title}}
 								td {{article.author.firstName}} {{article.author.lastName}}
 								td {{article.created | date: "medium"}}
@@ -54,54 +54,6 @@
 									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!article.published")
 								td Hello
 		.col-lg-6
-			.no-selection(ng-if = "!articles.current")
+			.no-selection(ng-if = "!articles.selectedArticle")
 				| No article selected
-			.panel.unrolling(ng-if = "articles.current")
-				.panel-body
-					form(name = "articleForm", novalidate, ng-submit = "articles.save()")
-						.row
-							.form-group.col-xs-6
-								label Title 
-									span.text-danger (Required)
-								input.form-control(type = "text", name = "title", autofocus, ng-model = "articles.current.title", required)
-								.form-feedback.text-danger(ng-messages = "articleForm.title.$error", ng-if = "articleForm.title.$dirty", role = "alert")
-									div(ng-message = "required") A title is required
-							.form-group.col-xs-6
-								label Published
-								enum-select(current = "articles.current.published", possibles = "articles.boolPossibles")
-						.row
-							.well.col-xs-6
-								.row
-									label.col-xs-5 Created By:
-									.col-xs-7(ng-if = "articles.current.author") {{articles.current.author.firstName}} {{articles.current.author.lastName}} ({{articles.current.author.email}})
-									.col-xs-7(ng-if = "!articles.current.author") N/A
-								.row
-									label.col-xs-5 Created:
-									.col-xs-7(ng-if = "articles.current.created") {{articles.current.created | date: "medium"}}
-									.col-xs-7(ng-if = "!articles.current.created") N/A
-								.row
-									label.col-xs-5 Modified By:
-									.col-xs-7(ng-if = "articles.current.modifiedBy") {{articles.current.modifiedBy.firstName}} {{articles.current.modifiedBy.lastName}} ({{articles.current.modifiedBy.email}})
-									.col-xs-7(ng-if = "!articles.current.modifiedBy") N/A
-								.row
-									label.col-xs-5 Modified:
-									.col-xs-7(ng-if = "articles.current.modified") {{articles.current.modified | date: "medium"}}
-									.col-xs-7(ng-if = "!articles.current.modified") N/A
-						.row
-							.form-group.col-xs-6
-								label Tags
-								simple-array-entry(array-model = "articles.current.tags", addition-tooltip = "Add another tag", removal-tooltip = "Remove this tag")
-						.row
-							.form-group.col-xs-12
-								label Content
-								text-angular(ng-model = "articles.current.content")
-						.row
-							.col-xs-6
-								.button-row-left
-									input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "articleForm.$invalid")
-									a.btn.btn-link(ng-click = "articles.current = null") Cancel
-							.col-xs-6
-								.button-row-right
-									a.btn.btn-default(ng-if = "articles.current._id", ng-click = "articles.delete(articles.current._id)")
-										span.button-icon.glyphicon.glyphicon-trash
-										| Delete
+			div(ui-view = "detail")

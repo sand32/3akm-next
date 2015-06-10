@@ -23,130 +23,37 @@ misrepresented as being the original software.
 */
 
 require("../common/articleservice.js");
-require("../common/arrayentrydirectives.js");
-require("../common/confirmcontroller.js");
-require("../common/enumselectdirective.js");
+require("./articledetailcontroller.js");
 
 (function(){
-	var ArticleListController = function($scope, $timeout, $modal, $q, ngToast, ArticleService){
-		var articles = this, updateModel;
+	var ArticleListController = function($scope, $state, ngToast, ArticleService){
+		var articles = this;
 		articles.list = [];
-		articles.current = null;
-		articles.boolPossibles = [
-			{label: "Yes", value: true}, 
-			{label: "No", value: false}
-		];
 
-		updateModel = function(article){
-			var deferred = $q.defer();
-			if(article && article._id){
-				for(var i = 0; i < articles.list.length; i += 1){
-					if(articles.list[i]._id === article._id){
-						articles.list[i] = angular.copy(article);
-						deferred.resolve();
-					}
-				}
-				deferred.reject();
-			}else{
-				ArticleService.retrieveAll()
-				.then(
-					function(data){
-						articles.list = data;
-						deferred.resolve();
-					}, function(){
-						deferred.reject();
-					}
-				);
-			}
-			return deferred.promise;
-		};
-		updateModel();
+		$scope.$on("$stateChangeSuccess", function(){
+			articles.selectedArticle = $state.params.articleId;
+		});
 
-		articles.select = function(index){
-			articles.current = angular.copy(articles.list[index]);
-			$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-		};
-
-		articles.selectById = function(id){
-			for(var i = 0; i < articles.list.length; i += 1){
-				if(articles.list[i]._id === id){
-					articles.current = angular.copy(articles.list[i]);
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-					return;
-				}
-			}
-		};
-
-		articles.startNew = function(){
-			articles.current = {
-				published: false,
-				tags: []
-			};
-		};
-
-		articles.save = function(){
-			if(!articles.current._id){
-				ArticleService.create(articles.current)
-				.then(
-					function(data){
-						updateModel()
-						.then(function(){
-							articles.selectById(data.id);
-						});
-						ngToast.create("Article created.");
-					}, function(){
-						ngToast.danger("Failed to create article.");
-					}
-				);
-			}else{
-				ArticleService.edit(articles.current._id, articles.current)
-				.then(
-					function(){
-						updateModel(articles.current);
-						ngToast.create("Article updated.");
-					}, function(){
-						ngToast.danger("Failed to update article.");
-					}
-				);
-			}
-		};
-
-		articles.delete = function(id){
-			var modalInstance = $modal.open({
-				templateUrl: "/partial/confirmmodal",
-				controller: "ConfirmController as confirm",
-				resolve: {
-					message: function(){return "Are you sure you want to delete this article?";}
-				}
-			});
-
-			modalInstance.result.then(
-				function(){
-					ArticleService.delete(id)
-					.then(
-						function(){
-							updateModel();
-							articles.current = null;
-							ngToast.create("Article deleted.");
-						}, function(){
-							ngToast.danger("Failed to delete article.")
-						}
-					);
+		$scope.reloadList = function(){
+			ArticleService.retrieveAll()
+			.then(
+				function(data){
+					articles.list = data;
+				}, function(){
+					ngToast.danger("Failed to retrieve articles.");
 				}
 			);
 		};
+		$scope.reloadList();
 	};
 
 	angular
 		.module("3akm.admin.articleList", 
 			[
-				"textAngular",
 				"3akm.article",
-				"3akm.confirmModal",
-				"3akm.common.arrayentry",
-				"3akm.common.enumselect"
+				"3akm.admin.articleDetail"
 			])
 		.controller("ArticleListController", ArticleListController);
 
-	ArticleListController.$inject = ["$scope", "$timeout", "$modal", "$q", "ngToast", "ArticleService"];
+	ArticleListController.$inject = ["$scope", "$state", "ngToast", "ArticleService"];
 })();

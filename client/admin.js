@@ -41,6 +41,14 @@ require("./admin/userlistcontroller.js");
 				url: "/article",
 				templateUrl: "/partial/admin/articlelist"
 			})
+			.state("article.detail", {
+				url: "/:articleId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/articledetail"
+					}
+				}
+			})
 			.state("user", {
 				url: "/user",
 				templateUrl: "/partial/admin/userlist"
