@@ -31,6 +31,13 @@
 					a.btn.btn-default(ui-sref = ".detail({userId: 'new'})")
 						span.button-icon.glyphicon.glyphicon-plus
 						| New
+				.button-row-right.button-row-padded(tooltip = "Not yet implemented")
+					a.btn.btn-default(disabled)
+						span.button-icon.glyphicon.glyphicon-filter
+						| Filter
+					a.btn.btn-default(disabled)
+						span.button-icon.glyphicon.glyphicon-search
+						| Search
 			.panel.no-padding
 				.panel-content
 					.empty-table(ng-if = "users.list.length === 0") No users defined
