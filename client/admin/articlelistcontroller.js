@@ -77,6 +77,7 @@ require("../common/enumselectdirective.js");
 
 		articles.startNew = function(){
 			articles.current = {
+				published: false,
 				tags: []
 			};
 		};
