@@ -37,13 +37,21 @@ require("./admin/userlistcontroller.js");
 				url: "/",
 				templateUrl: "/partial/admin/dashboard"
 			})
-			.state("articleList", {
-				url: "/articlelist",
+			.state("article", {
+				url: "/article",
 				templateUrl: "/partial/admin/articlelist"
 			})
-			.state("userList", {
-				url: "/userlist",
+			.state("user", {
+				url: "/user",
 				templateUrl: "/partial/admin/userlist"
+			})
+			.state("user.detail", {
+				url: "/:userId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/userdetail"
+					}
+				}
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);

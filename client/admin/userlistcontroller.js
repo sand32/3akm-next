@@ -23,118 +23,37 @@ misrepresented as being the original software.
 */
 
 require("../common/userservice.js");
-require("../common/arrayentrydirectives.js");
-require("../common/confirmcontroller.js");
-require("../common/enumselectdirective.js");
+require("./userdetailcontroller.js");
 
 (function(){
-	var UserListController = function($scope, $timeout, $modal, $q, ngToast, UserService){
-		var users = this, updateModel;
+	var UserListController = function($scope, $state, ngToast, UserService){
+		var users = this;
 		users.list = [];
-		users.current = null;
-		users.boolPossibles = [
-			{label: "Yes", value: true}, 
-			{label: "No", value: false}
-		];
 
-		updateModel = function(user){
-			var deferred = $q.defer();
-			if(user && user._id){
-				for(var i = 0; i < users.list.length; i += 1){
-					if(users.list[i]._id === user._id){
-						users.list[i] = angular.copy(user);
-						deferred.resolve();
-					}
-				}
-				deferred.reject();
-			}else{
-				UserService.retrieveAll()
-				.then(
-					function(data){
-						users.list = data;
-						deferred.resolve();
-					}, function(){
-						deferred.reject();
-					}
-				);
-			}
-			return deferred.promise;
-		};
-		updateModel();
+		$scope.$on("$stateChangeSuccess", function(){
+			users.selectedUser = $state.params.userId;
+		});
 
-		users.select = function(index){
-			users.current = angular.copy(users.list[index]);
-			$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-		};
-
-		users.selectById = function(id){
-			for(var i = 0; i < users.list.length; i += 1){
-				if(users.list[i]._id === id){
-					users.current = angular.copy(users.list[i]);
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-					return;
-				}
-			}
-		};
-
-		users.startNew = function(){
-			users.current = {
-				lanInviteDesired: true,
-				blacklisted: false,
-				tertiaryHandles: [],
-				roles: []
-			};
-		};
-
-		users.save = function(){
-			if(!users.current._id){
-				UserService.create(users.current)
-				.then(
-					function(data){
-						updateModel()
-						.then(function(){
-							users.selectById(data.id);
-						});
-						ngToast.create("User created.");
-					}, function(){
-						ngToast.danger("Failed to create user.");
-					}
-				);
-			}else{
-				UserService.edit(users.current._id, users.current)
-				.then(
-					function(){
-						updateModel(users.current);
-						ngToast.create("User updated.");
-					}, function(){
-						ngToast.danger("Failed to update user.");
-					}
-				);
-			}
-		};
-
-		users.resendVerificationEmail = function(){
-			UserService.resendVerificationEmail()
+		$scope.reloadList = function(){
+			UserService.retrieveAll()
 			.then(
-				function(){
-					ngToast.create("Verification email sent.");
-				},
-				function(){
-					ngToast.danger("Failed to send verification email.");
+				function(data){
+					users.list = data;
+				}, function(){
+					ngToast.danger("Failed to retrieve users.");
 				}
 			);
 		};
+		$scope.reloadList();
 	};
 
 	angular
 		.module("3akm.admin.userList", 
 			[
 				"3akm.user",
-				"3akm.confirmModal",
-				"3akm.common.arrayentry",
-				"3akm.common.enumselect"
+				"3akm.admin.userDetail"
 			])
 		.controller("UserListController", UserListController);
 
-	UserListController.$inject = ["$scope", "$timeout", "$modal", "$q", "ngToast", "UserService"];
+	UserListController.$inject = ["$scope", "$state", "ngToast", "UserService"];
 })();
