@@ -32,6 +32,7 @@ require("../common/enumselectdirective.js");
 		user.current = {
 			lanInviteDesired: true,
 			blacklisted: false,
+			vip: false,
 			tertiaryHandles: [],
 			roles: []
 		};

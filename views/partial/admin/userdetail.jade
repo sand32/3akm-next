@@ -39,6 +39,16 @@ div(ng-controller = "UserDetailController as user")
 					.field-align.col-xs-6(ng-if = "user.current.verified")
 						span.text-success.form-control-static.col-xs-6 Been verified!
 				.row
+					.well.col-xs-6
+						.row
+							label.col-xs-5 Created:
+							.col-xs-7(ng-if = "user.current.created") {{user.current.created | date: "medium"}}
+							.col-xs-7(ng-if = "!user.current.created") N/A
+						.row
+							label.col-xs-5 Modified:
+							.col-xs-7(ng-if = "user.current.modified") {{user.current.modified | date: "medium"}}
+							.col-xs-7(ng-if = "!user.current.modified") N/A
+				.row
 					.form-group.col-xs-6
 						label First Name
 						input.form-control(type = "text", name = "firstName", ng-model = "user.current.firstName")
@@ -59,15 +69,9 @@ div(ng-controller = "UserDetailController as user")
 					.form-group.col-xs-3
 						label Blacklisted
 						enum-select(current = "user.current.blacklisted", possibles = "user.boolPossibles")
-					.well.col-xs-6
-						.row
-							label.col-xs-5 Created:
-							.col-xs-7(ng-if = "user.current.created") {{user.current.created | date: "medium"}}
-							.col-xs-7(ng-if = "!user.current.created") N/A
-						.row
-							label.col-xs-5 Modified:
-							.col-xs-7(ng-if = "user.current.modified") {{user.current.modified | date: "medium"}}
-							.col-xs-7(ng-if = "!user.current.modified") N/A
+					.form-group.col-xs-3
+						label VIP
+						enum-select(current = "user.current.vip", possibles = "user.boolPossibles")
 				.row
 					.form-group.col-xs-4
 						label Roles
