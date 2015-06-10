@@ -83,7 +83,7 @@ misrepresented as being the original software.
 
 			resendVerificationEmail: function(id){
 				var deferred = $q.defer();
-				$http.post("/api/user/" + id + "verify")
+				$http.post("/api/user/" + id + "/verify")
 				.then(
 					function(response){
 						deferred.resolve(response.data);
