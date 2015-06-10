@@ -29,6 +29,34 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix){
+	app.get(prefix, 
+		blendedAuthenticate, 
+	function(req, res){
+		Game.find({})
+		.exec(function(err, docs){
+			if(err){
+				res.status(500).end();
+			}else{
+				res.send(docs || []);
+			}
+		});
+	});
+
+	app.get(prefix + "/:game", 
+		blendedAuthenticate, 
+	function(req, res){
+		Game.findById(req.params.game)
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.send(doc);
+			}
+		});
+	});
+
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
@@ -51,20 +79,7 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(201)
 				.location(prefix + "/" + game._id)
-				.end();
-			}
-		});
-	});
-
-	app.get(prefix + "/:game", 
-		blendedAuthenticate, 
-	function(req, res){
-		Game.findById(req.params.game)
-		.exec(function(err, doc){
-			if(doc){
-				res.status(200).send(doc);
-			}else{
-				res.status(404).end();
+				.send({_id: game._id});
 			}
 		});
 	});
