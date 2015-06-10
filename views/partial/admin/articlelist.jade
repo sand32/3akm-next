@@ -88,7 +88,7 @@
 									.col-xs-7(ng-if = "articles.current.modified") {{articles.current.modified | date: "medium"}}
 									.col-xs-7(ng-if = "!articles.current.modified") N/A
 						.row
-							.col-xs-6
+							.form-group.col-xs-6
 								label Tags
 								simple-array-entry(array-model = "articles.current.tags", addition-tooltip = "Add another tag", removal-tooltip = "Remove this tag")
 						.row
