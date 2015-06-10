@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var SimpleArrayEntry = function(){
+	var SimpleArrayEntry = function($timeout){
 		return {
 			restrict: "E",
 			replace: true,
@@ -34,13 +34,18 @@ misrepresented as being the original software.
 				removalTooltip: "@"
 			},
 			link: function(scope, element, attrs){
+				var emitResizeEvent = function(){
+					scope.$emit("ResizeContentArea");
+				};
+
 				scope.addItem = function(){
 					scope.items.push("");
-					scope.$emit("ResizeContentArea");
-				}
+					$timeout(emitResizeEvent, 100);
+				};
+
 				scope.removeItem = function(index){
 					scope.items.splice(index, 1);
-					scope.$emit("ResizeContentArea");
+					emitResizeEvent();
 				};
 			}
 		}
@@ -50,5 +55,5 @@ misrepresented as being the original software.
 		.module("3akm.common.arrayentry", [])
 		.directive("simpleArrayEntry", SimpleArrayEntry);
 
-	SimpleArrayEntry.$inject = [];
+	SimpleArrayEntry.$inject = ["$timeout"];
 })();
