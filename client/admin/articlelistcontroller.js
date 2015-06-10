@@ -59,6 +59,12 @@ require("../common/enumselectdirective.js");
 			articles.current = angular.copy(articles.list[index]);
 		};
 
+		articles.startNew = function(){
+			articles.current = {
+				tags: []
+			};
+		};
+
 		articles.save = function(){
 			if(!articles.current._id){
 				ArticleService.create(articles.current)
