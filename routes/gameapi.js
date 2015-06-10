@@ -27,6 +27,7 @@ var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix){
 	app.get(prefix, 
@@ -60,6 +61,7 @@ module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		var uniqueStores = [];
 		for(var i = 0; i < req.body.stores.length; i += 1){
@@ -87,6 +89,7 @@ module.exports = function(app, prefix){
 	app.put(prefix + "/:game", 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();

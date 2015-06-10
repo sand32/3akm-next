@@ -77,6 +77,12 @@ module.exports = {
 		}
 	},
 
+	sanitizeBodyForDB: function(req, res, next){
+		if(req.body.__v) delete req.body.__v;
+		if(req.body._id) delete req.body._id;
+		next();
+	},
+
 	removeDuplicates: function(array){
 		if(!array || !Array.isArray(array)){
 			return array;
