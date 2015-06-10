@@ -28,7 +28,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleListController = function(ngToast, $modal, $q, ArticleService){
+	var ArticleListController = function($scope, $timeout, $modal, $q, ngToast, ArticleService){
 		var articles = this, updateModel;
 		articles.list = [];
 		articles.current = null;
@@ -64,12 +64,14 @@ require("../common/enumselectdirective.js");
 
 		articles.select = function(index){
 			articles.current = angular.copy(articles.list[index]);
+			$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 		};
 
 		articles.selectById = function(id){
 			for(var i = 0; i < articles.list.length; i += 1){
 				if(articles.list[i]._id === id){
 					articles.current = angular.copy(articles.list[i]);
+					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 					return;
 				}
 			}
@@ -146,5 +148,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ArticleListController", ArticleListController);
 
-	ArticleListController.$inject = ["ngToast", "$modal", "$q", "ArticleService"];
+	ArticleListController.$inject = ["$scope", "$timeout", "$modal", "$q", "ngToast", "ArticleService"];
 })();
