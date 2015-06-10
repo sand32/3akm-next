@@ -25,6 +25,7 @@ misrepresented as being the original software.
 require("./admin-common/stylingdirectives.js");
 require("./admin/dashboard/dashboardcontroller.js");
 require("./admin/articlelistcontroller.js");
+require("./admin/userlistcontroller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -39,6 +40,10 @@ require("./admin/articlelistcontroller.js");
 			.state("articleList", {
 				url: "/articlelist",
 				templateUrl: "/partial/admin/articlelist"
+			})
+			.state("userList", {
+				url: "/userlist",
+				templateUrl: "/partial/admin/userlist"
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
@@ -60,7 +65,8 @@ require("./admin/articlelistcontroller.js");
 				"ngToast",
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
-				"3akm.admin.articleList"
+				"3akm.admin.articleList",
+				"3akm.admin.userList"
 			])
 		.config(Config);
 

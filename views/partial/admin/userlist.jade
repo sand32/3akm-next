@@ -1,0 +1,108 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2015 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.article-list(ng-controller = "UserListController as users")
+	.page-title
+		h2 User List
+	.page-content
+		.col-lg-6
+			.button-row
+				.button-row-left.button-row-padded
+					a.btn.btn-default(ng-click = "users.startNew()")
+						span.button-icon.glyphicon.glyphicon-plus
+						| New
+			.panel.no-padding
+				.panel-content
+					.empty-table(ng-if = "users.list.length === 0") No users defined
+					table(ng-if = "users.list.length > 0")
+						thead
+							tr
+								th Name
+								th Email
+								th Created
+								th Verified
+								th
+						tbody
+							tr(ng-repeat = "user in users.list",
+								ng-click = "users.select($index)",
+								ng-class = "users.list[$index]._id === users.current._id ? 'selected' : ''")
+								td {{user.firstName}} {{user.lastName}}
+								td {{user.email}}
+								td {{user.created | date: "medium"}}
+								td
+									span.text-success.glyphicon.glyphicon-ok(ng-if = "user.verified")
+									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!user.verified")
+								td Hello
+		.col-lg-6
+			.no-selection(ng-if = "!users.current")
+				| No user selected
+			.panel.unrolling(ng-if = "users.current")
+				.panel-body
+					form(name = "userForm", novalidate, ng-submit = "users.save()")
+						.row
+							.form-group.col-xs-6
+								label Email 
+									span.text-danger (Required)
+								input.form-control(type = "email", name = "email", autofocus, ng-model = "users.current.email", required)
+								.form-feedback.text-danger(ng-messages = "userForm.email.$error", ng-if = "userForm.email.$dirty", role = "alert")
+									div(ng-message = "required") An email is required
+									div(ng-message = "email") Invalid email
+							.well.col-xs-6
+								.row
+									label.col-xs-5 Created:
+									.col-xs-7(ng-if = "users.current.created") {{users.current.created | date: "medium"}}
+									.col-xs-7(ng-if = "!users.current.created") N/A
+								.row
+									label.col-xs-5 Modified:
+									.col-xs-7(ng-if = "users.current.modified") {{users.current.modified | date: "medium"}}
+									.col-xs-7(ng-if = "!users.current.modified") N/A
+						.row
+							.form-group.col-xs-6
+								label First Name
+								input.form-control(type = "text", name = "firstName", ng-model = "users.current.firstName")
+							.form-group.col-xs-6
+								label Last Name
+								input.form-control(type = "text", name = "lastName", ng-model = "users.current.lastName")
+						.row
+							.form-group.col-xs-6
+								label Handles
+								input.form-control(type = "text", name = "primaryHandle", ng-model = "users.current.primaryHandle", placeholder = "Primary Handle")
+						.row
+							.form-group.col-xs-6
+								simple-array-entry(array-model = "users.current.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
+						.row
+							.form-group.col-xs-3
+								label LAN Invite Desired
+								enum-select(current = "users.current.lanInviteDesired", possibles = "users.boolPossibles")
+							.form-group.col-xs-3
+								label Blacklisted
+								enum-select(current = "users.current.blacklisted", possibles = "users.boolPossibles")
+						.row
+							.form-group.col-xs-4
+								label Roles
+								simple-array-entry(array-model = "users.current.roles", addition-tooltip = "Add another role", removal-tooltip = "Remove this role")
+						.row
+							.col-xs-6
+								.button-row-left
+									input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "userForm.$invalid")
+									a.btn.btn-link(ng-click = "users.current = null") Cancel
