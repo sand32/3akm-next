@@ -188,6 +188,10 @@ table .selected {
 	background-color: #96E6D4;
 }
 
+.field-align {
+	margin-top: 1.8em;
+}
+
 .array-item {
 	margin-top: .5em;
 }

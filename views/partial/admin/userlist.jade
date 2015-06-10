@@ -67,15 +67,11 @@
 								.form-feedback.text-danger(ng-messages = "userForm.email.$error", ng-if = "userForm.email.$dirty", role = "alert")
 									div(ng-message = "required") An email is required
 									div(ng-message = "email") Invalid email
-							.well.col-xs-6
-								.row
-									label.col-xs-5 Created:
-									.col-xs-7(ng-if = "users.current.created") {{users.current.created | date: "medium"}}
-									.col-xs-7(ng-if = "!users.current.created") N/A
-								.row
-									label.col-xs-5 Modified:
-									.col-xs-7(ng-if = "users.current.modified") {{users.current.modified | date: "medium"}}
-									.col-xs-7(ng-if = "!users.current.modified") N/A
+							.field-align.col-xs-6(ng-if = "!users.current.verified")
+								span.text-danger.form-control-static.col-xs-6 Email not verified!
+								a.col-xs-6(class = "btn btn-danger" ng-click = "users.resendVerificationEmail()") Resend Verification
+							.field-align.col-xs-6(ng-if = "users.current.verified")
+								span.text-success.form-control-static.col-xs-6 Been verified!
 						.row
 							.form-group.col-xs-6
 								label First Name
@@ -97,6 +93,15 @@
 							.form-group.col-xs-3
 								label Blacklisted
 								enum-select(current = "users.current.blacklisted", possibles = "users.boolPossibles")
+							.well.col-xs-6
+								.row
+									label.col-xs-5 Created:
+									.col-xs-7(ng-if = "users.current.created") {{users.current.created | date: "medium"}}
+									.col-xs-7(ng-if = "!users.current.created") N/A
+								.row
+									label.col-xs-5 Modified:
+									.col-xs-7(ng-if = "users.current.modified") {{users.current.modified | date: "medium"}}
+									.col-xs-7(ng-if = "!users.current.modified") N/A
 						.row
 							.form-group.col-xs-4
 								label Roles

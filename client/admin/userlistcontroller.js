@@ -112,6 +112,18 @@ require("../common/enumselectdirective.js");
 				);
 			}
 		};
+
+		users.resendVerificationEmail = function(){
+			UserService.resendVerificationEmail()
+			.then(
+				function(){
+					ngToast.create("Verification email sent.");
+				},
+				function(){
+					ngToast.danger("Failed to send verification email.");
+				}
+			);
+		};
 	};
 
 	angular
