@@ -41,7 +41,6 @@
 								th Email
 								th Created
 								th Verified
-								th
 						tbody
 							tr(ng-repeat = "user in users.list",
 								ui-sref = ".detail({userId: users.list[$index]._id})",
@@ -52,7 +51,6 @@
 								td
 									span.text-success.glyphicon.glyphicon-ok(ng-if = "user.verified")
 									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!user.verified")
-								td Hello
 		.col-lg-6
 			.no-selection(ng-if = "!users.selectedUser")
 				| No user selected

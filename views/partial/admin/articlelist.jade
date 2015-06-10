@@ -41,7 +41,6 @@
 								th Author
 								th Created
 								th Published
-								th
 						tbody
 							tr(ng-repeat = "article in articles.list",
 								ui-sref = ".detail({articleId: articles.list[$index]._id})",
@@ -52,7 +51,6 @@
 								td
 									span.text-success.glyphicon.glyphicon-ok(ng-if = "article.published")
 									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!article.published")
-								td Hello
 		.col-lg-6
 			.no-selection(ng-if = "!articles.selectedArticle")
 				| No article selected
