@@ -78,6 +78,15 @@ a.btn-link:hover {
 	box-shadow: 2px 3px 2px #AAA;
 }
 
+.panel.unrolling.ng-enter {
+	transition: 0.3s linear all;
+	opacity: 0;
+}
+
+.panel.unrolling.ng-enter-active {
+	opacity: 1;
+}
+
 .panel-header h2 {
 	margin-top: .5em;
 	margin-left: .5em;
@@ -173,12 +182,20 @@ table .selected {
 	margin-right: .5em;
 }
 
+.button-row {
+	height: 3.5em;
+}
+
 .button-row-left {
 	float: left;
 }
 
 .button-row-right {
 	float: right;
+}
+
+.button-row-padded {
+	padding: .5em;
 }
 
 .button-row-left .btn {
