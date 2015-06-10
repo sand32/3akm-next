@@ -25,6 +25,20 @@ misrepresented as being the original software.
 (function(){
 	var GameService = function($http, $q){
 		return {
+			retrieveAll: function(){
+				var deferred = $q.defer();
+				$http.get("/api/game")
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
 			retrieve: function(id){
 				var deferred = $q.defer();
 				$http.get("/api/game/" + id)
@@ -43,8 +57,8 @@ misrepresented as being the original software.
 				var deferred = $q.defer();
 				$http.post("/api/game", postData)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);
@@ -57,8 +71,8 @@ misrepresented as being the original software.
 				var deferred = $q.defer();
 				$http.put("/api/game/" + id, putData)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);
@@ -69,10 +83,10 @@ misrepresented as being the original software.
 
 			delete: function(id){
 				var deferred = $q.defer();
-				$http.put("/api/game/" + id)
+				$http.delete("/api/game/" + id)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);
