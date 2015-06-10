@@ -27,7 +27,8 @@ var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Game = require("../model/game.js"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/:lan", 
@@ -103,6 +104,7 @@ module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		var lan = new Lan(req.body);
 		lan.save(function(err){
@@ -111,7 +113,7 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(201)
 				.location(prefix + "/" + lan._id)
-				.end();
+				.send({_id: lan._id});
 			}
 		});
 	});
@@ -119,12 +121,8 @@ module.exports = function(app, prefix){
 	app.put(prefix + "/:lan", 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-			return res.status(404).end();
-		}
-
-		// Apply the update
 		Lan.findByIdAndUpdate(req.params.lan, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -140,10 +138,6 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-			return res.status(404).end();
-		}
-
 		Lan.findByIdAndRemove(req.params.lan, function(err, doc){
 			if(err){
 				res.status(400).end();
