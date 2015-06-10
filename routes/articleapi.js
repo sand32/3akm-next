@@ -109,7 +109,7 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(201)
 				.location(prefix + "/" + article._id)
-				.send({id: article._id});
+				.send({_id: article._id});
 			}
 		});
 	});

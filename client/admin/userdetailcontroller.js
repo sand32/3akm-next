@@ -47,6 +47,7 @@ require("../common/enumselectdirective.js");
 					user.current = data;
 				},
 				function(){
+					$state.go("^");
 					ngToast.danger("Failed to retrieve user.");
 				}
 			);
@@ -58,6 +59,7 @@ require("../common/enumselectdirective.js");
 				.then(
 					function(data){
 						$scope.reloadList();
+						$state.go(".", {userId: data._id});
 						ngToast.create("User created.");
 					}, function(){
 						ngToast.danger("Failed to create user.");

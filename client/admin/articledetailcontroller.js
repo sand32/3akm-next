@@ -58,7 +58,7 @@ require("../common/enumselectdirective.js");
 				.then(
 					function(data){
 						$scope.reloadList();
-						$state.go(".", {articleId: data.id});
+						$state.go(".", {articleId: data._id});
 						ngToast.create("Article created.");
 					}, function(){
 						ngToast.danger("Failed to create article.");
