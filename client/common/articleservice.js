@@ -57,8 +57,8 @@ misrepresented as being the original software.
 				var deferred = $q.defer();
 				$http.post("/api/article", postData)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);
@@ -71,8 +71,8 @@ misrepresented as being the original software.
 				var deferred = $q.defer();
 				$http.put("/api/article/" + id, putData)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);
@@ -85,8 +85,8 @@ misrepresented as being the original software.
 				var deferred = $q.defer();
 				$http.delete("/api/article/" + id)
 				.then(
-					function(){
-						deferred.resolve();
+					function(response){
+						deferred.resolve(response.data);
 					},
 					function(response){
 						deferred.reject(response.status);

@@ -28,7 +28,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleListController = function(ngToast, $modal, ArticleService){
+	var ArticleListController = function(ngToast, $modal, $q, ArticleService){
 		var articles = this, updateModel;
 		articles.list = [];
 		articles.current = null;
@@ -38,25 +38,41 @@ require("../common/enumselectdirective.js");
 		];
 
 		updateModel = function(article){
+			var deferred = $q.defer();
 			if(article && article._id){
 				for(var i = 0; i < articles.list.length; i += 1){
 					if(articles.list[i]._id === article._id){
 						articles.list[i] = angular.copy(article);
+						deferred.resolve();
 					}
 				}
+				deferred.reject();
 			}else{
 				ArticleService.retrieveAll()
 				.then(
 					function(data){
 						articles.list = data;
+						deferred.resolve();
+					}, function(){
+						deferred.reject();
 					}
 				);
 			}
+			return deferred.promise;
 		};
 		updateModel();
 
 		articles.select = function(index){
 			articles.current = angular.copy(articles.list[index]);
+		};
+
+		articles.selectById = function(id){
+			for(var i = 0; i < articles.list.length; i += 1){
+				if(articles.list[i]._id === id){
+					articles.current = angular.copy(articles.list[i]);
+					return;
+				}
+			}
 		};
 
 		articles.startNew = function(){
@@ -69,8 +85,11 @@ require("../common/enumselectdirective.js");
 			if(!articles.current._id){
 				ArticleService.create(articles.current)
 				.then(
-					function(){
-						updateModel();
+					function(data){
+						updateModel()
+						.then(function(){
+							articles.selectById(data.id);
+						});
 						ngToast.create("Article created.");
 					}, function(){
 						ngToast.danger("Failed to create article.");
@@ -126,5 +145,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ArticleListController", ArticleListController);
 
-	ArticleListController.$inject = ["ngToast", "$modal", "ArticleService"];
+	ArticleListController.$inject = ["ngToast", "$modal", "$q", "ArticleService"];
 })();
