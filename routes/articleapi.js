@@ -27,7 +27,8 @@ var mongoose = require("mongoose"),
 	isAuthorized = require("../authorization.js").isAuthorized,
 	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
-	removeDuplicates = require("../utils/common.js").removeDuplicates;
+	removeDuplicates = require("../utils/common.js").removeDuplicates,
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
@@ -38,10 +39,8 @@ module.exports = function(app, prefix){
 			.exec(function(err, docs){
 				if(err){
 					res.status(500).end();
-				}else if(!docs){
-					res.status(404).end();
 				}else{
-					res.send(docs);
+					res.send(docs || []);
 				}
 			});
 		}else{
@@ -51,10 +50,8 @@ module.exports = function(app, prefix){
 			.exec(function(err, docs){
 				if(err){
 					res.status(500).end();
-				}else if(!docs){
-					res.status(404).end();
 				}else{
-					res.send(docs);
+					res.send(docs || []);
 				}
 			});
 		}
@@ -96,6 +93,7 @@ module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["author"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		var article = new Article();
 		article.title = req.body.title;
@@ -117,6 +115,7 @@ module.exports = function(app, prefix){
 	app.put(prefix + "/:article", 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["author"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
