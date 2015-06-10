@@ -47,7 +47,9 @@ misrepresented as being the original software.
 					element.css(newCss);
 					children = element.children();
 					for(var i = 0; i < children.length; i += 1){
-						angular.element(children[i]).css(newCss);
+						if(angular.element(children[i]).hasClass("auto-resize")){
+							angular.element(children[i]).css(newCss);
+						}
 					}
 				};
 				$rootScope.$on("ResizeContentArea", resizeContentArea);
