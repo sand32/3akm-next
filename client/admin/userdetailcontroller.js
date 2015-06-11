@@ -25,6 +25,7 @@ misrepresented as being the original software.
 require("../common/userservice.js");
 require("../common/arrayentrydirectives.js");
 require("../common/enumselectdirective.js");
+require("../common/validationdirectives.js");
 
 (function(){
 	var UserDetailController = function($scope, $state, ngToast, UserService){
@@ -96,6 +97,7 @@ require("../common/enumselectdirective.js");
 		.module("3akm.admin.userDetail", 
 			[
 				"3akm.user",
+				"3akm.common.validation",
 				"3akm.common.arrayentry",
 				"3akm.common.enumselect"
 			])

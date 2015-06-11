@@ -38,6 +38,18 @@ div(ng-controller = "UserDetailController as user")
 						a.col-xs-6(class = "btn btn-danger" ng-click = "user.resendVerificationEmail()") Resend Verification
 					.field-align.col-xs-6(ng-if = "user.current.verified")
 						span.text-success.form-control-static.col-xs-6 Been verified!
+				.row(ng-if = "!user.current._id")
+					.form-group.col-xs-6
+						label Password 
+							span.text-danger (Required)
+						input.form-control(type = "password", name = "password", ng-model = "user.current.password", required)
+						.form-feedback.text-danger(ng-messages = "userForm.password.$error", ng-if = "userForm.password.$dirty", role = "alert")
+							div(ng-message = "required") An password is required
+					.form-group.col-xs-6
+						label Confirm Password
+						input.form-control(type = "password", name = "confirmPassword", ng-model = "user.confirmPassword", compare-to = "user.current.password")
+						.form-feedback.text-danger(ng-messages = "userForm.confirmPassword.$error", ng-if = "userForm.confirmPassword.$dirty", role = "alert")
+							div(ng-message = "compareTo") Passwords must match
 				.row
 					.well.col-xs-6
 						.row

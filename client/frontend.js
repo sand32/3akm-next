@@ -31,7 +31,7 @@ require("./user/profilecontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
 require("./frontend-common/stylingdirectives.js");
-require("./frontend-common/validationdirectives.js");
+require("./common/validationdirectives.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -94,8 +94,8 @@ require("./frontend-common/validationdirectives.js");
 				"ngAnimate",
 				"ngToast",
 				"3akm.common.arrayentry",
+				"3akm.common.validation",
 				"3akm.frontend.styling",
-				"3akm.frontend.validation",
 				"3akm.article",
 				"3akm.gameList",
 				"3akm.appearances",

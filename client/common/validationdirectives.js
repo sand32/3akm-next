@@ -42,6 +42,6 @@ misrepresented as being the original software.
 	};
 
 	angular
-		.module("3akm.frontend.validation", [])
+		.module("3akm.common.validation", [])
 		.directive("compareTo", CompareTo);
 })();
