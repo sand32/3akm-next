@@ -31,7 +31,7 @@ require("./admin/lanlistcontroller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
-		$urlRouterProvider.otherwise("/admin");
+		$urlRouterProvider.otherwise("/");
 		$locationProvider.html5Mode(true);
 
 		$stateProvider
