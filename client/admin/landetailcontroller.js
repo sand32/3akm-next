@@ -80,6 +80,13 @@ require("../common/enumselectdirective.js");
 		}
 
 		lan.save = function(){
+			for(var i = 0; i < lan.current.games.length; i += 1){
+				if(lan.current.games[i].tournamentName === ""){
+					lan.current.games[i].tournament = false;
+				}else{
+					lan.current.games[i].tournament = true;
+				}
+			}
 			if($state.params.lanId === "new"){
 				LanService.create(lan.current)
 				.then(
