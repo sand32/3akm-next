@@ -200,6 +200,10 @@ table .selected {
 	margin-top: .5em;
 }
 
+.input-group-align .btn {
+	margin-top: -2px;
+}
+
 .button-icon {
 	margin-right: .5em;
 }

@@ -27,6 +27,7 @@ require("./admin/dashboard/dashboardcontroller.js");
 require("./admin/articlelistcontroller.js");
 require("./admin/userlistcontroller.js");
 require("./admin/gamelistcontroller.js");
+require("./admin/lanlistcontroller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -73,6 +74,18 @@ require("./admin/gamelistcontroller.js");
 						templateUrl: "/partial/admin/gamedetail"
 					}
 				}
+			})
+			.state("lan", {
+				url: "/lan",
+				templateUrl: "/partial/admin/lanlist"
+			})
+			.state("lan.detail", {
+				url: "/:lanId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/landetail"
+					}
+				}
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
@@ -97,7 +110,8 @@ require("./admin/gamelistcontroller.js");
 				"3akm.admin.dashboard",
 				"3akm.admin.articleList",
 				"3akm.admin.userList",
-				"3akm.admin.gameList"
+				"3akm.admin.gameList",
+				"3akm.admin.lanList"
 			])
 		.config(Config);
 
