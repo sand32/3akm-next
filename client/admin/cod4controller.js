@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("../common/cod4service.js");
 
 (function(){
-	var Cod4Controller = function($interval, ngToast, Cod4Service){
+	var Cod4Controller = function($scope, $interval, ngToast, Cod4Service){
 		var cod4 = this;
 		cod4.map = "Loading...";
 		cod4.gametype = "Loading...";
@@ -111,7 +111,10 @@ require("../common/cod4service.js");
 		};
 
 		cod4.reloadStatus();
-		$interval(cod4.reloadStatus, 10000);
+		var intervalPromise = $interval(cod4.reloadStatus, 10000);
+		$scope.$on("$destroy", function(){
+			$interval.cancel(intervalPromise);
+		});
 	};
 
 	angular
@@ -121,5 +124,5 @@ require("../common/cod4service.js");
 			])
 		.controller("Cod4Controller", Cod4Controller);
 
-	Cod4Controller.$inject = ["$interval", "ngToast", "Cod4Service"];
+	Cod4Controller.$inject = ["$scope", "$interval", "ngToast", "Cod4Service"];
 })();
