@@ -25,7 +25,8 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Store = require("../model/store.js"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
@@ -54,6 +55,7 @@ module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		var store = new Store(req.body);
 		store.save(function(err){
@@ -70,6 +72,7 @@ module.exports = function(app, prefix){
 	app.put(prefix + "/:store", 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
 			if(err){
