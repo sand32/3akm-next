@@ -29,7 +29,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var LanDetailController = function($scope, $timeout, $state, $modal, ngToast, LanService){
+	var LanDetailController = function($scope, $timeout, $state, $modal, ngToast, LanService, GameService){
 		var lan = this;
 		lan.current = {
 			active: false,
@@ -37,6 +37,7 @@ require("../common/enumselectdirective.js");
 			games: [],
 			foodRequired: []
 		};
+		lan.gamesEnum = [];
 		lan.boolPossibles = [
 			{label: "Yes", value: true}, 
 			{label: "No", value: false}
@@ -45,6 +46,22 @@ require("../common/enumselectdirective.js");
 			active: "Determines whether a LAN is visible to the public. Affects: Games page, RSVP form, Appearances page.",
 			acceptingRsvps: "Determines whether a LAN is accepting RSVPs. Most utilities will also use the Begin Date of the LAN to determine behavior. Affects: RSVP form, Appearances page."
 		};
+
+		GameService.retrieveAll()
+		.then(
+			function(data){
+				for(var i = 0; i < data.length; i += 1){
+					lan.gamesEnum.push({
+						key: data[i].name,
+						value: data[i]._id
+					});
+				}
+			},
+			function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve games.");
+			}
+		);
 
 		if($state.params.lanId && $state.params.lanId !== "new"){
 			LanService.retrieve($state.params.lanId)
@@ -123,5 +140,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("LanDetailController", LanDetailController);
 
-	LanDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "LanService"];
+	LanDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "LanService", "GameService"];
 })();

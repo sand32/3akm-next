@@ -23,16 +23,16 @@
 
 .enum-value-array-entry
 	.row.array-item(ng-repeat = "item in items track by $index")
-		.form-group.col-xs-3
-			label(ng-if = "$index === 0") {{keyName}}
+		.form-group.col-xs-4
+			label(ng-if = "$index === 0") {{keyLabel}}
 			div.dropdown(dropdown)
-				a.dropdown-toggle.btn.btn-default(dropdown-toggle) {{getEnumKeyFromValue(item[keyName.toLowerCase()])}} 
+				a.dropdown-toggle.btn.btn-default(dropdown-toggle) {{getEnumKeyFromValue(item[keyName])}} 
 					span.caret
 				ul.dropdown-menu
 					li(ng-repeat = "enumItem in enumeration")
 						a(href = "#", ng-click = "setEnumKey($parent.$index, $index, enumItem.value)") {{enumItem.key}}
-		.form-group.col-xs-8
-			label(ng-if = "$index === 0") {{valueName}}
-			input.form-control(type = "text", ng-model = "item[valueName.toLowerCase()]")
+		.form-group.col-xs-7
+			label(ng-if = "$index === 0") {{valueLabel}}
+			input.form-control(type = "text", ng-model = "item[valueName]")
 		a.btn.btn-default.glyphicon.glyphicon-minus(tooltip = "{{removalTooltip}}", tooltip-placement = "{{removalTooltipPlacement}}", ng-click = "removeItem($index)", ng-style = "{'margin-top': $index === 0 ? '1.7em' : '-1px'}")
 	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(tooltip = "{{additionTooltip}}", tooltip-placement = "{{additionTooltipPlacement}}", ng-click = "addItem()")

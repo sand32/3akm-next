@@ -101,9 +101,11 @@ misrepresented as being the original software.
 			scope: {
 				items: "=arrayModel",
 				enumeration: "=",
+				keyLabel: "@",
+				valueLabel: "@",
 				keyName: "@",
 				valueName: "@",
-				defaultEnumKey: "@",
+				defaultDropdownText: "@",
 				additionTooltip: "@",
 				additionTooltipPlacement: "@",
 				removalTooltip: "@",
@@ -114,7 +116,7 @@ misrepresented as being the original software.
 					scope.$emit("ResizeContentArea");
 				};
 
-				scope.defaultEnumKey = scope.defaultEnumKey || "Choose a " + scope.keyName.toLowerCase();
+				scope.defaultDropdownText = scope.defaultDropdownText || "Choose a " + scope.keyLabel.toLowerCase();
 				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
 				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
 
@@ -136,7 +138,7 @@ misrepresented as being the original software.
 							return scope.enumeration[i].key;
 						}
 					}
-					return scope.defaultEnumKey;
+					return scope.defaultDropdownText;
 				};
 
 				scope.setEnumKey = function(itemIndex, enumIndex, enumValue){

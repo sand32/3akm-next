@@ -61,7 +61,7 @@ require("../common/enumselectdirective.js");
 				if(lan.games[i].tournament){
 					ctrl.tournaments.push({
 						name: lan.games[i].tournamentName,
-						game: lan.games[i].game._id,
+						game: lan.games[i].game,
 						signedUp: false
 					});
 				}

@@ -34,7 +34,6 @@ module.exports = function(app, prefix){
 	app.get(prefix,
 	function(req, res){
 		Lan.find({})
-		.populate("games.game")
 		.exec(function(err, docs){
 			if(err){
 				res.status(500).end();
@@ -56,8 +55,7 @@ module.exports = function(app, prefix){
 			query = Lan.findById(req.params.lan);
 		}
 
-		query.populate("games.game")
-		.exec(function(err, doc){
+		query.exec(function(err, doc){
 			if(err){
 				res.status(500).end();
 			}else if(!doc){
