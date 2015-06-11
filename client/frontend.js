@@ -80,7 +80,8 @@ require("./common/validationdirectives.js");
 
 		ngToastProvider.configure({
 			dismissButton: true,
-			animation: "slide"
+			animation: "slide",
+			additionalClasses: "toast"
 		});
 	};
 

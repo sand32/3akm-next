@@ -40,6 +40,10 @@ a.btn-link:hover {
 	color: rgb(96, 125, 139);
 }
 
+.toast {
+	font-weight: bolder;
+}
+
 .logo {
 	background: url('/images/3ak_transx_short_light.png') no-repeat center;
 	height: 100px;

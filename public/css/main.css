@@ -52,6 +52,10 @@ a.btn-link:hover {
 	position: fixed;
 }
 
+.toast {
+	font-weight: bolder;
+}
+
 .logo {
 	background: url('/images/3ak_transx_short_dark.png') no-repeat center;
 	height: 100px;
