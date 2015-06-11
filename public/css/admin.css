@@ -191,6 +191,10 @@ table .selected {
 	margin-top: 1.8em;
 }
 
+.horizontal {
+	display: inline;
+}
+
 .array-item {
 	margin-top: .5em;
 }

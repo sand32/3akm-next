@@ -21,7 +21,64 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-.call-of-duty
+.call-of-duty(ng-controller = "Cod4Controller as cod4")
 	.page-title
 		h2 Call of Duty 4
 	.page-content
+		.col-lg-6
+			.panel
+				.panel-header
+					h2 Match Control
+				.panel-body
+					.row
+						.col-xs-6
+							label Current Map:&nbsp;&nbsp;
+							.horizontal {{cod4.map}}
+						.col-xs-6
+							label Current Gametype:&nbsp;&nbsp;
+							.horizontal {{cod4.gametype}}
+					.row
+						.col-xs-6
+							a.btn.btn-default(ng-click = "cod4.rotateMap()", ng-disabled = "cod4.busy")
+								span.button-icon.glyphicon.glyphicon-repeat
+								| Rotate Map
+						.col-xs-6
+							label Next Gametype:&nbsp;&nbsp;
+							.horizontal.dropdown(dropdown)
+								a.dropdown-toggle.btn.btn-default(dropdown-toggle) {{cod4.latchedGametype}} 
+									span.caret
+								ul.dropdown-menu
+									li(ng-repeat = "gametype in cod4.gametypes")
+										a(href = "#", ng-click = "") {{gametype}}
+			.panel
+				.panel-header
+					h2 Messaging
+				.panel-body
+					.row
+						.col-xs-12
+							.input-group
+								input.form-control(type = "text", name = "message", ng-model = "sayMessage")
+								span.input-group-btn
+									a.btn.btn-default(href = "#", ng-click = "cod4.say(sayMessage)")
+										span.button-icon.glyphicon.glyphicon-comment
+										| Say
+		.col-lg-6
+			.panel.no-padding
+				.panel-header
+					h2 Player Roster
+				.panel-content
+					.empty-table(ng-if = "cod4.players.length === 0") No players found
+					table(ng-if = "cod4.players.length > 0")
+						thead
+							tr
+								th #
+								th Name
+								th Score
+								th Ping
+						tbody
+							tr(ng-repeat = "player in cod4.players",
+								ui-sref = ".detail({gameId: games.list[$index]._id})")
+								td {{player.num}}
+								td {{player.name}}
+								td {{player.score}}
+								td {{player.ping}}

@@ -28,6 +28,7 @@ require("./admin/articlelistcontroller.js");
 require("./admin/userlistcontroller.js");
 require("./admin/gamelistcontroller.js");
 require("./admin/lanlistcontroller.js");
+require("./admin/cod4controller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -115,7 +116,8 @@ require("./admin/lanlistcontroller.js");
 				"3akm.admin.articleList",
 				"3akm.admin.userList",
 				"3akm.admin.gameList",
-				"3akm.admin.lanList"
+				"3akm.admin.lanList",
+				"3akm.admin.cod4"
 			])
 		.config(Config);
 
