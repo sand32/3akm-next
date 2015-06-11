@@ -43,6 +43,10 @@
 					label Description
 					text-angular(ng-model = "game.current.description")
 			.row
+				.form-group.col-xs-12
+					label Supplemental Files
+					key-value-array-entry(array-model = "game.current.supplementalFiles", key-name = "Name", value-name = "URL", addition-tooltip = "Add another file", removal-tooltip = "Remove this file", removal-tooltip-placement = "bottom")
+			.row
 				.col-xs-6
 					.button-row-left
 						input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "gameForm.$invalid")
