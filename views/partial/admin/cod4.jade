@@ -45,11 +45,11 @@
 						.col-xs-6
 							label Next Gametype:&nbsp;&nbsp;
 							.horizontal.dropdown(dropdown)
-								a.dropdown-toggle.btn.btn-default(dropdown-toggle) {{cod4.latchedGametype}} 
+								a.dropdown-toggle.btn.btn-default(dropdown-toggle, ng-disabled = "cod4.busy") {{cod4.latchedGametype}} 
 									span.caret
 								ul.dropdown-menu
 									li(ng-repeat = "gametype in cod4.gametypes")
-										a(href = "#", ng-click = "") {{gametype}}
+										a(href = "#", ng-click = "cod4.setGameType(gametype)") {{gametype}}
 			.panel
 				.panel-header
 					h2 Messaging
@@ -59,7 +59,7 @@
 							.input-group
 								input.form-control(type = "text", name = "message", ng-model = "sayMessage")
 								span.input-group-btn
-									a.btn.btn-default(href = "#", ng-click = "cod4.say(sayMessage)")
+									a.btn.btn-default(href = "#", ng-click = "cod4.say(sayMessage)", ng-disabled = "cod4.busy")
 										span.button-icon.glyphicon.glyphicon-comment
 										| Say
 		.col-lg-6

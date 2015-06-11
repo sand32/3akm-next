@@ -56,9 +56,9 @@ require("../common/cod4service.js");
 			);
 		};
 
-		cod4.setGametype = function(gametype){
+		cod4.setGameType = function(gametype){
 			cod4.busy = true;
-			Cod4Service.setGametype(gametype)
+			Cod4Service.setGameType(gametype)
 			.then(
 				function(){
 					cod4.busy = false;
