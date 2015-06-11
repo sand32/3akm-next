@@ -23,16 +23,30 @@ misrepresented as being the original software.
 */
 
 require("../common/gameservice.js");
+require("../common/storeservice.js");
 require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var GameDetailController = function($scope, $state, $modal, ngToast, GameService){
+	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
 		var game = this;
 		game.current = {
 			supplementalFiles: [],
 			stores: []
 		};
+		game.storesEnum = [];
+
+		StoreService.retrieveAll()
+		.then(
+			function(data){
+				for(var i = 0; i < data.length; i += 1){
+					game.storesEnum.push({
+						key: data[i].name,
+						value: data[i]._id
+					});
+				}
+			}
+		);
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
@@ -103,10 +117,11 @@ require("../common/confirmcontroller.js");
 			[
 				"textAngular",
 				"3akm.game",
+				"3akm.store",
 				"3akm.confirmModal",
 				"3akm.common.arrayentry"
 			])
 		.controller("GameDetailController", GameDetailController);
 
-	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService"];
+	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService", "StoreService"];
 })();

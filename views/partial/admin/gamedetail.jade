@@ -47,6 +47,10 @@
 					label Supplemental Files
 					key-value-array-entry(array-model = "game.current.supplementalFiles", key-name = "Name", value-name = "URL", addition-tooltip = "Add another file", removal-tooltip = "Remove this file", removal-tooltip-placement = "bottom")
 			.row
+				.form-group.col-xs-12
+					label Stores
+					enum-value-array-entry(array-model = "game.current.stores", enumeration = "game.storesEnum", key-name = "Store", value-name = "AppID", addition-tooltip = "Add another store", removal-tooltip = "Remove this store", removal-tooltip-placement = "bottom")
+			.row
 				.col-xs-6
 					.button-row-left
 						input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "gameForm.$invalid")
