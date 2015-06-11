@@ -28,7 +28,7 @@ require("../common/enumselectdirective.js");
 require("../common/validationdirectives.js");
 
 (function(){
-	var UserDetailController = function($scope, $state, ngToast, UserService){
+	var UserDetailController = function($scope, $timeout, $state, ngToast, UserService){
 		var user = this;
 		user.current = {
 			lanInviteDesired: true,
@@ -47,6 +47,7 @@ require("../common/validationdirectives.js");
 			.then(
 				function(data){
 					user.current = data;
+					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 				},
 				function(){
 					$state.go("^");
@@ -103,5 +104,5 @@ require("../common/validationdirectives.js");
 			])
 		.controller("UserDetailController", UserDetailController);
 
-	UserDetailController.$inject = ["$scope", "$state", "ngToast", "UserService"];
+	UserDetailController.$inject = ["$scope", "$timeout", "$state", "ngToast", "UserService"];
 })();
