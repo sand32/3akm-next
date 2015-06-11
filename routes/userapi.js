@@ -148,6 +148,8 @@ module.exports = function(app, prefix){
 				};
 
 				if(req.user.hasRole("admin")){
+					responseData.__v = doc.__v;
+					responseData._id = doc._id;
 					responseData.blacklisted = doc.blacklisted;
 				}
 
