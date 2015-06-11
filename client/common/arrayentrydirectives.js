@@ -31,12 +31,17 @@ misrepresented as being the original software.
 			scope: {
 				items: "=arrayModel",
 				additionTooltip: "@",
-				removalTooltip: "@"
+				additionTooltipPlacement: "@",
+				removalTooltip: "@",
+				removalTooltipPlacement: "@"
 			},
 			link: function(scope, element, attrs){
 				var emitResizeEvent = function(){
 					scope.$emit("ResizeContentArea");
 				};
+
+				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
+				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
 
 				scope.addItem = function(){
 					scope.items.push("");
@@ -51,9 +56,48 @@ misrepresented as being the original software.
 		}
 	};
 
+	var KeyValueArrayEntry = function($timeout){
+		return {
+			restrict: "E",
+			replace: true,
+			templateUrl: "/partial/keyvaluearrayentry",
+			scope: {
+				items: "=arrayModel",
+				keyName: "@",
+				valueName: "@",
+				additionTooltip: "@",
+				additionTooltipPlacement: "@",
+				removalTooltip: "@",
+				removalTooltipPlacement: "@"
+			},
+			link: function(scope, element, attrs){
+				var emitResizeEvent = function(){
+					scope.$emit("ResizeContentArea");
+				};
+
+				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
+				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
+
+				scope.addItem = function(){
+					scope.items.push({});
+					scope.items[scope.items.length - 1][scope.keyName] = "";
+					scope.items[scope.items.length - 1][scope.valueName] = "";
+					$timeout(emitResizeEvent, 100);
+				};
+
+				scope.removeItem = function(index){
+					scope.items.splice(index, 1);
+					emitResizeEvent();
+				};
+			}
+		}
+	};
+
 	angular
 		.module("3akm.common.arrayentry", [])
-		.directive("simpleArrayEntry", SimpleArrayEntry);
+		.directive("simpleArrayEntry", SimpleArrayEntry)
+		.directive("keyValueArrayEntry", KeyValueArrayEntry);
 
 	SimpleArrayEntry.$inject = ["$timeout"];
+	KeyValueArrayEntry.$inject = ["$timeout"];
 })();
