@@ -31,6 +31,19 @@ var mongoose = require("mongoose"),
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
 
 module.exports = function(app, prefix){
+	app.get(prefix,
+	function(req, res){
+		Lan.find({})
+		.populate("games.game")
+		.exec(function(err, docs){
+			if(err){
+				res.status(500).end();
+			}else{
+				res.send(docs || []);
+			}
+		});
+	});
+
 	app.get(prefix + "/:lan", 
 	function(req, res){
 		var query = null;
@@ -50,7 +63,7 @@ module.exports = function(app, prefix){
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).send(doc);
+				res.send(doc);
 			}
 		});
 	});
