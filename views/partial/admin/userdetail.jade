@@ -75,14 +75,17 @@ div(ng-controller = "UserDetailController as user")
 					.form-group.col-xs-6
 						simple-array-entry(array-model = "user.current.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
 				.row
-					.form-group.col-xs-3
-						label LAN Invite Desired
+					.form-group.col-xs-4
+						label LAN Invite Desired 
+							.glyphicon.glyphicon-question-sign(tooltip = "{{user.help.lanInviteDesired}}", tooltip-placement = "bottom")
 						enum-select(current = "user.current.lanInviteDesired", possibles = "user.boolPossibles")
-					.form-group.col-xs-3
-						label Blacklisted
+					.form-group.col-xs-4
+						label Blacklisted 
+							.glyphicon.glyphicon-question-sign(tooltip = "{{user.help.blacklisted}}", tooltip-placement = "bottom")
 						enum-select(current = "user.current.blacklisted", possibles = "user.boolPossibles")
-					.form-group.col-xs-3
-						label VIP
+					.form-group.col-xs-4
+						label VIP 
+							.glyphicon.glyphicon-question-sign(tooltip = "{{user.help.vip}}", tooltip-placement = "bottom")
 						enum-select(current = "user.current.vip", possibles = "user.boolPossibles")
 				.row
 					.form-group.col-xs-4

@@ -41,6 +41,11 @@ require("../common/validationdirectives.js");
 			{label: "Yes", value: true}, 
 			{label: "No", value: false}
 		];
+		user.help = {
+			lanInviteDesired: "Determines whether the user will receive the LAN invitation. This value can be modified by the user.",
+			blacklisted: "Determines whether the user will receive the LAN invitation. This value cannot be seen or modified by the user.",
+			vip: "Determines whether the user is considered a LAN VIP (and is therefore privy to VIP date consultation)."
+		};
 
 		if($state.params.userId && $state.params.userId !== "new"){
 			UserService.retrieve($state.params.userId)
