@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var SectionEntry = function(){
+	var SectionEntry = function($timeout){
 		return {
 			restrict: "E",
 			replace: true,
@@ -44,7 +44,7 @@ misrepresented as being the original software.
 					});
 					element.toggleClass("section-entry-open");
 					scope.collapsed = !scope.collapsed;
-					scope.$emit("ResizeContentArea");
+					$timeout(function(){scope.$emit("ResizeContentArea");}, 400);
 				}
 			}
 		}
@@ -54,5 +54,5 @@ misrepresented as being the original software.
 		.module("3akm.common.sectionentry", ["ui.bootstrap"])
 		.directive("sectionEntry", SectionEntry);
 
-	SectionEntry.$inject = [];
+	SectionEntry.$inject = ["$timeout"];
 })();
