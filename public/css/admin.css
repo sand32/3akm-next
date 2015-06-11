@@ -114,6 +114,10 @@ a.btn-link:hover {
 	padding: 0;
 }
 
+.full-width {
+	width: 100%;
+}
+
 bar-chart .axis path,
 bar-chart .axis line {
 	fill: none;
