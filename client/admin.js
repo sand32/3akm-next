@@ -86,6 +86,10 @@ require("./admin/lanlistcontroller.js");
 						templateUrl: "/partial/admin/landetail"
 					}
 				}
+			})
+			.state("cod4", {
+				url: "/cod4",
+				templateUrl: "/partial/admin/cod4"
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
