@@ -36,7 +36,8 @@ require("../common/userservice.js");
 				firstName: reg.firstName,
 				lastName: reg.lastName,
 				primaryHandle: reg.primaryHandle,
-				tertiaryHandles: reg.tertiaryHandles
+				tertiaryHandles: reg.tertiaryHandles,
+				recaptchaResponse: grecaptcha.getResponse()
 			})
 			.then(
 				function(){
