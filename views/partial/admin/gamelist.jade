@@ -53,7 +53,7 @@
 								ng-class = "games.list[$index]._id === games.selectedGame ? 'selected' : ''")
 								td {{game.name}}
 								td {{game.version}}
-								td {{game.files.length}}
+								td {{game.supplementalFiles.length}}
 		.col-lg-6
 			.no-selection(ng-if = "!games.selectedGame")
 				| No game selected
