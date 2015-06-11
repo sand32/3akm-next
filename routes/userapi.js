@@ -164,6 +164,8 @@ module.exports = function(app, prefix){
 		sanitizeBodyForDB, 
 	function(req, res){
 		var user = new User(req.body);
+		user.passwordHash = user.hash(user.password);
+		delete user.password;
 		user.save(function(err){
 			if(err){
 				res.status(400).end();
