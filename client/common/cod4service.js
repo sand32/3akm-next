@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var CoD4Service = function($http, $q){
+	var Cod4Service = function($http, $q){
 		return {
 			retrieveMaps: function(){
 				var deferred = $q.defer();
@@ -155,7 +155,7 @@ misrepresented as being the original software.
 
 	angular
 		.module("3akm.cod4", [])
-		.factory("CoD4Service", CoD4Service);
+		.factory("Cod4Service", Cod4Service);
 
-	CoD4Service.$inject = ["$http", "$q"];
+	Cod4Service.$inject = ["$http", "$q"];
 })();
