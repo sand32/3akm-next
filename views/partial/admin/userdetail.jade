@@ -93,5 +93,7 @@
 			.row
 				.col-xs-6
 					.button-row-left
-						input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "userForm.$invalid")
+						button.btn.btn-default(type = "submit", ng-disabled = "userForm.$invalid")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
 						a.btn.btn-link(ui-sref = "^") Cancel
