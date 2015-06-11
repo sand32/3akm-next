@@ -123,7 +123,7 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
-			create: function(id, postData){
+			create: function(postData){
 				var deferred = $q.defer();
 				$http.post("/api/user", postData)
 				.then(
