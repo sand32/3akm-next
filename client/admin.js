@@ -26,6 +26,7 @@ require("./admin-common/stylingdirectives.js");
 require("./admin/dashboard/dashboardcontroller.js");
 require("./admin/articlelistcontroller.js");
 require("./admin/userlistcontroller.js");
+require("./admin/gamelistcontroller.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -60,6 +61,18 @@ require("./admin/userlistcontroller.js");
 						templateUrl: "/partial/admin/userdetail"
 					}
 				}
+			})
+			.state("game", {
+				url: "/game",
+				templateUrl: "/partial/admin/gamelist"
+			})
+			.state("game.detail", {
+				url: "/:gameId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/gamedetail"
+					}
+				}
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
@@ -82,7 +95,8 @@ require("./admin/userlistcontroller.js");
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
 				"3akm.admin.articleList",
-				"3akm.admin.userList"
+				"3akm.admin.userList",
+				"3akm.admin.gameList"
 			])
 		.config(Config);
 

@@ -1,0 +1,54 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2015 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.panel.unrolling(ng-controller = "GameDetailController as game")
+	.panel-body
+		form(name = "gameForm", novalidate, ng-submit = "game.save()")
+			.row
+				.form-group.col-xs-6
+					label Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "name", autofocus, ng-model = "game.current.name", required)
+					.form-feedback.text-danger(ng-messages = "gameForm.name.$error", ng-if = "gameForm.name.$dirty", role = "alert")
+						div(ng-message = "required") A name is required
+				.form-group.col-xs-6
+					label Version
+					input.form-control(type = "text", name = "version", ng-model = "game.current.version", placeholder = "Current")
+			.row
+				.form-group.col-xs-6
+					label Description Header Image
+					input.form-control(ng-model = "game.current.descriptionHeaderImage")
+			.row
+				.form-group.col-xs-12
+					label Description
+					text-angular(ng-model = "game.current.description")
+			.row
+				.col-xs-6
+					.button-row-left
+						input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "gameForm.$invalid")
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "game.current._id", ng-click = "game.delete()")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete
