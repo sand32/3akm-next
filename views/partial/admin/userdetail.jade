@@ -59,6 +59,10 @@
 						label.col-xs-5 Modified:
 						.col-xs-7(ng-if = "user.current.modified") {{user.current.modified | date: "medium"}}
 						.col-xs-7(ng-if = "!user.current.modified") N/A
+					.row
+						label.col-xs-5 Last Online:
+						.col-xs-7(ng-if = "user.current.accessed") {{user.current.accessed | date: "medium"}}
+						.col-xs-7(ng-if = "!user.current.accessed") N/A
 			.row
 				.form-group.col-xs-6
 					label First Name
