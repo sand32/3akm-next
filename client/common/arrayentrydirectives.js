@@ -63,6 +63,8 @@ misrepresented as being the original software.
 			templateUrl: "/partial/keyvaluearrayentry",
 			scope: {
 				items: "=arrayModel",
+				keyLabel: "@",
+				valueLabel: "@",
 				keyName: "@",
 				valueName: "@",
 				additionTooltip: "@",

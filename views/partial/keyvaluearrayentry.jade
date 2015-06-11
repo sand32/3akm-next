@@ -24,10 +24,10 @@
 .key-value-array-entry
 	.row.array-item(ng-repeat = "item in items track by $index")
 		.form-group.col-xs-4
-			label(ng-if = "$index === 0") {{keyName}}
-			input.form-control(type = "text", ng-model = "items[$index][keyName.toLowerCase()]")
+			label(ng-if = "$index === 0") {{keyLabel}}
+			input.form-control(type = "text", ng-model = "items[$index][keyName]")
 		.form-group.col-xs-7
-			label(ng-if = "$index === 0") {{valueName}}
-			input.form-control(type = "text", ng-model = "items[$index][valueName.toLowerCase()]")
+			label(ng-if = "$index === 0") {{valueLabel}}
+			input.form-control(type = "text", ng-model = "items[$index][valueName]")
 		a.btn.btn-default.glyphicon.glyphicon-minus(tooltip = "{{removalTooltip}}", tooltip-placement = "{{removalTooltipPlacement}}", ng-click = "removeItem($index)", ng-style = "{'margin-top': $index === 0 ? '1.7em' : '-1px'}")
 	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(tooltip = "{{additionTooltip}}", tooltip-placement = "{{additionTooltipPlacement}}", ng-click = "addItem()")
