@@ -54,9 +54,9 @@ misrepresented as being the original software.
 				};
 			}
 		}
-	};
+	},
 
-	var KeyValueArrayEntry = function($timeout){
+	KeyValueArrayEntry = function($timeout){
 		return {
 			restrict: "E",
 			replace: true,
@@ -91,13 +91,69 @@ misrepresented as being the original software.
 				};
 			}
 		}
+	},
+
+	EnumValueArrayEntry = function($timeout){
+		return {
+			restrict: "E",
+			replace: true,
+			templateUrl: "/partial/enumvaluearrayentry",
+			scope: {
+				items: "=arrayModel",
+				enumeration: "=",
+				keyName: "@",
+				valueName: "@",
+				defaultEnumKey: "@",
+				additionTooltip: "@",
+				additionTooltipPlacement: "@",
+				removalTooltip: "@",
+				removalTooltipPlacement: "@"
+			},
+			link: function(scope, element, attrs){
+				var emitResizeEvent = function(){
+					scope.$emit("ResizeContentArea");
+				};
+
+				scope.defaultEnumKey = scope.defaultEnumKey || "Choose a " + scope.keyName.toLowerCase();
+				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
+				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
+
+				scope.addItem = function(){
+					scope.items.push({});
+					scope.items[scope.items.length - 1][scope.keyName] = "";
+					scope.items[scope.items.length - 1][scope.valueName] = "";
+					$timeout(emitResizeEvent, 100);
+				};
+
+				scope.removeItem = function(index){
+					scope.items.splice(index, 1);
+					emitResizeEvent();
+				};
+
+				scope.getEnumKeyFromValue = function(enumValue){
+					for(var i = 0; i < scope.enumeration.length; i += 1){
+						if(scope.enumeration[i].value === enumValue){
+							return scope.enumeration[i].key;
+						}
+					}
+					return scope.defaultEnumKey;
+				};
+
+				scope.setEnumKey = function(itemIndex, enumIndex, enumValue){
+					scope.items[itemIndex][scope.keyName.toLowerCase()] = enumValue;
+					scope.selectedEnumKey = scope.enumeration[enumIndex].key;
+				};
+			}
+		}
 	};
 
 	angular
 		.module("3akm.common.arrayentry", [])
 		.directive("simpleArrayEntry", SimpleArrayEntry)
-		.directive("keyValueArrayEntry", KeyValueArrayEntry);
+		.directive("keyValueArrayEntry", KeyValueArrayEntry)
+		.directive("enumValueArrayEntry", EnumValueArrayEntry);
 
 	SimpleArrayEntry.$inject = ["$timeout"];
 	KeyValueArrayEntry.$inject = ["$timeout"];
+	EnumValueArrayEntry.$inject = ["$timeout"];
 })();
