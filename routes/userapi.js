@@ -29,7 +29,8 @@ var passport = require("passport"),
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
-	removeDuplicates = require("../utils/common.js").removeDuplicates;
+	removeDuplicates = require("../utils/common.js").removeDuplicates,
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
@@ -158,19 +159,9 @@ module.exports = function(app, prefix){
 	app.post(prefix, 
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
 	function(req, res){
-		var user = new User();
-		user.email = req.body.email;
-		user.passwordHash = user.hash(req.body.password);
-		user.firstName = req.body.firstName;
-		user.lastName = req.body.lastName;
-		user.primaryHandle = req.body.primaryHandle;
-		user.tertiaryHandles = req.body.tertiaryHandles;
-		user.lanInviteDesired = req.body.lanInviteDesired;
-		user.vip = req.body.vip;
-		user.blacklisted = req.body.blacklisted;
-		user.roles = removeDuplicates(req.body.roles);
-		user.services = req.body.services;
+		var user = new User(req.body);
 		user.save(function(err){
 			if(err){
 				res.status(400).end();
@@ -185,6 +176,7 @@ module.exports = function(app, prefix){
 	app.put(prefix + "/:user", 
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
+		sanitizeBodyForDB, 
 	function(req, res){
 		// Ignore the following fields unless sent by an admin
 		if(!req.user.hasRole("admin")){
