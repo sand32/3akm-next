@@ -25,6 +25,7 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
+	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
@@ -53,6 +54,54 @@ module.exports = function(app, prefix, prefix2){
 				res.status(404).end();
 			}else{
 				res.send(doc);
+			}
+		});
+	});
+
+	app.post(prefix2,
+		blendedAuthenticate, 
+		authorize({hasRole: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		var rsvp = new Rsvp(req.body);
+		rsvp.save(function(err){
+			if(err){
+				res.status(400).end();
+			}else{
+				res.status(201)
+				.location(prefix2 + "/" + rsvp._id)
+				.send({_id: rsvp._id});
+			}
+		});
+	});
+
+	app.put(prefix + "/:rsvp", 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
+			}
+		});
+	});
+
+	app.delete(prefix + "/:rsvp", 
+		blendedAuthenticate, 
+		authorize({hasRoles: ["admin"]}), 
+	function(req, res){
+		Rsvp.findByIdAndRemove(req.params.rsvp, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.status(200).end();
 			}
 		});
 	});
