@@ -32,6 +32,7 @@ module.exports = function(app, prefix, prefix2){
 	app.get(prefix2,
 	function(req, res){
 		Rsvp.find({})
+		.populate("user lan", "email firstName lastName beginDate")
 		.exec(function(err, rsvps){
 			if(err){
 				res.status(500).end();
