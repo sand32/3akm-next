@@ -25,6 +25,20 @@ misrepresented as being the original software.
 (function(){
 	var RsvpService = function($http, $q){
 		return {
+			retrieveAll: function(){
+				var deferred = $q.defer();
+				$http.get("/api/rsvp")
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
 			retrieveAllForYear: function(year){
 				var deferred = $q.defer();
 				$http.get("/api/rsvp/" + year)
