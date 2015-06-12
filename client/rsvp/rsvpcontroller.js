@@ -54,7 +54,7 @@ require("../common/enumselectdirective.js");
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();
-			var promise = RsvpService.retrieve("session", ctrl.year);
+			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
 			// Load any tournament games for this LAN into our controller
 			for(var i = 0; i < lan.games.length; i += 1){
