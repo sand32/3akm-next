@@ -31,6 +31,18 @@ var mongoose = require("mongoose"),
 module.exports = function(app, prefix, prefix2){
 	app.get(prefix2 + "/:year",
 	function(req, res){
+		Rsvp.find({})
+		.exec(function(err, rsvps){
+			if(err){
+				res.status(500).end();
+			}else{
+				res.send(rsvps || []);
+			}
+		});
+	});
+
+	app.get(prefix2 + "/:year",
+	function(req, res){
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
@@ -48,7 +60,7 @@ module.exports = function(app, prefix, prefix2){
 					if(err){
 						res.status(500).end();
 					}else{
-						res.send(rsvps);
+						res.send(rsvps || []);
 					}
 				});
 			}
