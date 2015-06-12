@@ -46,6 +46,9 @@ hr
 			.form-group.col-xs-6
 				label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
 				input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0", ng-model = "rsvp.current.guests")
+				.form-feedback.text-danger(ng-messages = "rsvpForm.guests.$error", ng-if = "rsvpForm.guests.$dirty", role = "alert")
+					div(ng-message = "number") Must be a non-negative number
+					div(ng-message = "min") Must be a non-negative number
 		.row
 			.form-group.col-xs-5
 				label Will you be assisting in the cleanup afterward?
