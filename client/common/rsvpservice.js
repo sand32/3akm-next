@@ -41,7 +41,7 @@ misrepresented as being the original software.
 
 			retrieveAllForYear: function(year){
 				var deferred = $q.defer();
-				$http.get("/api/rsvp/" + year)
+				$http.get("/api/rsvp/year/" + year)
 				.then(
 					function(response){
 						deferred.resolve(response.data);
@@ -53,9 +53,23 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
-			retrieve: function(userId, year){
+			retrieveByYear: function(userId, year){
 				var deferred = $q.defer();
 				$http.get("/api/user/" + userId + "/rsvp/" + year)
+				.then(
+					function(response){
+						deferred.resolve(response.data);
+					},
+					function(response){
+						deferred.reject(response.status);
+					}
+				);
+				return deferred.promise;
+			},
+
+			retrieve: function(id){
+				var deferred = $q.defer();
+				$http.get("/api/rsvp/" + id)
 				.then(
 					function(response){
 						deferred.resolve(response.data);

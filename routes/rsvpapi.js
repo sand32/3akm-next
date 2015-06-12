@@ -33,16 +33,31 @@ module.exports = function(app, prefix, prefix2){
 	function(req, res){
 		Rsvp.find({})
 		.populate("user lan", "email firstName lastName beginDate")
-		.exec(function(err, rsvps){
+		.exec(function(err, docs){
 			if(err){
 				res.status(500).end();
 			}else{
-				res.send(rsvps || []);
+				res.send(docs || []);
 			}
 		});
 	});
 
-	app.get(prefix2 + "/:year",
+	app.get(prefix2 + "/:rsvp",
+	function(req, res){
+		Rsvp.findById(req.params.rsvp)
+		.populate("user lan", "email firstName lastName beginDate")
+		.exec(function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				res.send(doc);
+			}
+		});
+	});
+
+	app.get(prefix2 + "/year/:year",
 	function(req, res){
 		Lan.findOne({
 			active: true,
@@ -57,11 +72,11 @@ module.exports = function(app, prefix, prefix2){
 			}else{
 				Rsvp.find({lan: lan._id})
 				.populate("user", "email firstName lastName primaryHandle")
-				.exec(function(err, rsvps){
+				.exec(function(err, docs){
 					if(err){
 						res.status(500).end();
 					}else{
-						res.send(rsvps || []);
+						res.send(docs || []);
 					}
 				});
 			}
@@ -87,13 +102,13 @@ module.exports = function(app, prefix, prefix2){
 			}else if(!lan){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: req.params.user}, function(err, rsvp){
+				Rsvp.findOne({user: req.params.user}, function(err, doc){
 					if(err){
 						res.status(500).end();
-					}else if(!rsvp){
+					}else if(!doc){
 						res.status(404).end();
 					}else{
-						res.send(rsvp);
+						res.send(doc);
 					}
 				});
 			}
@@ -117,8 +132,8 @@ module.exports = function(app, prefix, prefix2){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, rsvpDoc){
-					if(err || !rsvpDoc){
+				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, doc){
+					if(err || !doc){
 						var rsvp = new Rsvp();
 						rsvp.user = req.params.user;
 						rsvp.lan = lanDoc._id;
@@ -138,13 +153,13 @@ module.exports = function(app, prefix, prefix2){
 							}
 						});
 					}else{
-						rsvpDoc.status = req.body.status;
-						rsvpDoc.playing = req.body.playing;
-						rsvpDoc.guests = req.body.guests;
-						rsvpDoc.cleaning = req.body.cleaning;
-						rsvpDoc.tournaments = req.body.tournaments;
-						rsvpDoc.bringingFood = req.body.bringingFood;
-						rsvpDoc.save(function(err){
+						doc.status = req.body.status;
+						doc.playing = req.body.playing;
+						doc.guests = req.body.guests;
+						doc.cleaning = req.body.cleaning;
+						doc.tournaments = req.body.tournaments;
+						doc.bringingFood = req.body.bringingFood;
+						doc.save(function(err){
 							if(err){
 								res.status(500).end();
 							}else{
@@ -174,12 +189,12 @@ module.exports = function(app, prefix, prefix2){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, rsvpDoc){
-					if(err || !rsvpDoc){
+				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, doc){
+					if(err || !doc){
 						res.status(404).end();
 					}else{
-						rsvpDoc.attended = true;
-						rsvpDoc.save(function(err){
+						doc.attended = true;
+						doc.save(function(err){
 							if(err){
 								res.status(500).end();
 							}else{
