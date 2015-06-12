@@ -28,6 +28,7 @@ require("./admin/articlelistcontroller.js");
 require("./admin/userlistcontroller.js");
 require("./admin/gamelistcontroller.js");
 require("./admin/lanlistcontroller.js");
+require("./admin/rsvplistcontroller.js");
 require("./admin/cod4controller.js");
 
 (function(){
@@ -88,6 +89,18 @@ require("./admin/cod4controller.js");
 					}
 				}
 			})
+			.state("rsvp", {
+				url: "/rsvp",
+				templateUrl: "/partial/admin/rsvplist"
+			})
+			.state("rsvp.detail", {
+				url: "/:rsvpId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/rsvpdetail"
+					}
+				}
+			})
 			.state("cod4", {
 				url: "/cod4",
 				templateUrl: "/partial/admin/cod4"
@@ -117,6 +130,7 @@ require("./admin/cod4controller.js");
 				"3akm.admin.userList",
 				"3akm.admin.gameList",
 				"3akm.admin.lanList",
+				"3akm.admin.rsvpList",
 				"3akm.admin.cod4"
 			])
 		.config(Config);
