@@ -29,7 +29,7 @@ var mongoose = require("mongoose"),
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
 
 module.exports = function(app, prefix, prefix2){
-	app.get(prefix2 + "/:year",
+	app.get(prefix2,
 	function(req, res){
 		Rsvp.find({})
 		.exec(function(err, rsvps){
