@@ -27,10 +27,11 @@ var mongoose = require("mongoose"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate;
+	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix, prefix2){
-	app.get(prefix2,
+	app.get(prefix,
 	function(req, res){
 		Rsvp.find({})
 		.populate("user lan", "email firstName lastName beginDate")
@@ -43,7 +44,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.get(prefix2 + "/:rsvp",
+	app.get(prefix + "/:rsvp",
 	function(req, res){
 		Rsvp.findById(req.params.rsvp)
 		.populate("user lan", "email firstName lastName beginDate")
@@ -58,7 +59,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.post(prefix2,
+	app.post(prefix,
 		blendedAuthenticate, 
 		authorize({hasRole: ["admin"]}), 
 		sanitizeBodyForDB, 
@@ -106,7 +107,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.get(prefix2 + "/year/:year",
+	app.get(prefix + "/year/:year",
 	function(req, res){
 		Lan.findOne({
 			active: true,
@@ -132,7 +133,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.get(prefix + "/:year", 
+	app.get(prefix2 + "/:year", 
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
@@ -164,7 +165,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.put(prefix + "/:year", 
+	app.put(prefix2 + "/:year", 
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
@@ -221,7 +222,7 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.put(prefix + "/:year/attended", 
+	app.put(prefix2 + "/:year/attended", 
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){

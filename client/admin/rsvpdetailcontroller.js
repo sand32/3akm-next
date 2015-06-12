@@ -85,16 +85,19 @@ require("../common/enumselectdirective.js");
 		};
 
 		rsvp.save = function(){
-			rsvp.current.tournaments = [];
+			var data = angular.copy(rsvp.current);
+			data.user = rsvp.current.user._id;
+			data.lan = rsvp.current.lan._id;
+			data.tournaments = [];
 			for(var i = 0; i < rsvp.tournaments.length; i += 1){
 				if(rsvp.tournaments[i].signedUp){
-					rsvp.current.tournaments.push({
+					data.tournaments.push({
 						tournament: rsvp.tournaments[i].game
 					});
 				}
 			}
 			if($state.params.rsvpId === "new"){
-				RsvpService.create(rsvp.current)
+				RsvpService.create(data)
 				.then(
 					function(data){
 						$scope.reloadList();
@@ -105,7 +108,7 @@ require("../common/enumselectdirective.js");
 					}
 				);
 			}else{
-				RsvpService.edit($state.params.rsvpId, rsvp.current)
+				RsvpService.edit($state.params.rsvpId, data)
 				.then(
 					function(){
 						$scope.reloadList();
