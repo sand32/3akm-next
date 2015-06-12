@@ -101,7 +101,7 @@ require("../common/cod4service.js");
 			.then(
 				function(data){
 					cod4.gametype = data.gametype;
-					cod4.latchedGametype = data.latched;
+					cod4.latchedGametype = data.latched || data.gametype;
 				},
 				function(){
 					cod4.gametype = "Unknown";
