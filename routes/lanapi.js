@@ -77,7 +77,7 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
-			Lan.findById(req.params.lan);
+			query = Lan.findById(req.params.lan);
 		}
 		query.exec(function(err, doc){
 			if(err){
