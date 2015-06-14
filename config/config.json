@@ -9,6 +9,7 @@
 	"dbName": "3akm",
 	"dbUser": "",
 	"dbPassword": "",
+	"corsWhitelist": [],
 	"ldap": {
 		"url": "changeme",
 		"3akmUserDn": "changeme",

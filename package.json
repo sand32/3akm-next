@@ -15,6 +15,7 @@
 		"minifyify": "latest",
 		"express": "latest",
 		"express-session": "latest",
+		"cors": "latest",
 		"body-parser": "latest",
 		"cookie-parser": "latest",
 		"multer": "latest",
