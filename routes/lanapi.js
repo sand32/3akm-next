@@ -139,7 +139,7 @@ module.exports = function(app, prefix){
 
 		deferred.promise.then(function(data){
 			Rsvp.find({lan: data._id})
-			.populate("tournaments.game", "name")
+			.populate("user tournaments.game", "email firstName lastName primaryHandle name")
 			.exec(function(err, docs){
 				if(err){
 					res.status(500).end();
