@@ -79,19 +79,85 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	add = function(client, dn, entry){
+		var deferred = q.defer();
+		client.add(dn, entry, function(err){
+			if(err){
+				deferred.reject(err);
+			}else{
+				deferred.resolve();
+			}
+		});
+		return deferred.promise;
+	},
+
+	findEntry = function(client, dn, filter){
+		var deferred = q.defer();
+		client.search(dn, {
+			scope: "sub",
+			filter: filter
+		}, function(err, res){
+			if(err){
+				deferred.reject(err);
+			}
+			var entries = {
+				collection: [],
+
+				find: function(fieldName, fieldValue){
+					for(var i = 0; i < entries.collection.length; i += 1){
+						if(entries.collection[i][fieldName] === fieldValue){
+							return entries.collection[i];
+						}
+					}
+				},
+
+				contains: function(fieldName, fieldValue){
+					for(var i = 0; i < entries.collection.length; i += 1){
+						if(entries.collection[i][fieldName] === fieldValue){
+							return true;
+						}
+					}
+					return false;
+				}
+			};
+
+			res.on("searchEntry", function(entry){
+				entries.collection.push(entry);
+			});
+			res.on("error", function(err){
+				deferred.reject(err.message, entries);
+			});
+			res.on("end", function(result){
+				deferred.resolve(result.status, entries);
+			});
+		});
+		return deferred.promise;
+	},
+
 	// userEntryTemplate = {
 	// 	email: "",
 	// 	firstName: "",
 	// 	lastName: ""
 	// }
-	translateUserEntryTemplate = function(template){
-		return {
+	translateFromUserEntryTemplate = function(template){
+		var entry {
 			cn: template.firstName + " " + template.lastName,
 			givenName: template.firstName,
 			sn: template.lastName,
 			mail: template.email,
-			userPassword: ldapFormattedHash(template.password)
-		}
+			sAMAccountName: template.firstName.toLowerCase() + "." + template.lastName.toLowerCase()
+		};
+		entry.userPrincipleName = entry.sAMAccountName + "@ca.local";
+		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
+		return entry;
+	},
+
+	translateToUserEntryTemplate = function(entry){
+		return {
+			email: entry.mail,
+			firstName: entry.givenName,
+			lastName: entry.sn
+		};
 	};
 
 module.exports = {
@@ -106,14 +172,7 @@ module.exports = {
 			function(err){
 				deferred.reject(err);
 			}
-		).then(
-			function(){
-				deferred.resolve();
-			},
-			function(err){
-				deferred.reject(err);
-			}
-		);
+		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
 	},
 
@@ -124,15 +183,24 @@ module.exports = {
 		bindServiceAccount(client)
 		.then(
 			function(){
-				client.add("cn=" + entry.cn, entry, function(err){
-					if(err){
-						deferred.reject(err);
-					}else{
-						deferred.resolve();
+				return findEntry(client, config.ldap.3akmUserDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(status, entries){
+				if(status === 0){
+					if(entries.collection.length > 0){
+						entry.sAMAccountName += parseInt(entries.collection.length);
 					}
-				});
-			}
-		);
+					return add(client, "cn=" + entry.cn + "," + config.ldap.3akmUserDn, entry);
+				}else{
+					deferred.reject(status);
+				}
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return unbind(client);
+			}, function(err){deferred.reject(err);}
+		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
 	}
 };
