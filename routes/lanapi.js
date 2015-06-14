@@ -150,7 +150,6 @@ module.exports = function(app, prefix){
 							for(var k = 0; k < data.games.length; k += 1){
 								if(data.games[k].game.toString() === rsvps[i].tournaments[j].game._id.toString()){
 									rsvps[i].tournaments[j].game.tournamentName = data.games[k].tournamentName;
-									rsvps[i].tournaments[j].game.tournament = data.games[k].tournament;
 								}
 							}
 						}
