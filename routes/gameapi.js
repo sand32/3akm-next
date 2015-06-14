@@ -31,7 +31,6 @@ var mongoose = require("mongoose"),
 
 module.exports = function(app, prefix){
 	app.get(prefix, 
-		blendedAuthenticate, 
 	function(req, res){
 		Game.find({})
 		.exec(function(err, docs){
@@ -44,7 +43,6 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:game", 
-		blendedAuthenticate, 
 	function(req, res){
 		Game.findById(req.params.game)
 		.exec(function(err, doc){
