@@ -26,6 +26,7 @@ var mongoose = require("mongoose"),
 	q = require("q"),
 	Lan = require("../model/lan.js"),
 	Game = require("../model/game.js"),
+	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
 	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
@@ -105,6 +106,56 @@ module.exports = function(app, prefix){
 						year: year,
 						games: docs
 					});
+				}
+			});
+		}, function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.get(prefix + "/:lan/rsvps", 
+	function(req, res){
+		var deferred = q.defer(),
+			query = null,
+			year;
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			query = Lan.findById(req.params.lan);
+		}
+		query.exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				year = doc.beginDate.getFullYear();
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise.then(function(data){
+			Rsvp.find({lan: data._id})
+			.populate("tournaments.tournament", "name")
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else{
+					var rsvps = JSON.parse(JSON.stringify(docs));
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							for(var k = 0; k < data.games.length; k += 1){
+								if(data.games[k].game.toString() === rsvps[i].tournaments[j].tournament._id.toString()){
+									rsvps[i].tournaments[j].tournament["tournamentName"] = data.games[k].tournamentName;
+									rsvps[i].tournaments[j].tournament["tournament"] = data.games[k].tournament;
+								}
+							}
+						}
+					}
+					res.send(rsvps);
 				}
 			});
 		}, function(err){
