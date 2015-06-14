@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 var express = require("express"),
 	session = require("express-session"),
+	cors = require("cors"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
 	passport = require("passport"),
@@ -51,6 +52,15 @@ mongoose.connection.on("error", function(e){
 // Declare view engine
 app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
+
+// Define CORS policy
+var corsOptions = {
+	origin: function(origin, callback){
+		var originIsWhitelisted = config.corsWhitelist.indexOf(origin) !== -1;
+		callback(null, originIsWhitelisted);
+	}
+};
+app.use(cors(corsOptions));
 
 // Define session
 app.use(cookieParser(config.cookieSecret));

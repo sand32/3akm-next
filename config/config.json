@@ -9,6 +9,7 @@
 	"dbName": "3akm",
 	"dbUser": "",
 	"dbPassword": "",
+	"corsWhitelist": [],
 	"ts3": {
 		"address": "localhost",
 		"password": "changeme"
