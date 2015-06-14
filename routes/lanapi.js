@@ -139,7 +139,7 @@ module.exports = function(app, prefix){
 
 		deferred.promise.then(function(data){
 			Rsvp.find({lan: data._id})
-			.populate("tournaments.tournament", "name")
+			.populate("tournaments.game", "name")
 			.exec(function(err, docs){
 				if(err){
 					res.status(500).end();
@@ -148,9 +148,9 @@ module.exports = function(app, prefix){
 					for(var i = 0; i < rsvps.length; i += 1){
 						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
 							for(var k = 0; k < data.games.length; k += 1){
-								if(data.games[k].game.toString() === rsvps[i].tournaments[j].tournament._id.toString()){
-									rsvps[i].tournaments[j].tournament["tournamentName"] = data.games[k].tournamentName;
-									rsvps[i].tournaments[j].tournament["tournament"] = data.games[k].tournament;
+								if(data.games[k].game.toString() === rsvps[i].tournaments[j].game._id.toString()){
+									rsvps[i].tournaments[j].game.tournamentName = data.games[k].tournamentName;
+									rsvps[i].tournaments[j].game.tournament = data.games[k].tournament;
 								}
 							}
 						}

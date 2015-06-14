@@ -77,7 +77,7 @@ require("../common/enumselectdirective.js");
 			// Load existing signup info into our controller
 			for(var i = 0; i < rsvp.tournaments.length; i += 1){
 				for(var j = 0; j < ctrl.tournaments.length; j += 1){
-					if(rsvp.tournaments[i].tournament === ctrl.tournaments[j].game){
+					if(rsvp.tournaments[i].game === ctrl.tournaments[j].game){
 						ctrl.tournaments[j].signedUp = true;
 					}
 				}
@@ -99,7 +99,7 @@ require("../common/enumselectdirective.js");
 			for(var i = 0; i < ctrl.tournaments.length; i += 1){
 				if(ctrl.tournaments[i].signedUp){
 					ctrl.current.tournaments.push({
-						tournament: ctrl.tournaments[i].game
+						game: ctrl.tournaments[i].game
 					});
 				}
 			}

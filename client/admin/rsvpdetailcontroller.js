@@ -77,7 +77,7 @@ require("../common/enumselectdirective.js");
 
 		rsvp.isSignedUpForTournament = function(gameId){
 			for(var i = 0; i < rsvp.current.tournaments.length; i += 1){
-				if(rsvp.current.tournaments[i].tournament === gameId){
+				if(rsvp.current.tournaments[i].game === gameId){
 					return true;
 				}
 			}
@@ -92,7 +92,7 @@ require("../common/enumselectdirective.js");
 			for(var i = 0; i < rsvp.tournaments.length; i += 1){
 				if(rsvp.tournaments[i].signedUp){
 					data.tournaments.push({
-						tournament: rsvp.tournaments[i].game
+						game: rsvp.tournaments[i].game
 					});
 				}
 			}

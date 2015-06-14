@@ -57,7 +57,7 @@ var mongoose = require("mongoose"),
 			default: false
 		},
 		tournaments: [{
-			tournament: {
+			game: {
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "Game",
 				required: true
