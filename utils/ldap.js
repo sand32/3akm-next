@@ -134,43 +134,49 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	ldapDateToJsDate = function(ldapDate){
+		var year = ldapDate.substr(0, 4),
+			month = ldapDate.substr(4, 2),
+			day = ldapDate.substr(6, 2),
+			hour = ldapDate.substr(8, 2),
+			minute = ldapDate.substr(10, 2),
+			second = ldapDate.substr(12, 2);
+		return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+	},
+
+	ldapIntervalToJsDate = function(ldapInterval){
+		var sec = Math.round(ldapInterval / 10000000);
+		sec -= 11644473600;
+		return new Date(sec * 1000);
+	},
+
 	// userEntryTemplate = {
 	// 	email: "",
 	// 	firstName: "",
 	// 	lastName: ""
 	// }
 	translateFromUserEntryTemplate = function(template){
-		var entry {
-			objectClass: [
-				"top",
-				"person",
-				"organizationalPerson",
-				"user"
-			],
-			// All users we create go into this default group
-			memberOf: [config.ldap.3akmUserGroupDn],
-			cn: template.firstName + " " + template.lastName,
-			givenName: template.firstName,
-			sn: template.lastName,
-			mail: template.email,
-			sAMAccountName: template.firstName.toLowerCase() + "." + template.lastName.toLowerCase()
-		};
-		entry.userPrincipleName = entry.sAMAccountName + config.ldap.3akmUserPrincipalNameSuffix;
-
-		// If a password is provided: set it, otherwise set to "changeme"
-		if(template.password){
-			entry.userPassword = ldapFormattedHash(template.password);
-		}else{
-			entry.userPassword = ldapFormattedHash("changeme");
+		var entry = {};
+		if(template.firstName && template.lastName){
+			entry.cn = template.firstName + " " + template.lastName;
+			entry.displayName = entry.cn;
+			entry.name = entry.cn;
+			entry.givenName = template.firstName;
+			entry.sn = template.lastName;
+			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
+			entry.userPrincipleName = entry.sAMAccountName + config.ldap.3akmUserPrincipalNameSuffix;
 		}
-
-		// Assign groups
-		for(var i = 0; i < template.roles.length; i += 1){
-			if(config.ldap.3akmRoleGroupDns.indexOf(template.roles[i]) !== -1){
-				entry.memberOf.push(config.ldap.3akmRoleGroupDns[template.roles[i]]);
+		if(template.email) entry.mail = template.email;
+		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
+		if(template.roles){
+			// All users we create go into this default group
+			entry.memberOf = [config.ldap.3akmUserGroupDn];
+			for(var i = 0; i < template.roles.length; i += 1){
+				if(config.ldap.3akmRoleGroupDns.indexOf(template.roles[i]) !== -1){
+					entry.memberOf.push(config.ldap.3akmRoleGroupDns[template.roles[i]]);
+				}
 			}
 		}
-
 		return entry;
 	},
 
@@ -179,6 +185,9 @@ var q = require("q"),
 			email: entry.mail,
 			firstName: entry.givenName,
 			lastName: entry.sn,
+			created: ldapDateToJsDate(entry.whenCreated),
+			modified: ldapDateToJsDate(entry.whenChanged),
+			accessed: ldapIntervalToJsDate(entry.lastLogon),
 			roles: []
 		};
 
@@ -210,6 +219,8 @@ module.exports = {
 
 	createUser: function(entry){
 		entry = translateFromUserEntryTemplate(entry);
+		entry.objectClass = "user";
+
 		var client = createClient(),
 			deferred = q.defer();
 		bindServiceAccount(client)
