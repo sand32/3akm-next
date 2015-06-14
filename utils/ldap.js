@@ -141,23 +141,55 @@ var q = require("q"),
 	// }
 	translateFromUserEntryTemplate = function(template){
 		var entry {
+			objectClass: [
+				"top",
+				"person",
+				"organizationalPerson",
+				"user"
+			],
+			// All users we create go into this default group
+			memberOf: [config.ldap.3akmUserGroupDn],
 			cn: template.firstName + " " + template.lastName,
 			givenName: template.firstName,
 			sn: template.lastName,
 			mail: template.email,
 			sAMAccountName: template.firstName.toLowerCase() + "." + template.lastName.toLowerCase()
 		};
-		entry.userPrincipleName = entry.sAMAccountName + "@ca.local";
-		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
+		entry.userPrincipleName = entry.sAMAccountName + config.ldap.3akmUserPrincipalNameSuffix;
+
+		// If a password is provided: set it, otherwise set to "changeme"
+		if(template.password){
+			entry.userPassword = ldapFormattedHash(template.password);
+		}else{
+			entry.userPassword = ldapFormattedHash("changeme");
+		}
+
+		// Assign groups
+		for(var i = 0; i < template.roles.length; i += 1){
+			if(config.ldap.3akmRoleGroupDns.indexOf(template.roles[i]) !== -1){
+				entry.memberOf.push(config.ldap.3akmRoleGroupDns[template.roles[i]]);
+			}
+		}
+
 		return entry;
 	},
 
 	translateToUserEntryTemplate = function(entry){
-		return {
+		var template = {
 			email: entry.mail,
 			firstName: entry.givenName,
-			lastName: entry.sn
+			lastName: entry.sn,
+			roles: []
 		};
+
+		// Read roles
+		for(var i = 0; i < entry.memberOf.length; i += 1){
+			for(role in config.ldap.3akmRoleGroupDns){
+				if(config.ldap.3akmRoleGroupDns[role] === entry.memberOf[i]){
+					template.roles.push(role);
+				}
+			}
+		}
 	};
 
 module.exports = {
@@ -177,7 +209,7 @@ module.exports = {
 	},
 
 	createUser: function(entry){
-		entry = translateUserEntryTemplate(entry);
+		entry = translateFromUserEntryTemplate(entry);
 		var client = createClient(),
 			deferred = q.defer();
 		bindServiceAccount(client)

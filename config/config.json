@@ -13,7 +13,11 @@
 	"ldap": {
 		"url": "changeme",
 		"3akmUserDn": "changeme",
-		"3akmGroupDn": "changeme",
+		"3akmUserGroupDn": "changeme",
+		"3akmRoleGroupDns": {
+			"admin": "changeme"
+		},
+		"3akmUserPrincipalNameSuffix": "changeme",
 		"serviceAccountDn": "changeme",
 		"serviceAccountPassword": "changeme"
 	},
