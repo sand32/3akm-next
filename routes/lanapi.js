@@ -53,6 +53,9 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
 			query = Lan.findById(req.params.lan);
 		}
 
@@ -78,6 +81,9 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
 			query = Lan.findById(req.params.lan);
 		}
 		query.exec(function(err, doc){
@@ -124,6 +130,9 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
 			query = Lan.findById(req.params.lan);
 		}
 		query.exec(function(err, doc){
@@ -184,6 +193,9 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.status(404).end();
+		}
 		Lan.findByIdAndUpdate(req.params.lan, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -199,6 +211,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.status(404).end();
+		}
 		Lan.findByIdAndRemove(req.params.lan, function(err, doc){
 			if(err){
 				res.status(400).end();

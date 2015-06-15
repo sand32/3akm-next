@@ -43,6 +43,9 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:store", 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findById(req.params.store, function(err, doc){
 			if(doc){
 				res.status(200).send(doc);
@@ -74,6 +77,9 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -89,6 +95,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findByIdAndRemove(req.params.store, function(err, doc){
 			if(err){
 				res.status(400).end();

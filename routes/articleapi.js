@@ -73,6 +73,9 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:article", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
+			return res.status(404).end();
+		}
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
 		.exec(function(err, doc){
@@ -150,6 +153,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorize({hasRoles: ["author"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
+			return res.status(404).end();
+		}
 		Article.findByIdAndRemove(req.params.article, function(err, doc){
 			if(err){
 				res.status(500).end();

@@ -46,6 +46,9 @@ module.exports = function(app, prefix, prefix2){
 
 	app.get(prefix + "/:rsvp",
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
+			return res.status(404).end();
+		}
 		Rsvp.findById(req.params.rsvp)
 		.populate("user lan", "email firstName lastName beginDate")
 		.exec(function(err, doc){
@@ -81,6 +84,9 @@ module.exports = function(app, prefix, prefix2){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
+			return res.status(404).end();
+		}
 		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -96,6 +102,9 @@ module.exports = function(app, prefix, prefix2){
 		blendedAuthenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
+			return res.status(404).end();
+		}
 		Rsvp.findByIdAndRemove(req.params.rsvp, function(err, doc){
 			if(err){
 				res.status(400).end();

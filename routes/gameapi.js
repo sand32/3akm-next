@@ -44,6 +44,9 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:game", 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
 		Game.findById(req.params.game)
 		.exec(function(err, doc){
 			if(err){

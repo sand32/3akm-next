@@ -90,6 +90,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		// Resend verification email
 		res.status(200).end();
 	});
@@ -98,6 +101,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		// Retrieve and return the "verified" value
 		User.findById(req.params.user, function(err, doc){
 			if(doc){
@@ -125,6 +131,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(500).end();
@@ -182,6 +191,9 @@ module.exports = function(app, prefix){
 		authorizeSessionUser(), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		// Ignore the following fields unless sent by an admin
 		if(!req.user.hasRole("admin")){
 			delete req.body.verified;
@@ -215,6 +227,9 @@ module.exports = function(app, prefix){
 		blendedAuthenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		// Record this modification
 		var update = {
 			modified: Date.now(),
