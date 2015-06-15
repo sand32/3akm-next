@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var SimpleArrayEntry = function($timeout){
+	var SimpleArrayEntry = function(){
 		return {
 			restrict: "E",
 			replace: true,
@@ -36,27 +36,21 @@ misrepresented as being the original software.
 				removalTooltipPlacement: "@"
 			},
 			link: function(scope, element, attrs){
-				var emitResizeEvent = function(){
-					scope.$emit("ResizeContentArea");
-				};
-
 				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
 				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
 
 				scope.addItem = function(){
 					scope.items.push("");
-					$timeout(emitResizeEvent, 100);
 				};
 
 				scope.removeItem = function(index){
 					scope.items.splice(index, 1);
-					emitResizeEvent();
 				};
 			}
 		}
 	},
 
-	KeyValueArrayEntry = function($timeout){
+	KeyValueArrayEntry = function(){
 		return {
 			restrict: "E",
 			replace: true,
@@ -73,10 +67,6 @@ misrepresented as being the original software.
 				removalTooltipPlacement: "@"
 			},
 			link: function(scope, element, attrs){
-				var emitResizeEvent = function(){
-					scope.$emit("ResizeContentArea");
-				};
-
 				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
 				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
 
@@ -84,18 +74,16 @@ misrepresented as being the original software.
 					scope.items.push({});
 					scope.items[scope.items.length - 1][scope.keyName] = "";
 					scope.items[scope.items.length - 1][scope.valueName] = "";
-					$timeout(emitResizeEvent, 100);
 				};
 
 				scope.removeItem = function(index){
 					scope.items.splice(index, 1);
-					emitResizeEvent();
 				};
 			}
 		}
 	},
 
-	EnumValueArrayEntry = function($timeout){
+	EnumValueArrayEntry = function(){
 		return {
 			restrict: "E",
 			replace: true,
@@ -114,10 +102,6 @@ misrepresented as being the original software.
 				removalTooltipPlacement: "@"
 			},
 			link: function(scope, element, attrs){
-				var emitResizeEvent = function(){
-					scope.$emit("ResizeContentArea");
-				};
-
 				scope.defaultDropdownText = scope.defaultDropdownText || "Choose a " + scope.keyLabel.toLowerCase();
 				scope.additionTooltipPlacement = scope.additionTooltipPlacement || "right";
 				scope.removalTooltipPlacement = scope.removalTooltipPlacement || "right";
@@ -126,12 +110,10 @@ misrepresented as being the original software.
 					scope.items.push({});
 					scope.items[scope.items.length - 1][scope.keyName] = "";
 					scope.items[scope.items.length - 1][scope.valueName] = "";
-					$timeout(emitResizeEvent, 100);
 				};
 
 				scope.removeItem = function(index){
 					scope.items.splice(index, 1);
-					emitResizeEvent();
 				};
 
 				scope.getEnumKeyFromValue = function(enumValue){
@@ -157,7 +139,7 @@ misrepresented as being the original software.
 		.directive("keyValueArrayEntry", KeyValueArrayEntry)
 		.directive("enumValueArrayEntry", EnumValueArrayEntry);
 
-	SimpleArrayEntry.$inject = ["$timeout"];
-	KeyValueArrayEntry.$inject = ["$timeout"];
-	EnumValueArrayEntry.$inject = ["$timeout"];
+	SimpleArrayEntry.$inject = [];
+	KeyValueArrayEntry.$inject = [];
+	EnumValueArrayEntry.$inject = [];
 })();

@@ -29,7 +29,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpDetailController = function($scope, $timeout, $state, $modal, ngToast, RsvpService, LanService){
+	var RsvpDetailController = function($scope, $state, $modal, ngToast, RsvpService, LanService){
 		var rsvp = this;
 		rsvp.tournaments = []
 		rsvp.current = {
@@ -53,7 +53,6 @@ require("../common/enumselectdirective.js");
 					var promise = LanService.retrieve(data.lan._id);
 					rsvp.current = data;
 					rsvp.current.lan.beginDate = new Date(rsvp.current.lan.beginDate);
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 					return promise;
 				},
 				function(){
@@ -156,5 +155,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("RsvpDetailController", RsvpDetailController);
 
-	RsvpDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "RsvpService", "LanService"];
+	RsvpDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "RsvpService", "LanService"];
 })();

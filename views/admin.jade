@@ -36,7 +36,7 @@ html(ng-app = "3akm.admin")
 		base(href = "/admin/")
 		toast
 		.container-fluid.content-area
-			.menu.col-xs-2.auto-resize.visible-md.visible-lg
+			.menu.col-xs-2.visible-md.visible-lg
 				a(ui-sref = "default")
 					.logo
 				ul.menu-list.nav.nav-stacked
@@ -94,7 +94,7 @@ html(ng-app = "3akm.admin")
 					li
 						a(href = "/", target = "_self")
 							| Frontend
-			.content.col-md-10.auto-resize(ui-view)
+			.content.col-md-10(ui-view)
 	script(src = "/thirdparty/angular.min.js")
 	script(src = "/thirdparty/angular-messages.min.js")
 	script(src = "/thirdparty/angular-animate.min.js")

@@ -28,7 +28,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleDetailController = function($scope, $timeout, $state, $modal, ngToast, ArticleService){
+	var ArticleDetailController = function($scope, $state, $modal, ngToast, ArticleService){
 		var article = this;
 		article.current = {
 			published: false,
@@ -44,7 +44,6 @@ require("../common/enumselectdirective.js");
 			.then(
 				function(data){
 					article.current = data;
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 				},
 				function(){
 					$state.go("^");
@@ -115,5 +114,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ArticleDetailController", ArticleDetailController);
 
-	ArticleDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "ArticleService"];
+	ArticleDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "ArticleService"];
 })();
