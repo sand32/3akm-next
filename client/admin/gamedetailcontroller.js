@@ -28,7 +28,7 @@ require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var GameDetailController = function($scope, $timeout, $state, $modal, ngToast, GameService, StoreService){
+	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
 		var game = this;
 		game.current = {
 			supplementalFiles: [],
@@ -53,7 +53,6 @@ require("../common/confirmcontroller.js");
 			.then(
 				function(data){
 					game.current = data;
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 				},
 				function(){
 					$state.go("^");
@@ -124,5 +123,5 @@ require("../common/confirmcontroller.js");
 			])
 		.controller("GameDetailController", GameDetailController);
 
-	GameDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "GameService", "StoreService"];
+	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService", "StoreService"];
 })();

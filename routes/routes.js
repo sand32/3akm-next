@@ -48,46 +48,10 @@ module.exports = function(app){
 	storeApiRoutes(app, "/api/store");
 	uploadRoutes(app, "/api/upload");
 	serviceRoutes(app, "/api/service");
-	clientRoutes(app, "/partial");
 
-	app.use(express.static('public'));
-
-	app.get("/admin*", 
-		blendedAuthenticate, 
-		authorize({hasRoles: ["admin"]}), 
-	function(req, res){
-		if(config.debugMode){
-			var startup = require("../utils/startup.js");
-			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("admin");
-				},
-				function(error){
-					console.error("Error: " + error);
-					res.status(500).end();
-				}
-			);
-		}else{
-			res.render("admin");
-		}
+	app.use("/api", function(req, res){
+		res.status(404).end();
 	});
 
-	app.get("*", function(req, res){
-		if(config.debugMode){
-			var startup = require("../utils/startup.js");
-			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("frontend");
-				},
-				function(error){
-					console.error("Error: " + error);
-					res.status(500).end();
-				}
-			);
-		}else{
-			res.render("frontend");
-		}
-	});
+	clientRoutes(app, "");
 }

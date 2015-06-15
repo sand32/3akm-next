@@ -29,7 +29,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var LanDetailController = function($scope, $timeout, $state, $modal, ngToast, LanService, GameService){
+	var LanDetailController = function($scope, $state, $modal, ngToast, LanService, GameService){
 		var lan = this;
 		lan.current = {
 			active: false,
@@ -70,7 +70,6 @@ require("../common/enumselectdirective.js");
 					lan.current = data;
 					lan.current.beginDate = new Date(data.beginDate);
 					lan.current.endDate = new Date(data.endDate);
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
 				},
 				function(){
 					$state.go("^");
@@ -147,5 +146,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("LanDetailController", LanDetailController);
 
-	LanDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "LanService", "GameService"];
+	LanDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "LanService", "GameService"];
 })();

@@ -23,42 +23,6 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var ContentArea = function($rootScope, $window){
-		return {
-			restrict: "C",
-			link: function(scope, element, attrs){
-				var getDocHeight = function() {
-				    return Math.max(
-				        document.body.scrollHeight, document.documentElement.scrollHeight,
-				        document.body.offsetHeight, document.documentElement.offsetHeight,
-				        document.body.clientHeight, document.documentElement.clientHeight
-				    );
-				},
-
-				resizeContentArea = function(){
-					var documentHeight = getDocHeight(),
-						windowHeight = $window.innerHeight,
-						newCss = {
-							height: Math.max(windowHeight, documentHeight) + "px"
-						},
-						children;
-
-					// Set content area to full height of window
-					element.css(newCss);
-					children = element.children();
-					for(var i = 0; i < children.length; i += 1){
-						if(angular.element(children[i]).hasClass("auto-resize")){
-							angular.element(children[i]).css(newCss);
-						}
-					}
-				};
-				$rootScope.$on("ResizeContentArea", resizeContentArea);
-				angular.element($window).on("load resize", resizeContentArea);
-				$rootScope.$emit("ResizeContentArea");
-			}
-		};
-	};
-
 	var RowExpand = function(){
 		return {
 			restrict: "C",
@@ -86,9 +50,7 @@ misrepresented as being the original software.
 
 	angular
 		.module("3akm.admin.styling", [])
-		.directive("contentArea", ContentArea)
 		.directive("rowExpand", RowExpand);
 
-	ContentArea.$inject = ["$rootScope", "$window"];
 	RowExpand.$inject = [];
 })();

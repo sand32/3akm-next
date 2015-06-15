@@ -30,7 +30,6 @@ require("./user/registrationcontroller.js");
 require("./user/profilecontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
-require("./frontend-common/stylingdirectives.js");
 require("./common/validationdirectives.js");
 
 (function(){
@@ -96,7 +95,6 @@ require("./common/validationdirectives.js");
 				"ngToast",
 				"3akm.common.arrayentry",
 				"3akm.common.validation",
-				"3akm.frontend.styling",
 				"3akm.article",
 				"3akm.gameList",
 				"3akm.appearances",

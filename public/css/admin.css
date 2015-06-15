@@ -26,8 +26,17 @@ misrepresented as being the original software.
 /* primary: rgb(0, 150, 136) */
 /* accent: rgb(96, 125, 139) */
 
+html, body {
+	height: 100%;
+}
+
 .container-fluid {
 	padding: 0;
+}
+
+.content-area {
+	min-height: 100%;
+	overflow: hidden;
 }
 
 .content {
@@ -51,8 +60,10 @@ a.btn-link:hover {
 	margin-bottom: 1.5em;
 }
 
-.menu-slim {
+.menu.col-xs-2 {
 	background-color: #222;
+	margin-bottom: -5000px;
+	padding-bottom: 5000px;
 }
 
 .menu-button {
