@@ -26,8 +26,7 @@ var fs = require("fs"),
 	browserify = require("browserify"),
 	q = require("q"),
 	Store = require("../model/store.js"),
-	loadConfig = require("../utils/common.js").loadConfig,
-	config = loadConfig(__dirname + "/../config/config.json");
+	config = require("../utils/common.js").config;
 
 module.exports = {
 	initializeDatabase: function(){

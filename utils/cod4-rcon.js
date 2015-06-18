@@ -25,7 +25,7 @@ misrepresented as being the original software.
 var dgram = require("dgram"),
 	loadConfig = require("./common.js").loadConfig,
 	shuffle = require("./common.js").shuffle,
-	config = loadConfig(__dirname + "/../config/config.json"),
+	config = require("./common.js").config,
 	gameinfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
 	commandQueue = [];
 

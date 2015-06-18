@@ -23,10 +23,9 @@ misrepresented as being the original software.
 */
 
 var express = require("express"),
-	utils = require("../utils/common.js"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
-	config = utils.loadConfig(__dirname + "/../config/config.json");
+	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/partial/registrationform", function(req, res){

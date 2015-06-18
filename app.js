@@ -31,10 +31,9 @@ var express = require("express"),
 	mongoose = require("mongoose"),
 	authentication = require("./authentication.js"),
 	routes = require("./routes/routes.js"),
-	loadConfig = require("./utils/common.js").loadConfig,
 	startup = require("./utils/startup.js"),
 	app = express(),
-	config = loadConfig(__dirname + "/config/config.json");
+	config = require("./utils/common.js").config;
 
 // Establish database connection
 if(config.dbUser){
