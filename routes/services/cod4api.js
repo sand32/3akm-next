@@ -24,7 +24,7 @@ misrepresented as being the original software.
 
 var cod4 = require("../../utils/cod4-rcon.js"),
 	authorize = require("../../authorization.js").authorize,
-	blendedAuthenticate = require("../../utils/common.js").blendedAuthenticate,
+	authenticate = require("../../utils/common.js").authenticate,
 	loadConfig = require("../../utils/common.js").loadConfig,
 	gameinfo = loadConfig(__dirname + "/../../config/cod4-gameinfo.json");
 
@@ -47,14 +47,14 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/map", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		res.status(501).end();
 	});
 
 	app.post(prefix + "/map/rotate", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.rotateMap(function(err, data){
@@ -68,7 +68,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/status", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.status(function(err, data){
@@ -112,7 +112,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/gametype", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.setGametype(req.body.gametype, function(err, data){
@@ -126,7 +126,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/say", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		cod4.say(req.body.message, function(err, data){

@@ -24,12 +24,12 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	multer = require("multer");
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/image", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	multer({
 		dest:"./public/uploads/images/",

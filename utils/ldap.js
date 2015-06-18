@@ -25,8 +25,7 @@ misrepresented as being the original software.
 var q = require("q"),
 	ldapjs = require("ldapjs"),
 	crypto = require("crypto"),
-	loadConfig = require("./common.js").loadConfig,
-	config = loadConfig(__dirname + "/config/config.json"),
+	config = require("./common.js").config,
 	client = null,
 
 	createClient = function(){
@@ -45,7 +44,7 @@ var q = require("q"),
 
 	bind = function(client, email, password){
 		var deferred = q.defer();
-		client.bind("mail=" + email + "," + config.ldap.3akmUserDn, ldapFormattedHash(password), function(err){
+		client.bind("mail=" + email + "," + config.ldap.userDn, ldapFormattedHash(password), function(err){
 			if(err){
 				deferred.reject(err);
 			}else{
@@ -152,8 +151,10 @@ var q = require("q"),
 
 	// userEntryTemplate = {
 	// 	email: "",
+	// 	password: "",
 	// 	firstName: "",
-	// 	lastName: ""
+	// 	lastName: "",
+	// 	roles: [""]
 	// }
 	translateFromUserEntryTemplate = function(template){
 		var entry = {};
@@ -164,16 +165,16 @@ var q = require("q"),
 			entry.givenName = template.firstName;
 			entry.sn = template.lastName;
 			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
-			entry.userPrincipleName = entry.sAMAccountName + config.ldap.3akmUserPrincipalNameSuffix;
+			entry.userPrincipleName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 		}
 		if(template.email) entry.mail = template.email;
 		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
 		if(template.roles){
 			// All users we create go into this default group
-			entry.memberOf = [config.ldap.3akmUserGroupDn];
+			entry.memberOf = [config.ldap.userGroupDn];
 			for(var i = 0; i < template.roles.length; i += 1){
-				if(config.ldap.3akmRoleGroupDns.indexOf(template.roles[i]) !== -1){
-					entry.memberOf.push(config.ldap.3akmRoleGroupDns[template.roles[i]]);
+				if(config.ldap.roleGroupDns.indexOf(template.roles[i]) !== -1){
+					entry.memberOf.push(config.ldap.roleGroupDns[template.roles[i]]);
 				}
 			}
 		}
@@ -193,8 +194,8 @@ var q = require("q"),
 
 		// Read roles
 		for(var i = 0; i < entry.memberOf.length; i += 1){
-			for(role in config.ldap.3akmRoleGroupDns){
-				if(config.ldap.3akmRoleGroupDns[role] === entry.memberOf[i]){
+			for(role in config.ldap.roleGroupDns){
+				if(config.ldap.roleGroupDns[role] === entry.memberOf[i]){
 					template.roles.push(role);
 				}
 			}
@@ -226,7 +227,7 @@ module.exports = {
 		bindServiceAccount(client)
 		.then(
 			function(){
-				return findEntry(client, config.ldap.3akmUserDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
+				return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(status, entries){
@@ -234,7 +235,7 @@ module.exports = {
 					if(entries.collection.length > 0){
 						entry.sAMAccountName += parseInt(entries.collection.length);
 					}
-					return add(client, "cn=" + entry.cn + "," + config.ldap.3akmUserDn, entry);
+					return add(client, "mail=" + entry.mail + "," + config.ldap.userDn, entry);
 				}else{
 					deferred.reject(status);
 				}
@@ -244,6 +245,26 @@ module.exports = {
 				return unbind(client);
 			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
+		return deferred.promise;
+	},
+
+	userExists: function(email){
+		var client = createClient(),
+			deferred = q.defer();
+		bindServiceAccount(client)
+		.then(
+			function(){
+				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(status, entries){
+				if(status === 0){
+					deferred.resolve();
+				}else{
+					deferred.reject(status);
+				}
+			}, function(err){deferred.reject(err);}
+		);
 		return deferred.promise;
 	}
 };

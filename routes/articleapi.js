@@ -26,7 +26,7 @@ var mongoose = require("mongoose"),
 	Article = require("../model/article.js"),
 	isAuthorized = require("../authorization.js").isAuthorized,
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
@@ -94,7 +94,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["author"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -116,7 +116,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:article", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["author"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -150,7 +150,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.delete(prefix + "/:article", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["author"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){

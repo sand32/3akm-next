@@ -25,18 +25,60 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	querystring = require("querystring"),
 	fs = require("fs"),
-	request = require("request");
+	request = require("request"),
+	loadConfig = function(file){
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	};
 
 module.exports = {
-	loadConfig: function(file){
-		return JSON.parse(fs.readFileSync(file, "utf8"));
+	loadConfig: loadConfig,
+
+	config: loadConfig(__dirname + "/../config/config.json"),
+
+	register: function(req, res, next){
+		if(module.exports.config.ldap.enabled){
+			passport.authenticate("ldapRegister")(req, res, next);
+		}else{
+			passport.authenticate("register")(req, res, next);
+		}
+	},
+
+	login: function(req, res, next){
+		if(module.exports.config.ldap.enabled){
+			passport.authenticate("ldap")(req, res, next);
+		}else{
+			passport.authenticate("local")(req, res, next);
+		}
+	},
+
+	authenticate: function(req, res, next){
+		if(module.exports.config.ldap.enabled){
+			module.exports.ldapElseBasicAuthenticate(req, res, next);
+		}else{
+			module.exports.localElseBasicAuthenticate(req, res, next);
+		}
 	},
 
 	// Special authentication in order to support local sessions and basic auth 
 	// on API routes.
 	// 
 	// Basically: if we have a local session, proceed, else require basic auth.
-	blendedAuthenticate: function(req, res, next){
+	ldapElseBasicAuthenticate: function(req, res, next){
+		if(req.isAuthenticated()){
+			return next();
+		}
+		if(req.params.user !== "session"){
+			passport.authenticate("ldapBasic")(req, res, next);
+		}else{
+			res.status(403).end();
+		}
+	},
+
+	// Special authentication in order to support local sessions and basic auth 
+	// on API routes.
+	// 
+	// Basically: if we have a local session, proceed, else require basic auth.
+	localElseBasicAuthenticate: function(req, res, next){
 		if(req.isAuthenticated()){
 			return next();
 		}
@@ -48,7 +90,7 @@ module.exports = {
 	},
 
 	verifyRecaptcha: function(req, res, next){
-		var config = module.exports.loadConfig(__dirname + "/../config/config.json"),
+		var config = module.exports.config,
 			url = "https://www.google.com/recaptcha/api/siteverify",
 			data = querystring.stringify({
 				secret: config.recaptchaSecret,

@@ -11,13 +11,14 @@
 	"dbPassword": "",
 	"corsWhitelist": [],
 	"ldap": {
+		"enabled": false,
 		"url": "changeme",
-		"3akmUserDn": "changeme",
-		"3akmUserGroupDn": "changeme",
-		"3akmRoleGroupDns": {
+		"userDn": "changeme",
+		"userGroupDn": "changeme",
+		"roleGroupDns": {
 			"admin": "changeme"
 		},
-		"3akmUserPrincipalNameSuffix": "changeme",
+		"userPrincipalNameSuffix": "changeme",
 		"serviceAccountDn": "changeme",
 		"serviceAccountPassword": "changeme"
 	},

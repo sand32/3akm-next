@@ -28,7 +28,7 @@ var mongoose = require("mongoose"),
 	Game = require("../model/game.js"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
 
 module.exports = function(app, prefix){
@@ -172,7 +172,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -189,7 +189,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:lan", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -208,7 +208,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.delete(prefix + "/:lan", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){

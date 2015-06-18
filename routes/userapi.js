@@ -27,7 +27,9 @@ var passport = require("passport"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	register = require("../utils/common.js").register,
+	login = require("../utils/common.js").login,
+	authenticate = require("../utils/common.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
@@ -35,7 +37,7 @@ var passport = require("passport"),
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
 		verifyRecaptcha, 
-		passport.authenticate("register"), 
+		register, 
 	function(req, res){
 		if(req.isAuthenticated()){
 			req.user.firstName = req.body.firstName;
@@ -67,7 +69,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/login", passport.authenticate("local"), function(req, res){
+	app.post(prefix + "/login", 
+		login, 
+	function(req, res){
 		if(req.isAuthenticated()){
 			req.user.accessed = Date.now();
 			req.user.save();
@@ -87,7 +91,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/:user/verify", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -98,7 +102,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user/verified", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -115,7 +119,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		User.find({}, function(err, docs){
@@ -128,7 +132,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -168,7 +172,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -187,7 +191,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -224,7 +228,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:user/password", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
