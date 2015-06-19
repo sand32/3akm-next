@@ -35,6 +35,9 @@ hr
 			| at a later date.
 	form(name = "rsvpForm", role = "form", ng-submit = "rsvp.submit()", ng-if = "rsvp.year !== 0 && rsvp.isLoggedIn")
 		.row
+			p.col-xs-12
+				em Please plan on bringing a {{rsvp.entryFee | currency : $ : 0}} entry fee to defray the cost of the electric bill, food, door prizes, and other expenses.
+		.row
 			.form-group.col-xs-3
 				label Will you be attending?
 				enum-select(current = "rsvp.current.status", possibles = "rsvp.statusPossibles")

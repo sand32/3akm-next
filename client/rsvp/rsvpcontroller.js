@@ -30,6 +30,7 @@ require("../common/enumselectdirective.js");
 	var RsvpController = function($scope, $state, ngToast, LanService, RsvpService){
 		var ctrl = this;
 		ctrl.year = 0;
+		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
 		ctrl.isLoggedIn = false;
 		ctrl.loaded = false;
@@ -54,6 +55,7 @@ require("../common/enumselectdirective.js");
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();
+			ctrl.entryFee = lan.entryFee;
 			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
 			// Load any tournament games for this LAN into our controller
