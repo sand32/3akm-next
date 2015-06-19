@@ -40,11 +40,6 @@ module.exports = function(app, prefix){
 		register, 
 	function(req, res){
 		if(req.isAuthenticated()){
-			req.user.firstName = req.body.firstName;
-			req.user.lastName = req.body.lastName;
-			req.user.primaryHandle = req.body.primaryHandle;
-			req.user.tertiaryHandles = req.body.tertiaryHandles;
-			req.user.save();
 			// Send email for verification
 			// Respond with "201 Created"
 			res.status(201).send(req.user._id.toString());

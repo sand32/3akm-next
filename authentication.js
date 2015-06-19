@@ -41,9 +41,10 @@ module.exports = function(){
 
 	passport.use("register", new LocalStrategy({
 			usernameField: "email",
-			passwordField: "password"
+			passwordField: "password",
+			passReqToCallback: true
 		},
-		function(email, password, done){
+		function(req, email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email
 				User.findOne({"email": email}, function(err, user){
@@ -60,6 +61,10 @@ module.exports = function(){
 						var newUser = new User();
 						newUser.email = email;
 						newUser.passwordHash = newUser.hash(password);
+						newUser.firstName = req.body.firstName;
+						newUser.lastName = req.body.lastName;
+						newUser.primaryHandle = req.body.primaryHandle;
+						newUser.tertiaryHandles = req.body.tertiaryHandles;
 						newUser.save(function(err){
 							if(err){
 								return done(err);
@@ -123,9 +128,10 @@ module.exports = function(){
 
 	passport.use("ldapRegister", new LocalStrategy({
 			usernameField: "email",
-			passwordField: "password"
+			passwordField: "password",
+			passReqToCallback: true
 		},
-		function(email, password, done){
+		function(req, email, password, done){
 			process.nextTick(function(){
 				// Try to find a user with the given email
 				User.findOne({"email": email}, function(err, user){
@@ -134,10 +140,7 @@ module.exports = function(){
 						return done(err);
 					}
 
-					Ldap.createUser({
-						email: email,
-						password: password
-					})
+					Ldap.createUser(req.body)
 					.then(
 						function(){
 							// If we've found the email in our database, the user already exists, do nothing
