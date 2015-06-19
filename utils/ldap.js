@@ -173,10 +173,10 @@ var q = require("q"),
 		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
 		if(template.roles){
 			// All users we create go into this default group
-			entry.memberOf = [config.ldap.userGroupDn];
+			entry.memberOf = ["cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn];
 			for(var i = 0; i < template.roles.length; i += 1){
 				if(config.ldap.roleGroupDns.indexOf(template.roles[i]) !== -1){
-					entry.memberOf.push(config.ldap.roleGroupDns[template.roles[i]]);
+					entry.memberOf.push("cn=" + config.ldap.roleGroupCns[template.roles[i]] + "," + config.ldap.groupDn);
 				}
 			}
 		}

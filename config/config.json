@@ -14,8 +14,9 @@
 		"enabled": false,
 		"url": "changeme",
 		"userDn": "changeme",
-		"userGroupDn": "changeme",
-		"roleGroupDns": {
+		"groupDn": "changeme",
+		"userGroupCn": "changeme",
+		"roleGroupCns": {
 			"admin": "changeme"
 		},
 		"userPrincipalNameSuffix": "changeme",
