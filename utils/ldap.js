@@ -152,6 +152,7 @@ var q = require("q"),
 	// userEntryTemplate = {
 	// 	email: "",
 	// 	password: "",
+	// 	verified: "",
 	// 	firstName: "",
 	// 	lastName: "",
 	// 	roles: [""]
@@ -167,6 +168,7 @@ var q = require("q"),
 			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
 			entry.userPrincipleName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 		}
+		if(template.verified) entry.extensionAttribute1 = template.verified;
 		if(template.email) entry.mail = template.email;
 		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
 		if(template.roles){
