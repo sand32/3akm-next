@@ -38,7 +38,7 @@
 				.well.col-xs-6
 					.row
 						label.col-xs-5 Created By:
-						.col-xs-7(ng-if = "article.current.author") {{article.current.author.firstName}} {{article.current.author.lastName}} ({{article.current.author.email}})
+						.col-xs-7(ng-if = "article.current.author") {{article.current.author.firstName}} {{article.current.author.lastName}}
 						.col-xs-7(ng-if = "!article.current.author") N/A
 					.row
 						label.col-xs-5 Created:
@@ -46,7 +46,7 @@
 						.col-xs-7(ng-if = "!article.current.created") N/A
 					.row
 						label.col-xs-5 Modified By:
-						.col-xs-7(ng-if = "article.current.modifiedBy") {{article.current.modifiedBy.firstName}} {{article.current.modifiedBy.lastName}} ({{article.current.modifiedBy.email}})
+						.col-xs-7(ng-if = "article.current.modifiedBy") {{article.current.modifiedBy.firstName}} {{article.current.modifiedBy.lastName}}
 						.col-xs-7(ng-if = "!article.current.modifiedBy") N/A
 					.row
 						label.col-xs-5 Modified:
