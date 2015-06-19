@@ -39,7 +39,7 @@ var q = require("q"),
 			hash = crypto.createHash("sha512");
 		hash.update(value);
 		hash.update(salt);
-		return "{ssha512}" + Buffer.concat([hash.digest(), hash.salt]).toString('base64');
+		return "{ssha512}" + Buffer.concat([hash.digest(), salt]).toString('base64');
 	},
 
 	bind = function(client, email, password){
