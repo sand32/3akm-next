@@ -22,11 +22,12 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 var q = require("q"),
 	ldapjs = require("ldapjs"),
 	crypto = require("crypto"),
 	config = require("./common.js").config,
-	client = null,
 
 	createClient = function(){
 		return ldapjs.createClient({
