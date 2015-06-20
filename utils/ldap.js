@@ -128,7 +128,7 @@ var q = require("q"),
 				deferred.reject(err.message, entries);
 			});
 			res.on("end", function(result){
-				deferred.resolve(result.status, entries);
+				deferred.resolve({status: result.status, entries: entries});
 			});
 		});
 		return deferred.promise;
@@ -167,7 +167,7 @@ var q = require("q"),
 			entry.givenName = template.firstName;
 			entry.sn = template.lastName;
 			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
-			entry.userPrincipleName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+			entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 		}
 		if(template.verified) entry.extensionAttribute1 = template.verified;
 		if(template.email) entry.mail = template.email;
@@ -233,14 +233,14 @@ module.exports = {
 				return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
 			}, function(err){deferred.reject(err);}
 		).then(
-			function(status, entries){
-				if(status === 0){
-					if(entries.collection.length > 0){
-						entry.sAMAccountName += parseInt(entries.collection.length);
+			function(result){
+				if(result.status === 0){
+					if(result.entries.collection.length > 0){
+						entry.sAMAccountName += parseInt(result.entries.collection.length);
 					}
 					return add(client, "mail=" + entry.mail + "," + config.ldap.userDn, entry);
 				}else{
-					deferred.reject(status);
+					deferred.reject(result.status);
 				}
 			}, function(err){deferred.reject(err);}
 		).then(
