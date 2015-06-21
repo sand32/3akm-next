@@ -35,14 +35,6 @@ module.exports = {
 
 	config: loadConfig(__dirname + "/../config/config.json"),
 
-	requireUserModel: function(){
-		if(config.ldap.enabled){
-			return require("../model/user-ldap.js");
-		}else{
-			return require("../model/user.js");
-		}
-	},
-
 	register: function(req, res, next){
 		if(module.exports.config.ldap.enabled){
 			passport.authenticate("ldapRegister")(req, res, next);

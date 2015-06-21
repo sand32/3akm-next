@@ -26,7 +26,7 @@ module.exports = function(){
 	var passport = require("passport"),
 		BasicStrategy = require("passport-http").BasicStrategy,
 		LocalStrategy = require("passport-local"),
-		User = require("./utils/common.js").requireUserModel(),
+		User = require("./model/user.js"),
 		Ldap = require("./utils/ldap.js");
 
 	passport.serializeUser(function(user, done){

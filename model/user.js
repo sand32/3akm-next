@@ -24,7 +24,8 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	bcrypt = require("bcrypt-nodejs"),
-	userSchema = mongoose.Schema({
+	config = require("../utils/common.js").config,
+	localSchema = {
 		email: {
 			type: String,
 			required: true,
@@ -75,7 +76,37 @@ var mongoose = require("mongoose"),
 			},
 			serviceHandle: String
 		}]
-	});
+	},
+	ldapSchema = {
+		email: {
+			type: String,
+			required: true,
+			unique: true
+		},
+		vip: {
+			type: Boolean,
+			default: false
+		},
+		lanInviteDesired: {
+			type: Boolean,
+			default: true
+		},
+		blacklisted: {
+			type: Boolean,
+			default: false
+		},
+		primaryHandle: String,
+		tertiaryHandles: [String],
+		services: [{
+			service: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Service",
+				required: true
+			},
+			serviceHandle: String
+		}]
+	},
+	userSchema = mongoose.Schema(config.ldap.enabled ? ldapSchema : localSchema);
 
 userSchema.methods.hash = function(pass){
 	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
