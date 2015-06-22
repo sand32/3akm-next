@@ -45,7 +45,8 @@ var q = require("q"),
 
 	bind = function(client, email, password){
 		var deferred = q.defer();
-		client.bind("mail=" + email + "," + config.ldap.userDn, ldapFormattedHash(password), function(err){
+		console.error("Binding to: " + "cn=" + email + "," + config.ldap.userDn);
+		client.bind("cn=" + email + "," + config.ldap.userDn, password, function(err){
 			if(err){
 				deferred.reject(err);
 			}else{
@@ -82,6 +83,18 @@ var q = require("q"),
 	add = function(client, dn, entry){
 		var deferred = q.defer();
 		client.add(dn, entry, function(err){
+			if(err){
+				deferred.reject(err);
+			}else{
+				deferred.resolve();
+			}
+		});
+		return deferred.promise;
+	},
+
+	modify = function(client, dn, changes){
+		var deferred = q.defer();
+		client.modify(dn, changes, function(err){
 			if(err){
 				deferred.reject(err);
 			}else{
@@ -171,10 +184,12 @@ var q = require("q"),
 		}
 		if(template.verified) entry.extensionAttribute1 = template.verified;
 		if(template.email) entry.mail = template.email;
-		if(template.password) entry.userPassword = ldapFormattedHash(template.password);
+
+		// All users we create go into this default group
+		entry.memberOf = ["cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn];
+
+		// Assign role groups
 		if(template.roles){
-			// All users we create go into this default group
-			entry.memberOf = ["cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn];
 			for(var i = 0; i < template.roles.length; i += 1){
 				if(config.ldap.roleGroupDns.indexOf(template.roles[i]) !== -1){
 					entry.memberOf.push("cn=" + config.ldap.roleGroupCns[template.roles[i]] + "," + config.ldap.groupDn);
@@ -222,11 +237,19 @@ module.exports = {
 	},
 
 	createUser: function(entry){
+		var client = createClient(),
+			deferred = q.defer(),
+			password;
+		if(entry.password){
+			password = entry.password;
+		}else{
+			deferred.reject("Must specify a password");
+			return deferred.promise;
+		}
+
 		entry = translateFromUserEntryTemplate(entry);
 		entry.objectClass = "user";
 
-		var client = createClient(),
-			deferred = q.defer();
 		bindServiceAccount(client)
 		.then(
 			function(){
@@ -234,18 +257,57 @@ module.exports = {
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(result){
+				var numericSuffix;
 				if(result.status === 0){
 					if(result.entries.collection.length > 0){
-						entry.sAMAccountName += parseInt(result.entries.collection.length);
+						numericSuffix = parseInt(result.entries.collection.length);
+						entry.cn += numericSuffix;
+						entry.sAMAccountName += numericSuffix;
 					}
-					return add(client, "mail=" + entry.mail + "," + config.ldap.userDn, entry);
+					return add(client, "cn=" + entry.cn + "," + config.ldap.userDn, entry);
 				}else{
 					deferred.reject(result.status);
 				}
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(){
+				return modify(client, "cn=" + entry.cn + "," + config.ldap.userDn, [{
+				// 	operation: "delete",
+				// 	modification: {unicodePwd: "\"\""}
+				// },{
+					operation: "replace",
+					modification: {unicodePwd: "\"" + ldapFormattedHash(password) + "\""}
+				}]);
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
 				return unbind(client);
+			}, function(err){deferred.reject(err);}
+		).then(deferred.resolve, function(err){deferred.reject(err);});
+		return deferred.promise;
+	},
+
+	setPassword: function(email, oldPassword, newPassword){
+		var client = createClient(),
+			deferred = q.defer();
+		bindServiceAccount(client)
+		.then(
+			function(){
+				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(result){
+				if(result.status === 0){
+					return modify(client, "mail=" + email + "," + config.ldap.userDn, [{
+						operation: "delete",
+						modification: {unicodePwd: "\"" + ldapFormattedHash(oldPassword) + "\""}
+					},{
+						operation: "add",
+						modification: {unicodePwd: "\"" + ldapFormattedHash(newPassword) + "\""}
+					}]);
+				}else{
+					deferred.reject(result.status);
+				}
 			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
@@ -260,11 +322,11 @@ module.exports = {
 				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 			}, function(err){deferred.reject(err);}
 		).then(
-			function(status, entries){
-				if(status === 0){
+			function(result){
+				if(result.status === 0){
 					deferred.resolve();
 				}else{
-					deferred.reject(status);
+					deferred.reject(result.status);
 				}
 			}, function(err){deferred.reject(err);}
 		);
