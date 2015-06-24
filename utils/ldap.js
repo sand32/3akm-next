@@ -263,6 +263,7 @@ module.exports = {
 						numericSuffix = parseInt(result.entries.collection.length);
 						entry.cn += numericSuffix;
 						entry.sAMAccountName += numericSuffix;
+						entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 					}
 					return add(client, "cn=" + entry.cn + "," + config.ldap.userDn, entry);
 				}else{
