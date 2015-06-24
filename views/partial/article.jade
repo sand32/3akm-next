@@ -22,6 +22,7 @@
 	-----------------------------------------------------------------------------
 
 .article(ng-controller = "ArticleController as article")
-	h1 {{article.title}}
+	h1(ng-if = "article.loaded && article.current") {{article.current.title}}
+	h1(ng-if = "article.loaded && !article.current") No published articles found
 	hr
-	.article-content(ng-bind-html = "article.content")
+	.article-content(ng-bind-html = "article.current.content")

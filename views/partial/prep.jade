@@ -21,48 +21,53 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-h1 Preparation Info
-hr
-p
-	strong 
-		em Cover Charge:
-	br
-	| Please plan on a small contribution of $10 dollars to defray the electric bill, food and other expenses. If you’re bringing some food to share the fee can be waived.
+div(ng-controller = "PrepController as prep")
+	div(ng-if = "prep.loaded && !prep.lan")
+		h1 No active LAN defined
+		hr
+	div(ng-if = "prep.loaded && prep.lan")
+		h1 Preparation Info
+		hr
+		p
+			strong 
+				em Cover Charge:
+			br
+			| Please plan on a small contribution of {{prep.lan.entryFee | currency : $ : 0}} dollars to defray the electric bill, food and other expenses. If you’re bringing some food to share the fee can be waived.
 
-p
-	strong
-		em Equipment You Need: 
-	| Bring everything you will need for gaming including:
-	br
-	strong Cat5 cable – As long as possible
-	br
-	strong Mouse Pad
-	| - People love to forget this one!  The supply of spares will be limited.
-	br
-	strong Headphones!
-	| - To be courteous to others’ and for sound pollution
-	br
-	strong Powerstrip!
-	| - Try not to piggy-back
-	br
-	| Lap Board for mouse and keyboard (optional but don’t get screwed without one)
-	br
-	| And obviously: PC, Monitor, Keyboard, Mouse
+		p
+			strong
+				em Equipment You Need: 
+			| Bring everything you will need for gaming including:
+			br
+			strong Cat5 cable – As long as possible
+			br
+			strong Mouse Pad
+			| - People love to forget this one!  The supply of spares will be limited.
+			br
+			strong Headphones!
+			| - To be courteous to others’ and for sound pollution
+			br
+			strong Powerstrip!
+			| - Try not to piggy-back
+			br
+			| Lap Board for mouse and keyboard (optional but don’t get screwed without one)
+			br
+			| And obviously: PC, Monitor, Keyboard, Mouse
 
-p
-	strong
-		em Equipment provided: 
-	br
-	| Infrastructure – Will this be the year we are fully Gigabit Ethernet??
-	br
-	| Power Outlets - some sparking may occur 
-	br
-	| Spectator Server on HDTV (with tournament rankings)
+		p
+			strong
+				em Equipment provided: 
+			br
+			| Infrastructure – Will this be the year we are fully Gigabit Ethernet??
+			br
+			| Power Outlets - some sparking may occur 
+			br
+			| Spectator Server on HDTV (with tournament rankings)
 
-p No UPSs please!
+		p No UPSs please!
 
-p
-	strong
-		em Seating/Sleeping:
-	br
-	| There is PLENTY of floor space available both upstairs and downstairs. Bring sleeping bag and a pillow! No hotel needed!
+		p
+			strong
+				em Seating/Sleeping:
+			br
+			| There is PLENTY of floor space available both upstairs and downstairs. Bring sleeping bag and a pillow! No hotel needed!

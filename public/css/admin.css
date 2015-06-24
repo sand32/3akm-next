@@ -107,7 +107,10 @@ a.btn-link:hover {
 }
 
 .panel {
-	border: 1px solid #CCC;
+	border-top: 1px solid #CCC;
+	border-left: 1px solid #CCC;
+	border-right: none;
+	border-bottom: none;
 	box-shadow: 2px 3px 2px #AAA;
 }
 
@@ -130,14 +133,19 @@ a.btn-link:hover {
 }
 
 .panel-banner {
-	border-top-left-radius: 4px;
-	border-top-right-radius: 4px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
 	background-color: rgb(96, 125, 139);
 	color: white;
 	font-size: 14pt;
 	padding-top: 1em;
 	padding-bottom: 1em;
 	margin-bottom: 1em;
+}
+
+.panel-content table {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
 }
 
 .no-padding {
@@ -190,9 +198,29 @@ tr {
 	height: 2.5em;
 }
 
-tbody tr:hover {
+.panel-content > table tr:hover td {
 	background-color: #ade1fa;
 	cursor: pointer;
+}
+
+.panel-content > table th:first-child {
+	border-top-left-radius: 3px;
+}
+
+.panel-content > table th:last-child {
+	border-top-right-radius: 3px;
+}
+
+.panel-content > table tr:last-child td:first-child {
+	border-bottom-left-radius: 3px;
+}
+
+.panel-content > table tr:last-child td:last-child {
+	border-bottom-right-radius: 3px;
+}
+
+table .selected td {
+	background-color: #9ac9df;
 }
 
 th {
@@ -207,10 +235,6 @@ td {
 	padding-bottom: 0;
 	padding-left: 10px;
 	padding-right: 0;
-}
-
-table .selected {
-	background-color: #9ac9df;
 }
 
 .field-align {

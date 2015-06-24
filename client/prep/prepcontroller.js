@@ -22,29 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("../common/articleservice.js");
+require("../common/lanservice.js");
 
 (function(){
-	var ArticleController = function($stateParams, $sce, ArticleService){
-		var article = this;
-		article.current = null;
-		article.loaded = false;
-		ArticleService.retrieve($stateParams.articleId)
+	var PrepController = function(LanService){
+		var prep = this;
+		prep.lan = null;
+		prep.loaded = false;
+		LanService.retrieve("current")
 		.then(
-			function(data){
-				article.current = data;
-				article.current.content = $sce.trustAsHtml(data.content);
-				article.loaded = true;
+			function(lan){
+				prep.lan = lan;
+				prep.loaded = true;
 			},
 			function(){
-				article.loaded = true;
+				prep.loaded = true;
 			}
 		);
 	};
 
 	angular
-		.module("3akm.article")
-		.controller("ArticleController", ArticleController);
+		.module("3akm.prep", [
+				"3akm.lan"
+			])
+		.controller("PrepController", PrepController);
 
-	ArticleController.$inject = ["$stateParams", "$sce", "ArticleService"];
+	PrepController.$inject = ["LanService"];
 })();
