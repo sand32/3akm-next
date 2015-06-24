@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 require("./articles/articlecontroller.js");
 require("./game/gamelistcontroller.js");
+require("./prep/prepcontroller.js");
 require("./rsvp/appearancescontroller.js");
 require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
@@ -97,6 +98,7 @@ require("./common/validationdirectives.js");
 				"3akm.common.validation",
 				"3akm.article",
 				"3akm.gameList",
+				"3akm.prep",
 				"3akm.appearances",
 				"3akm.rsvpSubmission",
 				"3akm.profile",
