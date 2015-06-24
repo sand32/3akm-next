@@ -43,10 +43,10 @@ var q = require("q"),
 		return "{ssha512}" + Buffer.concat([hash.digest(), salt]).toString('base64');
 	},
 
-	bind = function(client, email, password){
+	bind = function(client, cn, password){
 		var deferred = q.defer();
-		console.error("Binding to: " + "cn=" + email + "," + config.ldap.userDn);
-		client.bind("cn=" + email + "," + config.ldap.userDn, password, function(err){
+		console.error("Binding to: " + "cn=" + cn + "," + config.ldap.userDn);
+		client.bind("cn=" + cn + "," + config.ldap.userDn, password, function(err){
 			if(err){
 				deferred.reject(err);
 			}else{
@@ -223,15 +223,27 @@ var q = require("q"),
 module.exports = {
 	authenticate: function(email, password){
 		var client = createClient(),
-			deferred = q.defer();
-		bind(client, email, password)
+			deferred = q.defer(),
+			cn;
+		bindServiceAccount(client)
 		.then(
 			function(){
+				return findEntry(client, config.ldap.userDn, "(mail=" + email + "*)");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(result){
+				cn = result.entries.collection[0].cn;
 				return unbind(client);
-			},
-			function(err){
-				deferred.reject(err);
-			}
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				client = createClient();
+				return bind(client, cn, password);
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return unbnd(client);
+			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
 	},
