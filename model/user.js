@@ -63,8 +63,14 @@ var mongoose = require("mongoose"),
 			type: Boolean,
 			default: false
 		},
-		firstName: String,
-		lastName: String,
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
 		primaryHandle: String,
 		tertiaryHandles: [String],
 		roles: [String],
