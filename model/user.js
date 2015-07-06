@@ -123,7 +123,11 @@ userSchema.methods.isValidPassword = function(pass){
 };
 
 userSchema.methods.hasRole = function(role){
-	return this.roles.indexOf(role) !== -1;
+	if(config.ldap.enabled){
+		return false;
+	}else{
+		return this.roles.indexOf(role) !== -1;
+	}
 };
 
 module.exports = mongoose.model("User", userSchema);
