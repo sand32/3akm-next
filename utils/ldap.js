@@ -35,12 +35,8 @@ var q = require("q"),
 		});
 	},
 
-	ldapFormattedHash = function(value){
-		var salt = crypto.randomBytes(256),
-			hash = crypto.createHash("sha512");
-		hash.update(value);
-		hash.update(salt);
-		return "{ssha512}" + Buffer.concat([hash.digest(), salt]).toString('base64');
+	encodePassword = function(password){
+		return new Buffer("\"" + password + "\"", "utf16le").toString();
 	},
 
 	bind = function(client, cn, password){
@@ -135,7 +131,7 @@ var q = require("q"),
 			};
 
 			res.on("searchEntry", function(entry){
-				entries.collection.push(entry);
+				entries.collection.push(entry.object);
 			});
 			res.on("error", function(err){
 				deferred.reject(err.message, entries);
@@ -171,7 +167,7 @@ var q = require("q"),
 	// 	lastName: "",
 	// 	roles: [""]
 	// }
-	translateFromUserEntryTemplate = function(template){
+	translateFromUserTemplate = function(template){
 		var entry = {};
 		if(template.firstName && template.lastName){
 			entry.cn = template.firstName + " " + template.lastName;
@@ -185,21 +181,10 @@ var q = require("q"),
 		if(template.verified) entry.extensionAttribute1 = template.verified;
 		if(template.email) entry.mail = template.email;
 
-		// All users we create go into this default group
-		entry.memberOf = ["cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn];
-
-		// Assign role groups
-		if(template.roles){
-			for(var i = 0; i < template.roles.length; i += 1){
-				if(config.ldap.roleGroupDns.indexOf(template.roles[i]) !== -1){
-					entry.memberOf.push("cn=" + config.ldap.roleGroupCns[template.roles[i]] + "," + config.ldap.groupDn);
-				}
-			}
-		}
 		return entry;
 	},
 
-	translateToUserEntryTemplate = function(entry){
+	translateToUserTemplate = function(entry){
 		var template = {
 			email: entry.mail,
 			firstName: entry.givenName,
@@ -212,8 +197,8 @@ var q = require("q"),
 
 		// Read roles
 		for(var i = 0; i < entry.memberOf.length; i += 1){
-			for(role in config.ldap.roleGroupDns){
-				if(config.ldap.roleGroupDns[role] === entry.memberOf[i]){
+			for(role in config.ldap.roleGroupCns){
+				if(config.ldap.roleGroupCns[role] === entry.memberOf[i]){
 					template.roles.push(role);
 				}
 			}
@@ -228,7 +213,7 @@ module.exports = {
 		bindServiceAccount(client)
 		.then(
 			function(){
-				return findEntry(client, config.ldap.userDn, "(mail=" + email + "*)");
+				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(result){
@@ -248,18 +233,18 @@ module.exports = {
 		return deferred.promise;
 	},
 
-	createUser: function(entry){
+	createUser: function(userTemplate){
 		var client = createClient(),
 			deferred = q.defer(),
-			password;
-		if(entry.password){
-			password = entry.password;
+			password, userDn;
+		if(userTemplate.password){
+			password = userTemplate.password;
 		}else{
 			deferred.reject("Must specify a password");
 			return deferred.promise;
 		}
 
-		entry = translateFromUserEntryTemplate(entry);
+		entry = translateFromUserTemplate(userTemplate);
 		entry.objectClass = "user";
 
 		bindServiceAccount(client)
@@ -277,20 +262,37 @@ module.exports = {
 						entry.sAMAccountName += numericSuffix;
 						entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 					}
-					return add(client, "cn=" + entry.cn + "," + config.ldap.userDn, entry);
+					userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
+					return add(client, userDn, entry);
 				}else{
 					deferred.reject(result.status);
 				}
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(){
-				return modify(client, "cn=" + entry.cn + "," + config.ldap.userDn, [{
-				// 	operation: "delete",
-				// 	modification: {unicodePwd: "\"\""}
-				// },{
-					operation: "replace",
-					modification: {unicodePwd: "\"" + ldapFormattedHash(password) + "\""}
+				return modify(client, userDn, [{
+					operation: "delete",
+					modification: {unicodePwd: encodePassword("")}
+				},{
+					operation: "add",
+					modification: {unicodePwd: encodePassword(password)}
 				}]);
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				var changes = [{
+					operation: "add",
+					modification: {member: userDn}
+				}];
+				for(var i = 0; userTemplate.roles && i < userTemplate.roles.length; i += 1){
+					if(config.ldap.roleGroupCns[userTemplate.roles[i]]){
+						changes.push({
+							operation: "add",
+							modification: {member: config.ldap.roleGroupCns[userTemplate.roles[i]] + "," + config.ldap.groupDn}
+						});
+					}
+				}
+				return modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, changes);
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(){
@@ -311,12 +313,12 @@ module.exports = {
 		).then(
 			function(result){
 				if(result.status === 0){
-					return modify(client, "mail=" + email + "," + config.ldap.userDn, [{
+					return modify(client, "cn=" + result.entries.collection[0].cn + "," + config.ldap.userDn, [{
 						operation: "delete",
-						modification: {unicodePwd: "\"" + ldapFormattedHash(oldPassword) + "\""}
+						modification: {unicodePwd: encodePassword(oldPassword)}
 					},{
 						operation: "add",
-						modification: {unicodePwd: "\"" + ldapFormattedHash(newPassword) + "\""}
+						modification: {unicodePwd: encodePassword(newPassword)}
 					}]);
 				}else{
 					deferred.reject(result.status);
