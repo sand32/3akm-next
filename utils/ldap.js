@@ -63,7 +63,6 @@ var q = require("q"),
 
 	bind = function(client, cn, password){
 		var deferred = q.defer();
-		console.error("Binding to: " + "cn=" + cn + "," + config.ldap.userDn);
 		client.bind("cn=" + cn + "," + config.ldap.userDn, password, function(err){
 			if(err){
 				deferred.reject(err);
