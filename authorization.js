@@ -38,7 +38,7 @@ rules = {
 
 	hasRoles: function(user, roles){
 		if(!roles){
-			return q.defer().resolve().promise;
+			return q.resolve();
 		}
 
 		var promises = [];
@@ -58,16 +58,23 @@ module.exports = {
 	//     hasRoles: [String]
 	// }
 	isAuthorized: function(user, ruleset){
-		var deferred = q.defer();
-		if(!ruleset || user.hasRole("admin")){
-			deferred.resolve();
-			return deferred.promise;
+		if(!ruleset){
+			return q.resolve();
 		}
 
-		q.all([
-			rules.isUser(user, ruleset.isUser),
-			rules.hasRoles(user, ruleset.hasRoles)
-		]).then(deferred.resolve, function(err){deferred.reject(err);});
+		var deferred = q.defer();
+		rules.hasRoles(user, ["admin"])
+		.done(
+			function(){
+				deferred.resolve();
+			},
+			function(){
+				q.all([
+					rules.isUser(user, ruleset.isUser),
+					rules.hasRoles(user, ruleset.hasRoles)
+				]).done(deferred.resolve, deferred.reject);
+			}
+		);
 		return deferred.promise;
 	},
 
@@ -75,28 +82,28 @@ module.exports = {
 	authorize: function(ruleset){
 		return function(req, res, next){
 			module.exports.isAuthorized(req.user, ruleset)
-			.then(next, res.status(403).end);
+			.then(function(){
+				next();
+			}).catch(function(){
+				res.status(403).end();
+			});
 		};
 	},
 
-	// Same as above, but use 
+	// Same as above, but use the current user as the target user
 	authorizeSessionUser: function(ruleset){
 		return function(req, res, next){
 			if(req.params.user === "session"){
 				req.params.user = req.user._id.toString();
 			}
 			module.exports.isAuthorized(req.user, ruleset)
-			.then(
-				function(){
-					return module.exports.isAuthorized(req.user, {isUser: req.params.user});
-				}, function(){
-					res.status(403).end();
-				}
-			).then(next, 
-				function(){
-					res.status(403).end();
-				}
-			);
+			.then(function(){
+				return module.exports.isAuthorized(req.user, {isUser: req.params.user})
+			}).then(function(){
+				next();
+			}).catch(function(){
+				res.status(403).end();
+			});
 		};
 	}
 }
