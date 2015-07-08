@@ -349,18 +349,33 @@ module.exports = {
 				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 			}, function(err){deferred.reject(err);}
 		).then(
-			function(result){
-				if(result.status === 0){
-					return modify(client, "cn=" + result.entries.collection[0].cn + "," + config.ldap.userDn, [{
-						operation: "delete",
-						modification: {unicodePwd: encodePassword(oldPassword)}
-					},{
-						operation: "add",
-						modification: {unicodePwd: encodePassword(newPassword)}
-					}]);
+			function(){
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
+					return modify(client, userDn, {
+						operation: "replace",
+						modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
+					});
 				}else{
 					deferred.reject(result.status);
 				}
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(result){
+				return modify(client, "cn=" + result.entries.collection[0].cn + "," + config.ldap.userDn, [{
+					operation: "delete",
+					modification: {unicodePwd: encodePassword(oldPassword)}
+				},{
+					operation: "add",
+					modification: {unicodePwd: encodePassword(newPassword)}
+				}]);
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return modify(client, userDn, {
+					operation: "replace",
+					modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				});
 			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
