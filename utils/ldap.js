@@ -376,7 +376,8 @@ module.exports = {
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(result){
-				if(result.status === 0){
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
 					deferred.resolve();
 				}else{
 					deferred.reject(result.status);
