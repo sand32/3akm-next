@@ -413,7 +413,7 @@ module.exports = {
 				return unbind(client);
 			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
-	}
+	},
 
 	userExists: function(email){
 		var client = createClient(),
