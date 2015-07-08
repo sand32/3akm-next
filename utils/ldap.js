@@ -27,16 +27,38 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var q = require("q"),
 	ldapjs = require("ldapjs"),
 	crypto = require("crypto"),
-	config = require("./common.js").config,
+	config = require("./common.js").config
+
+	uacFlags = {
+		disabled: 0x00000002,
+		homeDirRequired: 0x00000008,
+		lockout: 0x00000010,
+		passwordNotRequired: 0x00000020,
+		passwordCantChange: 0x00000040,
+		encryptedTextPasswordAllowed: 0x00000080,
+		normalAccount: 0x00000200,
+		interdomainTrustAccount: 0x00000800,
+		workstationTrustAccount: 0x00001000,
+		serverTrustAccount: 0x00002000,
+		dontExpirePassword: 0x00010000
+	},
+
+	addUacFlag = function(value, flag){
+		return value | flag;
+	},
+
+	removeUacFlag = function(value, flag){
+		return value & ~flag;
+	},
+
+	encodePassword = function(password){
+		return new Buffer("\"" + password + "\"", "utf16le").toString();
+	},
 
 	createClient = function(){
 		return ldapjs.createClient({
 			url: config.ldap.url
 		});
-	},
-
-	encodePassword = function(password){
-		return new Buffer("\"" + password + "\"", "utf16le").toString();
 	},
 
 	bind = function(client, cn, password){
@@ -227,7 +249,7 @@ module.exports = {
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(){
-				return unbnd(client);
+				return unbind(client);
 			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
@@ -236,7 +258,7 @@ module.exports = {
 	createUser: function(userTemplate){
 		var client = createClient(),
 			deferred = q.defer(),
-			password, userDn;
+			password, userDn, currentUac;
 		if(userTemplate.password){
 			password = userTemplate.password;
 		}else{
@@ -250,7 +272,16 @@ module.exports = {
 		bindServiceAccount(client)
 		.then(
 			function(){
-				return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
+				return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(result){
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
+					deferred.reject("User already exists");
+				}else{
+					return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
+				}
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(result){
@@ -261,6 +292,7 @@ module.exports = {
 						entry.cn += numericSuffix;
 						entry.sAMAccountName += numericSuffix;
 						entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+						currentUac = result.entries.collection[0].userAccountControl;
 					}
 					userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
 					return add(client, userDn, entry);
@@ -277,6 +309,13 @@ module.exports = {
 					operation: "add",
 					modification: {unicodePwd: encodePassword(password)}
 				}]);
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return modify(client, userDn, {
+					operation: "replace",
+					modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				});
 			}, function(err){deferred.reject(err);}
 		).then(
 			function(){
