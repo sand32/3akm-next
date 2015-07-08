@@ -23,8 +23,10 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
+	q = require("q"),
 	bcrypt = require("bcrypt-nodejs"),
 	config = require("../utils/common.js").config,
+	ldap = require("../utils/ldap.js"),
 	localSchema = {
 		email: {
 			type: String,
@@ -124,9 +126,15 @@ userSchema.methods.isValidPassword = function(pass){
 
 userSchema.methods.hasRole = function(role){
 	if(config.ldap.enabled){
-		return false;
+		return ldap.hasRole(this.email, role);
 	}else{
-		return this.roles.indexOf(role) !== -1;
+		var deferred = q.defer();
+		if(this.roles.indexOf(role) !== -1){
+			deferred.resolve();
+		}else{
+			deferred.reject();
+		}
+		return deferred.promise;
 	}
 };
 

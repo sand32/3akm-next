@@ -22,22 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+var q = require("q");
+
 rules = {
 	isUser: function(thisUser, otherUserId){
-		return thisUser._id == otherUserId;
+		var deferred = q.defer();
+		if(!otherUserId
+		|| thisUser._id == otherUserId){
+			deferred.resolve();
+		}else{
+			deferred.reject();
+		}
+		return deferred.promise;
 	},
 
 	hasRoles: function(user, roles){
-		if(roles.length === 0){
-			return false;
+		if(!roles){
+			return q.defer().resolve().promise;
 		}
-		var hasRolesSuccess = true;
+
+		var promises = [];
 		for(var i = 0; i < roles.length; i+=1){
-			if(!user.hasRole(roles[i])){
-				hasRolesSuccess = false;
-			}
+			promises.push(user.hasRole(roles[i]));
 		}
-		return hasRolesSuccess;
+		return q.all(promises);
 	}
 }
 
@@ -50,22 +58,23 @@ module.exports = {
 	//     hasRoles: [String]
 	// }
 	isAuthorized: function(user, ruleset){
+		var deferred = q.defer();
 		if(!ruleset || user.hasRole("admin")){
-			return true;
+			deferred.resolve();
 		}
 
-		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : true) &&
-				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : true);
+		q.all([
+			rules.isUser(user, ruleset.isUser),
+			rules.hasRoles(user, ruleset.hasRoles)
+		]).then(deferred.resolve, function(err){deferred.reject(err);});
+		return deferred.promise;
 	},
 
 	// Middleware for denying connections without authorization
 	authorize: function(ruleset){
 		return function(req, res, next){
-			if(module.exports.isAuthorized(req.user, ruleset)){
-				next();
-			}else{
-				res.status(403).end();
-			}
+			module.exports.isAuthorized(req.user, ruleset)
+			.then(next, res.status(403).end);
 		};
 	},
 
@@ -75,12 +84,18 @@ module.exports = {
 			if(req.params.user === "session"){
 				req.params.user = req.user._id.toString();
 			}
-			if(module.exports.isAuthorized(req.user, ruleset) 
-			&& module.exports.isAuthorized(req.user, {isUser: req.params.user})){
-				next();
-			}else{
-				res.status(403).end();
-			}
+			module.exports.isAuthorized(req.user, ruleset)
+			.then(
+				function(){
+					return module.exports.isAuthorized(req.user, {isUser: req.params.user});
+				}, function(){
+					res.status(403).end();
+				}
+			).then(next, 
+				function(){
+					res.status(403).end();
+				}
+			);
 		};
 	}
 }

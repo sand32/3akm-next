@@ -377,9 +377,43 @@ module.exports = {
 					modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
 				});
 			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return unbind(client);
+			}, function(err){deferred.reject(err);}
 		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
 	},
+
+	hasRole: function(email, role){
+		var client = createClient(),
+			deferred = q.defer();
+		bindServiceAccount(client)
+		.then(
+			function(){
+				return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(result){
+				var entry;
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
+					entry = result.entries.collection[0];
+					for(var i = 0; i < entry.memberOf.length; i += 1){
+						if(entry.memberOf[i] === config.ldap.roleGroupCns[role]){
+							deferred.resolve();
+							return;
+						}
+					}
+				}
+				deferred.reject();
+			}, function(err){deferred.reject(err);}
+		).then(
+			function(){
+				return unbind(client);
+			}, function(err){deferred.reject(err);}
+		).then(deferred.resolve, function(err){deferred.reject(err);});
+	}
 
 	userExists: function(email){
 		var client = createClient(),
@@ -398,7 +432,11 @@ module.exports = {
 					deferred.reject(result.status);
 				}
 			}, function(err){deferred.reject(err);}
-		);
+		).then(
+			function(){
+				return unbind(client);
+			}, function(err){deferred.reject(err);}
+		).then(deferred.resolve, function(err){deferred.reject(err);});
 		return deferred.promise;
 	}
 };
