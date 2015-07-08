@@ -61,6 +61,7 @@ module.exports = {
 		var deferred = q.defer();
 		if(!ruleset || user.hasRole("admin")){
 			deferred.resolve();
+			return deferred.promise;
 		}
 
 		q.all([
