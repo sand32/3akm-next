@@ -240,7 +240,7 @@ userModel.createNew = function(userTemplate){
 		}
 
 		if(config.ldap.enabled){
-			ldap.createUser(req.body)
+			ldap.createUser(userTemplate)
 			.then(function(cn){
 				// If we've found the email in our database, the user already exists, do nothing
 				if(user){

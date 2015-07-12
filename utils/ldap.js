@@ -174,15 +174,15 @@ var q = require("q"),
 				numericSuffix = parseInt(result.entries.collection.length);
 				names = {
 					cn: firstName + " " + lastName + numericSuffix,
-					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix,
-					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix
+					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix
 				};
+				names.userPrincipalName = names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 			}else{
 				names = {
 					cn: firstName + " " + lastName,
-					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase(),
-					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix
+					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase()
 				};
+				names.userPrincipalName = names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 			}
 			deferred.resolve(names);
 		}).catch(function(err){deferred.reject(err);});
@@ -223,6 +223,7 @@ var q = require("q"),
 			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
 			entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 		}
+		if(template.verified) entry.extensionAttribute1 = template.verified ? "true" : "false";
 		if(template.email) entry.mail = template.email;
 
 		return entry;
@@ -301,7 +302,7 @@ module.exports = {
 			entry.sAMAccountName = names.sAMAccountName;
 			entry.userPrincipalName = names.userPrincipalName;
 			userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
-			return add(client, config.ldap.userDn, entry);
+			return add(client, userDn, entry);
 		}).then(function(){
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
@@ -325,7 +326,7 @@ module.exports = {
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
 			},{
 				operation: "add",
-				modification: {extensionAttribute1: userTemplate.verified}
+				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
 			}]);
 		}).then(function(){
 			var promises = [modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, {
@@ -345,9 +346,7 @@ module.exports = {
 			return unbind(client);
 		}).then(function(){
 			deferred.resolve(entry.cn);
-		}).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
-		});
+		}).catch(function(err){deferred.reject(err);});
 		return deferred.promise;
 	},
 
