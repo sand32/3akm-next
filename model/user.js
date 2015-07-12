@@ -240,7 +240,7 @@ userModel.createNew = function(userTemplate){
 		}
 
 		if(config.ldap.enabled){
-			Ldap.createUser(req.body)
+			ldap.createUser(req.body)
 			.then(function(cn){
 				// If we've found the email in our database, the user already exists, do nothing
 				if(user){
@@ -306,7 +306,7 @@ userModel.createNew = function(userTemplate){
 userModel.authenticate = function(email, password){
 	var deferred = q.defer();
 	if(config.ldap.enabled){
-		Ldap.authenticate(email, password)
+		ldap.authenticate(email, password)
 		.then(function(){
 			// Try to find a user with the given email in our app DB
 			userModel.findOne({"email": email}, function(err, user){

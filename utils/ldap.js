@@ -223,7 +223,6 @@ var q = require("q"),
 			entry.sAMAccountName = template.firstName.toLowerCase() + "." + template.lastName.toLowerCase();
 			entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 		}
-		if(template.verified) entry.extensionAttribute1 = template.verified;
 		if(template.email) entry.mail = template.email;
 
 		return entry;
@@ -232,6 +231,7 @@ var q = require("q"),
 	translateToUserTemplate = function(entry){
 		var template = {
 			email: entry.mail,
+			verified: entry.extensionAttribute1,
 			firstName: entry.givenName,
 			lastName: entry.sn,
 			created: ldapDateToJsDate(entry.whenCreated),
@@ -320,10 +320,13 @@ module.exports = {
 				modification: {unicodePwd: encodePassword(password)}
 			}]);
 		}).then(function(){
-			return modify(client, userDn, {
+			return modify(client, userDn, [{
 				operation: "replace",
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
-			});
+			},{
+				operation: "add",
+				modification: {extensionAttribute1: userTemplate.verified}
+			}]);
 		}).then(function(){
 			var promises = [modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, {
 				operation: "add",
