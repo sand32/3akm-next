@@ -175,13 +175,13 @@ var q = require("q"),
 				names = {
 					cn: firstName + " " + lastName + numericSuffix,
 					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix,
-					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix
 				};
 			}else{
 				names = {
 					cn: firstName + " " + lastName,
 					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase(),
-					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix
 				};
 			}
 			deferred.resolve(names);
@@ -359,7 +359,7 @@ module.exports = {
 		bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
-		.then(function(result){
+		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0
 			&& result.entries.collection[0].cn !== cn){
