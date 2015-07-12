@@ -236,7 +236,7 @@ userModel.createNew = function(userTemplate){
 		// If we've encountered a database error, bail
 		if(err){
 			deferred.reject(err);
-			return;
+			return deferred.promise;
 		}
 
 		if(config.ldap.enabled){
