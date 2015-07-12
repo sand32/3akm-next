@@ -46,32 +46,22 @@ module.exports = function(){
 		},
 		function(req, email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
+				// Delete all fields that cannot be submitted by an anonymous user
+				delete req.body.verified;
+				delete req.body.vip;
+				delete req.body.blacklisted;
+				delete req.body.roles;
+				delete req.body.services;
+				delete req.body.passwordHash;
+				delete req.body.created;
+				delete req.body.modified;
+				delete req.body.accessed;
 
-					// If we've found the email in our database, the user already exists, do nothing
-					if(user){
-						return done(null, false);
-					// Else, create the new user
-					}else{
-						var newUser = new User();
-						newUser.email = email;
-						newUser.passwordHash = newUser.hash(password);
-						newUser.firstName = req.body.firstName;
-						newUser.lastName = req.body.lastName;
-						newUser.primaryHandle = req.body.primaryHandle;
-						newUser.tertiaryHandles = req.body.tertiaryHandles;
-						newUser.save(function(err){
-							if(err){
-								return done(err);
-							}
-							return done(null, newUser);
-						});
-					}
+				User.createNew(req.body)
+				.then(function(newUser){
+					done(null, newUser);
+				}).catch(function(err){
+					done(err);
 				});
 			});
 		}
@@ -83,21 +73,11 @@ module.exports = function(){
 		},
 		function(email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
-
-					// If we've found the user in the database and the given password matches, 
-					// pass the user on to the next middleware
-					if(user && user.isValidPassword(password)){
-						return done(null, user);
-					// Else, set the flash and move on
-					}else{
-						return done(null, false);
-					}
+				User.authenticate(email, password)
+				.then(function(user){
+					done(null, user);
+				}).catch(function(err){
+					done(err);
 				});
 			});
 		}
@@ -106,146 +86,12 @@ module.exports = function(){
 	passport.use("basic", new BasicStrategy(
 		function(email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
-
-					// If we've found the user in the database and the given password matches, 
-					// pass the user on to the next middleware
-					if(user && user.isValidPassword(password)){
-						return done(null, user);
-					// Else, set the flash and move on
-					}else{
-						return done(null, false);
-					}
+				User.authenticate(email, password)
+				.then(function(user){
+					done(null, user);
+				}).catch(function(err){
+					done(err);
 				});
-			});
-		}
-	));
-
-	passport.use("ldapRegister", new LocalStrategy({
-			usernameField: "email",
-			passwordField: "password",
-			passReqToCallback: true
-		},
-		function(req, email, password, done){
-			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
-
-					Ldap.createUser(req.body)
-					.then(
-						function(){
-							// If we've found the email in our database, the user already exists, do nothing
-							if(user){
-								return done(null, false);
-							// Else, create the new user
-							}else{
-								var newUser = new User({
-									email: email,
-									roles: []
-								});
-								newUser.save(function(err){
-									if(err){
-										return done(err);
-									}
-									return done(null, newUser);
-								});
-							}
-						},
-						function(err){
-							return done(err);
-						}
-					);
-				});
-			});
-		}
-	));
-
-	passport.use("ldap", new LocalStrategy({
-			usernameField: "email",
-			passwordField: "password"
-		},
-		function(email, password, done){
-			process.nextTick(function(){
-				Ldap.authenticate(email, password)
-				.then(
-					function(){
-						// Try to find a user with the given email in our app DB
-						User.findOne({"email": email}, function(err, user){
-							if(err){
-								return done(err);
-							}
-
-							// If we found the user, our job is done
-							if(user){
-								return done(null, user);
-							// Otherwise if we didn't find the user, we already know it exists in 
-							// the directory, so create our app DB entry now
-							}else{
-								var newUser = new User({
-									email: email,
-									roles: []
-								});
-								newUser.save(function(err){
-									if(err){
-										return done(err);
-									}
-									return done(null, newUser);
-								});
-							}
-						});
-					},
-					function(err){
-						return done(err);
-					}
-				);
-			});
-		}
-	));
-
-	passport.use("ldapBasic", new BasicStrategy(
-		function(email, password, done){
-			process.nextTick(function(){
-				Ldap.authenticate(email, password)
-				.then(
-					function(){
-						// Try to find a user with the given email in our app DB
-						User.findOne({"email": email}, function(err, user){
-							if(err){
-								return done(err);
-							}
-
-							// If we found the user, our job is done
-							if(user){
-								return done(null, user);
-							// Otherwise if we didn't find the user, we already know it exists in 
-							// the directory, so create our app DB entry now
-							}else{
-								var newUser = new User({
-									email: email,
-									roles: []
-								});
-								newUser.save(function(err){
-									if(err){
-										return done(err);
-									}
-									return done(null, newUser);
-								});
-							}
-						});
-					},
-					function(err){
-						return done(err);
-					}
-				);
 			});
 		}
 	));

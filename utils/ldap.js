@@ -164,6 +164,31 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	constructUniqueNaming = function(client, firstName, lastName){
+		var deferred = q.defer();
+		findEntry(client, config.ldap.userDn, "(sAMAccountName=" + firstName.toLowerCase() + "." + lastName.toLowerCase() + "*)")
+		.then(function(result){
+			var numericSuffix, names;
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				numericSuffix = parseInt(result.entries.collection.length);
+				names = {
+					cn: firstName + " " + lastName + numericSuffix,
+					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix,
+					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+				};
+			}else{
+				names = {
+					cn: firstName + " " + lastName,
+					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase(),
+					userPrincipalName: names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
+				};
+			}
+			deferred.resolve(names);
+		}).catch(function(err){deferred.reject(err);});
+		return deferred.promise;
+	},
+
 	ldapDateToJsDate = function(ldapDate){
 		var year = ldapDate.substr(0, 4),
 			month = ldapDate.substr(4, 2),
@@ -182,7 +207,6 @@ var q = require("q"),
 
 	// userEntryTemplate = {
 	// 	email: "",
-	// 	password: "",
 	// 	verified: "",
 	// 	firstName: "",
 	// 	lastName: "",
@@ -242,7 +266,9 @@ module.exports = {
 			return bind(client, cn, password);
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){deferred.reject(err);});
+		}).then(deferred.resolve).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
 		return deferred.promise;
 	},
 
@@ -266,24 +292,24 @@ module.exports = {
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
-				deferred.reject("User already exists");
+				deferred.reject({reason: "duplicate", message: "User already exists"});
 			}else{
-				return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + entry.sAMAccountName + "*)");
+				return constructUniqueNaming(client, userTemplate.firstName, userTemplate.lastName);
 			}
+		}).then(function(names){
+			entry.cn = names.cn;
+			entry.sAMAccountName = names.sAMAccountName;
+			entry.userPrincipalName = names.userPrincipalName;
+			userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
+			return add(client, config.ldap.userDn, entry);
+		}).then(function(){
+			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
-			var numericSuffix;
-			if(result.status === 0){
-				if(result.entries.collection.length > 0){
-					numericSuffix = parseInt(result.entries.collection.length);
-					entry.cn += numericSuffix;
-					entry.sAMAccountName += numericSuffix;
-					entry.userPrincipalName = entry.sAMAccountName + config.ldap.userPrincipalNameSuffix;
-					currentUac = result.entries.collection[0].userAccountControl;
-				}
-				userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
-				return add(client, userDn, entry);
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				currentUac = result.entries.collection[0].userAccountControl;
 			}else{
-				deferred.reject(result.status);
+				deferred.reject({reason: "ldaperr", message: "Failed to create directory user, unknown error"});
 			}
 		}).then(function(){
 			return modify(client, userDn, [{
@@ -299,31 +325,68 @@ module.exports = {
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
 			});
 		}).then(function(){
-			var changes = [{
+			var promises = [modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, {
 				operation: "add",
 				modification: {member: userDn}
-			}];
+			})];
 			for(var i = 0; userTemplate.roles && i < userTemplate.roles.length; i += 1){
 				if(config.ldap.roleGroupCns[userTemplate.roles[i]]){
-					changes.push({
+					promises.push(modify(client, "cn=" + config.ldap.roleGroupCns[userTemplate.roles[i]] + "," + config.ldap.groupDn, {
 						operation: "add",
-						modification: {member: config.ldap.roleGroupCns[userTemplate.roles[i]] + "," + config.ldap.groupDn}
-					});
+						modification: {member: userDn}
+					}));
 				}
 			}
-			return modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, changes);
+			return q.all(promises);
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){deferred.reject(err);});
+		}).then(function(){
+			deferred.resolve(entry.cn);
+		}).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
 		return deferred.promise;
 	},
 
-	setPassword: function(email, oldPassword, newPassword){
+	updateUser: function(cn, userTemplate){
 		var client = createClient(),
-			deferred = q.defer();
+			deferred = q.defer(),
+			entry = translateFromUserTemplate(userTemplate),
+			userDn = "cn=" + cn + "," + config.ldap.userDn;
+
+		delete entry.cn;
+
 		bindServiceAccount(client)
 		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
+			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+		.then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0
+			&& result.entries.collection[0].cn !== cn){
+				deferred.reject({
+					reason: "email-in-use",
+					message: "Unable to update user, attempted to change email to one owned by another user"
+				});
+			}
+			return modify(client, userDn, [{
+				operation: "replace",
+				modification: entry
+			}]);
+		}).then(function(){
+			return unbind(client);
+		}).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
+		return deferred.promise;
+	},
+
+	setPassword: function(cn, oldPassword, newPassword){
+		var client = createClient(),
+			deferred = q.defer(),
+			userDn = "cn=" + cn + "," + config.ldap.userDn;
+		bindServiceAccount(client)
+		.then(function(){
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
@@ -332,10 +395,10 @@ module.exports = {
 					modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
 				});
 			}else{
-				deferred.reject(result.status);
+				deferred.reject({reason: "invalid-user", message: "Unable to set password, \"" + cn + "\" not found in directory"});
 			}
 		}).then(function(result){
-			return modify(client, "cn=" + result.entries.collection[0].cn + "," + config.ldap.userDn, [{
+			return modify(client, userDn, [{
 				operation: "delete",
 				modification: {unicodePwd: encodePassword(oldPassword)}
 			},{
@@ -349,23 +412,44 @@ module.exports = {
 			});
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){deferred.reject(err);});
+		}).then(deferred.resolve).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
 		return deferred.promise;
 	},
 
-	hasRole: function(email, role){
+	getUser: function(cn){
 		var client = createClient(),
 			deferred = q.defer();
 		bindServiceAccount(client)
 		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
-			var entry;
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				deferred.resolve(translateToUserTemplate(result.entries.collection[0]));
+			}else{
+				deferred.reject({reason: "invalid-user", message: "Unable to retrieve user, \"" + cn + "\" not found in directory"})
+			}
+		}).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
+		return deferred.promise;
+	},
+
+	hasRole: function(cn, role){
+		var client = createClient(),
+			deferred = q.defer();
+		bindServiceAccount(client)
+		.then(function(){
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+		}).then(function(result){
+			var entry, groupDn = "cn=" + config.ldap.roleGroupCns[role].toLowerCase() + "," + config.ldap.groupDn.toLowerCase();
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
 				entry = result.entries.collection[0];
 				for(var i = 0; i < entry.memberOf.length; i += 1){
-					if(entry.memberOf[i] === config.ldap.roleGroupCns[role]){
+					if(entry.memberOf[i].toLowerCase() === groupDn){
 						deferred.resolve();
 						return;
 					}
@@ -374,7 +458,10 @@ module.exports = {
 			deferred.reject();
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){deferred.reject(err);});
+		}).then(deferred.resolve).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
+		return deferred.promise;
 	},
 
 	userExists: function(email){
@@ -392,7 +479,9 @@ module.exports = {
 			}
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){deferred.reject(err);});
+		}).then(deferred.resolve).catch(function(err){
+			deferred.reject({reason: "ldaperr", message: err});
+		});
 		return deferred.promise;
 	}
 };

@@ -171,17 +171,16 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		var user = new User(req.body);
-		user.passwordHash = user.hash(user.password);
-		delete user.password;
-		user.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + user._id)
-				.send({_id: user._id});
-			}
+		if(req.body.roles){
+			req.body.roles = removeDuplicates(req.body.roles);
+		}
+		User.createNew(req.body)
+		.then(function(newUser){
+			res.status(201)
+			.location(prefix + "/" + newUser._id)
+			.send({_id: newUser._id});
+		}).catch(function(err){
+			res.status(400).end();
 		});
 	});
 
@@ -203,12 +202,15 @@ module.exports = function(app, prefix){
 		}else if(req.body.roles){
 			req.body.roles = removeDuplicates(req.body.roles);
 		}
-		delete req.body.passwordHash;
 		delete req.body.created;
 		delete req.body.accessed;
 
 		// Record this modification
 		req.body.modified = Date.now();
+
+		// User passwords cannot be changed using this route, 
+		// /:user/password must be used instead
+		delete req.body.passwordHash;
 
 		// Update the user 
 		User.findByIdAndUpdate(req.params.user, req.body, function(err, doc){
@@ -217,7 +219,12 @@ module.exports = function(app, prefix){
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				doc.saveToDirectory()
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(500).end();
+				});
 			}
 		});
 	});
@@ -229,20 +236,20 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Record this modification
-		var update = {
-			modified: Date.now(),
-			passwordHash: req.user.hash(req.body.password)
-		}
 
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, update, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				doc.changePassword(req.body.oldPassword, req.body.newPassword)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(400).end();
+				});
 			}
 		});
 	});
