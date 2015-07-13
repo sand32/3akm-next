@@ -41,11 +41,17 @@ form(name = "profileForm", novalidate, ng-controller = "ProfileController as pro
 					span.text-success.form-control-static.col-xs-6 Been verified!
 			.row
 				.form-group.col-xs-4
-					label First Name
-					input.form-control(type = "text", name = "firstName", ng-model = "profile.firstName")
+					label First Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "firstName", ng-model = "profile.firstName", required)
+					.form-feedback.text-danger(ng-messages = "profileForm.firstName.$error", ng-if = "profileForm.firstName.$dirty", role = "alert")
+						div(ng-message = "required") A first name is required
 				.form-group.col-xs-4
-					label Last Name
-					input.form-control(type = "text", name = "lastName", ng-model = "profile.lastName")
+					label Last Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "lastName", ng-model = "profile.lastName", required)
+					.form-feedback.text-danger(ng-messages = "profileForm.lastName.$error", ng-if = "profileForm.lastName.$dirty", role = "alert")
+						div(ng-message = "required") A last name is required
 			.row
 				.form-group.col-xs-6
 					label Handles

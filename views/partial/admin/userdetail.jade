@@ -65,11 +65,17 @@
 						.col-xs-7(ng-if = "!user.current.accessed") N/A
 			.row
 				.form-group.col-xs-6
-					label First Name
-					input.form-control(type = "text", name = "firstName", ng-model = "user.current.firstName")
+					label First Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "firstName", ng-model = "user.current.firstName", required)
+					.form-feedback.text-danger(ng-messages = "userForm.firstName.$error", ng-if = "userForm.firstName.$dirty", role = "alert")
+						div(ng-message = "required") A first name is required
 				.form-group.col-xs-6
-					label Last Name
-					input.form-control(type = "text", name = "lastName", ng-model = "user.current.lastName")
+					label Last Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "lastName", ng-model = "user.current.lastName", required)
+					.form-feedback.text-danger(ng-messages = "userForm.lastName.$error", ng-if = "userForm.lastName.$dirty", role = "alert")
+						div(ng-message = "required") A last name is required
 			.row
 				.form-group.col-xs-6
 					label Handles

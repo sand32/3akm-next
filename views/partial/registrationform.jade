@@ -52,13 +52,13 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 				span.text-danger (Required)
 			input.form-control(type = "text", name = "firstName", ng-model = "regCtrl.firstName", required)
 			.form-feedback.text-danger(ng-messages = "registrationForm.firstName.$error", ng-if = "registrationForm.firstName.$dirty", role = "alert")
-				div(ng-message = "required") An first name is required
+				div(ng-message = "required") A first name is required
 		.form-group.col-xs-4
 			label Last Name 
 				span.text-danger (Required)
 			input.form-control(type = "text", name = "lastName", ng-model = "regCtrl.lastName", required)
 			.form-feedback.text-danger(ng-messages = "registrationForm.lastName.$error", ng-if = "registrationForm.lastName.$dirty", role = "alert")
-				div(ng-message = "required") An last name is required
+				div(ng-message = "required") A last name is required
 	.row
 		.form-group.col-xs-6
 			label Handles
