@@ -172,7 +172,6 @@ userSchema.methods.syncWithDirectory = function(){
 		if(user.modified
 		&& user.modified > user.lastSync
 		&& userTemplate.modified < user.lastSync){
-			console.error("saving to directory");
 			userTemplate = {
 				email: user.email,
 				firstName: user.firstName,
@@ -195,7 +194,6 @@ userSchema.methods.syncWithDirectory = function(){
 				deferred.reject(err);
 			});
 		}else{
-			console.error("loading from directory");
 			user.email = userTemplate.email;
 			user.firstName = userTemplate.firstName;
 			user.lastName = userTemplate.lastName;

@@ -391,7 +391,6 @@ module.exports = {
 
 		bindServiceAccount(client)
 		.then(function(){
-			console.error("checking for email usage");
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
@@ -404,20 +403,17 @@ module.exports = {
 					});
 				}
 			}
-			console.error("constructing names");
 			return constructUniqueNaming(client, userTemplate.firstName, userTemplate.lastName, cn);
 		}).then(function(names){
 			newCn = names.cn;
 			entry.sAMAccountName = names.sAMAccountName;
 			entry.userPrincipalName = names.userPrincipalName;
 			delete entry.name;
-			console.error("general modify: " + JSON.stringify(entry, null, 4));
 			return modify(client, userDn, [{
 				operation: "replace",
 				modification: entry
 			}]);
 		}).then(function(){
-			console.error("adding and removing to/from groups");
 			var promises = [],
 				roleName, groupCn, groupDn,
 				i, j, role, foundGroup;
@@ -439,7 +435,6 @@ module.exports = {
 					}
 				}
 				if(userTemplate.roles.indexOf(roleName) === -1){
-					console.error("deleting membership from \"" + currentEntry.memberOf[i] + "\"");
 					promises.push(modify(client, currentEntry.memberOf[i], {
 						operation: "delete",
 						modification: {member: userDn}
@@ -458,7 +453,6 @@ module.exports = {
 					}
 				}
 				if(!foundGroup){
-					console.error("adding membership for \"" + groupDn + "\"");
 					promises.push(modify(client, groupDn, {
 						operation: "add",
 						modification: {member: userDn}
@@ -472,7 +466,6 @@ module.exports = {
 			}
 			return q.resolve();
 		}).then(function(){
-			console.error("unbinding");
 			return unbind(client);
 		}).then(function(){
 			deferred.resolve(newCn);
