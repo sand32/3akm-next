@@ -151,10 +151,12 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
-			changePassword: function(id, newPassword){
+			changePassword: function(id, oldPassword, newPassword){
 				var deferred = $q.defer();
-				$http.put("/api/user/" + id + "/password", {password: newPassword})
-				.then(
+				$http.put("/api/user/" + id + "/password", {
+					oldPassword: oldPassword,
+					newPassword: newPassword
+				}).then(
 					function(response){
 						deferred.resolve(response.data);
 					},

@@ -147,14 +147,18 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			deferred.reject("Error: " + err.message);
 		});
 	}else{
-		user.passwordHash = user.hash(newPassword);
-		user.modified = Date.now();
-		user.save(function(err){
-			if(err){
-				console.error("Error: Unable to save changes to User collection in changePassword: " + err);
-			}
-		});
-		deferred.resolve();
+		if(user.isValidPassword(oldPassword)){
+			user.passwordHash = user.hash(newPassword);
+			user.modified = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: Unable to save changes to User collection in changePassword: " + err);
+				}
+				deferred.resolve();
+			});
+		}else{
+			deferred.reject({reason: "invalid-password", message: "Unable to change password, failed to authenticate old password"});
+		}
 	}
 	return deferred.promise;
 };

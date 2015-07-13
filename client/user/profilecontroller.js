@@ -101,8 +101,8 @@ require("../common/enumselectdirective.js");
 			});
 
 			modalInstance.result.then(
-				function(newPassword){
-					UserService.changePassword("session", newPassword)
+				function(passwords){
+					UserService.changePassword("session", passwords.oldPassword, passwords.newPassword)
 					then(
 						function(){
 							ngToast.create("Password successfully changed.");
