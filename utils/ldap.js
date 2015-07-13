@@ -188,7 +188,7 @@ var q = require("q"),
 			&& result.entries.collection.length > 0){
 				for(i = 0; i < result.entries.collection.length; i += 1){
 					thisEntry = result.entries.collection[i];
-					if(thisEntry.cn.toLowerCase() === existingCn.toLowerCase()){
+					if(existingCn && thisEntry.cn.toLowerCase() === existingCn.toLowerCase()){
 						names = {
 							cn: thisEntry.cn,
 							sAMAccountName: thisEntry.sAMAccountName,
