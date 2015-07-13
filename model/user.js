@@ -194,7 +194,6 @@ userSchema.methods.syncWithDirectory = function(){
 				deferred.reject(err);
 			});
 		}else{
-			user.cn = userTemplate.cn;
 			user.email = userTemplate.email;
 			user.firstName = userTemplate.firstName;
 			user.lastName = userTemplate.lastName;
