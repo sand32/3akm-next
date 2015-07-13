@@ -121,6 +121,21 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	rename = function(client, dn, newDn){
+		if(dn === newDn){
+			return q.resolve();
+		}
+		var deferred = q.defer();
+		client.modifyDN(dn, newDn, function(err){
+			if(err){
+				deferred.reject(err);
+			}else{
+				deferred.resolve();
+			}
+		});
+		return deferred.promise;
+	},
+
 	findEntry = function(client, dn, filter){
 		var deferred = q.defer();
 		client.search(dn, {
@@ -164,13 +179,25 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
-	constructUniqueNaming = function(client, firstName, lastName){
+	constructUniqueNaming = function(client, firstName, lastName, existingCn){
 		var deferred = q.defer();
 		findEntry(client, config.ldap.userDn, "(sAMAccountName=" + firstName.toLowerCase() + "." + lastName.toLowerCase() + "*)")
 		.then(function(result){
-			var numericSuffix, names;
+			var numericSuffix, names, i, thisEntry;
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
+				for(i = 0; i < result.entries.collection.length; i += 1){
+					thisEntry = result.entries.collection[i];
+					if(thisEntry.cn.toLowerCase() === existingCn.toLowerCase()){
+						names = {
+							cn: thisEntry.cn,
+							sAMAccountName: thisEntry.sAMAccountName,
+							userPrincipalName: thisEntry.userPrincipalName
+						};
+						deferred.resolve();
+						return;
+					}
+				}
 				numericSuffix = parseInt(result.entries.collection.length);
 				names = {
 					cn: firstName + " " + lastName + numericSuffix,
@@ -239,16 +266,19 @@ var q = require("q"),
 			modified: ldapDateToJsDate(entry.whenChanged),
 			accessed: ldapIntervalToJsDate(entry.lastLogon),
 			roles: []
-		};
+		}, groupCn;
 
 		// Read roles
 		for(var i = 0; i < entry.memberOf.length; i += 1){
-			for(role in config.ldap.roleGroupCns){
-				if(config.ldap.roleGroupCns[role] === entry.memberOf[i]){
+			groupCn = entry.memberOf[i].split(",")[0].toLowerCase().replace("cn=", "");
+			for(var role in config.ldap.roleGroupCns){
+				if(config.ldap.roleGroupCns[role] === groupCn){
 					template.roles.push(role);
 				}
 			}
 		}
+
+		return template;
 	};
 
 module.exports = {
@@ -354,28 +384,98 @@ module.exports = {
 		var client = createClient(),
 			deferred = q.defer(),
 			entry = translateFromUserTemplate(userTemplate),
-			userDn = "cn=" + cn + "," + config.ldap.userDn;
+			userDn = "cn=" + cn + "," + config.ldap.userDn,
+			currentEntry, newCn;
 
 		delete entry.cn;
 
 		bindServiceAccount(client)
 		.then(function(){
+			console.error("checking for email usage");
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
-			&& result.entries.collection.length > 0
-			&& result.entries.collection[0].cn !== cn){
-				deferred.reject({
-					reason: "email-in-use",
-					message: "Unable to update user, attempted to change email to one owned by another user"
-				});
+			&& result.entries.collection.length > 0){
+				currentEntry = result.entries.collection[0];
+				if(result.entries.collection[0].cn !== cn){
+					deferred.reject({
+						reason: "email-in-use",
+						message: "Unable to update user, attempted to change email to one owned by another user"
+					});
+				}
 			}
+			console.error("constructing names");
+			return constructUniqueNaming(client, userTemplate.firstName, userTemplate.lastName, cn);
+		}).then(function(names){
+			newCn = names.cn;
+			entry.sAMAccountName = names.sAMAccountName;
+			entry.userPrincipalName = names.userPrincipalName;
+			delete entry.name;
+			console.error("general modify: " + JSON.stringify(entry, null, 4));
 			return modify(client, userDn, [{
 				operation: "replace",
 				modification: entry
 			}]);
 		}).then(function(){
+			console.error("adding and removing to/from groups");
+			var promises = [],
+				roleName, groupCn, groupDn,
+				i, j, role, foundGroup;
+
+			userTemplate.roles = userTemplate.roles || [];
+			currentEntry.memberOf = [].concat(currentEntry.memberOf);
+
+			// Remove the user from any role groups it no longer has the role for
+			for(i = 0; i < currentEntry.memberOf.length; i += 1){
+				groupCn = currentEntry.memberOf[i].split(",")[0].toLowerCase().replace("cn=", "");
+				if(groupCn === "3akm-users"){
+					continue;
+				}
+
+				for(role in config.ldap.roleGroupCns){
+					if(config.ldap.roleGroupCns[role] === groupCn){
+						roleName = role;
+						break;
+					}
+				}
+				if(userTemplate.roles.indexOf(roleName) === -1){
+					console.error("deleting membership from \"" + currentEntry.memberOf[i] + "\"");
+					promises.push(modify(client, currentEntry.memberOf[i], {
+						operation: "delete",
+						modification: {member: userDn}
+					}));
+				}
+			}
+
+			// Add the user to any role groups it now has the role for
+			for(i = 0; i < userTemplate.roles.length; i += 1){
+				foundGroup = false;
+				groupDn = "cn=" + config.ldap.roleGroupCns[userTemplate.roles[i]] + "," + config.ldap.groupDn;
+				for(j = 0; j < currentEntry.memberOf.length; j += 1){
+					if(currentEntry.memberOf[j].toLowerCase() === groupDn){
+						foundGroup = true;
+						break;
+					}
+				}
+				if(!foundGroup){
+					console.error("adding membership for \"" + groupDn + "\"");
+					promises.push(modify(client, groupDn, {
+						operation: "add",
+						modification: {member: userDn}
+					}));
+				}
+			}
+			return q.all(promises);
+		}).then(function(){
+			if(newCn !== cn){
+				return rename(client, userDn, "cn=" + newCn + "," + config.ldap.userDn);
+			}
+			return q.resolve();
+		}).then(function(){
+			console.error("unbinding");
 			return unbind(client);
+		}).then(function(){
+			deferred.resolve(newCn);
 		}).catch(function(err){
 			deferred.reject({reason: "ldaperr", message: err});
 		});
@@ -433,9 +533,7 @@ module.exports = {
 			}else{
 				deferred.reject({reason: "invalid-user", message: "Unable to retrieve user, \"" + cn + "\" not found in directory"})
 			}
-		}).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
-		});
+		}).catch(function(err){deferred.reject(err);});
 		return deferred.promise;
 	},
 

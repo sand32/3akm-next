@@ -213,13 +213,13 @@ module.exports = function(app, prefix){
 		delete req.body.passwordHash;
 
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, req.body, function(err, doc){
+		User.findByIdAndUpdate(req.params.user, req.body, {new: true}, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				doc.saveToDirectory()
+				doc.syncWithDirectory()
 				.then(function(){
 					res.status(200).end();
 				}).catch(function(){

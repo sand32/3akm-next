@@ -118,7 +118,7 @@ userSchema.methods.isValidPassword = function(pass){
 
 userSchema.methods.hasRole = function(role){
 	if(config.ldap.enabled){
-		return ldap.hasRole(this.email, role);
+		return ldap.hasRole(this.cn, role);
 	}else{
 		var deferred = q.defer();
 		if(this.roles.indexOf(role) !== -1){
@@ -159,41 +159,48 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 	return deferred.promise;
 };
 
-userSchema.methods.saveToDirectory = function(){
-	var userTemplate,
-		user = this;
-	if(config.ldap.enabled){
-		userTemplate = {
-			email: user.email,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			verified: user.verified,
-			roles: user.roles
-		};
-		return ldap.updateUser(user.cn, userTemplate)
-		.then(function(){
-			user.lastSync = Date.now();
-			user.save(function(err){
-				if(err){
-					console.error("Error: Unable to save changes to User collection in saveToDirectory: " + err);
-				}
-			});
-		});
+userSchema.methods.syncWithDirectory = function(){
+	if(!config.ldap.enabled){
+		return q.resolve();
 	}
-};
 
-userSchema.methods.loadFromDirectory = function(){
 	var user = this,
 		deferred = q.defer();
-	if(config.ldap.enabled){
-		ldap.getUser(user.cn)
-		.then(function(userTemplate){
+
+	ldap.getUser(user.cn)
+	.then(function(userTemplate){
+		if(user.modified
+		&& user.modified > user.lastSync
+		&& userTemplate.modified < user.lastSync){
+			console.error("saving to directory");
+			userTemplate = {
+				email: user.email,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				verified: user.verified,
+				roles: user.roles
+			};
+			ldap.updateUser(user.cn, userTemplate)
+			.then(function(newCn){
+				user.cn = newCn;
+				user.lastSync = Date.now();
+				user.save(function(err){
+					if(err){
+						console.error("Error: Unable to save changes to User collection in saveToDirectory: " + err);
+					}
+					deferred.resolve();
+				});
+			}).catch(function(err){
+				console.error("Error: " + err.message);
+				deferred.reject(err);
+			});
+		}else{
+			console.error("loading from directory");
 			user.email = userTemplate.email;
 			user.firstName = userTemplate.firstName;
 			user.lastName = userTemplate.lastName;
 			user.verified = userTemplate.verified;
 			user.created = userTemplate.created;
-			user.modified = userTemplate.modified;
 			user.accessed = userTemplate.accessed;
 			user.roles = userTemplate.roles;
 			user.lastSync = Date.now();
@@ -203,11 +210,11 @@ userSchema.methods.loadFromDirectory = function(){
 				}
 			});
 			deferred.resolve();
-		}).catch(function(err){
-			console.error("Error: " + err.message);
-			deferred.reject(err);
-		});
-	}
+		}
+	}).catch(function(err){
+		console.error("Error: " + err.message);
+		deferred.reject(err);
+	});
 	return deferred.promise;
 };
 
@@ -268,7 +275,7 @@ userModel.createNew = function(userTemplate){
 							deferred.reject(err);
 							return;
 						}
-						newUser.loadFromDirectory()
+						newUser.syncWithDirectory()
 						.then(function(){
 							deferred.resolve(newUser);
 						}).catch(function(err){
@@ -317,7 +324,12 @@ userModel.authenticate = function(email, password){
 
 				// If we found the user, our job is done
 				if(user){
-					deferred.resolve(user);
+					user.syncWithDirectory()
+					.then(function(){
+						deferred.resolve(user);
+					}).catch(function(){
+						deferred.resolve(user);
+					});
 				// Otherwise if we didn't find the user, we already know it exists in 
 				// the directory, so create our app DB entry now
 				}else{
@@ -331,7 +343,7 @@ userModel.authenticate = function(email, password){
 							deferred.reject(err);
 							return;
 						}
-						newUser.loadFromDirectory()
+						newUser.syncWithDirectory()
 						.then(function(){
 							deferred.resolve(newUser);
 						}).catch(function(err){
