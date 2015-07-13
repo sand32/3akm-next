@@ -124,7 +124,10 @@ userSchema.methods.hasRole = function(role){
 		if(this.roles.indexOf(role) !== -1){
 			deferred.resolve();
 		}else{
-			deferred.reject();
+			deferred.reject({
+				reason: "role-not-found",
+				message: "The given user has no role by that name"
+			});
 		}
 		return deferred.promise;
 	}
@@ -144,7 +147,8 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			});
 			deferred.resolve();
 		}).catch(function(err){
-			deferred.reject("Error: " + err.message);
+			console.error("Error: " + err.message);
+			deferred.reject(err);
 		});
 	}else{
 		if(user.isValidPassword(oldPassword)){
@@ -157,7 +161,10 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 				deferred.resolve();
 			});
 		}else{
-			deferred.reject({reason: "invalid-password", message: "Unable to change password, failed to authenticate old password"});
+			deferred.reject({
+				reason: "invalid-password",
+				message: "Unable to change password, failed to authenticate old password"
+			});
 		}
 	}
 	return deferred.promise;

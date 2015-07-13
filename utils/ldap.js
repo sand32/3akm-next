@@ -293,15 +293,27 @@ module.exports = {
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 		}).then(function(result){
-			cn = result.entries.collection[0].cn;
-			return unbind(client);
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				cn = result.entries.collection[0].cn;
+				return unbind(client);
+			}else{
+				deferred.reject({
+					reason: "invalid-user",
+					message: "Unable to retrieve user, \"" + cn + "\" not found in directory"
+				});
+			}
 		}).then(function(){
 			client = createClient();
 			return bind(client, cn, password);
 		}).then(function(){
 			return unbind(client);
 		}).then(deferred.resolve).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
 		});
 		return deferred.promise;
 	},
@@ -313,7 +325,10 @@ module.exports = {
 		if(userTemplate.password){
 			password = userTemplate.password;
 		}else{
-			deferred.reject("Must specify a password");
+			deferred.reject({
+				reason: "no-password",
+				message: "A password must be provided on user creation"
+			});
 			return deferred.promise;
 		}
 
@@ -343,7 +358,10 @@ module.exports = {
 			&& result.entries.collection.length > 0){
 				currentUac = result.entries.collection[0].userAccountControl;
 			}else{
-				deferred.reject({reason: "ldaperr", message: "Failed to create directory user, unknown error"});
+				deferred.reject({
+					reason: "ldaperr",
+					message: "Failed to create directory user, unknown error"
+				});
 			}
 		}).then(function(){
 			return modify(client, userDn, [{
@@ -379,7 +397,13 @@ module.exports = {
 			return unbind(client);
 		}).then(function(){
 			deferred.resolve(entry.cn);
-		}).catch(function(err){deferred.reject(err);});
+		}).catch(function(err){
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
+		});
 		return deferred.promise;
 	},
 
@@ -473,7 +497,11 @@ module.exports = {
 		}).then(function(){
 			deferred.resolve(newCn);
 		}).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
 		});
 		return deferred.promise;
 	},
@@ -493,7 +521,10 @@ module.exports = {
 					modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
 				});
 			}else{
-				deferred.reject({reason: "invalid-user", message: "Unable to set password, \"" + cn + "\" not found in directory"});
+				deferred.reject({
+					reason: "invalid-user",
+					message: "Unable to set password, \"" + cn + "\" not found in directory"
+				});
 			}
 		}).then(function(result){
 			return modify(client, userDn, [{
@@ -511,7 +542,11 @@ module.exports = {
 		}).then(function(){
 			return unbind(client);
 		}).then(deferred.resolve).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
 		});
 		return deferred.promise;
 	},
@@ -527,9 +562,18 @@ module.exports = {
 			&& result.entries.collection.length > 0){
 				deferred.resolve(translateToUserTemplate(result.entries.collection[0]));
 			}else{
-				deferred.reject({reason: "invalid-user", message: "Unable to retrieve user, \"" + cn + "\" not found in directory"})
+				deferred.reject({
+					reason: "invalid-user",
+					message: "Unable to retrieve user, \"" + cn + "\" not found in directory"
+				});
 			}
-		}).catch(function(err){deferred.reject(err);});
+		}).catch(function(err){
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
+		});
 		return deferred.promise;
 	},
 
@@ -551,11 +595,18 @@ module.exports = {
 					}
 				}
 			}
-			deferred.reject();
+			deferred.reject({
+				reason: "role-not-found",
+				message: "The given user has no role by that name"
+			});
 		}).then(function(){
 			return unbind(client);
 		}).then(deferred.resolve).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
 		});
 		return deferred.promise;
 	},
@@ -571,12 +622,19 @@ module.exports = {
 			&& result.entries.collection.length > 0){
 				deferred.resolve();
 			}else{
-				deferred.reject(result.status);
+				deferred.reject({
+					reason: "invalid-user",
+					message: "Unable to retrieve user, no user with the email \"" + email + "\" found"
+				});
 			}
 		}).then(function(){
 			return unbind(client);
 		}).then(deferred.resolve).catch(function(err){
-			deferred.reject({reason: "ldaperr", message: err});
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
 		});
 		return deferred.promise;
 	}
