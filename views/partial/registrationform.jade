@@ -36,9 +36,10 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 		.form-group.col-xs-6
 			label Password 
 				span.text-danger (Required)
-			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required)
+			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required, pattern = "(?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*")
 			.form-feedback.text-danger(ng-messages = "registrationForm.password.$error", ng-if = "registrationForm.password.$dirty", role = "alert")
 				div(ng-message = "required") A password is required
+				div(ng-message = "pattern") Invalid password: your password must consist of at least 8 characters, including a lowercase letter, an uppercase letter, and a special character (e.g. +=_-!)
 	.row
 		.form-group.col-xs-6
 			label Confirm Password
