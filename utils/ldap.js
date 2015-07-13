@@ -183,9 +183,10 @@ var q = require("q"),
 		var deferred = q.defer();
 		findEntry(client, config.ldap.userDn, "(sAMAccountName=" + firstName.toLowerCase() + "." + lastName.toLowerCase() + "*)")
 		.then(function(result){
-			var numericSuffix, names, i, thisEntry;
+			var numericSuffix, names, i, thisEntry, otherSuffix;
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
+				numericSuffix = 0;
 				for(i = 0; i < result.entries.collection.length; i += 1){
 					thisEntry = result.entries.collection[i];
 					if(existingCn && thisEntry.cn.toLowerCase() === existingCn.toLowerCase()){
@@ -197,8 +198,10 @@ var q = require("q"),
 						deferred.resolve();
 						return;
 					}
+					otherSuffix = thisEntry.sAMAccountName.replace(firstName.toLowerCase() + "." + lastName.toLowerCase(), "");
+					otherSuffix = otherSuffix !== "" ? parseInt(otherSuffix) : 0;
+					numericSuffix = Math.max(numericSuffix, otherSuffix) + 1;
 				}
-				numericSuffix = parseInt(result.entries.collection.length);
 				names = {
 					cn: firstName + " " + lastName + numericSuffix,
 					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix
