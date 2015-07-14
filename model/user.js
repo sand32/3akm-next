@@ -142,7 +142,7 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			user.modified = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: Unable to save changes to User collection in changePassword: " + err);
+					console.error("Error: " + err.message);
 				}
 			});
 			deferred.resolve();
@@ -156,7 +156,7 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			user.modified = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: Unable to save changes to User collection in changePassword: " + err);
+					console.error("Error: " + err.message);
 				}
 				deferred.resolve();
 			});
@@ -196,7 +196,7 @@ userSchema.methods.syncWithDirectory = function(){
 				user.lastSync = Date.now();
 				user.save(function(err){
 					if(err){
-						console.error("Error: Unable to save changes to User collection in saveToDirectory: " + err);
+						console.error("Error: " + err.message);
 					}
 					deferred.resolve();
 				});
@@ -215,7 +215,7 @@ userSchema.methods.syncWithDirectory = function(){
 			user.lastSync = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: Unable to save changes to User collection in loadFromDirectory: " + err);
+					console.error("Error: " + err.message);
 				}
 			});
 			deferred.resolve();
