@@ -61,7 +61,7 @@ module.exports = function(){
 				.then(function(newUser){
 					done(null, newUser);
 				}).catch(function(err){
-					done(err);
+					done(err.message);
 				});
 			});
 		}
@@ -77,7 +77,7 @@ module.exports = function(){
 				.then(function(user){
 					done(null, user);
 				}).catch(function(err){
-					done(err);
+					done(err.message);
 				});
 			});
 		}
@@ -90,7 +90,7 @@ module.exports = function(){
 				.then(function(user){
 					done(null, user);
 				}).catch(function(err){
-					done(err);
+					done(err.message);
 				});
 			});
 		}
