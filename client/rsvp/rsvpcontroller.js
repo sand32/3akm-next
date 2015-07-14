@@ -33,6 +33,7 @@ require("../common/enumselectdirective.js");
 		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
 		ctrl.isLoggedIn = false;
+		ctrl.busy = false;
 		ctrl.loaded = false;
 		ctrl.statusPossibles = [
 			{label: "Yes", value: "'Yes'"}, 
@@ -71,8 +72,7 @@ require("../common/enumselectdirective.js");
 			return promise;
 		}, function(){
 			ctrl.loaded = true;
-		})
-		.then(function(rsvp){
+		}).then(function(rsvp){
 			ctrl.current = rsvp;
 			ctrl.isLoggedIn = true;
 
@@ -97,6 +97,7 @@ require("../common/enumselectdirective.js");
 		});
 
 		ctrl.submit = function(){
+			ctrl.busy = true;
 			ctrl.current.tournaments = [];
 			for(var i = 0; i < ctrl.tournaments.length; i += 1){
 				if(ctrl.tournaments[i].signedUp){
@@ -106,14 +107,14 @@ require("../common/enumselectdirective.js");
 				}
 			}
 			RsvpService.createOrEdit("session", ctrl.year, ctrl.current)
-			.then(
-				function(){
-					ngToast.create("RSVP successfully submitted.");
-					$state.go("appearances");
-				}, function(){
-					ngToast.danger("Failed to submit RSVP.");
-				}
-			);
+			.then(function(){
+				ngToast.create("RSVP successfully submitted.");
+				$state.go("appearances");
+				ctrl.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to submit RSVP.");
+				ctrl.busy = false;
+			});
 		};
 	};
 

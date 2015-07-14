@@ -29,6 +29,7 @@ require("../common/enumselectdirective.js");
 (function(){
 	var ProfileController = function($scope, $state, $modal, ngToast, UserService){
 		var profile = this;
+		profile.busy = false;
 		profile.loaded = false;
 		profile.boolPossibles = [
 			{label: "Yes", value: true}, 
@@ -49,7 +50,7 @@ require("../common/enumselectdirective.js");
 
 			// Show the page
 			profile.loaded = true;
-		}, function(status){
+		}).catch(function(status){
 			if(status === 403){
 				$scope.$emit("AuthChanged", false);
 				$state.go("default");
@@ -60,17 +61,15 @@ require("../common/enumselectdirective.js");
 
 		profile.resendVerificationEmail = function(){
 			UserService.resendVerificationEmail()
-			.then(
-				function(){
-					ngToast.create("Verification email sent.");
-				},
-				function(){
-					ngToast.danger("Failed to send verification email.");
-				}
-			);
+			.then(function(){
+				ngToast.create("Verification email sent.");
+			}).catch(function(){
+				ngToast.danger("Failed to send verification email.");
+			});
 		};
 
 		profile.save = function(){
+			profile.busy = true;
 			UserService.edit("session", {
 				email: profile.email,
 				firstName: profile.firstName,
@@ -80,18 +79,17 @@ require("../common/enumselectdirective.js");
 				lanInviteDesired: profile.lanInviteDesired,
 				roles: profile.roles
 			})
-			.then(
-				function(){
-					ngToast.create("User successfully updated.");
-				},
-				function(status){
-					if(status === 403){
-						$scope.$emit("AuthChanged", false);
-						$state.go("default");
-					}
-					ngToast.danger("Failed to update user.");
+			.then(function(){
+				ngToast.create("User successfully updated.");
+				profile.busy = false;
+			}).catch(function(status){
+				if(status === 403){
+					$scope.$emit("AuthChanged", false);
+					$state.go("default");
 				}
-			);
+				ngToast.danger("Failed to update user.");
+				profile.busy = false;
+			});
 		};
 
 		profile.openChangePasswordModal = function(){
@@ -100,19 +98,14 @@ require("../common/enumselectdirective.js");
 				controller: "ChangePasswordController as changePass"
 			});
 
-			modalInstance.result.then(
-				function(passwords){
-					UserService.changePassword("session", passwords.oldPassword, passwords.newPassword)
-					.then(
-						function(){
-							ngToast.create("Password successfully changed.");
-						},
-						function(){
-							ngToast.danger("Failed to change password.");
-						}
-					);
-				}
-			);
+			modalInstance.result.then(function(passwords){
+				UserService.changePassword("session", passwords.oldPassword, passwords.newPassword)
+				.then(function(){
+					ngToast.create("Password successfully changed.");
+				}).catch(function(){
+					ngToast.danger("Failed to change password.");
+				});
+			});
 		};
 	}
 

@@ -62,12 +62,12 @@
 			.row
 				.col-xs-6
 					.button-row-left
-						button.btn.btn-default(type = "submit", ng-disabled = "lanForm.$invalid")
+						button.btn.btn-default(type = "submit", ng-disabled = "lanForm.$invalid || lan.busy")
 							span.button-icon.glyphicon.glyphicon-save
 							| Save
 						a.btn.btn-link(ui-sref = "^") Cancel
 				.col-xs-6
 					.button-row-right
-						a.btn.btn-default(ng-if = "lan.current._id", ng-click = "lan.delete()")
+						a.btn.btn-default(ng-if = "lan.current._id", ng-click = "lan.delete()", ng-disabled = "lan.busy")
 							span.button-icon.glyphicon.glyphicon-trash
 							| Delete

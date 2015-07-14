@@ -35,79 +35,62 @@ require("../common/cod4service.js");
 		cod4.busy = false;
 
 		Cod4Service.retrieveGameTypes()
-		.then(
-			function(data){
-				cod4.gametypes = data;
-			}
-		);
+		.then(function(data){
+			cod4.gametypes = data;
+		});
 
 		cod4.rotateMap = function(){
 			cod4.busy = true;
 			Cod4Service.rotateMap()
-			.then(
-				function(){
-					cod4.busy = false;
-					cod4.reloadStatus();
-				},
-				function(status){
-					cod4.busy = false;
-					ngToast.danger("Failed to rotate map.");
-				}
-			);
+			.then(function(){
+				cod4.reloadStatus();
+				cod4.busy = false;
+			}).catch(function(status){
+				ngToast.danger("Failed to rotate map.");
+				cod4.busy = false;
+			});
 		};
 
 		cod4.setGameType = function(gametype){
 			cod4.busy = true;
 			Cod4Service.setGameType(gametype)
-			.then(
-				function(){
-					cod4.busy = false;
-					cod4.reloadStatus();
-				},
-				function(status){
-					cod4.busy = false;
-					ngToast.danger("Failed to set gametype.");
-				}
-			);
+			.then(function(){
+				cod4.reloadStatus();
+				cod4.busy = false;
+			}).catch(function(status){
+				ngToast.danger("Failed to set gametype.");
+				cod4.busy = false;
+			});
 		};
 
 		cod4.say = function(message){
 			cod4.busy = true;
 			Cod4Service.say(message || "")
-			.then(
-				function(){
-					cod4.busy = false;
-				},
-				function(status){
-					cod4.busy = false;
-					ngToast.danger("Failed to send message.");
-				}
-			);
+			.then(function(){
+				cod4.busy = false;
+			}).catch(function(status){
+				ngToast.danger("Failed to send message.");
+				cod4.busy = false;
+			});
 		};
 
 		cod4.reloadStatus = function(){
 			Cod4Service.retrieveStatus()
-			.then(
-				function(data){
-					cod4.map = data.map;
-					cod4.players = data.players;
-				},
-				function(){
-					cod4.map = "Unknown";
-					cod4.players = [];
-				}
-			);
+			.then(function(data){
+				cod4.map = data.map;
+				cod4.players = data.players;
+			}).catch(function(){
+				cod4.map = "Unknown";
+				cod4.players = [];
+			});
 			Cod4Service.retrieveCurrentGameType()
-			.then(
-				function(data){
-					cod4.gametype = data.gametype;
-					cod4.latchedGametype = data.latched || data.gametype;
-				},
-				function(){
-					cod4.gametype = "Unknown";
-					cod4.latchedGametype = "Unknown";
-				}
-			);
+			.then(function(data){
+				cod4.gametype = data.gametype;
+				cod4.latchedGametype = data.latched || data.gametype;
+			}).catch(function(){
+				cod4.gametype = "Unknown";
+				cod4.latchedGametype = "Unknown";
+			});
 		};
 
 		cod4.reloadStatus();

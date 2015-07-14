@@ -27,6 +27,7 @@ require("../common/userservice.js");
 (function(){
 	var AuthController = function($scope, $rootScope, $state, ngToast, UserService){
 		var ctrl = this;
+		ctrl.busy = false;
 		ctrl.isLoggedIn = false;
 		ctrl.isAdmin = false;
 
@@ -36,22 +37,27 @@ require("../common/userservice.js");
 		});
 
 		ctrl.login = function(){
+			ctrl.busy = true;
 			UserService.login(ctrl.email, ctrl.password)
 			.then(function(){
 				ctrl.email = "";
 				ctrl.password = "";
 				$scope.$emit("AuthChanged", true);
 				$state.go($state.current, {}, {reload: true});
+				ctrl.busy = false;
 			}, function(){
 				ngToast.danger("Invalid username or password.");
+				ctrl.busy = false;
 			});
 		};
 
 		ctrl.logout = function(){
+			ctrl.busy = true;
 			UserService.logout()
 			.then(function(){
 				$scope.$emit("AuthChanged", false);
 				$state.go($state.current, {}, {reload: true});
+				ctrl.busy = false;
 			});
 		};
 

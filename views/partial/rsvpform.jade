@@ -69,5 +69,5 @@ hr
 						label.form-control-static.col-xs-6 {{tournament.name}}
 						enum-select(current = "tournament.signedUp", possibles = "rsvp.boolPossibles")
 		hr
-		input.btn.btn-default(type = "submit", value = "Submit")
+		input.btn.btn-default(type = "submit", value = "Submit", ng-disabled = "rsvp.busy")
 		a.btn.btn-link(ui-sref = "appearances") Back

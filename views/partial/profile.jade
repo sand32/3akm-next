@@ -69,5 +69,5 @@ form(name = "profileForm", novalidate, ng-controller = "ProfileController as pro
 					label Roles
 					simple-array-entry(array-model = "profile.roles", addition-tooltip = "Add another role", removal-tooltip = "Remove this role")
 	hr
-	input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "profileForm.$invalid")
+	input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "profileForm.$invalid || profile.busy")
 	a.btn.btn-link(ng-click = "profile.openChangePasswordModal()") Change Password
