@@ -195,7 +195,7 @@ var q = require("q"),
 							sAMAccountName: thisEntry.sAMAccountName,
 							userPrincipalName: thisEntry.userPrincipalName
 						};
-						deferred.resolve();
+						deferred.resolve(names);
 						return;
 					}
 					otherSuffix = thisEntry.sAMAccountName.replace(firstName.toLowerCase() + "." + lastName.toLowerCase(), "");
