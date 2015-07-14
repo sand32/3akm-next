@@ -45,7 +45,7 @@ require("../common/userservice.js");
 				$scope.$emit("AuthChanged", true);
 				$state.go($state.current, {}, {reload: true});
 				ctrl.busy = false;
-			}, function(){
+			}).catch(function(){
 				ngToast.danger("Invalid username or password.");
 				ctrl.busy = false;
 			});

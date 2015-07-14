@@ -36,13 +36,11 @@ require("./articledetailcontroller.js");
 
 		$scope.reloadList = function(){
 			ArticleService.retrieveAll()
-			.then(
-				function(data){
-					articles.list = data;
-				}, function(){
-					ngToast.danger("Failed to retrieve articles.");
-				}
-			);
+			.then(function(data){
+				articles.list = data;
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve articles.");
+			});
 		};
 		$scope.reloadList();
 	};

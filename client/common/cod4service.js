@@ -28,126 +28,99 @@ misrepresented as being the original software.
 			retrieveMaps: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/maps")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveCurrentMap: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/map")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveStatus: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/status")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveMapRotation: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/maprotation")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveGameTypes: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/gametypes")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveCurrentGameType: function(){
 				var deferred = $q.defer();
 				$http.get("/api/service/cod4/gametype")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			setGameType: function(gametype){
 				var deferred = $q.defer();
 				$http.put("/api/service/cod4/gametype", {gametype: gametype})
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			rotateMap: function(){
 				var deferred = $q.defer();
 				$http.post("/api/service/cod4/map/rotate")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			say: function(message){
 				var deferred = $q.defer();
 				$http.post("/api/service/cod4/say", {message: message})
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			}
 		};

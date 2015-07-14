@@ -40,8 +40,7 @@ require("../common/userservice.js");
 				primaryHandle: reg.primaryHandle,
 				tertiaryHandles: reg.tertiaryHandles,
 				recaptchaResponse: grecaptcha.getResponse()
-			})
-			.then(function(){
+			}).then(function(){
 				ngToast.create("User successfully registered.");
 				$scope.$emit("AuthChanged", true);
 				$state.go("default");

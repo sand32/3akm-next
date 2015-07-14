@@ -78,8 +78,7 @@ require("../common/enumselectdirective.js");
 				tertiaryHandles: profile.tertiaryHandles,
 				lanInviteDesired: profile.lanInviteDesired,
 				roles: profile.roles
-			})
-			.then(function(){
+			}).then(function(){
 				ngToast.create("User successfully updated.");
 				profile.busy = false;
 			}).catch(function(status){
