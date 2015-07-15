@@ -26,8 +26,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var q = require("q"),
 	ldapjs = require("ldapjs"),
-	crypto = require("crypto"),
-	config = require("./common.js").config
+	config = require("./common.js").config,
 
 	uacFlags = {
 		disabled: 0x00000002,
