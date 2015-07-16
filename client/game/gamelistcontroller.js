@@ -44,7 +44,7 @@ require("../common/sectionentrydirective.js");
 			}
 			ctrl.year = data.year;
 			ctrl.loaded = true;
-		}, function(){
+		}).catch(function(){
 			ctrl.loaded = true;
 		});
 	};

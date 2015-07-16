@@ -23,8 +23,7 @@ misrepresented as being the original software.
 */
 
 var ServerQuery = require("node-teamspeak"),
-	loadConfig = require("./common").loadConfig,
-	config = loadConfig(__dirname + "/../config/config.json"),
+	config = require("./common").config,
 	sq,
 
 	_login = function(callback){

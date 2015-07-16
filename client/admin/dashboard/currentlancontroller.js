@@ -43,29 +43,24 @@ require("../../admin-common/visualizationdirectives.js");
 		};
 
 		LanService.retrieve("current")
-		.then(
-			function(lan){
-				currentLan.year = new Date(lan.beginDate).getFullYear();
-				currentLan.daysLeft = Math.round((new Date(lan.beginDate) - new Date())/(1000*60*60*24));
-				return RsvpService.retrieveAllForYear(currentLan.year);
-			}
-		)
-		.then(
-			function(rsvps){
-				var yesCount = 0, maybeCount = 0, noCount = 0;
-				for(var i = 0; i < rsvps.length; i += 1){
-					if(rsvps[i].status === "Yes"){
-						yesCount += 1 + rsvps[i].guests;
-					}else if(rsvps[i].status === "Maybe"){
-						maybeCount += 1 + rsvps[i].guests;
-					}else if(rsvps[i].status === "No"){
-						noCount += 1 + rsvps[i].guests;
-					}
+		.then(function(lan){
+			currentLan.year = new Date(lan.beginDate).getFullYear();
+			currentLan.daysLeft = Math.round((new Date(lan.beginDate) - new Date())/(1000*60*60*24));
+			return RsvpService.retrieveAllForYear(currentLan.year);
+		}).then(function(rsvps){
+			var yesCount = 0, maybeCount = 0, noCount = 0;
+			for(var i = 0; i < rsvps.length; i += 1){
+				if(rsvps[i].status === "Yes"){
+					yesCount += 1 + rsvps[i].guests;
+				}else if(rsvps[i].status === "Maybe"){
+					maybeCount += 1 + rsvps[i].guests;
+				}else if(rsvps[i].status === "No"){
+					noCount += 1 + rsvps[i].guests;
 				}
-				currentLan.rsvpGraphData = [yesCount, maybeCount, noCount];
-				currentLan.rsvpCount = rsvps.length;
 			}
-		);
+			currentLan.rsvpGraphData = [yesCount, maybeCount, noCount];
+			currentLan.rsvpCount = rsvps.length;
+		});
 	};
 
 	angular

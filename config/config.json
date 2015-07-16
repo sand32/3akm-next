@@ -10,6 +10,19 @@
 	"dbUser": "",
 	"dbPassword": "",
 	"corsWhitelist": [],
+	"ldap": {
+		"enabled": false,
+		"url": "changeme",
+		"userDn": "changeme",
+		"groupDn": "changeme",
+		"userGroupCn": "changeme",
+		"roleGroupCns": {
+			"admin": "changeme"
+		},
+		"userPrincipalNameSuffix": "changeme",
+		"serviceAccountDn": "changeme",
+		"serviceAccountPassword": "changeme"
+	},
 	"ts3": {
 		"address": "localhost",
 		"password": "changeme"

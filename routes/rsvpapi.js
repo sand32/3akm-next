@@ -27,7 +27,7 @@ var mongoose = require("mongoose"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix, prefix2){
@@ -63,7 +63,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.post(prefix,
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRole: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -80,7 +80,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.put(prefix + "/:rsvp", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -99,7 +99,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.delete(prefix + "/:rsvp", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
@@ -143,7 +143,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.get(prefix2 + "/:year", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -175,7 +175,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.put(prefix2 + "/:year", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -232,7 +232,7 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.put(prefix2 + "/:year/attended", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){

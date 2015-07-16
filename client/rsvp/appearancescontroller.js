@@ -35,8 +35,7 @@ require("../common/rsvpservice.js");
 			app.stillAcceptingRsvps = Date.now() < beginDate;
 			app.lanYear = beginDate.getFullYear();
 			return RsvpService.retrieveAllForYear(app.lanYear);
-		})
-		.then(function(rsvps){
+		}).then(function(rsvps){
 			app.rsvps = rsvps;
 			app.yesCount = 0;
 			app.maybeCount = 0;

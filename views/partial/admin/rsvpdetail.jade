@@ -63,12 +63,12 @@
 			.row
 				.col-xs-6
 					.button-row-left
-						button.btn.btn-default(type = "submit", ng-disabled = "rsvpForm.$invalid")
+						button.btn.btn-default(type = "submit", ng-disabled = "rsvpForm.$invalid || rsvp.busy")
 							span.button-icon.glyphicon.glyphicon-save
 							| Save
 						a.btn.btn-link(ui-sref = "^") Cancel
 				.col-xs-6
 					.button-row-right
-						a.btn.btn-default(ng-if = "rsvp.current._id", ng-click = "rsvp.delete()")
+						a.btn.btn-default(ng-if = "rsvp.current._id", ng-click = "rsvp.delete()", ng-disabled = "rsvp.busy")
 							span.button-icon.glyphicon.glyphicon-trash
 							| Delete

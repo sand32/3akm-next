@@ -28,10 +28,11 @@ require("./profilecontroller.js");
 (function(){
 	var ChangePasswordController = function($modalInstance, UserService){
 		var ctrl = this;
+		ctrl.oldPass = "";
 		ctrl.newPass = "";
 
 		ctrl.ok = function(){
-			$modalInstance.close(ctrl.newPass);
+			$modalInstance.close({oldPassword: ctrl.oldPass, newPassword: ctrl.newPass});
 		};
 
 		ctrl.cancel = function(){

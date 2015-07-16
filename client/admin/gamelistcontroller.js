@@ -36,13 +36,11 @@ require("./gamedetailcontroller.js");
 
 		$scope.reloadList = function(){
 			GameService.retrieveAll()
-			.then(
-				function(data){
-					games.list = data;
-				}, function(){
-					ngToast.danger("Failed to retrieve games.");
-				}
-			);
+			.then(function(data){
+				games.list = data;
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve games.");
+			});
 		};
 		$scope.reloadList();
 	};

@@ -34,16 +34,17 @@
 						div(ng-message = "email") Invalid email
 				.field-align.col-xs-6(ng-if = "!user.current.verified")
 					span.text-danger.form-control-static.col-xs-6 Email not verified!
-					a.col-xs-6(class = "btn btn-danger" ng-click = "user.resendVerificationEmail()") Resend Verification
+					a.col-xs-6(class = "btn btn-danger" ng-click = "user.resendVerificationEmail()", ng-disabled = "user.busy") Resend Verification
 				.field-align.col-xs-6(ng-if = "user.current.verified")
 					span.text-success.form-control-static.col-xs-6 Been verified!
 			.row(ng-if = "!user.current._id")
 				.form-group.col-xs-6
 					label Password 
 						span.text-danger (Required)
-					input.form-control(type = "password", name = "password", ng-model = "user.current.password", required)
+					input.form-control(type = "password", name = "password", ng-model = "user.current.password", required, pattern = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,255}")
 					.form-feedback.text-danger(ng-messages = "userForm.password.$error", ng-if = "userForm.password.$dirty", role = "alert")
 						div(ng-message = "required") An password is required
+						div(ng-message = "pattern") Invalid password: the password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number
 				.form-group.col-xs-6
 					label Confirm Password
 					input.form-control(type = "password", name = "confirmPassword", ng-model = "user.confirmPassword", compare-to = "user.current.password")
@@ -65,11 +66,17 @@
 						.col-xs-7(ng-if = "!user.current.accessed") N/A
 			.row
 				.form-group.col-xs-6
-					label First Name
-					input.form-control(type = "text", name = "firstName", ng-model = "user.current.firstName")
+					label First Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "firstName", ng-model = "user.current.firstName", required)
+					.form-feedback.text-danger(ng-messages = "userForm.firstName.$error", ng-if = "userForm.firstName.$dirty", role = "alert")
+						div(ng-message = "required") A first name is required
 				.form-group.col-xs-6
-					label Last Name
-					input.form-control(type = "text", name = "lastName", ng-model = "user.current.lastName")
+					label Last Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "lastName", ng-model = "user.current.lastName", required)
+					.form-feedback.text-danger(ng-messages = "userForm.lastName.$error", ng-if = "userForm.lastName.$dirty", role = "alert")
+						div(ng-message = "required") A last name is required
 			.row
 				.form-group.col-xs-6
 					label Handles
@@ -97,7 +104,7 @@
 			.row
 				.col-xs-6
 					.button-row-left
-						button.btn.btn-default(type = "submit", ng-disabled = "userForm.$invalid")
+						button.btn.btn-default(type = "submit", ng-disabled = "userForm.$invalid || user.busy")
 							span.button-icon.glyphicon.glyphicon-save
 							| Save
 						a.btn.btn-link(ui-sref = "^") Cancel

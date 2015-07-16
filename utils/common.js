@@ -25,18 +25,33 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	querystring = require("querystring"),
 	fs = require("fs"),
-	request = require("request");
+	request = require("request"),
+	loadConfig = function(file){
+		return JSON.parse(fs.readFileSync(file, "utf8"));
+	};
 
 module.exports = {
-	loadConfig: function(file){
-		return JSON.parse(fs.readFileSync(file, "utf8"));
+	loadConfig: loadConfig,
+
+	config: loadConfig(__dirname + "/../config/config.json"),
+
+	register: function(req, res, next){
+		passport.authenticate("register")(req, res, next);
+	},
+
+	login: function(req, res, next){
+		passport.authenticate("local")(req, res, next);
+	},
+
+	authenticate: function(req, res, next){
+		module.exports.localElseBasicAuthenticate(req, res, next);
 	},
 
 	// Special authentication in order to support local sessions and basic auth 
 	// on API routes.
 	// 
 	// Basically: if we have a local session, proceed, else require basic auth.
-	blendedAuthenticate: function(req, res, next){
+	localElseBasicAuthenticate: function(req, res, next){
 		if(req.isAuthenticated()){
 			return next();
 		}
@@ -48,7 +63,7 @@ module.exports = {
 	},
 
 	verifyRecaptcha: function(req, res, next){
-		var config = module.exports.loadConfig(__dirname + "/../config/config.json"),
+		var config = module.exports.config,
 			url = "https://www.google.com/recaptcha/api/siteverify",
 			data = querystring.stringify({
 				secret: config.recaptchaSecret,
@@ -61,7 +76,7 @@ module.exports = {
 					body = JSON.parse(body);
 					if(body.success){
 						next();
-					}else if(body["error-codes"].length > 1 || body["error-codes"][0] !== "missing-input-response"){
+					}else if(body["error-codes"] && (body["error-codes"].length > 1 || body["error-codes"][0] !== "missing-input-response")){
 						console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
 						res.status(500).end();
 					}else{

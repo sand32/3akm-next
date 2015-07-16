@@ -27,6 +27,7 @@
 		"jade": "latest",
 		"request": "latest",
 		"node-teamspeak": "latest",
-		"q": "latest"
+		"q": "latest",
+		"ldapjs": "latest"
 	}
 }

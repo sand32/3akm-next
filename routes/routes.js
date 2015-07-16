@@ -22,13 +22,6 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path"),
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
-	authorize = require("../authorization.js").authorize,
-	loadConfig = require("../utils/common.js").loadConfig,
-	config = loadConfig(__dirname + "/../config/config.json");
-
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
 		articleApiRoutes = require("./articleapi.js"),

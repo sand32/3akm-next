@@ -27,7 +27,9 @@ var passport = require("passport"),
 	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	register = require("../utils/common.js").register,
+	login = require("../utils/common.js").login,
+	authenticate = require("../utils/common.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
@@ -35,14 +37,9 @@ var passport = require("passport"),
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
 		verifyRecaptcha, 
-		passport.authenticate("register"), 
+		register, 
 	function(req, res){
 		if(req.isAuthenticated()){
-			req.user.firstName = req.body.firstName;
-			req.user.lastName = req.body.lastName;
-			req.user.primaryHandle = req.body.primaryHandle;
-			req.user.tertiaryHandles = req.body.tertiaryHandles;
-			req.user.save();
 			// Send email for verification
 			// Respond with "201 Created"
 			res.status(201).send(req.user._id.toString());
@@ -67,10 +64,10 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/login", passport.authenticate("local"), function(req, res){
+	app.post(prefix + "/login", 
+		login, 
+	function(req, res){
 		if(req.isAuthenticated()){
-			req.user.accessed = Date.now();
-			req.user.save();
 			res.status(200).end();
 		}else{
 			res.status(403).end();
@@ -87,7 +84,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/:user/verify", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -98,7 +95,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user/verified", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -115,7 +112,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		User.find({}, function(err, docs){
@@ -128,7 +125,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
@@ -168,26 +165,25 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		var user = new User(req.body);
-		user.passwordHash = user.hash(user.password);
-		delete user.password;
-		user.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + user._id)
-				.send({_id: user._id});
-			}
+		if(req.body.roles){
+			req.body.roles = removeDuplicates(req.body.roles);
+		}
+		User.createNew(req.body)
+		.then(function(newUser){
+			res.status(201)
+			.location(prefix + "/" + newUser._id)
+			.send({_id: newUser._id});
+		}).catch(function(err){
+			res.status(400).end();
 		});
 	});
 
 	app.put(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -204,46 +200,54 @@ module.exports = function(app, prefix){
 		}else if(req.body.roles){
 			req.body.roles = removeDuplicates(req.body.roles);
 		}
-		delete req.body.passwordHash;
 		delete req.body.created;
 		delete req.body.accessed;
 
 		// Record this modification
 		req.body.modified = Date.now();
 
+		// User passwords cannot be changed using this route, 
+		// /:user/password must be used instead
+		delete req.body.passwordHash;
+
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, req.body, function(err, doc){
+		User.findByIdAndUpdate(req.params.user, req.body, {new: true}, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				doc.syncWithDirectory()
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(500).end();
+				});
 			}
 		});
 	});
 
 	app.put(prefix + "/:user/password", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Record this modification
-		var update = {
-			modified: Date.now(),
-			passwordHash: req.user.hash(req.body.password)
-		}
 
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, update, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				doc.changePassword(req.body.oldPassword, req.body.newPassword)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(400).end();
+				});
 			}
 		});
 	});

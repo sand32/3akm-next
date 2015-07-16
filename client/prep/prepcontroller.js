@@ -30,15 +30,12 @@ require("../common/lanservice.js");
 		prep.lan = null;
 		prep.loaded = false;
 		LanService.retrieve("current")
-		.then(
-			function(lan){
-				prep.lan = lan;
-				prep.loaded = true;
-			},
-			function(){
-				prep.loaded = true;
-			}
-		);
+		.then(function(lan){
+			prep.lan = lan;
+			prep.loaded = true;
+		}).catch(function(){
+			prep.loaded = true;
+		});
 	};
 
 	angular

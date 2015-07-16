@@ -26,7 +26,8 @@ module.exports = function(){
 	var passport = require("passport"),
 		BasicStrategy = require("passport-http").BasicStrategy,
 		LocalStrategy = require("passport-local"),
-		User = require("./model/user.js");
+		User = require("./model/user.js"),
+		Ldap = require("./utils/ldap.js");
 
 	passport.serializeUser(function(user, done){
 		done(null, user._id);
@@ -40,32 +41,27 @@ module.exports = function(){
 
 	passport.use("register", new LocalStrategy({
 			usernameField: "email",
-			passwordField: "password"
+			passwordField: "password",
+			passReqToCallback: true
 		},
-		function(email, password, done){
+		function(req, email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
+				// Delete all fields that cannot be submitted by an anonymous user
+				delete req.body.verified;
+				delete req.body.vip;
+				delete req.body.blacklisted;
+				delete req.body.roles;
+				delete req.body.services;
+				delete req.body.passwordHash;
+				delete req.body.created;
+				delete req.body.modified;
+				delete req.body.accessed;
 
-					// If we'ver found the email in our database, the user already exists, do nothing
-					if(user){
-						return done(null, false);
-					// Else, create the new user
-					}else{
-						var newUser = new User();
-						newUser.email = email;
-						newUser.passwordHash = newUser.hash(password);
-						newUser.save(function(err){
-							if(err){
-								throw err;
-							}
-							return done(null, newUser);
-						});
-					}
+				User.createNew(req.body)
+				.then(function(newUser){
+					done(null, newUser);
+				}).catch(function(err){
+					done(err.message);
 				});
 			});
 		}
@@ -77,21 +73,11 @@ module.exports = function(){
 		},
 		function(email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
-
-					// If we've found the user in the database and the given password matches, 
-					// pass the user on to the next middleware
-					if(user && user.isValidPassword(password)){
-						return done(null, user);
-					// Else, set the flash and move on
-					}else{
-						return done(null, false);
-					}
+				User.authenticate(email, password)
+				.then(function(user){
+					done(null, user);
+				}).catch(function(err){
+					done(err.message);
 				});
 			});
 		}
@@ -100,21 +86,11 @@ module.exports = function(){
 	passport.use("basic", new BasicStrategy(
 		function(email, password, done){
 			process.nextTick(function(){
-				// Try to find a user with the given email
-				User.findOne({"email": email}, function(err, user){
-					// If we've encountered a database error, bail
-					if(err){
-						return done(err);
-					}
-
-					// If we've found the user in the database and the given password matches, 
-					// pass the user on to the next middleware
-					if(user && user.isValidPassword(password)){
-						return done(null, user);
-					// Else, set the flash and move on
-					}else{
-						return done(null, false);
-					}
+				User.authenticate(email, password)
+				.then(function(user){
+					done(null, user);
+				}).catch(function(err){
+					done(err.message);
 				});
 			});
 		}

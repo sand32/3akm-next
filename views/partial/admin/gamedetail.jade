@@ -53,12 +53,12 @@
 			.row
 				.col-xs-6
 					.button-row-left
-						button.btn.btn-default(type = "submit", ng-disabled = "gameForm.$invalid")
+						button.btn.btn-default(type = "submit", ng-disabled = "gameForm.$invalid || game.busy")
 							span.button-icon.glyphicon.glyphicon-save
 							| Save
 						a.btn.btn-link(ui-sref = "^") Cancel
 				.col-xs-6
 					.button-row-right
-						a.btn.btn-default(ng-if = "game.current._id", ng-click = "game.delete()")
+						a.btn.btn-default(ng-if = "game.current._id", ng-click = "game.delete()", ng-disabled = "game.busy")
 							span.button-icon.glyphicon.glyphicon-trash
 							| Delete

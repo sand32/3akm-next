@@ -31,6 +31,7 @@ require("../common/enumselectdirective.js");
 (function(){
 	var LanDetailController = function($scope, $state, $modal, ngToast, LanService, GameService){
 		var lan = this;
+		lan.busy = false;
 		lan.current = {
 			active: false,
 			acceptingRsvps: false,
@@ -48,37 +49,32 @@ require("../common/enumselectdirective.js");
 		};
 
 		GameService.retrieveAll()
-		.then(
-			function(data){
-				for(var i = 0; i < data.length; i += 1){
-					lan.gamesEnum.push({
-						key: data[i].name,
-						value: data[i]._id
-					});
-				}
-			},
-			function(){
-				$state.go("^");
-				ngToast.danger("Failed to retrieve games.");
+		.then(function(data){
+			for(var i = 0; i < data.length; i += 1){
+				lan.gamesEnum.push({
+					key: data[i].name,
+					value: data[i]._id
+				});
 			}
-		);
+		}).catch(function(){
+			$state.go("^");
+			ngToast.danger("Failed to retrieve games.");
+		});
 
 		if($state.params.lanId && $state.params.lanId !== "new"){
 			LanService.retrieve($state.params.lanId)
-			.then(
-				function(data){
-					lan.current = data;
-					lan.current.beginDate = new Date(data.beginDate);
-					lan.current.endDate = new Date(data.endDate);
-				},
-				function(){
-					$state.go("^");
-					ngToast.danger("Failed to retrieve LAN.");
-				}
-			);
+			.then(function(data){
+				lan.current = data;
+				lan.current.beginDate = new Date(data.beginDate);
+				lan.current.endDate = new Date(data.endDate);
+			}).catch(function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve LAN.");
+			});
 		}
 
 		lan.save = function(){
+			lan.busy = true;
 			for(var i = 0; i < lan.current.games.length; i += 1){
 				if(lan.current.games[i].tournamentName === ""){
 					lan.current.games[i].tournament = false;
@@ -88,25 +84,25 @@ require("../common/enumselectdirective.js");
 			}
 			if($state.params.lanId === "new"){
 				LanService.create(lan.current)
-				.then(
-					function(data){
-						$scope.reloadList();
-						$state.go(".", {lanId: data._id});
-						ngToast.create("LAN created.");
-					}, function(){
-						ngToast.danger("Failed to create LAN.");
-					}
-				);
+				.then(function(data){
+					$scope.reloadList();
+					$state.go(".", {lanId: data._id});
+					ngToast.create("LAN created.");
+					lan.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to create LAN.");
+					lan.busy = false;
+				});
 			}else{
 				LanService.edit($state.params.lanId, lan.current)
-				.then(
-					function(){
-						$scope.reloadList();
-						ngToast.create("LAN updated.");
-					}, function(){
-						ngToast.danger("Failed to update LAN.");
-					}
-				);
+				.then(function(){
+					$scope.reloadList();
+					ngToast.create("LAN updated.");
+					lan.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to update LAN.");
+					lan.busy = false;
+				});
 			}
 		};
 
@@ -119,20 +115,19 @@ require("../common/enumselectdirective.js");
 				}
 			});
 
-			modalInstance.result.then(
-				function(){
-					LanService.delete($state.params.lanId)
-					.then(
-						function(){
-							$scope.reloadList();
-							$state.go("^");
-							ngToast.create("LAN deleted.");
-						}, function(){
-							ngToast.danger("Failed to delete LAN.");
-						}
-					);
-				}
-			);
+			modalInstance.result.then(function(){
+				lan.busy = true;
+				LanService.delete($state.params.lanId)
+				.then(function(){
+					$scope.reloadList();
+					$state.go("^");
+					ngToast.create("LAN deleted.");
+					lan.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to delete LAN.");
+					lan.busy = false;
+				});
+			});
 		};
 	};
 

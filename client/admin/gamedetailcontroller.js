@@ -30,6 +30,7 @@ require("../common/confirmcontroller.js");
 (function(){
 	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
 		var game = this;
+		game.busy = false;
 		game.current = {
 			supplementalFiles: [],
 			stores: []
@@ -50,39 +51,37 @@ require("../common/confirmcontroller.js");
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
-			.then(
-				function(data){
-					game.current = data;
-				},
-				function(){
-					$state.go("^");
-					ngToast.danger("Failed to retrieve game.");
-				}
-			);
+			.then(function(data){
+				game.current = data;
+			}).catch(function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve game.");
+			});
 		}
 
 		game.save = function(){
+			game.busy = true;
 			if($state.params.gameId === "new"){
 				GameService.create(game.current)
-				.then(
-					function(data){
-						$scope.reloadList();
-						$state.go(".", {gameId: data._id});
-						ngToast.create("Game created.");
-					}, function(){
-						ngToast.danger("Failed to create game.");
-					}
-				);
+				.then(function(data){
+					$scope.reloadList();
+					$state.go(".", {gameId: data._id});
+					ngToast.create("Game created.");
+					game.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to create game.");
+					game.busy = false;
+				});
 			}else{
 				GameService.edit($state.params.gameId, game.current)
-				.then(
-					function(){
-						$scope.reloadList();
-						ngToast.create("Game updated.");
-					}, function(){
-						ngToast.danger("Failed to update game.");
-					}
-				);
+				.then(function(){
+					$scope.reloadList();
+					ngToast.create("Game updated.");
+					game.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to update game.");
+					game.busy = false;
+				});
 			}
 		};
 
@@ -95,20 +94,16 @@ require("../common/confirmcontroller.js");
 				}
 			});
 
-			modalInstance.result.then(
-				function(){
-					GameService.delete($state.params.gameId)
-					.then(
-						function(){
-							$scope.reloadList();
-							$state.go("^");
-							ngToast.create("Game deleted.");
-						}, function(){
-							ngToast.danger("Failed to delete game.")
-						}
-					);
-				}
-			);
+			modalInstance.result.then(function(){
+				GameService.delete($state.params.gameId)
+				.then(function(){
+					$scope.reloadList();
+					$state.go("^");
+					ngToast.create("Game deleted.");
+				}).catch(function(){
+					ngToast.danger("Failed to delete game.")
+				});
+			});
 		};
 	};
 
