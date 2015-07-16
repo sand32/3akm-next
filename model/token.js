@@ -53,14 +53,16 @@ var mongoose = require("mongoose"),
 tokenModel = mongoose.model("Token", tokenSchema);
 
 tokenModel.createToken = function(data){
-	var token = new tokenModel({token: hash(data)});
+	var deferred = q.defer(),
+		token = new tokenModel({token: hash(data)});
 	token.save(function(err){
 		if(err){
-			return q.reject(err);
+			deferred.reject(err);
 		}else{
-			return q.resolve(token.token);
+			deferred.resolve(token.token);
 		}
 	});
+	return deferred.promise;
 };
 
 tokenSchema.methods.validate = function(data){
