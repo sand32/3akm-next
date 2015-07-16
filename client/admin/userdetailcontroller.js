@@ -86,7 +86,7 @@ require("../common/validationdirectives.js");
 
 		user.resendVerificationEmail = function(){
 			user.busy = true;
-			UserService.resendVerificationEmail()
+			UserService.resendVerificationEmail($state.params.userId)
 			.then(function(){
 				ngToast.create("Verification email sent.");
 				user.busy = false;
