@@ -24,7 +24,6 @@
 		"serviceAccountPassword": "changeme"
 	},
 	"smtp": {
-		"enabled": false,
 		"address": "changeme",
 		"port": 587,
 		"user": "changeme",

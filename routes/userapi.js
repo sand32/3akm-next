@@ -25,6 +25,7 @@ misrepresented as being the original software.
 var passport = require("passport"),
 	mongoose = require("mongoose"),
 	User = require("../model/user.js"),
+	Token = require("../model/token.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	register = require("../utils/common.js").register,
@@ -98,11 +99,69 @@ module.exports = function(app, prefix){
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				smtp.sendEmailVerification(doc, req.protocol + '://' + req.get('host')).then(function(){
+				smtp.sendEmailVerification(doc, req.protocol + '://' + req.get('host'))
+				.then(function(){
 					res.status(200).end();
 				}).catch(function(err){
 					res.status(400).end();
 				});
+			}
+		});
+	});
+
+	app.post(prefix + "/:user/verify/:token", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		var deferredUser = q.defer(), deferredToken = q.defer();
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredUser.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				deferredUser.resolve(doc);
+			}
+		});
+		Token.findOne({token: req.body.token}, function(err, doc){
+			if(err){
+				deferredToken.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredToken.reject({reason: "not-found", message: "Token not found"});
+			}else{
+				deferredToken.resolve(doc);
+			}
+		});
+		q.all([deferredUser, deferredToken])
+		.spread(function(userPromise, tokenPromise){
+			if(tokenPromise.value.validate(userPromise.value.email)){
+				userPromise.value.verified = true;
+				userPromise.value.modified = Date.now();
+				userPromise.value.save(function(err){
+					if(err){
+						console.error("Error: Successfully verified token for user \"" + userPromise.value.email + "\", but failed to update flag");
+						res.status(500).end();
+					}else{
+						userPromise.value.syncWithDirectory()
+						.then(function(){
+							res.status(200).end();
+						}).catch(function(err){
+							console.error("Error: Successfully verified token for user \"" + userPromise.value.email + "\", but failed to sync with directory");
+							res.status(500).end();
+						});
+					}
+				});
+			}else{
+				res.status(400).end();
+			}
+		}).catch(function(err){
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(400).end();
 			}
 		});
 	});

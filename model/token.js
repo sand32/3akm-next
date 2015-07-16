@@ -27,16 +27,18 @@ var mongoose = require("mongoose"),
 	crypto = require("crypto"),
 
 	hash = function(value, salt){
-		var hash = crypto.createHash("sha512");
+		var hash = crypto.createHash("sha256");
 		salt = salt || crypto.randomBytes(256);
 		hash.update(value);
 		hash.update(salt);
 		return Buffer.concat([hash.digest(), salt]).toString("base64");
 	},
 
-	compareHash = function(hash, value){
-		var buffer = new Buffer(hash, "base64"), salt;
+	compareHash = function(token, value){
+		var buffer = new Buffer(hash, "base64"), salt,
+			hash = crypto.createHash("sha256");
 		salt = buffer.slice(buffer.length - 256, buffer.length);
+		return token === hash(value, salt);
 	},
 
 	tokenSchema = mongoose.Schema({
@@ -50,15 +52,19 @@ var mongoose = require("mongoose"),
 
 tokenModel = mongoose.model("Token", tokenSchema);
 
-tokenModel.newToken = function(data){
+tokenModel.createToken = function(data){
 	var token = new tokenModel({token: hash(data)});
 	token.save(function(err){
 		if(err){
-			q.reject(err);
+			return q.reject(err);
 		}else{
-			q.resolve();
+			return q.resolve(token.token);
 		}
 	});
+};
+
+tokenSchema.methods.validate = function(data){
+	return compareHash(this.token, data);
 };
 
 module.exports = tokenModel;

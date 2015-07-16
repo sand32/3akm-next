@@ -56,14 +56,20 @@ module.exports = {
 	},
 
 	sendEmailVerification: function(user, siteUrl){
-		message.to = {
-			name: user.firstName + " " + user.lastName,
-			address: user.email
-		};
-		message.subject = "Email Verification";
-		message.html = jade.renderFile("mail/emailverification.jade", {
-			siteUrl: siteUrl,
-			verificationLink: siteUrl + "/api/user/verify/"
+		var deferred = q.defer();
+		Token.createToken(user.email)
+		.then(function(token){
+			message.to = {
+				name: user.firstName + " " + user.lastName,
+				address: user.email
+			};
+			message.subject = "Email Verification";
+			message.html = jade.renderFile("mail/emailverification.jade", {
+				siteUrl: siteUrl,
+				verificationLink: siteUrl + "/api/user/verify/" + token
+			});
+			deferred.resolve();
 		});
+		return deferred.promise;
 	}
 };
