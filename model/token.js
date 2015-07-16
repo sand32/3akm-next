@@ -26,19 +26,19 @@ var mongoose = require("mongoose"),
 	q = require("q"),
 	crypto = require("crypto"),
 
-	hash = function(value, salt){
+	genHash = function(value, salt){
 		var hash = crypto.createHash("sha256");
 		salt = salt || crypto.randomBytes(256);
 		hash.update(value);
 		hash.update(salt);
-		return Buffer.concat([hash.digest(), salt]).toString("base64");
+		return Buffer.concat([hash.digest(), salt]).toString();
 	},
 
 	compareHash = function(token, value){
-		var buffer = new Buffer(hash, "base64"), salt,
+		var buffer = new Buffer(token), salt,
 			hash = crypto.createHash("sha256");
 		salt = buffer.slice(buffer.length - 256, buffer.length);
-		return token === hash(value, salt);
+		return token === genHash(value, salt);
 	},
 
 	tokenSchema = mongoose.Schema({
@@ -54,7 +54,7 @@ tokenModel = mongoose.model("Token", tokenSchema);
 
 tokenModel.createToken = function(data){
 	var deferred = q.defer(),
-		token = new tokenModel({token: hash(data)});
+		token = new tokenModel({token: genHash(data)});
 	token.save(function(err){
 		if(err){
 			deferred.reject(err);

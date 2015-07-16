@@ -35,10 +35,9 @@ var q = require("q"),
 			user: config.smtp.user,
 			pass: config.smtp.password
 		}
-	}));
+	})),
 
-module.exports = {
-	sendMail: function(message){
+	sendMail = function(message){
 		var deferred = q.defer();
 		message.from = {
 			name: "3AKM LAN",
@@ -53,7 +52,9 @@ module.exports = {
 			}
 		});
 		return deferred.promise;
-	},
+	};
+
+module.exports = {
 
 	sendEmailVerification: function(user, siteUrl){
 		var deferred = q.defer();
@@ -68,7 +69,11 @@ module.exports = {
 				siteUrl: siteUrl,
 				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
 			});
-			deferred.resolve();
+			sendMail(message).then(function(){
+				deferred.resolve();
+			}).catch(function(err){
+				deferred.reject(err);
+			});
 		});
 		return deferred.promise;
 	}
