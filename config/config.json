@@ -23,6 +23,14 @@
 		"serviceAccountDn": "changeme",
 		"serviceAccountPassword": "changeme"
 	},
+	"smtp": {
+		"enabled": false,
+		"address": "changeme",
+		"port": "changeme",
+		"user": "changeme",
+		"password": "changeme",
+		"fromAddress": "changeme"
+	},
 	"ts3": {
 		"address": "localhost",
 		"password": "changeme"
