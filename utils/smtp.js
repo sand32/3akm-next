@@ -66,7 +66,7 @@ module.exports = {
 			message.subject = "Email Verification";
 			message.html = jade.renderFile("mail/emailverification.jade", {
 				siteUrl: siteUrl,
-				verificationLink: siteUrl + "/api/user/verify/" + token
+				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
 			});
 			deferred.resolve();
 		});

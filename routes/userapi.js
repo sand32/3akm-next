@@ -50,22 +50,6 @@ module.exports = function(app, prefix){
 		}
 	});
 
-	app.get(prefix + "/verify/:user", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		User.findById(req.params.user, function(err, doc){
-			if(doc){
-				doc.verified = true;
-				doc.save();
-				res.status(200).end();
-			}else{
-				res.status(404).end();
-			}
-		});
-	});
-
 	app.post(prefix + "/login", 
 		login, 
 	function(req, res){
