@@ -60,7 +60,7 @@ require("../common/enumselectdirective.js");
 		});
 
 		profile.resendVerificationEmail = function(){
-			UserService.resendVerificationEmail()
+			UserService.resendVerificationEmail("session")
 			.then(function(){
 				ngToast.create("Verification email sent.");
 			}).catch(function(){

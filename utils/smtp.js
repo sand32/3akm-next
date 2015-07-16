@@ -25,11 +25,12 @@ misrepresented as being the original software.
 var q = require("q"),
 	nodemailer = require("nodemailer"),
 	smtpPool = require("nodemailer-smtp-pool"),
+	jade = require("jade"),
+	Token = require("../model/token.js"),
 	config = require("./common.js").config,
 	transport = nodemailer.createTransport(smtpPool({
 		host: config.smtp.address,
 		port: config.smtp.port,
-		secure: true,
 		auth: {
 			user: config.smtp.user,
 			pass: config.smtp.password
@@ -46,17 +47,23 @@ module.exports = {
 		transport.sendMail(message, function(err, info){
 			if(err){
 				deferred.reject(err);
+				console.error("Error via SMTP: " + err);
 			}else{
 				deferred.resolve();
 			}
 		});
+		return deferred.promise;
 	},
 
-	sendEmailVerification: function(user){
+	sendEmailVerification: function(user, siteUrl){
 		message.to = {
 			name: user.firstName + " " + user.lastName,
 			address: user.email
 		};
-		message.html = "";
+		message.subject = "Email Verification";
+		message.html = jade.renderFile("mail/emailverification.jade", {
+			siteUrl: siteUrl,
+			verificationLink: siteUrl + "/api/user/verify/"
+		});
 	}
 };

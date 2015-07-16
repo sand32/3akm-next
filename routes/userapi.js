@@ -32,7 +32,8 @@ var passport = require("passport"),
 	authenticate = require("../utils/common.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	smtp = require("../utils/smtp.js");
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
@@ -90,8 +91,20 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Resend verification email
-		res.status(200).end();
+
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				smtp.sendEmailVerification(doc, req.protocol + '://' + req.get('host')).then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					res.status(400).end();
+				});
+			}
+		});
 	});
 
 	app.get(prefix + "/:user/verified", 
