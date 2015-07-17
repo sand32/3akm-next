@@ -25,7 +25,6 @@ misrepresented as being the original software.
 var q = require("q"),
 	nodemailer = require("nodemailer"),
 	smtpPool = require("nodemailer-smtp-pool"),
-	jade = require("jade"),
 	Token = require("../model/token.js"),
 	config = require("./common.js").config,
 	transport = nodemailer.createTransport(smtpPool({
@@ -45,8 +44,7 @@ var q = require("q"),
 		};
 		transport.sendMail(message, function(err, info){
 			if(err){
-				deferred.reject(err);
-				console.error("Error via SMTP: " + err);
+				deferred.reject({reason: "smtp-error", message: err});
 			}else{
 				deferred.resolve();
 			}
@@ -55,20 +53,25 @@ var q = require("q"),
 	};
 
 module.exports = {
+	sendMail: function(message){
+		return sendMail(message);
+	},
 
-	sendEmailVerification: function(user, siteUrl){
+	sendEmailVerification: function(app, user, siteUrl){
 		var deferred = q.defer();
 		Token.createToken(user.email)
 		.then(function(token){
-			message.to = {
-				name: user.firstName + " " + user.lastName,
-				address: user.email
+			message = {
+				to: {
+					name: user.firstName + " " + user.lastName,
+					address: user.email
+				},
+				subject: "Email Verification",
+				html: app.render("mail/emailverification.jade", {
+					siteUrl: siteUrl,
+					verificationLink: siteUrl + "/verify/" + user._id + "/" + token
+				})
 			};
-			message.subject = "Email Verification";
-			message.html = jade.renderFile("mail/emailverification.jade", {
-				siteUrl: siteUrl,
-				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
-			});
 			sendMail(message).then(function(){
 				deferred.resolve();
 			}).catch(function(err){

@@ -28,16 +28,16 @@ var mongoose = require("mongoose"),
 
 	genHash = function(value, salt){
 		var hash = crypto.createHash("sha256");
-		salt = salt || crypto.randomBytes(256);
+		salt = salt || crypto.randomBytes(16);
 		hash.update(value);
 		hash.update(salt);
-		return Buffer.concat([hash.digest(), salt]).toString();
+		return Buffer.concat([hash.digest(), salt]).toString("hex");
 	},
 
 	compareHash = function(token, value){
-		var buffer = new Buffer(token), salt,
+		var buffer = new Buffer(token, "hex"), salt,
 			hash = crypto.createHash("sha256");
-		salt = buffer.slice(buffer.length - 256, buffer.length);
+		salt = buffer.slice(buffer.length - 16, buffer.length);
 		return token === genHash(value, salt);
 	},
 
