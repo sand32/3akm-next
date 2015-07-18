@@ -39,6 +39,11 @@ require("../common/rsvpservice.js");
 			app.rsvps = rsvps;
 			app.yesCount = 0;
 			app.maybeCount = 0;
+
+			app.rsvps = app.rsvps.filter(function(value){
+				return value.status !== "No";
+			});
+
 			for(var i = 0; i < rsvps.length; i += 1){
 				if(rsvps[i].status === "Yes"){
 					app.yesCount += 1 + rsvps[i].guests;
