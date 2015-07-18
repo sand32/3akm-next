@@ -37,7 +37,7 @@
 					a.col-xs-6(class = "btn btn-danger" ng-click = "user.resendVerificationEmail()", ng-disabled = "user.busy") Resend Verification
 				.field-align.col-xs-6(ng-if = "user.current.verified")
 					span.text-success.form-control-static.col-xs-6 Been verified!
-			.row(ng-if = "!user.current._id")
+			.row(ng-if = "user.loaded && !user.current._id")
 				.form-group.col-xs-6
 					label Password 
 						span.text-danger (Required)
