@@ -39,7 +39,7 @@ var q = require("q"),
 	sendMail = function(message){
 		var deferred = q.defer();
 		message.from = {
-			name: "3AKM LAN",
+			name: "3AKM",
 			address: config.smtp.fromAddress
 		};
 		transport.sendMail(message, function(err, info){
