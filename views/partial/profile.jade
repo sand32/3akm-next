@@ -36,7 +36,7 @@ form(name = "profileForm", novalidate, ng-controller = "ProfileController as pro
 						div(ng-message = "email") Invalid email
 				.field-align.col-xs-6(ng-if = "!profile.verified")
 					span.text-danger.form-control-static.col-xs-6 Email not verified!
-					a.col-xs-6(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()") Resend Verification
+					a.col-xs-6(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()", ng-disabled = "profile.busy") Resend Verification
 				.field-align.col-xs-6(ng-if = "profile.verified")
 					span.text-success.form-control-static.col-xs-6 Been verified!
 			.row

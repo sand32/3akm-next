@@ -36,6 +36,9 @@ require("../common/confirmcontroller.js");
 			stores: []
 		};
 		game.storesEnum = [];
+		game.help = {
+			stores: "AppIDs must be in the following formats per store, where the value you enter will replace [appid]:<br/><br/>"
+		}
 
 		StoreService.retrieveAll()
 		.then(
@@ -45,6 +48,7 @@ require("../common/confirmcontroller.js");
 						key: data[i].name,
 						value: data[i]._id
 					});
+					game.help.stores += "<strong>" + data[i].name + "</strong>: " + data[i].appUrl + "<br/>";
 				}
 			}
 		);

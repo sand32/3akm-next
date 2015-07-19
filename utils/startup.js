@@ -75,6 +75,21 @@ module.exports = {
 				});
 			}
 		});
+		Store.findOne({name: "Battle.net"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Battle.net",
+					icon: "/images/bnet28.png",
+					baseUrl: "http://www.battle.net/",
+					appUrl: "https://us.battle.net/shop/en/product/[appid]"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
 	},
 
 	bundleClientJS: function(){

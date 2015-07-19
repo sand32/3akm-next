@@ -210,7 +210,6 @@ userSchema.methods.syncWithDirectory = function(){
 			user.lastName = userTemplate.lastName;
 			user.verified = userTemplate.verified;
 			user.created = userTemplate.created;
-			user.accessed = userTemplate.accessed;
 			user.roles = userTemplate.roles;
 			user.lastSync = Date.now();
 			user.save(function(err){
@@ -333,6 +332,7 @@ userModel.authenticate = function(email, password){
 
 				// If we found the user, our job is done
 				if(user){
+					user.accessed = Date.now();
 					user.syncWithDirectory()
 					.then(function(){
 						deferred.resolve(user);
@@ -352,6 +352,7 @@ userModel.authenticate = function(email, password){
 							deferred.reject(err);
 							return;
 						}
+						newUser.accessed = Date.now();
 						newUser.syncWithDirectory()
 						.then(function(){
 							deferred.resolve(newUser);

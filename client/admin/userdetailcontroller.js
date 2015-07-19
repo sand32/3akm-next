@@ -30,6 +30,7 @@ require("../common/validationdirectives.js");
 (function(){
 	var UserDetailController = function($scope, $state, ngToast, UserService){
 		var user = this;
+		user.loaded = false;
 		user.busy = false;
 		user.current = {
 			lanInviteDesired: true,
@@ -52,10 +53,13 @@ require("../common/validationdirectives.js");
 			UserService.retrieve($state.params.userId)
 			.then(function(data){
 				user.current = data;
+				user.loaded = true;
 			}).catch(function(){
 				$state.go("^");
 				ngToast.danger("Failed to retrieve user.");
 			});
+		}else{
+			user.loaded = true;
 		}
 
 		user.save = function(){
