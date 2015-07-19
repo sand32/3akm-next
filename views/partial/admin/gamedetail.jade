@@ -48,7 +48,8 @@
 					key-value-array-entry(array-model = "game.current.supplementalFiles", key-label = "Name", value-label = "URL", key-name = "name", value-name = "url", addition-tooltip = "Add another file", removal-tooltip = "Remove this file", removal-tooltip-placement = "bottom")
 			.row
 				.form-group.col-xs-12
-					label Stores
+					label Stores 
+						.glyphicon.glyphicon-question-sign(tooltip-html-unsafe = "{{game.help.stores}}", tooltip-placement = "bottom", tooltip-class = "tooltip-wide tooltip-left")
 					enum-value-array-entry(array-model = "game.current.stores", enumeration = "game.storesEnum", key-label = "Store", value-label = "AppID", key-name = "store", value-name = "appid", addition-tooltip = "Add another store", removal-tooltip = "Remove this store", removal-tooltip-placement = "bottom")
 			.row
 				.col-xs-6

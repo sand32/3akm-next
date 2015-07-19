@@ -280,3 +280,14 @@ td {
 .button-row-right .btn {
 	margin-left: .5em;
 }
+
+.tooltip-left,
+.tooltip-left .tooltip-inner {
+	text-align: left;
+}
+
+.tooltip-wide,
+.tooltip-wide .tooltip-inner {
+	width: 400px;
+	max-width: 400px;
+}
