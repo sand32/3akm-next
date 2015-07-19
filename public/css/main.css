@@ -128,13 +128,17 @@ a.btn-link:hover {
 	border-bottom: 1px #222 solid;
 	cursor: pointer;
 	text-align: right;
-	height: 5em;
+	height: 6.5em;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+.section-entry .section-header h2 {
+	margin-top: 0;
 }
 
 .section-entry .section-body {
