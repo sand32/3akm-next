@@ -60,11 +60,14 @@ require("../common/enumselectdirective.js");
 		});
 
 		profile.resendVerificationEmail = function(){
+			profile.busy = true;
 			UserService.resendVerificationEmail("session")
 			.then(function(){
 				ngToast.create("Verification email sent.");
+				profile.busy = false;
 			}).catch(function(){
 				ngToast.danger("Failed to send verification email.");
+				profile.busy = false;
 			});
 		};
 
