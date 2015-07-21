@@ -153,13 +153,10 @@ module.exports = function(app, prefix){
 			}
 			if(err.reason === "db-error"){
 				res.status(500).end();
-				console.error("Error: " + err.message);
 			}else if(err.reason === "not-found"){
 				res.status(404).end();
-				console.error("Error: " + err.message);
 			}else{
 				res.status(400).end();
-				console.error("Error: " + err.message);
 			}
 		});
 	});
