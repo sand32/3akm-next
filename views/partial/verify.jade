@@ -26,15 +26,18 @@ hr
 div(ng-controller = "VerifyController as verify")
 	p(ng-if = "!verify.loaded")
 		| Verifying...
-	p(ng-if = "verify.loaded")
-		.text-success(ng-if = "verify.verified") Been verified! Feel free to log in 
-			| and enjoy the full functionality of the site.
-		.text-danger(ng-if = "!verify.verified") Verification failed!  Verification 
-			| tokens only last for one hour after the email is sent. Perhaps you waited 
-			| too long?
-			br
-			br
-			| If that's not the case, and you still can't verify your email with the site, 
-			| please contact Seth.
-	p(ng-if = "verify.loaded && !verify.verified")
-		a.col-xs-6(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()") Resend Verification
+	.col-xs-12(ng-if = "verify.loaded")
+		.row
+			.text-success(ng-if = "verify.verified") Been verified! Feel free to log in 
+				| and enjoy the full functionality of the site.
+			.text-danger(ng-if = "!verify.verified") Verification failed!  Verification 
+				| tokens only last for one hour after the email is sent. Perhaps you waited 
+				| too long?
+				br
+				br
+				| If that's not the case, and you still can't verify your email with the site, 
+				| please contact Seth.
+				br
+				br
+		.row(ng-if = "!verify.verified")
+			a(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()") Resend Verification
