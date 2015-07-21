@@ -35,7 +35,8 @@ var passport = require("passport"),
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
-	smtp = require("../utils/smtp.js");
+	smtp = require("../utils/smtp.js"),
+	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
@@ -84,7 +85,7 @@ module.exports = function(app, prefix){
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				smtp.sendEmailVerification(app, doc, req.protocol + '://' + req.get('host'))
+				smtp.sendEmailVerification(app, doc, req.protocol + '://' + config.domain)
 				.then(function(){
 					res.status(200).end();
 				}).catch(function(err){

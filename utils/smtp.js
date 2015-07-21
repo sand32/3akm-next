@@ -66,16 +66,22 @@ module.exports = {
 					name: user.firstName + " " + user.lastName,
 					address: user.email
 				},
-				subject: "Email Verification",
-				html: app.render("mail/emailverification.jade", {
-					siteUrl: siteUrl,
-					verificationLink: siteUrl + "/verify/" + user._id + "/" + token
-				})
+				subject: "Email Verification"
 			};
-			sendMail(message).then(function(){
-				deferred.resolve();
-			}).catch(function(err){
-				deferred.reject(err);
+			app.render("mail/emailverification.jade", {
+				siteUrl: siteUrl,
+				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
+			}, function(err, html){
+				if(err){
+					deferred.reject({reason: "html-rendering-error", message: err});
+				}else{
+					message.html = html;
+					sendMail(message).then(function(){
+						deferred.resolve();
+					}).catch(function(err){
+						deferred.reject(err);
+					});
+				}
 			});
 		});
 		return deferred.promise;
