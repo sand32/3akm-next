@@ -259,42 +259,65 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		// Update the user 
+		var deferredExistingUser = q.defer(), deferredEditUser = q.defer();
+		User.findOne({email: req.body.email}, function(err, doc){
+			if(err){
+				deferredExistingUser.reject({reason: "db-error", message: err});
+			}else if(doc){
+				deferredExistingUser.reject({reason: "address-in-use", message: "User already using that email address"});
+			}else{
+				deferredExistingUser.resolve(doc);
+			}
+		});
 		User.findById(req.params.user, function(err, doc){
 			if(err){
-				res.status(400).end();
+				deferredEditUser.reject({reason: "db-error", message: err});
 			}else if(!doc){
+				deferredEditUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				deferredEditUser.resolve(doc);
+			}
+		});
+		q.all([deferredExistingUser.promise, deferredEditUser.promise])
+		.spread(function(existingUser, editUser){
+			if(req.body.email !== editUser.email){
+				editUser.verified = false;
+			}
+			editUser.email = req.body.email;
+			editUser.firstName = req.body.firstName;
+			editUser.lastName = req.body.lastName;
+			editUser.lanInviteDesired = req.body.lanInviteDesired;
+			editUser.primaryHandle = req.body.primaryHandle;
+			editUser.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
+			editUser.modified = Date.now();
+			if(req.user.hasRole("admin")){
+				editUser.verified = req.body.verified;
+				editUser.vip = req.body.vip;
+				editUser.blacklisted = req.body.blacklisted;
+				editUser.roles = removeDuplicates(req.body.roles);
+				editUser.services = req.body.services;
+			}
+			editUser.save(function(err){
+				if(err){
+					res.status(500).end();
+				}else{
+					editUser.syncWithDirectory()
+					.then(function(){
+						res.status(200).end();
+					}).catch(function(){
+						res.status(500).end();
+					});
+				}
+			});
+		}).catch(function(err){
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "address-in-use"){
+				res.status(409).end();
+			}else if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				if(req.body.email !== doc.email){
-					doc.verified = false;
-				}
-				doc.email = req.body.email;
-				doc.firstName = req.body.firstName;
-				doc.lastName = req.body.lastName;
-				doc.lanInviteDesired = req.body.lanInviteDesired;
-				doc.primaryHandle = req.body.primaryHandle;
-				doc.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
-				doc.modified = Date.now();
-				if(req.user.hasRole("admin")){
-					doc.verified = req.body.verified;
-					doc.vip = req.body.vip;
-					doc.blacklisted = req.body.blacklisted;
-					doc.roles = removeDuplicates(req.body.roles);
-					doc.services = req.body.services;
-				}
-				doc.save(function(err){
-					if(err){
-						res.status(500).end();
-					}else{
-						doc.syncWithDirectory()
-						.then(function(){
-							res.status(200).end();
-						}).catch(function(){
-							res.status(500).end();
-						});
-					}
-				});
+				res.status(400).end();
 			}
 		});
 	});
