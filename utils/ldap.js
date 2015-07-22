@@ -419,11 +419,16 @@ module.exports = {
 
 		bindServiceAccount(client)
 		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
 				currentEntry = result.entries.collection[0];
+			}
+			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+		}).then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
 				if(result.entries.collection[0].cn !== cn){
 					deferred.reject({
 						reason: "email-in-use",
