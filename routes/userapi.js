@@ -263,8 +263,6 @@ module.exports = function(app, prefix){
 		User.findOne({email: req.body.email}, function(err, doc){
 			if(err){
 				deferredExistingUser.reject({reason: "db-error", message: err});
-			}else if(doc){
-				deferredExistingUser.reject({reason: "address-in-use", message: "User already using that email address"});
 			}else{
 				deferredExistingUser.resolve(doc);
 			}
@@ -280,6 +278,9 @@ module.exports = function(app, prefix){
 		});
 		q.all([deferredExistingUser.promise, deferredEditUser.promise])
 		.spread(function(existingUser, editUser){
+			if(existingUser && existingUser._id.toString() !== editUser._id.toString()){
+				return q.reject({reason: "address-in-use", message: "User already using that email address"});
+			}
 			if(req.body.email !== editUser.email){
 				editUser.verified = false;
 			}
@@ -290,14 +291,8 @@ module.exports = function(app, prefix){
 			editUser.primaryHandle = req.body.primaryHandle;
 			editUser.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
 			editUser.modified = Date.now();
-			if(req.user.hasRole("admin")){
-				editUser.verified = req.body.verified;
-				editUser.vip = req.body.vip;
-				editUser.blacklisted = req.body.blacklisted;
-				editUser.roles = removeDuplicates(req.body.roles);
-				editUser.services = req.body.services;
-			}
-			editUser.save(function(err){
+
+			var onSave = function(err){
 				if(err){
 					res.status(500).end();
 				}else{
@@ -308,6 +303,18 @@ module.exports = function(app, prefix){
 						res.status(500).end();
 					});
 				}
+			};
+
+			req.user.hasRole("admin")
+			.then(function(){
+				editUser.verified = req.body.verified;
+				editUser.vip = req.body.vip;
+				editUser.blacklisted = req.body.blacklisted;
+				editUser.roles = removeDuplicates(req.body.roles);
+				editUser.services = req.body.services;
+				editUser.save(onSave);
+			}).catch(function(){
+				editUser.save(onSave);
 			});
 		}).catch(function(err){
 			if(err.reason === "db-error"){
