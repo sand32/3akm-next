@@ -258,38 +258,42 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Ignore the following fields unless sent by an admin
-		if(!req.user.hasRole("admin")){
-			delete req.body.verified;
-			delete req.body.vip;
-			delete req.body.blacklisted;
-			delete req.body.roles;
-			delete req.body.services;
-		}else if(req.body.roles){
-			req.body.roles = removeDuplicates(req.body.roles);
-		}
-		delete req.body.created;
-		delete req.body.accessed;
-
-		// Record this modification
-		req.body.modified = Date.now();
-
-		// User passwords cannot be changed using this route, 
-		// /:user/password must be used instead
-		delete req.body.passwordHash;
 
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, req.body, {new: true}, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				doc.syncWithDirectory()
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(){
-					res.status(500).end();
+				if(req.body.email !== doc.email){
+					doc.verified = false;
+				}
+				doc.email = req.body.email;
+				doc.firstName = req.body.firstName;
+				doc.lastName = req.body.lastName;
+				doc.lanInviteDesired = req.body.lanInviteDesired;
+				doc.primaryHandle = req.body.primaryHandle;
+				doc.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
+				doc.modified = Date.now();
+				if(req.user.hasRole("admin")){
+					doc.verified = req.body.verified;
+					doc.vip = req.body.vip;
+					doc.blacklisted = req.body.blacklisted;
+					doc.roles = removeDuplicates(req.body.roles);
+					doc.services = req.body.services;
+				}
+				doc.save(function(err){
+					if(err){
+						res.status(500).end();
+					}else{
+						doc.syncWithDirectory()
+						.then(function(){
+							res.status(200).end();
+						}).catch(function(){
+							res.status(500).end();
+						});
+					}
 				});
 			}
 		});
