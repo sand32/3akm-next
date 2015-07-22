@@ -261,7 +261,7 @@ var q = require("q"),
 	translateToUserTemplate = function(entry){
 		var template = {
 			email: entry.mail,
-			verified: entry.extensionAttribute1,
+			verified: entry.extensionAttribute1 === "true",
 			firstName: entry.givenName,
 			lastName: entry.sn,
 			created: ldapDateToJsDate(entry.whenCreated),
