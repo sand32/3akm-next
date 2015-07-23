@@ -18,7 +18,6 @@
 		"cors": "latest",
 		"body-parser": "latest",
 		"cookie-parser": "latest",
-		"multer": "latest",
 		"passport": "latest",
 		"passport-http": "latest",
 		"passport-local": "latest",
