@@ -261,7 +261,7 @@ var q = require("q"),
 	translateToUserTemplate = function(entry){
 		var template = {
 			email: entry.mail,
-			verified: entry.extensionAttribute1,
+			verified: entry.extensionAttribute1 === "true",
 			firstName: entry.givenName,
 			lastName: entry.sn,
 			created: ldapDateToJsDate(entry.whenCreated),
@@ -419,11 +419,16 @@ module.exports = {
 
 		bindServiceAccount(client)
 		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
 				currentEntry = result.entries.collection[0];
+			}
+			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
+		}).then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
 				if(result.entries.collection[0].cn !== cn){
 					deferred.reject({
 						reason: "email-in-use",
@@ -440,6 +445,14 @@ module.exports = {
 			return modify(client, userDn, [{
 				operation: "replace",
 				modification: entry
+			}]);
+		}).then(function(){
+			return modify(client, userDn, [{
+				operation: "delete",
+				modification: {extensionAttribute1: currentEntry.extensionAttribute1}
+			}, {
+				operation: "add",
+				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
 			}]);
 		}).then(function(){
 			var promises = [],

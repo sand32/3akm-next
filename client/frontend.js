@@ -29,6 +29,7 @@ require("./rsvp/appearancescontroller.js");
 require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
 require("./user/profilecontroller.js");
+require("./user/verifycontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
 require("./common/validationdirectives.js");
@@ -70,6 +71,10 @@ require("./common/validationdirectives.js");
 			.state("profile", {
 				url: "/profile",
 				templateUrl: "/partial/profile"
+			})
+			.state("verify", {
+				url: "/verify/:userId/:token",
+				templateUrl: "/partial/verify"
 			})
 			.state("404", {
 				url: "/404",

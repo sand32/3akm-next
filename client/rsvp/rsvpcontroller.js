@@ -24,15 +24,17 @@ misrepresented as being the original software.
 
 require("../common/lanservice.js");
 require("../common/rsvpservice.js");
+require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, ngToast, LanService, RsvpService){
+	var RsvpController = function($scope, $state, $q, ngToast, UserService, LanService, RsvpService){
 		var ctrl = this;
 		ctrl.year = 0;
 		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
 		ctrl.isLoggedIn = false;
+		ctrl.isVerified = false;
 		ctrl.busy = false;
 		ctrl.loaded = false;
 		ctrl.statusPossibles = [
@@ -57,7 +59,7 @@ require("../common/enumselectdirective.js");
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();
 			ctrl.entryFee = lan.entryFee;
-			var promise = RsvpService.retrieveByYear("session", ctrl.year);
+			var promise = $q.all([UserService.retrieve("session"), RsvpService.retrieveByYear("session", ctrl.year)]);
 
 			// Load any tournament games for this LAN into our controller
 			for(var i = 0; i < lan.games.length; i += 1){
@@ -72,7 +74,10 @@ require("../common/enumselectdirective.js");
 			return promise;
 		}, function(){
 			ctrl.loaded = true;
-		}).then(function(rsvp){
+		}).then(function(results){
+			var user = results[0], rsvp = results[1];
+			ctrl.isVerified = user.verified;
+
 			ctrl.current = rsvp;
 			ctrl.isLoggedIn = true;
 
@@ -86,9 +91,8 @@ require("../common/enumselectdirective.js");
 			}
 
 			ctrl.loaded = true;
-		}, function(status){
+		}).catch(function(status){
 			if(status === 403){
-				ctrl.isLoggedIn = false;
 				$scope.$emit("AuthChanged", false);
 			}else{
 				ctrl.isLoggedIn = true;
@@ -120,11 +124,12 @@ require("../common/enumselectdirective.js");
 
 	angular
 		.module("3akm.rsvpSubmission", [
+				"3akm.user",
 				"3akm.lan",
 				"3akm.rsvp",
 				"3akm.common.enumselect"
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "ngToast", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "UserService", "LanService", "RsvpService"];
 })();

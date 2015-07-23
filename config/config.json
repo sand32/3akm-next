@@ -1,6 +1,7 @@
 {
 	"port": 8080,
 	"debugMode": true,
+	"domain": "localhost:8080",
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",
 	"recaptchaSiteKey": "changeme",
@@ -22,6 +23,13 @@
 		"userPrincipalNameSuffix": "changeme",
 		"serviceAccountDn": "changeme",
 		"serviceAccountPassword": "changeme"
+	},
+	"smtp": {
+		"address": "changeme",
+		"port": 587,
+		"user": "changeme",
+		"password": "changeme",
+		"fromAddress": "changeme"
 	},
 	"ts3": {
 		"address": "localhost",

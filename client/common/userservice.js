@@ -80,6 +80,17 @@ misrepresented as being the original software.
 				return deferred.promise;
 			},
 
+			verify: function(id, token){
+				var deferred = $q.defer();
+				$http.post("/api/user/" + id + "/verify/" + token)
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
+			},
+
 			retrieveAll: function(){
 				var deferred = $q.defer();
 				$http.get("/api/user")

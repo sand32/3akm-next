@@ -28,6 +28,8 @@
 		"request": "latest",
 		"node-teamspeak": "latest",
 		"q": "latest",
-		"ldapjs": "latest"
+		"ldapjs": "latest",
+		"nodemailer": "latest",
+		"nodemailer-smtp-pool": "latest"
 	}
 }

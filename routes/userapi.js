@@ -24,7 +24,9 @@ misrepresented as being the original software.
 
 var passport = require("passport"),
 	mongoose = require("mongoose"),
+	q = require("q"),
 	User = require("../model/user.js"),
+	Token = require("../model/token.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	register = require("../utils/common.js").register,
@@ -32,7 +34,9 @@ var passport = require("passport"),
 	authenticate = require("../utils/common.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	smtp = require("../utils/smtp.js"),
+	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
@@ -46,22 +50,6 @@ module.exports = function(app, prefix){
 		}else{
 			res.status(403).end();
 		}
-	});
-
-	app.get(prefix + "/verify/:user", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		User.findById(req.params.user, function(err, doc){
-			if(doc){
-				doc.verified = true;
-				doc.save();
-				res.status(200).end();
-			}else{
-				res.status(404).end();
-			}
-		});
 	});
 
 	app.post(prefix + "/login", 
@@ -90,8 +78,88 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Resend verification email
-		res.status(200).end();
+
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				smtp.sendEmailVerification(app, doc, req.protocol + '://' + config.domain)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					res.status(400).end();
+				});
+			}
+		});
+	});
+
+	app.post(prefix + "/:user/verify/:token", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		var deferredUser = q.defer(), deferredToken = q.defer(),
+			verified = false;
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredUser.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				verified = doc.verified;
+				deferredUser.resolve(doc);
+			}
+		});
+		Token.findOne({token: req.params.token}, function(err, doc){
+			if(err){
+				deferredToken.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredToken.reject({reason: "not-found", message: "Token not found"});
+			}else{
+				deferredToken.resolve(doc);
+			}
+		});
+		q.all([deferredUser.promise, deferredToken.promise])
+		.spread(function(user, token){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(token.validate(user.email)){
+				user.verified = true;
+				user.modified = Date.now();
+				user.save(function(err){
+					if(err){
+						console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
+						res.status(500).end();
+					}else{
+						user.syncWithDirectory()
+						.then(function(){
+							res.status(200).end();
+						}).catch(function(err){
+							console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
+							res.status(500).end();
+						});
+					}
+				});
+			}else{
+				res.status(400).end();
+			}
+		}).catch(function(err){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(400).end();
+			}
+		});
 	});
 
 	app.get(prefix + "/:user/verified", 
@@ -190,39 +258,73 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		// Ignore the following fields unless sent by an admin
-		if(!req.user.hasRole("admin")){
-			delete req.body.verified;
-			delete req.body.vip;
-			delete req.body.blacklisted;
-			delete req.body.roles;
-			delete req.body.services;
-		}else if(req.body.roles){
-			req.body.roles = removeDuplicates(req.body.roles);
-		}
-		delete req.body.created;
-		delete req.body.accessed;
 
-		// Record this modification
-		req.body.modified = Date.now();
-
-		// User passwords cannot be changed using this route, 
-		// /:user/password must be used instead
-		delete req.body.passwordHash;
-
-		// Update the user 
-		User.findByIdAndUpdate(req.params.user, req.body, {new: true}, function(err, doc){
+		var deferredExistingUser = q.defer(), deferredEditUser = q.defer();
+		User.findOne({email: req.body.email}, function(err, doc){
 			if(err){
-				res.status(400).end();
+				deferredExistingUser.reject({reason: "db-error", message: err});
+			}else{
+				deferredExistingUser.resolve(doc);
+			}
+		});
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredEditUser.reject({reason: "db-error", message: err});
 			}else if(!doc){
+				deferredEditUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				deferredEditUser.resolve(doc);
+			}
+		});
+		q.all([deferredExistingUser.promise, deferredEditUser.promise])
+		.spread(function(existingUser, editUser){
+			if(existingUser && existingUser._id.toString() !== editUser._id.toString()){
+				return q.reject({reason: "address-in-use", message: "User already using that email address"});
+			}
+			if(req.body.email !== editUser.email){
+				editUser.verified = false;
+			}
+			editUser.email = req.body.email;
+			editUser.firstName = req.body.firstName;
+			editUser.lastName = req.body.lastName;
+			editUser.lanInviteDesired = req.body.lanInviteDesired;
+			editUser.primaryHandle = req.body.primaryHandle;
+			editUser.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
+			editUser.modified = Date.now();
+
+			var onSave = function(err){
+				if(err){
+					res.status(500).end();
+				}else{
+					editUser.syncWithDirectory()
+					.then(function(){
+						res.status(200).end();
+					}).catch(function(){
+						res.status(500).end();
+					});
+				}
+			};
+
+			req.user.hasRole("admin")
+			.then(function(){
+				editUser.verified = req.body.verified;
+				editUser.vip = req.body.vip;
+				editUser.blacklisted = req.body.blacklisted;
+				editUser.roles = removeDuplicates(req.body.roles);
+				editUser.services = req.body.services;
+				editUser.save(onSave);
+			}).catch(function(){
+				editUser.save(onSave);
+			});
+		}).catch(function(err){
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "address-in-use"){
+				res.status(409).end();
+			}else if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				doc.syncWithDirectory()
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(){
-					res.status(500).end();
-				});
+				res.status(400).end();
 			}
 		});
 	});

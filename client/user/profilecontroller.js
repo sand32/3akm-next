@@ -60,11 +60,14 @@ require("../common/enumselectdirective.js");
 		});
 
 		profile.resendVerificationEmail = function(){
-			UserService.resendVerificationEmail()
+			profile.busy = true;
+			UserService.resendVerificationEmail("session")
 			.then(function(){
 				ngToast.create("Verification email sent.");
+				profile.busy = false;
 			}).catch(function(){
 				ngToast.danger("Failed to send verification email.");
+				profile.busy = false;
 			});
 		};
 
@@ -85,8 +88,12 @@ require("../common/enumselectdirective.js");
 				if(status === 403){
 					$scope.$emit("AuthChanged", false);
 					$state.go("default");
+					ngToast.danger("Failed to update user, your session has expired.");
+				}else if(status === 409){
+					ngToast.danger("Failed to update user, you attempted to change your email address to one already in use.");
+				}else{
+					ngToast.danger("Failed to update user.");
 				}
-				ngToast.danger("Failed to update user.");
 				profile.busy = false;
 			});
 		};
