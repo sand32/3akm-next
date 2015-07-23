@@ -447,6 +447,14 @@ module.exports = {
 				modification: entry
 			}]);
 		}).then(function(){
+			return modify(client, userDn, [{
+				operation: "delete",
+				modification: {extensionAttribute1: currentEntry.extensionAttribute1}
+			}, {
+				operation: "add",
+				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
+			}]);
+		}).then(function(){
 			var promises = [],
 				roleName, groupCn, groupDn,
 				i, j, role, foundGroup;
