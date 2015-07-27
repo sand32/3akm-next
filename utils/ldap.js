@@ -574,6 +574,56 @@ module.exports = {
 		return deferred.promise;
 	},
 
+	resetPassword: function(cn, newPassword){
+		var client = createClient(),
+			deferred = q.defer(),
+			userDn = "cn=" + cn + "," + config.ldap.userDn;
+		bindServiceAccount(client)
+		.then(function(){
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+		}).then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				currentUac = result.entries.collection[0].userAccountControl;
+				return modify(client, userDn, {
+					operation: "replace",
+					modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
+				});
+			}else{
+				deferred.reject({
+					reason: "invalid-user",
+					message: "Unable to reset password, \"" + cn + "\" not found in directory"
+				});
+			}
+		}).then(function(){
+			return modify(client, userDn, {
+				operation: "replace",
+				modification: {unicodePwd: encodePassword(newPassword)}
+			});
+		}).then(function(){
+			return modify(client, userDn, {
+				operation: "replace",
+				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+			});
+		},function(){
+			modify(client, userDn, {
+				operation: "replace",
+				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+			});
+			return q.reject({reason: "invalid-password", message: "Unable to change password, new password does not meet format requirements"});
+		}).then(function(){
+			return unbind(client);
+		}).then(deferred.resolve).catch(function(err){
+			unbind(client);
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
+		});
+		return deferred.promise;
+	},
+
 	getUser: function(cn){
 		var client = createClient(),
 			deferred = q.defer();

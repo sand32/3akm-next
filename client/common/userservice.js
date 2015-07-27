@@ -146,6 +146,28 @@ misrepresented as being the original software.
 					deferred.reject(response.status);
 				});
 				return deferred.promise;
+			},
+
+			sendPasswordResetEmail: function(email){
+				var deferred = $q.defer();
+				$http.post("/api/user/resetpassword", {email: email})
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
+			},
+
+			resetPassword: function(id, token, newPassword){
+				var deferred = $q.defer();
+				$http.post("/api/user/" + id + "/password/reset/" + token, {newPassword: newPassword})
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
 			}
 		};
 	};

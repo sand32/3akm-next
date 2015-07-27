@@ -76,6 +76,10 @@ require("./common/validationdirectives.js");
 				url: "/verify/:userId/:token",
 				templateUrl: "/partial/verify"
 			})
+			.state("resetpassword", {
+				url: "/resetpassword/:userId/:token",
+				templateUrl: "/partial/resetpassword"
+			})
 			.state("404", {
 				url: "/404",
 				templateUrl: "/partial/404"
@@ -102,6 +106,7 @@ require("./common/validationdirectives.js");
 				"3akm.common.arrayentry",
 				"3akm.common.validation",
 				"3akm.article",
+				"3akm.auth",
 				"3akm.gameList",
 				"3akm.prep",
 				"3akm.appearances",

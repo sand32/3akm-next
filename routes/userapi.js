@@ -71,6 +71,23 @@ module.exports = function(app, prefix){
 		res.send({isLoggedIn: req.isAuthenticated()});
 	});
 
+	app.post(prefix + "/resetpassword", function(req, res){
+		User.findOne({email: req.body.email}, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				smtp.sendPasswordReset(app, doc, req.protocol + '://' + config.domain)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					res.status(400).end();
+				});
+			}
+		});
+	});
+
 	app.post(prefix + "/:user/verify", 
 		authenticate, 
 		authorizeSessionUser(), 
@@ -127,7 +144,7 @@ module.exports = function(app, prefix){
 				res.status(200).end();
 				return;
 			}
-			if(token.validate(user.email)){
+			if(token.validate("verify" + user.email)){
 				user.verified = true;
 				user.modified = Date.now();
 				user.save(function(err){
@@ -350,6 +367,64 @@ module.exports = function(app, prefix){
 				}).catch(function(){
 					res.status(400).end();
 				});
+			}
+		});
+	});
+
+	app.put(prefix + "/:user/password/reset/:token", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		var deferredUser = q.defer(), deferredToken = q.defer(),
+			verified = false;
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredUser.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				verified = doc.verified;
+				deferredUser.resolve(doc);
+			}
+		});
+		Token.findOne({token: req.params.token}, function(err, doc){
+			if(err){
+				deferredToken.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredToken.reject({reason: "not-found", message: "Token not found"});
+			}else{
+				deferredToken.resolve(doc);
+			}
+		});
+		q.all([deferredUser.promise, deferredToken.promise])
+		.spread(function(user, token){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(token.validate("passwordreset" + user.email)){
+				user.resetPassword(req.body.newPassword)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to reset password");
+					res.status(500).end();
+				});
+			}else{
+				res.status(400).end();
+			}
+		}).catch(function(err){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(400).end();
 			}
 		});
 	});

@@ -59,7 +59,7 @@ module.exports = {
 
 	sendEmailVerification: function(app, user, siteUrl){
 		var deferred = q.defer();
-		Token.createToken(user.email)
+		Token.createToken("verify" + user.email)
 		.then(function(token){
 			message = {
 				to: {
@@ -71,6 +71,36 @@ module.exports = {
 			app.render("mail/emailverification.jade", {
 				siteUrl: siteUrl,
 				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
+			}, function(err, html){
+				if(err){
+					deferred.reject({reason: "html-rendering-error", message: err});
+				}else{
+					message.html = html;
+					sendMail(message).then(function(){
+						deferred.resolve();
+					}).catch(function(err){
+						deferred.reject(err);
+					});
+				}
+			});
+		});
+		return deferred.promise;
+	},
+
+	sendPasswordReset: function(app, user){
+		var deferred = q.defer();
+		Token.createToken("passwordreset" + user.email)
+		.then(function(token){
+			message = {
+				to: {
+					name: user.firstName + " " + user.lastName,
+					address: user.email
+				},
+				subject: "Forgot Password"
+			};
+			app.render("mail/resetpassword.jade", {
+				siteUrl: siteUrl,
+				verificationLink: siteUrl + "/reset/" + user._id + "/" + token
 			}, function(err, html){
 				if(err){
 					deferred.reject({reason: "html-rendering-error", message: err});
