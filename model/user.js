@@ -170,6 +170,36 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 	return deferred.promise;
 };
 
+userSchema.methods.resetPassword = function(newPassword){
+	var user = this,
+		deferred = q.defer();
+	if(config.ldap.enabled){
+		ldap.resetPassword(user.cn, newPassword)
+		.then(function(){
+			user.modified = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: " + err.message);
+				}
+			});
+			deferred.resolve();
+		}).catch(function(err){
+			console.error("Error: " + err.message);
+			deferred.reject(err);
+		});
+	}else{
+		user.passwordHash = user.hash(newPassword);
+		user.modified = Date.now();
+		user.save(function(err){
+			if(err){
+				console.error("Error: " + err.message);
+			}
+			deferred.resolve();
+		});
+	}
+	return deferred.promise;
+};
+
 userSchema.methods.syncWithDirectory = function(){
 	if(!config.ldap.enabled){
 		return q.resolve();
