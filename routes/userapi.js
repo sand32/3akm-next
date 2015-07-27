@@ -371,7 +371,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:user/password/reset/:token", function(req, res){
+	app.post(prefix + "/:user/password/reset/:token", function(req, res){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
@@ -399,10 +399,6 @@ module.exports = function(app, prefix){
 		});
 		q.all([deferredUser.promise, deferredToken.promise])
 		.spread(function(user, token){
-			if(verified){
-				res.status(200).end();
-				return;
-			}
 			if(token.validate("passwordreset" + user.email)){
 				user.resetPassword(req.body.newPassword)
 				.then(function(){
@@ -415,10 +411,6 @@ module.exports = function(app, prefix){
 				res.status(400).end();
 			}
 		}).catch(function(err){
-			if(verified){
-				res.status(200).end();
-				return;
-			}
 			if(err.reason === "db-error"){
 				res.status(500).end();
 			}else if(err.reason === "not-found"){

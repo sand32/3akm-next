@@ -87,7 +87,7 @@ module.exports = {
 		return deferred.promise;
 	},
 
-	sendPasswordReset: function(app, user){
+	sendPasswordReset: function(app, user, siteUrl){
 		var deferred = q.defer();
 		Token.createToken("passwordreset" + user.email)
 		.then(function(token){
@@ -100,7 +100,7 @@ module.exports = {
 			};
 			app.render("mail/resetpassword.jade", {
 				siteUrl: siteUrl,
-				verificationLink: siteUrl + "/reset/" + user._id + "/" + token
+				verificationLink: siteUrl + "/resetpassword/" + user._id + "/" + token
 			}, function(err, html){
 				if(err){
 					deferred.reject({reason: "html-rendering-error", message: err});

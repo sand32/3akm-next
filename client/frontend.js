@@ -30,6 +30,7 @@ require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
 require("./user/profilecontroller.js");
 require("./user/verifycontroller.js");
+require("./user/resetpasswordcontroller.js");
 require("./user/usermenudirective.js");
 require("./common/arrayentrydirectives.js");
 require("./common/validationdirectives.js");
