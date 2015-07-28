@@ -30,6 +30,7 @@ require("./admin/gamelistcontroller.js");
 require("./admin/lanlistcontroller.js");
 require("./admin/rsvplistcontroller.js");
 require("./admin/cod4controller.js");
+require("./common/analyticsdirective.js");
 
 (function(){
 	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
@@ -124,6 +125,7 @@ require("./admin/cod4controller.js");
 				"ngMessages",
 				"ngAnimate",
 				"ngToast",
+				"3akm.common.analytics",
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
 				"3akm.admin.articleList",
