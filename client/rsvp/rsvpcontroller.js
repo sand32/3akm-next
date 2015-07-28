@@ -54,12 +54,20 @@ require("../common/enumselectdirective.js");
 			bringingFood: false
 		};
 
+		UserService.retrieve("session")
+		.then(function(user){
+			ctrl.isVerified = user.verified;
+			ctrl.isLoggedIn = true;
+		}).catch(function(status){
+			ctrl.isLoggedIn = false;
+		});
+
 		LanService.retrieve("next")
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();
 			ctrl.entryFee = lan.entryFee;
-			var promise = $q.all([UserService.retrieve("session"), RsvpService.retrieveByYear("session", ctrl.year)]);
+			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
 			// Load any tournament games for this LAN into our controller
 			for(var i = 0; i < lan.games.length; i += 1){
@@ -74,12 +82,8 @@ require("../common/enumselectdirective.js");
 			return promise;
 		}, function(){
 			ctrl.loaded = true;
-		}).then(function(results){
-			var user = results[0], rsvp = results[1];
-			ctrl.isVerified = user.verified;
-
+		}).then(function(rsvp){
 			ctrl.current = rsvp;
-			ctrl.isLoggedIn = true;
 
 			// Load existing signup info into our controller
 			for(var i = 0; i < rsvp.tournaments.length; i += 1){
@@ -94,8 +98,6 @@ require("../common/enumselectdirective.js");
 		}).catch(function(status){
 			if(status === 403){
 				$scope.$emit("AuthChanged", false);
-			}else{
-				ctrl.isLoggedIn = true;
 			}
 			ctrl.loaded = true;
 		});

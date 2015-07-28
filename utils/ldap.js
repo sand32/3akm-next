@@ -448,10 +448,7 @@ module.exports = {
 			}]);
 		}).then(function(){
 			return modify(client, userDn, [{
-				operation: "delete",
-				modification: {extensionAttribute1: currentEntry.extensionAttribute1}
-			}, {
-				operation: "add",
+				operation: "replace",
 				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
 			}]);
 		}).then(function(){
