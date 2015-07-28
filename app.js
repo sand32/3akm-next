@@ -24,6 +24,9 @@ misrepresented as being the original software.
 
 var express = require("express"),
 	session = require("express-session"),
+	http = require("http"),
+	https = require("https"),
+	fs = require("fs"),
 	cors = require("cors"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
@@ -33,7 +36,8 @@ var express = require("express"),
 	routes = require("./routes/routes.js"),
 	startup = require("./utils/startup.js"),
 	app = express(),
-	config = require("./utils/common.js").config;
+	config = require("./utils/common.js").config,
+	corsOptions, server;
 
 // Establish database connection
 if(config.dbUser){
@@ -53,7 +57,7 @@ app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
 
 // Define CORS policy
-var corsOptions = {
+corsOptions = {
 	origin: function(origin, callback){
 		var originIsWhitelisted = config.corsWhitelist.indexOf(origin) !== -1;
 		callback(null, originIsWhitelisted);
@@ -83,5 +87,15 @@ routes(app);
 startup.initializeDatabase();
 startup.bundleClientJS();
 
+if(config.cert !== "changeme"
+&& config.key !== "changeme"){
+	server = https.createServer({
+		cert: fs.readFileSync(config.cert),
+		key: fs.readFileSync(config.key)
+	}, app);
+}else{
+	server = http.createServer(app);
+}
+
 // Go
-app.listen(config.port);
+server.listen(config.port);
