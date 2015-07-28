@@ -44,9 +44,12 @@ module.exports = function(app, prefix){
 		register, 
 	function(req, res){
 		if(req.isAuthenticated()){
-			// Send email for verification
-			// Respond with "201 Created"
-			res.status(201).send(req.user._id.toString());
+			smtp.sendEmailVerification(app, req.user, req.protocol + '://' + config.domain)
+			.then(function(){
+				res.status(201).send(req.user._id.toString());
+			}).catch(function(err){
+				res.status(500).end();
+			});
 		}else{
 			res.status(403).end();
 		}

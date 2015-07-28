@@ -41,7 +41,7 @@ require("../common/userservice.js");
 				tertiaryHandles: reg.tertiaryHandles,
 				recaptchaResponse: grecaptcha.getResponse()
 			}).then(function(){
-				ngToast.create("User successfully registered.");
+				ngToast.create("User successfully registered and verification email sent.");
 				$scope.$emit("AuthChanged", true);
 				$state.go("default");
 				reg.busy = false;
