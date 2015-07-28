@@ -49,7 +49,7 @@
 								th Created
 								th Verified
 						tbody
-							tr(ng-repeat = "user in users.list",
+							tr(ng-repeat = "user in users.list | orderBy : 'created'",
 								ui-sref = ".detail({userId: users.list[$index]._id})",
 								ng-class = "users.list[$index]._id === users.selectedUser ? 'selected' : ''")
 								td {{user.firstName}} {{user.lastName}}

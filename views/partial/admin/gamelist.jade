@@ -48,7 +48,7 @@
 								th Version
 								th Files
 						tbody
-							tr(ng-repeat = "game in games.list",
+							tr(ng-repeat = "game in games.list | orderBy : 'name'",
 								ui-sref = ".detail({gameId: games.list[$index]._id})",
 								ng-class = "games.list[$index]._id === games.selectedGame ? 'selected' : ''")
 								td {{game.name}}

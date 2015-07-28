@@ -48,7 +48,7 @@
 								th LAN
 								th Status
 						tbody
-							tr(ng-repeat = "rsvp in rsvps.list",
+							tr(ng-repeat = "rsvp in rsvps.list | orderBy : ['-lan.beginDate', 'user.lastName', 'user.firstName']",
 								ui-sref = ".detail({rsvpId: rsvps.list[$index]._id})",
 								ng-class = "rsvps.list[$index]._id === rsvps.selectedRsvp ? 'selected' : ''")
 								td {{rsvp.user.firstName}} {{rsvp.user.lastName}}
