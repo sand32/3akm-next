@@ -29,7 +29,7 @@ misrepresented as being the original software.
 			replace: true,
 			templateUrl: "/partial/analytics",
 			link: function(scope, element, attrs){
-				$rootScope.on("$viewContentLoaded", function(e){
+				$rootScope.$on("$viewContentLoaded", function(e){
 					$window.ga("send", "pageview", {page: $location.url()});
 				});
 			}
