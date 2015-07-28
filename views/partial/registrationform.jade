@@ -23,6 +23,8 @@
 
 h1 Registration Form
 hr
+p
+	em Upon registration, an email with a verification link will be sent to the provided address. Certain site features may be unavailable to you until your address is verified.
 form(name = "registrationForm", novalidate, ng-controller = "RegistrationController as regCtrl", ng-submit = "regCtrl.register()")
 	.row
 		.form-group.col-xs-6
