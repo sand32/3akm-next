@@ -28,6 +28,12 @@ var express = require("express"),
 	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
+	app.get(prefix + "/partial/analytics", function(req, res){
+		res.render("partial/analytics.jade", {
+			analyticsTrackingId: config.analyticsTrackingId
+		});
+	});
+
 	app.get(prefix + "/partial/registrationform", function(req, res){
 		res.render("partial/registrationform.jade", {
 			recaptchaSiteKey: config.recaptchaSiteKey
@@ -59,9 +65,7 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(
 				function(){
-					res.render("admin", {
-						analyticsTrackingId: config.analyticsTrackingId
-					});
+					res.render("admin");
 				},
 				function(error){
 					console.error("Error: " + error);
@@ -69,9 +73,7 @@ module.exports = function(app, prefix){
 				}
 			);
 		}else{
-			res.render("admin", {
-				analyticsTrackingId: config.analyticsTrackingId
-			});
+			res.render("admin");
 		}
 	});
 
@@ -81,9 +83,7 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(
 				function(){
-					res.render("frontend", {
-						analyticsTrackingId: config.analyticsTrackingId
-					});
+					res.render("frontend");
 				},
 				function(error){
 					console.error("Error: " + error);
@@ -91,9 +91,7 @@ module.exports = function(app, prefix){
 				}
 			);
 		}else{
-			res.render("frontend", {
-				analyticsTrackingId: config.analyticsTrackingId
-			});
+			res.render("frontend");
 		}
 	});
 }

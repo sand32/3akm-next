@@ -32,6 +32,7 @@ require("./user/profilecontroller.js");
 require("./user/verifycontroller.js");
 require("./user/resetpasswordcontroller.js");
 require("./user/usermenudirective.js");
+require("./common/analyticsdirective.js");
 require("./common/arrayentrydirectives.js");
 require("./common/validationdirectives.js");
 
@@ -104,6 +105,7 @@ require("./common/validationdirectives.js");
 				"ngMessages",
 				"ngAnimate",
 				"ngToast",
+				"3akm.common.analytics",
 				"3akm.common.arrayentry",
 				"3akm.common.validation",
 				"3akm.article",
