@@ -59,7 +59,9 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(
 				function(){
-					res.render("admin");
+					res.render("admin", {
+						analyticsTrackingId: config.analyticsTrackingId
+					});
 				},
 				function(error){
 					console.error("Error: " + error);
@@ -67,7 +69,9 @@ module.exports = function(app, prefix){
 				}
 			);
 		}else{
-			res.render("admin");
+			res.render("admin", {
+				analyticsTrackingId: config.analyticsTrackingId
+			});
 		}
 	});
 
@@ -77,7 +81,9 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(
 				function(){
-					res.render("frontend");
+					res.render("frontend", {
+						analyticsTrackingId: config.analyticsTrackingId
+					});
 				},
 				function(error){
 					console.error("Error: " + error);
@@ -85,7 +91,9 @@ module.exports = function(app, prefix){
 				}
 			);
 		}else{
-			res.render("frontend");
+			res.render("frontend", {
+				analyticsTrackingId: config.analyticsTrackingId
+			});
 		}
 	});
 }
