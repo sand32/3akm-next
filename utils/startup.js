@@ -90,6 +90,21 @@ module.exports = {
 				});
 			}
 		});
+		Store.findOne({name: "Website"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Website",
+					icon: "/images/www28.png",
+					baseUrl: "http://www.google.com/",
+					appUrl: "[appid]"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
 	},
 
 	bundleClientJS: function(){
