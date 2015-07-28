@@ -4,6 +4,7 @@
 	"domain": "localhost:8080",
 	"cert": "changeme",
 	"key": "changeme",
+	"analyticsTrackingId": "changeme",
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",
 	"recaptchaSiteKey": "changeme",
