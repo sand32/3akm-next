@@ -27,10 +27,21 @@ misrepresented as being the original software.
 		return {
 			restrict: "E",
 			replace: true,
-			templateUrl: "/partial/analytics",
+			scope: {
+				analyticsTrackingId: "@"
+			},
 			link: function(scope, element, attrs){
+				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+				console.log(scope.analyticsTrackingId);
+				ga('create', scope.analyticsTrackingId, 'auto');
+				ga('send', 'pageview');
+
 				$rootScope.$on("$viewContentLoaded", function(e){
-					$window.ga("send", "pageview", {page: $location.url()});
+					ga("send", "pageview", {page: $location.url()});
 				});
 			}
 		}
