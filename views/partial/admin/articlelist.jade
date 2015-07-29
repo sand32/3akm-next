@@ -49,7 +49,7 @@
 								th Created
 								th Published
 						tbody
-							tr(ng-repeat = "article in articles.list | orderBy : '-created'",
+							tr(ng-repeat = "article in articles.list",
 								ui-sref = ".detail({articleId: articles.list[$index]._id})",
 								ng-class = "articles.list[$index]._id === articles.selectedArticle ? 'selected' : ''")
 								td {{article.title}}
