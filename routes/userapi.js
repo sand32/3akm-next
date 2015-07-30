@@ -156,7 +156,12 @@ module.exports = function(app, prefix){
 						console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
 						res.status(500).end();
 					}else{
-						Recipient.remove({email: user.email}, function(err, doc){});
+						Recipient.findOneAndRemove({email: user.email}, function(err, doc){
+							if(!err && doc && doc.vip){
+								user.vip = true;
+								user.save();
+							}
+						});
 						user.syncWithDirectory()
 						.then(function(){
 							res.status(200).end();
