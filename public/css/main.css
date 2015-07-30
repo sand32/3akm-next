@@ -93,6 +93,20 @@ a.btn-link:hover {
 	left:0;
 }
 
+.menu-slim {
+	background-color: #222;
+}
+
+.menu-button {
+	color: #AAA;
+	margin: .5em;
+}
+
+.menu-button:hover {
+	background-color: #444;
+	color: #AAA;
+}
+
 .menu-list {
 	padding-bottom: 1.5em;
 }
