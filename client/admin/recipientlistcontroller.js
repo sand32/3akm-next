@@ -59,7 +59,7 @@ require("./recipientdetailcontroller.js");
 
 							// Add users to the list
 							for(var i = 0; i < users.length; i += 1){
-								if(users[i].vip && users[i].lanInviteDesired && !users[i].blacklisted){
+								if(users[i].vip && users[i].verified && users[i].lanInviteDesired && !users[i].blacklisted){
 									if(list != ""){
 										list += ", ";
 									}
@@ -98,7 +98,7 @@ require("./recipientdetailcontroller.js");
 
 							// Add users to the list
 							for(var i = 0; i < users.length; i += 1){
-								if(users[i].lanInviteDesired && !users[i].blacklisted){
+								if(users[i].verified && users[i].lanInviteDesired && !users[i].blacklisted){
 									if(list != ""){
 										list += ", ";
 									}
