@@ -29,6 +29,7 @@ require("./admin/userlistcontroller.js");
 require("./admin/gamelistcontroller.js");
 require("./admin/lanlistcontroller.js");
 require("./admin/rsvplistcontroller.js");
+require("./admin/recipientlistcontroller.js");
 require("./admin/cod4controller.js");
 require("./common/analyticsdirective.js");
 
@@ -102,6 +103,18 @@ require("./common/analyticsdirective.js");
 					}
 				}
 			})
+			.state("recipient", {
+				url: "/recipient",
+				templateUrl: "/partial/admin/recipientlist"
+			})
+			.state("recipient.detail", {
+				url: "/:recipientId",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/recipientdetail"
+					}
+				}
+			})
 			.state("cod4", {
 				url: "/cod4",
 				templateUrl: "/partial/admin/cod4"
@@ -133,6 +146,7 @@ require("./common/analyticsdirective.js");
 				"3akm.admin.gameList",
 				"3akm.admin.lanList",
 				"3akm.admin.rsvpList",
+				"3akm.admin.recipientList",
 				"3akm.admin.cod4"
 			])
 		.config(Config);

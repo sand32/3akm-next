@@ -59,6 +59,9 @@ html(ng-app = "3akm.admin")
 						a(ui-sref = "rsvp")
 							| RSVPs
 					li(ui-sref-active = "current")
+						a(ui-sref = "recipient")
+							| Invite Recipients
+					li(ui-sref-active = "current")
 						a(ui-sref = "cod4")
 							| Call of Duty 4
 					hr
@@ -88,6 +91,9 @@ html(ng-app = "3akm.admin")
 						a(ui-sref = "rsvp", ng-click = "showMenu = false")
 							| RSVPs
 					li(ui-sref-active = "current")
+						a(ui-sref = "recipient", ng-click = "showMenu = false")
+							| Invite Recipients
+					li(ui-sref-active = "current")
 						a(ui-sref = "cod4", ng-click = "showMenu = false")
 							| Call of Duty 4
 					hr
@@ -108,4 +114,4 @@ html(ng-app = "3akm.admin")
 	script(src = "/thirdparty/ngToast/ngToast.min.js")
 	script(src = "/thirdparty/d3.min.js")
 	script(src = "/js/admin.js")
-	analytics
+	analytics(analytics-tracking-id = analyticsTrackingId)

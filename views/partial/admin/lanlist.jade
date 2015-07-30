@@ -49,7 +49,7 @@
 								th Active
 								th Accepting RSVPs
 						tbody
-							tr(ng-repeat = "lan in lans.list | orderBy : '-beginDate'",
+							tr(ng-repeat = "lan in lans.list",
 								ui-sref = ".detail({lanId: lans.list[$index]._id})",
 								ng-class = "lans.list[$index]._id === lans.selectedLan ? 'selected' : ''")
 								td {{lan.beginDate | date : "mediumDate"}}

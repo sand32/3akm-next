@@ -27,6 +27,7 @@ var passport = require("passport"),
 	q = require("q"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
+	Recipient = require("../model/recipient.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	register = require("../utils/common.js").register,
@@ -155,6 +156,7 @@ module.exports = function(app, prefix){
 						console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
 						res.status(500).end();
 					}else{
+						Recipient.remove({email: user.email}, function(err, doc){});
 						user.syncWithDirectory()
 						.then(function(){
 							res.status(200).end();

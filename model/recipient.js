@@ -23,18 +23,24 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	inviteRecipientSchema = mongoose.Schema({
+	recipientSchema = mongoose.Schema({
 		email: {
 			type: String,
 			required: true,
 			unique: true
 		},
-		firstName: String,
-		lastName: String,
-		vip {
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
+		vip: {
 			type: Boolean,
 			default: false
 		}
 	});
 
-module.exports = mongoose.model("InviteRecipient", inviteRecipientSchema);
+module.exports = mongoose.model("Recipient", recipientSchema);
