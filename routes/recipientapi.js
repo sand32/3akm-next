@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 var mongoose = require("mongoose"),
 	Recipient = require("../model/recipient.js"),
+	User = require("../model/user.js"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
@@ -62,14 +63,22 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		var recipient = new Recipient(req.body);
-		recipient.save(function(err){
+		User.findOne({email: req.body.email}, function(err, doc){
 			if(err){
-				res.status(400).end();
+				res.status(500).end();
+			}else if(doc){
+				res.status(409).end();
 			}else{
-				res.status(201)
-				.location(prefix + "/" + recipient._id)
-				.send({_id: recipient._id});
+				var recipient = new Recipient(req.body);
+				recipient.save(function(err){
+					if(err){
+						res.status(400).end();
+					}else{
+						res.status(201)
+						.location(prefix + "/" + recipient._id)
+						.send({_id: recipient._id});
+					}
+				});
 			}
 		});
 	});
