@@ -43,32 +43,32 @@ hr
 			p.col-xs-12
 				em Please plan on a small contribution of {{rsvp.entryFee | currency : $ : 0}} to defray the cost of the electric bill, food, door prizes, and other expenses.
 		.row
-			.form-group.col-xs-3
+			.form-group.col-xs-12.col.md-3.col-lg-3
 				label Will you be attending?
 				enum-select(current = "rsvp.current.status", possibles = "rsvp.statusPossibles")
 		.row
-			.form-group.col-xs-3
+			.form-group.col-xs-12.col.md-3.col-lg-3
 				label Will you be playing?
 				enum-select(current = "rsvp.current.playing", possibles = "rsvp.boolPossibles")
 		.row
-			.form-group.col-xs-6
+			.form-group.col-xs-12.col.md-6.col-lg-6
 				label How many guests will you be bringing? (If they are joining the tournament(s), they must RSVP separately.)
 				input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", placeholder = "0", ng-model = "rsvp.current.guests")
 				.form-feedback.text-danger(ng-messages = "rsvpForm.guests.$error", ng-if = "rsvpForm.guests.$dirty", role = "alert")
 					div(ng-message = "number") Must be a non-negative number
 					div(ng-message = "min") Must be a non-negative number
 		.row
-			.form-group.col-xs-5
+			.form-group.col-xs-12.col.md-5.col-lg-5
 				label Will you be assisting in the cleanup afterward?
 				enum-select(current = "rsvp.current.cleaning", possibles = "rsvp.boolPossibles")
 		.row
-			.form-group.col-xs-5
+			.form-group.col-xs-12.col.md-5.col-lg-5
 				label Will you be bringing food to share with a large quantity of attendees?
 				enum-select(current = "rsvp.current.bringingFood", possibles = "rsvp.boolPossibles")
 		.row(ng-if = "rsvp.tournaments.length > 0")
 			p.col-xs-12
 				label What tournament(s) would you like to participate in?
-			.well.col-xs-6
+			.well.col-xs-12.col.md-6.col-lg-6
 				.row.tournament(ng-repeat = "tournament in rsvp.tournaments")
 					.form-group.col-xs-12
 						label.form-control-static.col-xs-6 {{tournament.name}}
