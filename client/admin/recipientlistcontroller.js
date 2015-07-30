@@ -23,10 +23,12 @@ misrepresented as being the original software.
 */
 
 require("../common/recipientservice.js");
+require("../common/userservice.js");
+require("../common/textselectcontroller.js");
 require("./recipientdetailcontroller.js");
 
 (function(){
-	var RecipientListController = function($scope, $state, ngToast, RecipientService){
+	var RecipientListController = function($scope, $state, $modal, ngToast, RecipientService, UserService){
 		var recipients = this;
 		recipients.list = [];
 
@@ -43,15 +45,92 @@ require("./recipientdetailcontroller.js");
 			});
 		};
 		$scope.reloadList();
+
+		recipients.showVipEmailList = function(){
+			UserService.retrieveAll()
+			.then(function(users){
+				var modalInstance = $modal.open({
+					templateUrl: "/partial/textselectmodal",
+					controller: "TextSelectController as textSelect",
+					resolve: {
+						title: function(){return "VIP Email List";},
+						text: function(){
+							var list = "";
+
+							// Add users to the list
+							for(var i = 0; i < users.length; i += 1){
+								if(users[i].vip && users[i].lanInviteDesired && !users[i].blacklisted){
+									if(list != ""){
+										list += ", ";
+									}
+									list += users[i].firstName + " " + users[i].lastName + " <" + users[i].email + ">";
+								}
+							}
+
+							// Add plain recipients to the list
+							for(var i = 0; i < recipients.list.length; i += 1){
+								if(recipients.list[i].vip){
+									if(list != ""){
+										list += ", ";
+									}
+									list += recipients.list[i].firstName + " " + recipients.list[i].lastName + " <" + recipients.list[i].email + ">";
+								}
+							}
+							return list;
+						}
+					}
+				});
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve users.");
+			});
+		};
+
+		recipients.showInviteEmailList = function(){
+			UserService.retrieveAll()
+			.then(function(users){
+				var modalInstance = $modal.open({
+					templateUrl: "/partial/textselectmodal",
+					controller: "TextSelectController as textSelect",
+					resolve: {
+						title: function(){return "Invite Email List";},
+						text: function(){
+							var list = "";
+
+							// Add users to the list
+							for(var i = 0; i < users.length; i += 1){
+								if(users[i].lanInviteDesired && !users[i].blacklisted){
+									if(list != ""){
+										list += ", ";
+									}
+									list += users[i].firstName + " " + users[i].lastName + " <" + users[i].email + ">";
+								}
+							}
+
+							// Add plain recipients to the list
+							for(var i = 0; i < recipients.list.length; i += 1){
+								if(list != ""){
+									list += ", ";
+								}
+								list += recipients.list[i].firstName + " " + recipients.list[i].lastName + " <" + recipients.list[i].email + ">";
+							}
+							return list;
+						}
+					}
+				});
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve users.");
+			});
+		};
 	};
 
 	angular
 		.module("3akm.admin.recipientList", 
 			[
 				"3akm.recipient",
+				"3akm.common.textSelectModal",
 				"3akm.admin.recipientDetail"
 			])
 		.controller("RecipientListController", RecipientListController);
 
-	RecipientListController.$inject = ["$scope", "$state", "ngToast", "RecipientService"];
+	RecipientListController.$inject = ["$scope", "$state", "$modal", "ngToast", "RecipientService", "UserService"];
 })();

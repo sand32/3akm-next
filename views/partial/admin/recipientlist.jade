@@ -31,13 +31,13 @@
 					a.btn.btn-default(ui-sref = ".detail({recipientId: 'new'})")
 						span.button-icon.glyphicon.glyphicon-plus
 						| New
-				.button-row-right.button-row-padded(tooltip = "Not yet implemented")
-					a.btn.btn-default(disabled)
-						span.button-icon.glyphicon.glyphicon-filter
-						| Filter
-					a.btn.btn-default(disabled)
-						span.button-icon.glyphicon.glyphicon-search
-						| Search
+				.button-row-right.button-row-padded
+					a.btn.btn-default(ng-click = "recipients.showVipEmailList()")
+						span.button-icon.glyphicon.glyphicon-envelope
+						| VIP Email List
+					a.btn.btn-default(ng-click = "recipients.showInviteEmailList()")
+						span.button-icon.glyphicon.glyphicon-envelope
+						| Invite Email List
 			.panel.no-padding
 				.panel-content
 					.empty-table(ng-if = "recipients.list.length === 0") No recipients defined
