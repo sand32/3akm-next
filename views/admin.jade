@@ -70,7 +70,7 @@ html(ng-app = "3akm.admin")
 							| Frontend
 			.menu-slim.button-row.hidden-md.hidden-lg
 				a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
-			.menu.hidden-md.hidden-lg(ng-if = "showMenu")
+			.menu.hidden-md.hidden-lg(ng-show = "showMenu")
 				ul.menu-list.nav.nav-stacked
 					li(ui-sref-active = "current")
 						a(ui-sref = "default", ng-click = "showMenu = false")
