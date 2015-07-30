@@ -64,8 +64,12 @@ require("../common/confirmcontroller.js");
 					$state.go(".", {recipientId: data._id});
 					ngToast.create("Recipient created.");
 					recipient.busy = false;
-				}).catch(function(){
-					ngToast.danger("Failed to create recipient.");
+				}).catch(function(status){
+					if(status === 409){
+						ngToast.danger("Cannot create recipients with the same email addresses as existing users.");
+					}else{
+						ngToast.danger("Failed to create recipient.");
+					}
 					recipient.busy = false;
 				});
 			}else{
