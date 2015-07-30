@@ -29,9 +29,15 @@ var mongoose = require("mongoose"),
 			required: true,
 			unique: true
 		},
-		firstName: String,
-		lastName: String,
-		vip {
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
+		vip: {
 			type: Boolean,
 			default: false
 		}
