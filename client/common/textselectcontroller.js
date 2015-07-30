@@ -22,29 +22,23 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-module.exports = function(app){
-	var userApiRoutes = require("./userapi.js"),
-		articleApiRoutes = require("./articleapi.js"),
-		lanApiRoutes = require("./lanapi.js"),
-		gameApiRoutes = require("./gameapi.js"),
-		rsvpApiRoutes = require("./rsvpapi.js"),
-		recipientApiRoutes = require("./recipientapi.js"),
-		storeApiRoutes = require("./storeapi.js"),
-		serviceRoutes = require("./services/serviceroutes.js"),
-		clientRoutes = require("./client.js");
+(function(){
+	var TextSelectController = function($modalInstance, title, text){
+		this.title = title;
+		this.text = text;
 
-	userApiRoutes(app, "/api/user");
-	articleApiRoutes(app, "/api/article");
-	lanApiRoutes(app, "/api/lan");
-	gameApiRoutes(app, "/api/game");
-	rsvpApiRoutes(app, "/api/rsvp", "/api/user/:user/rsvp");
-	recipientApiRoutes(app, "/api/recipient");
-	storeApiRoutes(app, "/api/store");
-	serviceRoutes(app, "/api/service");
+		this.ok = function(){
+			$modalInstance.close();
+		};
 
-	app.use("/api", function(req, res){
-		res.status(404).end();
-	});
+		this.cancel = function(){
+			$modalInstance.dismiss("cancel");
+		};
+	};
 
-	clientRoutes(app, "");
-}
+	angular
+		.module("3akm.common.textSelectModal", [])
+		.controller("TextSelectController", TextSelectController);
+
+	TextSelectController.$inject = ["$modalInstance", "title", "text"];
+})();
