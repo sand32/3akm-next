@@ -26,7 +26,7 @@ require("../common/userservice.js");
 require("./profilecontroller.js");
 
 (function(){
-	var ChangePasswordController = function($modalInstance, UserService){
+	var ChangePasswordController = function($modalInstance){
 		var ctrl = this;
 		ctrl.oldPass = "";
 		ctrl.newPass = "";
@@ -44,5 +44,5 @@ require("./profilecontroller.js");
 		.module("3akm.changePassword", [])
 		.controller("ChangePasswordController", ChangePasswordController);
 
-	ChangePasswordController.$inject = ["$modalInstance", "UserService"];
+	ChangePasswordController.$inject = ["$modalInstance"];
 })();
