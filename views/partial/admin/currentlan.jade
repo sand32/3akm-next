@@ -27,15 +27,20 @@
 	.chart.col-xs-5(style = "height: inherit;")
 		bar-chart(data = "lan.rsvpGraphData", options = "lan.rsvpGraphOptions", auto-update = "true")
 	.col-xs-7
-		p
-			span.dynamic-value(ng-bind = "lan.daysLeft") 
+		p(ng-if = "lan.daysLeft > 0")
+			span.dynamic-value {{lan.daysLeft}}
 			|  day(s) until LAN
+		p(ng-if = "lan.daysLeft == 0")
+			| It's LAN time!
+		p(ng-if = "lan.daysLeft < 0")
+			span.dynamic-value {{lan.daysLeft * -1}}
+			|  day(s) since LAN
 		p
 			| Out of 
-			span.dynamic-value(ng-bind = "lan.invitationCount")
+			span.dynamic-value {{lan.invitationCount}}
 			|  invitation(s), 
-			span.dynamic-value(ng-bind = "lan.rsvpCount")
+			span.dynamic-value {{lan.rsvpCount}}
 			|  responded
 		p
-			span.dynamic-value(ng-bind = "lan.cleaningCount")
+			span.dynamic-value {{lan.cleaningCount}}
 			|  volunteer(s) for cleaning
