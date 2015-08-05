@@ -29,10 +29,13 @@
 	.col-xs-7
 		p
 			span.dynamic-value(ng-bind = "lan.daysLeft") 
-			|  days until LAN
+			|  day(s) until LAN
 		p
 			| Out of 
 			span.dynamic-value(ng-bind = "lan.invitationCount")
-			|  invitations, 
+			|  invitation(s), 
 			span.dynamic-value(ng-bind = "lan.rsvpCount")
 			|  responded
+		p
+			span.dynamic-value(ng-bind = "lan.cleaningCount")
+			|  volunteer(s) for cleaning
