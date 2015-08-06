@@ -173,6 +173,10 @@ a.btn-link:hover {
 	filter: none;
 }
 
+.section-entry .description{
+	overflow: auto;
+}
+
 .game-info-panel {
 	float: right;
 	margin-left: 1em;
