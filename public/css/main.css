@@ -63,7 +63,7 @@ a.btn-link:hover {
 }
 
 .logo {
-	background: url('/images/3ak_transx_short_dark.png') no-repeat center;
+	background: url('/images/3akm_dark.jpg') no-repeat center;
 	height: 100px;
 	margin-bottom: 1.5em;
 }
@@ -142,7 +142,7 @@ a.btn-link:hover {
 	border-bottom: 1px #222 solid;
 	cursor: pointer;
 	text-align: right;
-	height: 6.5em;
+	height: 106px;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -171,6 +171,10 @@ a.btn-link:hover {
 	-o-filter: none;
 	-webkit-filter: none;
 	filter: none;
+}
+
+.section-entry .description{
+	overflow: auto;
 }
 
 .game-info-panel {

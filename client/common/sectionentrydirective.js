@@ -44,7 +44,18 @@ misrepresented as being the original software.
 					});
 					element.toggleClass("section-entry-open");
 					scope.collapsed = !scope.collapsed;
+
+					if(!scope.collapsed){
+						scope.$parent.$parent.$broadcast("AccordionSwitch", scope.$id);
+					}
 				}
+
+				scope.$on("AccordionSwitch", function(e, scopeId){
+					if(scope.$id !== scopeId){
+						element.removeClass("section-entry-open");
+						scope.collapsed = true;
+					}
+				});
 			}
 		}
 	};
