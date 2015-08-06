@@ -22,21 +22,14 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var express = require("express"),
-	path = require("path"),
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
-	authorize = require("../authorization.js").authorize,
-	loadConfig = require("../utils/common.js").loadConfig,
-	config = loadConfig(__dirname + "/../config/config.json");
-
 module.exports = function(app){
 	var userApiRoutes = require("./userapi.js"),
 		articleApiRoutes = require("./articleapi.js"),
 		lanApiRoutes = require("./lanapi.js"),
 		gameApiRoutes = require("./gameapi.js"),
 		rsvpApiRoutes = require("./rsvpapi.js"),
+		recipientApiRoutes = require("./recipientapi.js"),
 		storeApiRoutes = require("./storeapi.js"),
-		uploadRoutes = require("./uploadapi.js"),
 		serviceRoutes = require("./services/serviceroutes.js"),
 		clientRoutes = require("./client.js");
 
@@ -45,49 +38,13 @@ module.exports = function(app){
 	lanApiRoutes(app, "/api/lan");
 	gameApiRoutes(app, "/api/game");
 	rsvpApiRoutes(app, "/api/rsvp", "/api/user/:user/rsvp");
+	recipientApiRoutes(app, "/api/recipient");
 	storeApiRoutes(app, "/api/store");
-	uploadRoutes(app, "/api/upload");
 	serviceRoutes(app, "/api/service");
-	clientRoutes(app, "/partial");
 
-	app.use(express.static('public'));
-
-	app.get("/admin*", 
-		blendedAuthenticate, 
-		authorize({hasRoles: ["admin"]}), 
-	function(req, res){
-		if(config.debugMode){
-			var startup = require("../utils/startup.js");
-			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("admin");
-				},
-				function(error){
-					console.error("Error: " + error);
-					res.status(500).end();
-				}
-			);
-		}else{
-			res.render("admin");
-		}
+	app.use("/api", function(req, res){
+		res.status(404).end();
 	});
 
-	app.get("*", function(req, res){
-		if(config.debugMode){
-			var startup = require("../utils/startup.js");
-			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("frontend");
-				},
-				function(error){
-					console.error("Error: " + error);
-					res.status(500).end();
-				}
-			);
-		}else{
-			res.render("frontend");
-		}
-	});
+	clientRoutes(app, "");
 }

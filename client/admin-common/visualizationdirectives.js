@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var BarChart = function($rootScope, $window){
+	var BarChart = function($window){
 		return {
 			restrict: "E",
 			scope: {
@@ -105,7 +105,6 @@ misrepresented as being the original software.
 								}
 							});
 				};
-				$rootScope.$on("ResizeContentArea", render);
 				angular.element($window)
 					.on("load resize", render);
 				if(scope.autoUpdate()){
@@ -120,5 +119,5 @@ misrepresented as being the original software.
 		.module("3akm.admin.visualization", [])
 		.directive("barChart", BarChart);
 
-	BarChart.$inject = ["$rootScope", "$window"];
+	BarChart.$inject = ["$window"];
 })();

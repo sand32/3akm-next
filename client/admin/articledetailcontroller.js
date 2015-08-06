@@ -28,8 +28,9 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleDetailController = function($scope, $timeout, $state, $modal, ngToast, ArticleService){
+	var ArticleDetailController = function($scope, $state, $modal, ngToast, ArticleService){
 		var article = this;
+		article.busy = false;
 		article.current = {
 			published: false,
 			tags: []
@@ -41,40 +42,37 @@ require("../common/enumselectdirective.js");
 
 		if($state.params.articleId && $state.params.articleId !== "new"){
 			ArticleService.retrieve($state.params.articleId)
-			.then(
-				function(data){
-					article.current = data;
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-				},
-				function(){
-					$state.go("^");
-					ngToast.danger("Failed to retrieve article.");
-				}
-			);
+			.then(function(data){
+				article.current = data;
+			}).catch(function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve article.");
+			});
 		}
 
 		article.save = function(){
+			article.busy = true;
 			if($state.params.articleId === "new"){
 				ArticleService.create(article.current)
-				.then(
-					function(data){
-						$scope.reloadList();
-						$state.go(".", {articleId: data._id});
-						ngToast.create("Article created.");
-					}, function(){
-						ngToast.danger("Failed to create article.");
-					}
-				);
+				.then(function(data){
+					$scope.reloadList();
+					$state.go(".", {articleId: data._id});
+					ngToast.create("Article created.");
+					article.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to create article.");
+					article.busy = false;
+				});
 			}else{
 				ArticleService.edit($state.params.articleId, article.current)
-				.then(
-					function(){
-						$scope.reloadList();
-						ngToast.create("Article updated.");
-					}, function(){
-						ngToast.danger("Failed to update article.");
-					}
-				);
+				.then(function(){
+					$scope.reloadList();
+					ngToast.create("Article updated.");
+					article.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to update article.");
+					article.busy = false;
+				});
 			}
 		};
 
@@ -87,20 +85,19 @@ require("../common/enumselectdirective.js");
 				}
 			});
 
-			modalInstance.result.then(
-				function(){
-					ArticleService.delete($state.params.articleId)
-					.then(
-						function(){
-							$scope.reloadList();
-							$state.go("^");
-							ngToast.create("Article deleted.");
-						}, function(){
-							ngToast.danger("Failed to delete article.")
-						}
-					);
-				}
-			);
+			modalInstance.result.then(function(){
+				article.busy = true;
+				ArticleService.delete($state.params.articleId)
+				.then(function(){
+					$scope.reloadList();
+					$state.go("^");
+					ngToast.create("Article deleted.");
+					article.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to delete article.");
+					article.busy = false;
+				});
+			});
 		};
 	};
 
@@ -115,5 +112,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ArticleDetailController", ArticleDetailController);
 
-	ArticleDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "ArticleService"];
+	ArticleDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "ArticleService"];
 })();

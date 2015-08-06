@@ -23,16 +23,15 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
+	q = require("q"),
 	bcrypt = require("bcrypt-nodejs"),
-	userSchema = mongoose.Schema({
+	config = require("../utils/common.js").config,
+	ldap = require("../utils/ldap.js"),
+	userSchema = {
 		email: {
 			type: String,
 			required: true,
 			unique: true
-		},
-		passwordHash: {
-			type: String,
-			required: true
 		},
 		verified: {
 			type: Boolean,
@@ -62,8 +61,14 @@ var mongoose = require("mongoose"),
 			type: Boolean,
 			default: false
 		},
-		firstName: String,
-		lastName: String,
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
 		primaryHandle: String,
 		tertiaryHandles: [String],
 		roles: [String],
@@ -75,18 +80,341 @@ var mongoose = require("mongoose"),
 			},
 			serviceHandle: String
 		}]
-	});
+	},
+	userModel;
+
+if(config.ldap.enabled){
+	userSchema.cn = String;
+	userSchema.lastSync = {
+		type: Date,
+		default: Date.now
+	};
+}else{
+	userSchema.passwordHash = {
+		type: String,
+		required: true
+	};
+}
+
+userSchema = mongoose.Schema(userSchema);
 
 userSchema.methods.hash = function(pass){
-	return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
+	if(!config.ldap.enabled){
+		return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
+	}else{
+		console.error("Error: hash method should not be used with LDAP enabled");
+		return "";
+	}
 };
 
 userSchema.methods.isValidPassword = function(pass){
-	return bcrypt.compareSync(pass, this.passwordHash);
+	if(!config.ldap.enabled){
+		return bcrypt.compareSync(pass, this.passwordHash);
+	}else{
+		console.error("Error: isValidPassword method should not be used with LDAP enabled");
+		return false;
+	}
 };
 
 userSchema.methods.hasRole = function(role){
-	return this.roles.indexOf(role) !== -1;
+	if(config.ldap.enabled){
+		return ldap.hasRole(this.cn, role);
+	}else{
+		var deferred = q.defer();
+		if(this.roles.indexOf(role) !== -1){
+			deferred.resolve();
+		}else{
+			deferred.reject({
+				reason: "role-not-found",
+				message: "The given user has no role by that name"
+			});
+		}
+		return deferred.promise;
+	}
 };
 
-module.exports = mongoose.model("User", userSchema);
+userSchema.methods.changePassword = function(oldPassword, newPassword){
+	var user = this,
+		deferred = q.defer();
+	if(config.ldap.enabled){
+		ldap.setPassword(user.cn, oldPassword, newPassword)
+		.then(function(){
+			user.modified = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: " + err.message);
+				}
+			});
+			deferred.resolve();
+		}).catch(function(err){
+			console.error("Error: " + err.message);
+			deferred.reject(err);
+		});
+	}else{
+		if(user.isValidPassword(oldPassword)){
+			user.passwordHash = user.hash(newPassword);
+			user.modified = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: " + err.message);
+				}
+				deferred.resolve();
+			});
+		}else{
+			deferred.reject({
+				reason: "invalid-password",
+				message: "Unable to change password, failed to authenticate old password"
+			});
+		}
+	}
+	return deferred.promise;
+};
+
+userSchema.methods.resetPassword = function(newPassword){
+	var user = this,
+		deferred = q.defer();
+	if(config.ldap.enabled){
+		ldap.resetPassword(user.cn, newPassword)
+		.then(function(){
+			user.modified = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: " + err.message);
+				}
+			});
+			deferred.resolve();
+		}).catch(function(err){
+			console.error("Error: " + err.message);
+			deferred.reject(err);
+		});
+	}else{
+		user.passwordHash = user.hash(newPassword);
+		user.modified = Date.now();
+		user.save(function(err){
+			if(err){
+				console.error("Error: " + err.message);
+			}
+			deferred.resolve();
+		});
+	}
+	return deferred.promise;
+};
+
+userSchema.methods.syncWithDirectory = function(){
+	if(!config.ldap.enabled){
+		return q.resolve();
+	}
+
+	var user = this,
+		deferred = q.defer();
+
+	ldap.getUser(user.cn)
+	.then(function(userTemplate){
+		if(user.modified
+		&& user.modified > user.lastSync
+		&& userTemplate.modified < user.lastSync){
+			userTemplate = {
+				email: user.email,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				verified: user.verified,
+				roles: user.roles
+			};
+			ldap.updateUser(user.cn, userTemplate)
+			.then(function(newCn){
+				user.cn = newCn;
+				user.lastSync = Date.now();
+				user.save(function(err){
+					if(err){
+						console.error("Error: " + err.message);
+					}
+					deferred.resolve();
+				});
+			}).catch(function(err){
+				console.error("Error: " + err.message);
+				deferred.reject(err);
+			});
+		}else{
+			user.email = userTemplate.email;
+			user.firstName = userTemplate.firstName;
+			user.lastName = userTemplate.lastName;
+			user.verified = userTemplate.verified;
+			user.created = userTemplate.created;
+			user.roles = userTemplate.roles;
+			user.lastSync = Date.now();
+			user.save(function(err){
+				if(err){
+					console.error("Error: " + err.message);
+				}
+			});
+			deferred.resolve();
+		}
+	}).catch(function(err){
+		console.error("Error: " + err.message);
+		deferred.reject(err);
+	});
+	return deferred.promise;
+};
+
+userModel = mongoose.model("User", userSchema);
+
+// userEntryTemplate = {
+// 	email: "",
+//  password: "",
+// 	verified: "",
+//  vip: false,
+//  lanInviteDesired: false,
+//  blacklisted: false,
+// 	firstName: "",
+// 	lastName: "",
+//  primaryHandle: "",
+//  tertiaryHandles: [""],
+// 	roles: [""],
+//  services: [{
+//   service: "",
+//   serviceHandle: ""
+//  }]
+// }
+userModel.createNew = function(userTemplate){
+	var deferred = q.defer();
+	userModel.findOne({"email": userTemplate.email}, function(err, user){
+		// If we've encountered a database error, bail
+		if(err){
+			deferred.reject(err);
+			return deferred.promise;
+		}
+
+		if(config.ldap.enabled){
+			ldap.createUser(userTemplate)
+			.then(function(cn){
+				// If we've found the email in our database, the user already exists, do nothing
+				if(user){
+					deferred.reject(err);
+				// Else, create the new user
+				}else{
+					delete userTemplate.password;
+
+					var newUser = new userModel(userTemplate);
+					newUser.cn = cn;
+					newUser.save(function(err){
+						if(err){
+							deferred.reject(err);
+							return;
+						}
+						deferred.resolve(newUser);
+					});
+				}
+			}).catch(function(err){
+				if(err === "User already exists" && !user){
+					delete userTemplate.password;
+					var newUser = new userModel(userTemplate);
+					newUser.save(function(err){
+						if(err){
+							deferred.reject(err);
+							return;
+						}
+						newUser.syncWithDirectory()
+						.then(function(){
+							deferred.resolve(newUser);
+						}).catch(function(err){
+							deferred.reject(err);
+						});
+					});
+				}else{
+					deferred.reject(err);
+				}
+			});
+		}else{
+			// If we've found the email in our database, the user already exists, do nothing
+			if(user){
+				deferred.resolve(false);
+			// Else, create the new user
+			}else{
+				var password = userTemplate.password,
+					newUser;
+				delete userTemplate.password;
+				newUser = new userModel(userTemplate);
+				newUser.passwordHash = newUser.hash(password);
+				newUser.save(function(err){
+					if(err){
+						deferred.reject(err);
+						return;
+					}
+					deferred.resolve(newUser);
+				});
+			}
+		}
+	});
+	return deferred.promise;
+};
+
+userModel.authenticate = function(email, password){
+	var deferred = q.defer();
+	if(config.ldap.enabled){
+		ldap.authenticate(email, password)
+		.then(function(){
+			// Try to find a user with the given email in our app DB
+			userModel.findOne({"email": email}, function(err, user){
+				if(err){
+					deferred.reject(err);
+					return;
+				}
+
+				// If we found the user, our job is done
+				if(user){
+					user.accessed = Date.now();
+					user.syncWithDirectory()
+					.then(function(){
+						deferred.resolve(user);
+					}).catch(function(){
+						deferred.resolve(user);
+					});
+				// Otherwise if we didn't find the user, we already know it exists in 
+				// the directory, so create our app DB entry now
+				}else{
+					var newUser = new userModel({
+						email: email,
+						roles: [],
+						services: []
+					});
+					newUser.save(function(err){
+						if(err){
+							deferred.reject(err);
+							return;
+						}
+						newUser.accessed = Date.now();
+						newUser.syncWithDirectory()
+						.then(function(){
+							deferred.resolve(newUser);
+						}).catch(function(err){
+							deferred.reject(err);
+						});
+					});
+				}
+			});
+		}).catch(function(err){
+			deferred.reject(err);
+		});
+	}else{
+		// Try to find a user with the given email
+		userModel.findOne({"email": email}, function(err, user){
+			// If we've encountered a database error, bail
+			if(err){
+				deferred.reject(err);
+				return;
+			}
+
+			// If we've found the user in the database and the given password matches, 
+			// pass the user on to the next middleware
+			if(user && user.isValidPassword(password)){
+				deferred.resolve(user);
+			// Else, set the flash and move on
+			}else{
+				deferred.resolve(false);
+			}
+		});
+	}
+	return deferred.promise;
+};
+
+module.exports = userModel;

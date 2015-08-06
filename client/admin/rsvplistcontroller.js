@@ -36,16 +36,14 @@ require("./rsvpdetailcontroller.js");
 
 		$scope.reloadList = function(){
 			RsvpService.retrieveAll()
-			.then(
-				function(data){
-					rsvps.list = data;
-					for(var i = 0; i < data.length; i += 1){
-						rsvps.list[i].beginDate = new Date(data[i].lan.beginDate);
-					}
-				}, function(){
-					ngToast.danger("Failed to retrieve RSVPs.");
+			.then(function(data){
+				rsvps.list = data;
+				for(var i = 0; i < data.length; i += 1){
+					rsvps.list[i].beginDate = new Date(data[i].lan.beginDate);
 				}
-			);
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve RSVPs.");
+			});
 		};
 		$scope.reloadList();
 	};

@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var SectionEntry = function($timeout){
+	var SectionEntry = function(){
 		return {
 			restrict: "E",
 			replace: true,
@@ -44,8 +44,18 @@ misrepresented as being the original software.
 					});
 					element.toggleClass("section-entry-open");
 					scope.collapsed = !scope.collapsed;
-					$timeout(function(){scope.$emit("ResizeContentArea");}, 400);
+
+					if(!scope.collapsed){
+						scope.$parent.$parent.$broadcast("AccordionSwitch", scope.$id);
+					}
 				}
+
+				scope.$on("AccordionSwitch", function(e, scopeId){
+					if(scope.$id !== scopeId){
+						element.removeClass("section-entry-open");
+						scope.collapsed = true;
+					}
+				});
 			}
 		}
 	};
@@ -54,5 +64,5 @@ misrepresented as being the original software.
 		.module("3akm.common.sectionentry", ["ui.bootstrap"])
 		.directive("sectionEntry", SectionEntry);
 
-	SectionEntry.$inject = ["$timeout"];
+	SectionEntry.$inject = [];
 })();

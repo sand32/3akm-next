@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-body {
+html, body {
 	background-color: #222;
+	height: 100%;
 }
 
 a {
@@ -48,6 +49,11 @@ a.btn-link:hover {
 	background-color: white;
 }
 
+.content-area {
+	min-height: 100%;
+	position: relative;
+}
+
 .menu-container {
 	position: fixed;
 }
@@ -57,7 +63,7 @@ a.btn-link:hover {
 }
 
 .logo {
-	background: url('/images/3ak_transx_short_dark.png') no-repeat center;
+	background: url('/images/3akm_dark.jpg') no-repeat center;
 	height: 100px;
 	margin-bottom: 1.5em;
 }
@@ -74,10 +80,31 @@ a.btn-link:hover {
 	margin: 0px;
 }
 
+.content-row {
+	padding-bottom: 130px;
+}
+
 .footer {
-	padding-top: 2em;
-	padding-bottom: 2em;
 	text-align: center;
+	width: 100%;
+	height: 110px;
+	position:absolute;
+	bottom:0;
+	left:0;
+}
+
+.menu-slim {
+	background-color: #222;
+}
+
+.menu-button {
+	color: #AAA;
+	margin: .5em;
+}
+
+.menu-button:hover {
+	background-color: #444;
+	color: #AAA;
 }
 
 .menu-list {
@@ -115,13 +142,17 @@ a.btn-link:hover {
 	border-bottom: 1px #222 solid;
 	cursor: pointer;
 	text-align: right;
-	height: 5em;
+	height: 106px;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+.section-entry .section-header h2 {
+	margin-top: 0;
 }
 
 .section-entry .section-body {
@@ -140,6 +171,10 @@ a.btn-link:hover {
 	-o-filter: none;
 	-webkit-filter: none;
 	filter: none;
+}
+
+.section-entry .description{
+	overflow: auto;
 }
 
 .game-info-panel {

@@ -25,7 +25,7 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Store = require("../model/store.js"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
 
 module.exports = function(app, prefix){
@@ -43,6 +43,9 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:store", 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findById(req.params.store, function(err, doc){
 			if(doc){
 				res.status(200).send(doc);
@@ -53,7 +56,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -70,10 +73,13 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:store", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -86,9 +92,12 @@ module.exports = function(app, prefix){
 	});
 
 	app.delete(prefix + "/:store", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
+			return res.status(404).end();
+		}
 		Store.findByIdAndRemove(req.params.store, function(err, doc){
 			if(err){
 				res.status(400).end();

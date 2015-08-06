@@ -24,19 +24,19 @@
 doctype html
 html(ng-app = "3akm.admin")
 	head
-		title 3AK^M Administrative Portal
-		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
+		title 3AKM Administrative Portal
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast-animations.min.css")
-		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/fontawesome/css/font-awesome.min.css")
-		link(rel = "stylesheet", type = "tsxt/css", href = "/thirdparty/textangular/textAngular.css")
-		link(rel = "stylesheet", type = "tsxt/css", href = "/css/admin.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/fontawesome/css/font-awesome.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/textangular/textAngular.css")
+		link(rel = "stylesheet", type = "text/css", href = "/css/admin.css")
 		meta(name = "viewport", content = "width=device-width, initial-scale=1")
 	body
 		base(href = "/admin/")
 		toast
 		.container-fluid.content-area
-			.menu.col-xs-2.auto-resize.visible-md.visible-lg
+			.menu.col-xs-2.visible-md.visible-lg
 				a(ui-sref = "default")
 					.logo
 				ul.menu-list.nav.nav-stacked
@@ -59,6 +59,9 @@ html(ng-app = "3akm.admin")
 						a(ui-sref = "rsvp")
 							| RSVPs
 					li(ui-sref-active = "current")
+						a(ui-sref = "recipient")
+							| Invite Recipients
+					li(ui-sref-active = "current")
 						a(ui-sref = "cod4")
 							| Call of Duty 4
 					hr
@@ -67,7 +70,7 @@ html(ng-app = "3akm.admin")
 							| Frontend
 			.menu-slim.button-row.hidden-md.hidden-lg
 				a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
-			.menu.hidden-md.hidden-lg(ng-if = "showMenu")
+			.menu.hidden-md.hidden-lg(ng-show = "showMenu")
 				ul.menu-list.nav.nav-stacked
 					li(ui-sref-active = "current")
 						a(ui-sref = "default", ng-click = "showMenu = false")
@@ -88,13 +91,16 @@ html(ng-app = "3akm.admin")
 						a(ui-sref = "rsvp", ng-click = "showMenu = false")
 							| RSVPs
 					li(ui-sref-active = "current")
+						a(ui-sref = "recipient", ng-click = "showMenu = false")
+							| Invite Recipients
+					li(ui-sref-active = "current")
 						a(ui-sref = "cod4", ng-click = "showMenu = false")
 							| Call of Duty 4
 					hr
 					li
 						a(href = "/", target = "_self")
 							| Frontend
-			.content.col-md-10.auto-resize(ui-view)
+			.content.col-md-10(ui-view)
 	script(src = "/thirdparty/angular.min.js")
 	script(src = "/thirdparty/angular-messages.min.js")
 	script(src = "/thirdparty/angular-animate.min.js")
@@ -108,3 +114,4 @@ html(ng-app = "3akm.admin")
 	script(src = "/thirdparty/ngToast/ngToast.min.js")
 	script(src = "/thirdparty/d3.min.js")
 	script(src = "/js/admin.js")
+	analytics(analytics-tracking-id = analyticsTrackingId)

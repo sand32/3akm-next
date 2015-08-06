@@ -28,140 +28,145 @@ misrepresented as being the original software.
 			isLoggedIn: function(){
 				var deferred = $q.defer();
 				$http.get("/api/user/isloggedin")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			register: function(postData){
 				var deferred = $q.defer();
 				$http.post("/api/user/register", postData)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			login: function(email, pass){
 				var deferred = $q.defer();
 				$http.post("/api/user/login", {email: email, password: pass})
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			logout: function(){
 				var deferred = $q.defer();
 				$http.post("/api/user/logout")
-				.then(
-					function(response){
-						deferred.resolve();
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			resendVerificationEmail: function(id){
 				var deferred = $q.defer();
 				$http.post("/api/user/" + id + "/verify")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
+			},
+
+			verify: function(id, token){
+				var deferred = $q.defer();
+				$http.post("/api/user/" + id + "/verify/" + token)
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieveAll: function(){
 				var deferred = $q.defer();
 				$http.get("/api/user")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieve: function(id){
 				var deferred = $q.defer();
 				$http.get("/api/user/" + id)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			create: function(postData){
 				var deferred = $q.defer();
 				$http.post("/api/user", postData)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			edit: function(id, putData){
 				var deferred = $q.defer();
 				$http.put("/api/user/" + id, putData)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
-			changePassword: function(id, newPassword){
+			changePassword: function(id, oldPassword, newPassword){
 				var deferred = $q.defer();
-				$http.put("/api/user/" + id + "/password", {password: newPassword})
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				$http.put("/api/user/" + id + "/password", {
+					oldPassword: oldPassword,
+					newPassword: newPassword
+				}).then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
+			},
+
+			sendPasswordResetEmail: function(email){
+				var deferred = $q.defer();
+				$http.post("/api/user/resetpassword", {email: email})
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
+				return deferred.promise;
+			},
+
+			resetPassword: function(id, token, newPassword){
+				var deferred = $q.defer();
+				$http.post("/api/user/" + id + "/password/reset/" + token, {newPassword: newPassword})
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			}
 		};

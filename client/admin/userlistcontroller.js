@@ -36,13 +36,11 @@ require("./userdetailcontroller.js");
 
 		$scope.reloadList = function(){
 			UserService.retrieveAll()
-			.then(
-				function(data){
-					users.list = data;
-				}, function(){
-					ngToast.danger("Failed to retrieve users.");
-				}
-			);
+			.then(function(data){
+				users.list = data;
+			}).catch(function(){
+				ngToast.danger("Failed to retrieve users.");
+			});
 		};
 		$scope.reloadList();
 	};

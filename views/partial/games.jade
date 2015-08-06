@@ -27,8 +27,7 @@
 		hr
 		section-entry(
 			ng-repeat = "game in ctrl.games",
-			header-image = "game.descriptionHeaderImage",
-			name = "{{game.name}}")
+			header-image = "game.descriptionHeaderImage")
 			.game-info-panel
 				.stores(ng-if = "game.stores.length > 0")
 					a(ng-repeat = "store in game.stores", ng-href = "{{store.store.appUrl}}", title = "{{store.store.name}}")

@@ -24,14 +24,18 @@ misrepresented as being the original software.
 
 require("../common/lanservice.js");
 require("../common/rsvpservice.js");
+require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, ngToast, LanService, RsvpService){
+	var RsvpController = function($scope, $state, $q, ngToast, UserService, LanService, RsvpService){
 		var ctrl = this;
 		ctrl.year = 0;
+		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
 		ctrl.isLoggedIn = false;
+		ctrl.isVerified = false;
+		ctrl.busy = false;
 		ctrl.loaded = false;
 		ctrl.statusPossibles = [
 			{label: "Yes", value: "'Yes'"}, 
@@ -50,10 +54,19 @@ require("../common/enumselectdirective.js");
 			bringingFood: false
 		};
 
+		UserService.retrieve("session")
+		.then(function(user){
+			ctrl.isVerified = user.verified;
+			ctrl.isLoggedIn = true;
+		}).catch(function(status){
+			ctrl.isLoggedIn = false;
+		});
+
 		LanService.retrieve("next")
 		.then(function(lan){
 			var beginDate = new Date(lan.beginDate);
 			ctrl.year = beginDate.getFullYear();
+			ctrl.entryFee = lan.entryFee;
 			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
 			// Load any tournament games for this LAN into our controller
@@ -69,59 +82,56 @@ require("../common/enumselectdirective.js");
 			return promise;
 		}, function(){
 			ctrl.loaded = true;
-		})
-		.then(function(rsvp){
+		}).then(function(rsvp){
 			ctrl.current = rsvp;
-			ctrl.isLoggedIn = true;
 
 			// Load existing signup info into our controller
 			for(var i = 0; i < rsvp.tournaments.length; i += 1){
 				for(var j = 0; j < ctrl.tournaments.length; j += 1){
-					if(rsvp.tournaments[i].tournament === ctrl.tournaments[j].game){
+					if(rsvp.tournaments[i].game === ctrl.tournaments[j].game){
 						ctrl.tournaments[j].signedUp = true;
 					}
 				}
 			}
 
 			ctrl.loaded = true;
-		}, function(status){
+		}).catch(function(status){
 			if(status === 403){
-				ctrl.isLoggedIn = false;
 				$scope.$emit("AuthChanged", false);
-			}else{
-				ctrl.isLoggedIn = true;
 			}
 			ctrl.loaded = true;
 		});
 
 		ctrl.submit = function(){
+			ctrl.busy = true;
 			ctrl.current.tournaments = [];
 			for(var i = 0; i < ctrl.tournaments.length; i += 1){
 				if(ctrl.tournaments[i].signedUp){
 					ctrl.current.tournaments.push({
-						tournament: ctrl.tournaments[i].game
+						game: ctrl.tournaments[i].game
 					});
 				}
 			}
 			RsvpService.createOrEdit("session", ctrl.year, ctrl.current)
-			.then(
-				function(){
-					ngToast.create("RSVP successfully submitted.");
-					$state.go("appearances");
-				}, function(){
-					ngToast.danger("Failed to submit RSVP.");
-				}
-			);
+			.then(function(){
+				ngToast.create("RSVP successfully submitted.");
+				$state.go("appearances");
+				ctrl.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to submit RSVP.");
+				ctrl.busy = false;
+			});
 		};
 	};
 
 	angular
 		.module("3akm.rsvpSubmission", [
+				"3akm.user",
 				"3akm.lan",
 				"3akm.rsvp",
 				"3akm.common.enumselect"
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "ngToast", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "UserService", "LanService", "RsvpService"];
 })();

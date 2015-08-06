@@ -22,17 +22,19 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var utils = require("../utils/common.js"),
-	config = utils.loadConfig(__dirname + "/../config/config.json");
+var express = require("express"),
+	authenticate = require("../utils/common.js").authenticate,
+	authorize = require("../authorization.js").authorize,
+	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
-	app.get(prefix + "/registrationform", function(req, res){
+	app.get(prefix + "/partial/registrationform", function(req, res){
 		res.render("partial/registrationform.jade", {
 			recaptchaSiteKey: config.recaptchaSiteKey
 		});
 	});
 
-	app.get(prefix + "/*", function(req, res){
+	app.get(prefix + "/partial/*", function(req, res){
 		if(config.debugMode){
 			res.render("partial/" + req.params[0] + ".jade");
 		}else{
@@ -42,6 +44,55 @@ module.exports = function(app, prefix){
 				}else{
 					res.send(html);
 				}
+			});
+		}
+	});
+
+	app.use(express.static('public'));
+
+	app.get(prefix + "/admin*", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+	function(req, res){
+		if(config.debugMode){
+			var startup = require("../utils/startup.js");
+			startup.bundleClientJS()
+			.then(
+				function(){
+					res.render("admin", {
+						analyticsTrackingId: config.analyticsTrackingId
+					});
+				},
+				function(error){
+					console.error("Error: " + error);
+					res.status(500).end();
+				}
+			);
+		}else{
+			res.render("admin", {
+				analyticsTrackingId: config.analyticsTrackingId
+			});
+		}
+	});
+
+	app.get(prefix + "*", function(req, res){
+		if(config.debugMode){
+			var startup = require("../utils/startup.js");
+			startup.bundleClientJS()
+			.then(
+				function(){
+					res.render("frontend", {
+						analyticsTrackingId: config.analyticsTrackingId
+					});
+				},
+				function(error){
+					console.error("Error: " + error);
+					res.status(500).end();
+				}
+			);
+		}else{
+			res.render("frontend", {
+				analyticsTrackingId: config.analyticsTrackingId
 			});
 		}
 	});

@@ -26,8 +26,9 @@ var mongoose = require("mongoose"),
 	q = require("q"),
 	Lan = require("../model/lan.js"),
 	Game = require("../model/game.js"),
+	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
 
 module.exports = function(app, prefix){
@@ -52,6 +53,9 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
 			query = Lan.findById(req.params.lan);
 		}
 
@@ -77,7 +81,10 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
-			Lan.findById(req.params.lan);
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
+			query = Lan.findById(req.params.lan);
 		}
 		query.exec(function(err, doc){
 			if(err){
@@ -112,8 +119,60 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/:lan/rsvps", 
+	function(req, res){
+		var deferred = q.defer(),
+			query = null,
+			year;
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
+			query = Lan.findById(req.params.lan);
+		}
+		query.exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				year = doc.beginDate.getFullYear();
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise.then(function(data){
+			Rsvp.find({lan: data._id})
+			.populate("user tournaments.game", "email firstName lastName primaryHandle name")
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else{
+					var rsvps = JSON.parse(JSON.stringify(docs));
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							for(var k = 0; k < data.games.length; k += 1){
+								if(data.games[k].game.toString() === rsvps[i].tournaments[j].game._id.toString()){
+									rsvps[i].tournaments[j].game.tournamentName = data.games[k].tournamentName;
+								}
+							}
+						}
+					}
+					res.send(rsvps);
+				}
+			});
+		}, function(err){
+			res.status(500).end();
+		});
+	});
+
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
@@ -130,10 +189,13 @@ module.exports = function(app, prefix){
 	});
 
 	app.put(prefix + "/:lan", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.status(404).end();
+		}
 		Lan.findByIdAndUpdate(req.params.lan, req.body, function(err, doc){
 			if(err){
 				res.status(400).end();
@@ -146,9 +208,12 @@ module.exports = function(app, prefix){
 	});
 
 	app.delete(prefix + "/:lan", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+			return res.status(404).end();
+		}
 		Lan.findByIdAndRemove(req.params.lan, function(err, doc){
 			if(err){
 				res.status(400).end();

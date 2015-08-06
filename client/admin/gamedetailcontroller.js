@@ -28,13 +28,17 @@ require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var GameDetailController = function($scope, $timeout, $state, $modal, ngToast, GameService, StoreService){
+	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
 		var game = this;
+		game.busy = false;
 		game.current = {
 			supplementalFiles: [],
 			stores: []
 		};
 		game.storesEnum = [];
+		game.help = {
+			stores: "AppIDs must be in the following formats per store, where the value you enter will replace [appid]:<br/><br/>"
+		}
 
 		StoreService.retrieveAll()
 		.then(
@@ -44,46 +48,44 @@ require("../common/confirmcontroller.js");
 						key: data[i].name,
 						value: data[i]._id
 					});
+					game.help.stores += "<strong>" + data[i].name + "</strong>: " + data[i].appUrl + "<br/>";
 				}
 			}
 		);
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
-			.then(
-				function(data){
-					game.current = data;
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-				},
-				function(){
-					$state.go("^");
-					ngToast.danger("Failed to retrieve game.");
-				}
-			);
+			.then(function(data){
+				game.current = data;
+			}).catch(function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve game.");
+			});
 		}
 
 		game.save = function(){
+			game.busy = true;
 			if($state.params.gameId === "new"){
 				GameService.create(game.current)
-				.then(
-					function(data){
-						$scope.reloadList();
-						$state.go(".", {gameId: data._id});
-						ngToast.create("Game created.");
-					}, function(){
-						ngToast.danger("Failed to create game.");
-					}
-				);
+				.then(function(data){
+					$scope.reloadList();
+					$state.go(".", {gameId: data._id});
+					ngToast.create("Game created.");
+					game.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to create game.");
+					game.busy = false;
+				});
 			}else{
 				GameService.edit($state.params.gameId, game.current)
-				.then(
-					function(){
-						$scope.reloadList();
-						ngToast.create("Game updated.");
-					}, function(){
-						ngToast.danger("Failed to update game.");
-					}
-				);
+				.then(function(){
+					$scope.reloadList();
+					ngToast.create("Game updated.");
+					game.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to update game.");
+					game.busy = false;
+				});
 			}
 		};
 
@@ -96,20 +98,16 @@ require("../common/confirmcontroller.js");
 				}
 			});
 
-			modalInstance.result.then(
-				function(){
-					GameService.delete($state.params.gameId)
-					.then(
-						function(){
-							$scope.reloadList();
-							$state.go("^");
-							ngToast.create("Game deleted.");
-						}, function(){
-							ngToast.danger("Failed to delete game.")
-						}
-					);
-				}
-			);
+			modalInstance.result.then(function(){
+				GameService.delete($state.params.gameId)
+				.then(function(){
+					$scope.reloadList();
+					$state.go("^");
+					ngToast.create("Game deleted.");
+				}).catch(function(){
+					ngToast.danger("Failed to delete game.")
+				});
+			});
 		};
 	};
 
@@ -124,5 +122,5 @@ require("../common/confirmcontroller.js");
 			])
 		.controller("GameDetailController", GameDetailController);
 
-	GameDetailController.$inject = ["$scope", "$timeout", "$state", "$modal", "ngToast", "GameService", "StoreService"];
+	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService", "StoreService"];
 })();

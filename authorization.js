@@ -22,22 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+var q = require("q");
+
 rules = {
 	isUser: function(thisUser, otherUserId){
-		return thisUser._id == otherUserId;
+		var deferred = q.defer();
+		if(!otherUserId
+		|| thisUser._id == otherUserId){
+			deferred.resolve();
+		}else{
+			deferred.reject();
+		}
+		return deferred.promise;
 	},
 
 	hasRoles: function(user, roles){
-		if(roles.length === 0){
-			return false;
+		if(!roles){
+			return q.resolve();
 		}
-		var hasRolesSuccess = true;
+
+		var promises = [];
 		for(var i = 0; i < roles.length; i+=1){
-			if(!user.hasRole(roles[i])){
-				hasRolesSuccess = false;
-			}
+			promises.push(user.hasRole(roles[i]));
 		}
-		return hasRolesSuccess;
+		return q.all(promises);
 	}
 }
 
@@ -50,37 +58,52 @@ module.exports = {
 	//     hasRoles: [String]
 	// }
 	isAuthorized: function(user, ruleset){
-		if(!ruleset || user.hasRole("admin")){
-			return true;
+		if(!ruleset){
+			return q.resolve();
 		}
 
-		return (ruleset.isUser ? rules.isUser(user, ruleset.isUser) : true) &&
-				(ruleset.hasRoles ? rules.hasRoles(user, ruleset.hasRoles) : true);
+		var deferred = q.defer();
+		rules.hasRoles(user, ["admin"])
+		.done(
+			function(){
+				deferred.resolve();
+			},
+			function(){
+				q.all([
+					rules.isUser(user, ruleset.isUser),
+					rules.hasRoles(user, ruleset.hasRoles)
+				]).done(deferred.resolve, deferred.reject);
+			}
+		);
+		return deferred.promise;
 	},
 
 	// Middleware for denying connections without authorization
 	authorize: function(ruleset){
 		return function(req, res, next){
-			if(module.exports.isAuthorized(req.user, ruleset)){
+			module.exports.isAuthorized(req.user, ruleset)
+			.then(function(){
 				next();
-			}else{
+			}).catch(function(){
 				res.status(403).end();
-			}
+			});
 		};
 	},
 
-	// Same as above, but use 
+	// Same as above, but use the current user as the target user
 	authorizeSessionUser: function(ruleset){
 		return function(req, res, next){
 			if(req.params.user === "session"){
 				req.params.user = req.user._id.toString();
 			}
-			if(module.exports.isAuthorized(req.user, ruleset) 
-			&& module.exports.isAuthorized(req.user, {isUser: req.params.user})){
+			module.exports.isAuthorized(req.user, ruleset)
+			.then(function(){
+				return module.exports.isAuthorized(req.user, {isUser: req.params.user})
+			}).then(function(){
 				next();
-			}else{
+			}).catch(function(){
 				res.status(403).end();
-			}
+			});
 		};
 	}
 }

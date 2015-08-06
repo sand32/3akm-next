@@ -28,8 +28,10 @@ require("../common/enumselectdirective.js");
 require("../common/validationdirectives.js");
 
 (function(){
-	var UserDetailController = function($scope, $timeout, $state, ngToast, UserService){
+	var UserDetailController = function($scope, $state, ngToast, UserService){
 		var user = this;
+		user.loaded = false;
+		user.busy = false;
 		user.current = {
 			lanInviteDesired: true,
 			blacklisted: false,
@@ -49,53 +51,53 @@ require("../common/validationdirectives.js");
 
 		if($state.params.userId && $state.params.userId !== "new"){
 			UserService.retrieve($state.params.userId)
-			.then(
-				function(data){
-					user.current = data;
-					$timeout(function(){$scope.$emit("ResizeContentArea");}, 100);
-				},
-				function(){
-					$state.go("^");
-					ngToast.danger("Failed to retrieve user.");
-				}
-			);
+			.then(function(data){
+				user.current = data;
+				user.loaded = true;
+			}).catch(function(){
+				$state.go("^");
+				ngToast.danger("Failed to retrieve user.");
+			});
+		}else{
+			user.loaded = true;
 		}
 
 		user.save = function(){
+			user.busy = true;
 			if($state.params.userId === "new"){
 				UserService.create(user.current)
-				.then(
-					function(data){
-						$scope.reloadList();
-						$state.go(".", {userId: data._id});
-						ngToast.create("User created.");
-					}, function(){
-						ngToast.danger("Failed to create user.");
-					}
-				);
+				.then(function(data){
+					$scope.reloadList();
+					$state.go(".", {userId: data._id});
+					ngToast.create("User created.");
+					user.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to create user.");
+					user.busy = false;
+				});
 			}else{
 				UserService.edit($state.params.userId, user.current)
-				.then(
-					function(){
-						$scope.reloadList();
-						ngToast.create("User updated.");
-					}, function(){
-						ngToast.danger("Failed to update user.");
-					}
-				);
+				.then(function(){
+					$scope.reloadList();
+					ngToast.create("User updated.");
+					user.busy = false;
+				}).catch(function(){
+					ngToast.danger("Failed to update user.");
+					user.busy = false;
+				});
 			}
 		};
 
 		user.resendVerificationEmail = function(){
-			UserService.resendVerificationEmail()
-			.then(
-				function(){
-					ngToast.create("Verification email sent.");
-				},
-				function(){
-					ngToast.danger("Failed to send verification email.");
-				}
-			);
+			user.busy = true;
+			UserService.resendVerificationEmail($state.params.userId)
+			.then(function(){
+				ngToast.create("Verification email sent.");
+				user.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to send verification email.");
+				user.busy = false;
+			});
 		};
 	};
 
@@ -109,5 +111,5 @@ require("../common/validationdirectives.js");
 			])
 		.controller("UserDetailController", UserDetailController);
 
-	UserDetailController.$inject = ["$scope", "$timeout", "$state", "ngToast", "UserService"];
+	UserDetailController.$inject = ["$scope", "$state", "ngToast", "UserService"];
 })();

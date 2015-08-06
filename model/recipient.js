@@ -23,35 +23,24 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	authorize = require("../authorization.js").authorize,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
-	multer = require("multer");
-
-module.exports = function(app, prefix){
-	app.post(prefix + "/image", 
-		blendedAuthenticate, 
-		authorize({hasRoles: ["admin"]}), 
-	multer({
-		dest:"./public/uploads/images/",
-		fileSize: 4000000, // 4MB
-		limits: {
-			fields: 0,
-			files: 1
+	recipientSchema = mongoose.Schema({
+		email: {
+			type: String,
+			required: true,
+			unique: true
 		},
-		onFileUploadStart: function(file){
-			if(file.mimetype.indexOf("image/")){
-				return false;
-			}
+		firstName: {
+			type: String,
+			required: true
 		},
-		onError: function(error, next){
-			console.log("Error uploading image: " + error);
-			next(error);
-		}
-	}), function(req, res){
-		if(req.files.file){
-			res.status(200).send(req.files.file);
-		}else{
-			res.status(400).end();
+		lastName: {
+			type: String,
+			required: true
+		},
+		vip: {
+			type: Boolean,
+			default: false
 		}
 	});
-}
+
+module.exports = mongoose.model("Recipient", recipientSchema);

@@ -32,6 +32,7 @@ require("../../admin-common/visualizationdirectives.js");
 		var currentLan = this;
 		currentLan.invitationCount = "N/A";
 		currentLan.rsvpCount = "N/A";
+		currentLan.cleaningCount = "N/A";
 		currentLan.rsvpGraphData = [];
 		currentLan.rsvpGraphOptions = {
 			labels: [
@@ -43,29 +44,35 @@ require("../../admin-common/visualizationdirectives.js");
 		};
 
 		LanService.retrieve("current")
-		.then(
-			function(lan){
-				currentLan.year = new Date(lan.beginDate).getFullYear();
+		.then(function(lan){
+			currentLan.year = new Date(lan.beginDate).getFullYear();
+			if(new Date() < new Date(lan.beginDate)){
 				currentLan.daysLeft = Math.round((new Date(lan.beginDate) - new Date())/(1000*60*60*24));
-				return RsvpService.retrieveAllForYear(currentLan.year);
+			}else if(new Date() > new Date(lan.endDate)){
+				currentLan.daysLeft = Math.round((new Date(lan.endDate) - new Date())/(1000*60*60*24));
+			}else{
+				currentLan.daysLeft = 0;
 			}
-		)
-		.then(
-			function(rsvps){
-				var yesCount = 0, maybeCount = 0, noCount = 0;
-				for(var i = 0; i < rsvps.length; i += 1){
-					if(rsvps[i].status === "Yes"){
-						yesCount += 1 + rsvps[i].guests;
-					}else if(rsvps[i].status === "Maybe"){
-						maybeCount += 1 + rsvps[i].guests;
-					}else if(rsvps[i].status === "No"){
-						noCount += 1 + rsvps[i].guests;
-					}
+			return RsvpService.retrieveAllForYear(currentLan.year);
+		}).then(function(rsvps){
+			var yesCount = 0, maybeCount = 0, noCount = 0, cleaningCount = 0;
+			for(var i = 0; i < rsvps.length; i += 1){
+				if(rsvps[i].status === "Yes"){
+					yesCount += 1 + rsvps[i].guests;
+				}else if(rsvps[i].status === "Maybe"){
+					maybeCount += 1 + rsvps[i].guests;
+				}else if(rsvps[i].status === "No"){
+					noCount += 1 + rsvps[i].guests;
 				}
-				currentLan.rsvpGraphData = [yesCount, maybeCount, noCount];
-				currentLan.rsvpCount = rsvps.length;
+
+				if(rsvps[i].cleaning){
+					cleaningCount += 1;
+				}
 			}
-		);
+			currentLan.rsvpGraphData = [yesCount, maybeCount, noCount];
+			currentLan.rsvpCount = rsvps.length;
+			currentLan.cleaningCount = cleaningCount;
+		});
 	};
 
 	angular

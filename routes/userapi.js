@@ -24,53 +24,42 @@ misrepresented as being the original software.
 
 var passport = require("passport"),
 	mongoose = require("mongoose"),
+	q = require("q"),
 	User = require("../model/user.js"),
+	Token = require("../model/token.js"),
+	Recipient = require("../model/recipient.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	blendedAuthenticate = require("../utils/common.js").blendedAuthenticate,
+	register = require("../utils/common.js").register,
+	login = require("../utils/common.js").login,
+	authenticate = require("../utils/common.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	smtp = require("../utils/smtp.js"),
+	config = require("../utils/common.js").config;
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
 		verifyRecaptcha, 
-		passport.authenticate("register"), 
+		register, 
 	function(req, res){
 		if(req.isAuthenticated()){
-			req.user.firstName = req.body.firstName;
-			req.user.lastName = req.body.lastName;
-			req.user.primaryHandle = req.body.primaryHandle;
-			req.user.tertiaryHandles = req.body.tertiaryHandles;
-			req.user.save();
-			// Send email for verification
-			// Respond with "201 Created"
-			res.status(201).send(req.user._id.toString());
+			smtp.sendEmailVerification(app, req.user, req.protocol + '://' + config.domain)
+			.then(function(){
+				res.status(201).send(req.user._id.toString());
+			}).catch(function(err){
+				res.status(500).end();
+			});
 		}else{
 			res.status(403).end();
 		}
 	});
 
-	app.get(prefix + "/verify/:user", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
-		User.findById(req.params.user, function(err, doc){
-			if(doc){
-				doc.verified = true;
-				doc.save();
-				res.status(200).end();
-			}else{
-				res.status(404).end();
-			}
-		});
-	});
-
-	app.post(prefix + "/login", passport.authenticate("local"), function(req, res){
+	app.post(prefix + "/login", 
+		login, 
+	function(req, res){
 		if(req.isAuthenticated()){
-			req.user.accessed = Date.now();
-			req.user.save();
 			res.status(200).end();
 		}else{
 			res.status(403).end();
@@ -86,18 +75,127 @@ module.exports = function(app, prefix){
 		res.send({isLoggedIn: req.isAuthenticated()});
 	});
 
+	app.post(prefix + "/resetpassword", function(req, res){
+		User.findOne({email: req.body.email}, function(err, doc){
+			if(err){
+				res.status(400).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				smtp.sendPasswordReset(app, doc, req.protocol + '://' + config.domain)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					res.status(400).end();
+				});
+			}
+		});
+	});
+
 	app.post(prefix + "/:user/verify", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
-		// Resend verification email
-		res.status(200).end();
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				res.status(500).end();
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				smtp.sendEmailVerification(app, doc, req.protocol + '://' + config.domain)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					res.status(400).end();
+				});
+			}
+		});
+	});
+
+	app.post(prefix + "/:user/verify/:token", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		var deferredUser = q.defer(), deferredToken = q.defer(),
+			verified = false;
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredUser.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				verified = doc.verified;
+				deferredUser.resolve(doc);
+			}
+		});
+		Token.findOne({token: req.params.token}, function(err, doc){
+			if(err){
+				deferredToken.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredToken.reject({reason: "not-found", message: "Token not found"});
+			}else{
+				deferredToken.resolve(doc);
+			}
+		});
+		q.all([deferredUser.promise, deferredToken.promise])
+		.spread(function(user, token){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(token.validate("verify" + user.email)){
+				user.verified = true;
+				user.modified = Date.now();
+				user.save(function(err){
+					if(err){
+						console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
+						res.status(500).end();
+					}else{
+						Recipient.findOneAndRemove({email: user.email}, function(err, doc){
+							if(!err && doc && doc.vip){
+								user.vip = true;
+								user.save();
+							}
+						});
+						user.syncWithDirectory()
+						.then(function(){
+							res.status(200).end();
+						}).catch(function(err){
+							console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
+							res.status(500).end();
+						});
+					}
+				});
+			}else{
+				res.status(400).end();
+			}
+		}).catch(function(err){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(400).end();
+			}
+		});
 	});
 
 	app.get(prefix + "/:user/verified", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		// Retrieve and return the "verified" value
 		User.findById(req.params.user, function(err, doc){
 			if(doc){
@@ -109,7 +207,7 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		User.find({}, function(err, docs){
@@ -122,9 +220,12 @@ module.exports = function(app, prefix){
 	});
 
 	app.get(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
 		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(500).end();
@@ -159,76 +260,173 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix, 
-		blendedAuthenticate, 
+		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		var user = new User(req.body);
-		user.passwordHash = user.hash(user.password);
-		delete user.password;
-		user.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + user._id)
-				.send({_id: user._id});
-			}
+		if(req.body.roles){
+			req.body.roles = removeDuplicates(req.body.roles);
+		}
+		User.createNew(req.body)
+		.then(function(newUser){
+			res.status(201)
+			.location(prefix + "/" + newUser._id)
+			.send({_id: newUser._id});
+		}).catch(function(err){
+			res.status(400).end();
 		});
 	});
 
 	app.put(prefix + "/:user", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		// Ignore the following fields unless sent by an admin
-		if(!req.user.hasRole("admin")){
-			delete req.body.verified;
-			delete req.body.vip;
-			delete req.body.blacklisted;
-			delete req.body.roles;
-			delete req.body.services;
-		}else if(req.body.roles){
-			req.body.roles = removeDuplicates(req.body.roles);
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
 		}
-		delete req.body.passwordHash;
-		delete req.body.created;
-		delete req.body.accessed;
 
-		// Record this modification
-		req.body.modified = Date.now();
-
-		// Update the user 
-		User.findByIdAndUpdate(req.params.user, req.body, function(err, doc){
+		var deferredExistingUser = q.defer(), deferredEditUser = q.defer();
+		User.findOne({email: req.body.email}, function(err, doc){
 			if(err){
-				res.status(400).end();
+				deferredExistingUser.reject({reason: "db-error", message: err});
+			}else{
+				deferredExistingUser.resolve(doc);
+			}
+		});
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredEditUser.reject({reason: "db-error", message: err});
 			}else if(!doc){
+				deferredEditUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				deferredEditUser.resolve(doc);
+			}
+		});
+		q.all([deferredExistingUser.promise, deferredEditUser.promise])
+		.spread(function(existingUser, editUser){
+			if(existingUser && existingUser._id.toString() !== editUser._id.toString()){
+				return q.reject({reason: "address-in-use", message: "User already using that email address"});
+			}
+			if(req.body.email !== editUser.email){
+				editUser.verified = false;
+			}
+			editUser.email = req.body.email;
+			editUser.firstName = req.body.firstName;
+			editUser.lastName = req.body.lastName;
+			editUser.lanInviteDesired = req.body.lanInviteDesired;
+			editUser.primaryHandle = req.body.primaryHandle;
+			editUser.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
+			editUser.modified = Date.now();
+
+			var onSave = function(err){
+				if(err){
+					res.status(500).end();
+				}else{
+					editUser.syncWithDirectory()
+					.then(function(){
+						res.status(200).end();
+					}).catch(function(){
+						res.status(500).end();
+					});
+				}
+			};
+
+			req.user.hasRole("admin")
+			.then(function(){
+				editUser.verified = req.body.verified;
+				editUser.vip = req.body.vip;
+				editUser.blacklisted = req.body.blacklisted;
+				editUser.roles = removeDuplicates(req.body.roles);
+				editUser.services = req.body.services;
+				editUser.save(onSave);
+			}).catch(function(){
+				editUser.save(onSave);
+			});
+		}).catch(function(err){
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "address-in-use"){
+				res.status(409).end();
+			}else if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				res.status(400).end();
 			}
 		});
 	});
 
 	app.put(prefix + "/:user/password", 
-		blendedAuthenticate, 
+		authenticate, 
 		authorizeSessionUser(), 
 	function(req, res){
-		// Record this modification
-		var update = {
-			modified: Date.now(),
-			passwordHash: req.user.hash(req.body.password)
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
 		}
 
 		// Update the user 
-		User.findByIdAndUpdate(req.params.user, update, function(err, doc){
+		User.findById(req.params.user, function(err, doc){
 			if(err){
 				res.status(400).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				doc.changePassword(req.body.oldPassword, req.body.newPassword)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(400).end();
+				});
+			}
+		});
+	});
+
+	app.post(prefix + "/:user/password/reset/:token", function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
+			return res.status(404).end();
+		}
+
+		var deferredUser = q.defer(), deferredToken = q.defer(),
+			verified = false;
+		User.findById(req.params.user, function(err, doc){
+			if(err){
+				deferredUser.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredUser.reject({reason: "not-found", message: "User not found"});
+			}else{
+				verified = doc.verified;
+				deferredUser.resolve(doc);
+			}
+		});
+		Token.findOne({token: req.params.token}, function(err, doc){
+			if(err){
+				deferredToken.reject({reason: "db-error", message: err});
+			}else if(!doc){
+				deferredToken.reject({reason: "not-found", message: "Token not found"});
+			}else{
+				deferredToken.resolve(doc);
+			}
+		});
+		q.all([deferredUser.promise, deferredToken.promise])
+		.spread(function(user, token){
+			if(token.validate("passwordreset" + user.email)){
+				user.resetPassword(req.body.newPassword)
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(err){
+					console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to reset password");
+					res.status(500).end();
+				});
+			}else{
+				res.status(400).end();
+			}
+		}).catch(function(err){
+			if(err.reason === "db-error"){
+				res.status(500).end();
+			}else if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(400).end();
 			}
 		});
 	});

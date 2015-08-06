@@ -24,7 +24,7 @@
 doctype html
 html(ng-app = "3akm.frontend")
 	head
-		title 3AK^M
+		title 3AKM
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast.min.css")
 		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast-animations.min.css")
@@ -35,14 +35,27 @@ html(ng-app = "3akm.frontend")
 		toast
 		.container.content-area
 			.row.header
-			.row.contentRow
+				.menu-slim.button-row.hidden-md.hidden-lg
+					a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
+				.menu.hidden-md.hidden-lg(ng-show = "showMenu")
+					ul.menu-list.nav.nav-stacked
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "default") Home
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "games") Games
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "prep") Preparation
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "appearances") Confirmed Appearances
+					user-menu
+			.row.content-row
 				.content.col-md-9(ui-view)
 				.menu.col-md-3.visible-md-block.visible-lg-block
 					.menu-container.affix-top
 					a(ui-sref = "default")
 						.logo
 
-					ul.menu-list(class = "nav nav-stacked")
+					ul.menu-list.nav.nav-stacked
 						li(ui-sref-active = "current")
 							a(ui-sref = "default") Home
 						li(ui-sref-active = "current")
@@ -68,3 +81,4 @@ html(ng-app = "3akm.frontend")
 	script(src = "/thirdparty/ui-bootstrap-tpls-0.13.0.min.js")
 	script(src = "/thirdparty/ngToast/ngToast.min.js")
 	script(src = "/js/frontend.js")
+	analytics(analytics-tracking-id = analyticsTrackingId)

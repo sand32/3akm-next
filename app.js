@@ -24,16 +24,20 @@ misrepresented as being the original software.
 
 var express = require("express"),
 	session = require("express-session"),
+	http = require("http"),
+	https = require("https"),
+	fs = require("fs"),
+	cors = require("cors"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
 	passport = require("passport"),
 	mongoose = require("mongoose"),
 	authentication = require("./authentication.js"),
 	routes = require("./routes/routes.js"),
-	loadConfig = require("./utils/common.js").loadConfig,
 	startup = require("./utils/startup.js"),
 	app = express(),
-	config = loadConfig(__dirname + "/config/config.json");
+	config = require("./utils/common.js").config,
+	corsOptions, server;
 
 // Establish database connection
 if(config.dbUser){
@@ -51,6 +55,15 @@ mongoose.connection.on("error", function(e){
 // Declare view engine
 app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
+
+// Define CORS policy
+corsOptions = {
+	origin: function(origin, callback){
+		var originIsWhitelisted = config.corsWhitelist.indexOf(origin) !== -1;
+		callback(null, originIsWhitelisted);
+	}
+};
+app.use(cors(corsOptions));
 
 // Define session
 app.use(cookieParser(config.cookieSecret));
@@ -74,5 +87,15 @@ routes(app);
 startup.initializeDatabase();
 startup.bundleClientJS();
 
+if(config.cert !== "changeme"
+&& config.key !== "changeme"){
+	server = https.createServer({
+		cert: fs.readFileSync(config.cert),
+		key: fs.readFileSync(config.key)
+	}, app);
+}else{
+	server = http.createServer(app);
+}
+
 // Go
-app.listen(config.port);
+server.listen(config.port);

@@ -27,11 +27,17 @@ require("../common/articleservice.js");
 (function(){
 	var ArticleController = function($stateParams, $sce, ArticleService){
 		var article = this;
+		article.current = null;
+		article.loaded = false;
 		ArticleService.retrieve($stateParams.articleId)
 		.then(
 			function(data){
-				article.title = data.title;
-				article.content = $sce.trustAsHtml(data.content);
+				article.current = data;
+				article.current.content = $sce.trustAsHtml(data.content);
+				article.loaded = true;
+			},
+			function(){
+				article.loaded = true;
 			}
 		);
 	};

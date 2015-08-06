@@ -27,9 +27,11 @@ require("../common/userservice.js");
 (function(){
 	var RegistrationController = function($scope, $state, ngToast, UserService){
 		var reg = this;
+		reg.busy = false;
 		reg.tertiaryHandles = [];
 
 		reg.register = function(){
+			reg.busy = true;
 			UserService.register({
 				email: reg.email,
 				password: reg.pass,
@@ -38,17 +40,15 @@ require("../common/userservice.js");
 				primaryHandle: reg.primaryHandle,
 				tertiaryHandles: reg.tertiaryHandles,
 				recaptchaResponse: grecaptcha.getResponse()
-			})
-			.then(
-				function(){
-					ngToast.create("User successfully registered.");
-					$scope.$emit("AuthChanged", true);
-					$state.go("default");
-				},
-				function(){
-					ngToast.danger("Failed to register user.");
-				}
-			);
+			}).then(function(){
+				ngToast.create("User successfully registered and verification email sent.");
+				$scope.$emit("AuthChanged", true);
+				$state.go("default");
+				reg.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to register user.");
+				reg.busy = false;
+			});
 		};
 	}
 

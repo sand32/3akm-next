@@ -1,6 +1,10 @@
 {
 	"port": 8080,
 	"debugMode": true,
+	"domain": "localhost:8080",
+	"cert": "changeme",
+	"key": "changeme",
+	"analyticsTrackingId": "changeme",
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",
 	"recaptchaSiteKey": "changeme",
@@ -9,6 +13,27 @@
 	"dbName": "3akm",
 	"dbUser": "",
 	"dbPassword": "",
+	"corsWhitelist": [],
+	"ldap": {
+		"enabled": false,
+		"url": "changeme",
+		"userDn": "changeme",
+		"groupDn": "changeme",
+		"userGroupCn": "changeme",
+		"roleGroupCns": {
+			"admin": "changeme"
+		},
+		"userPrincipalNameSuffix": "changeme",
+		"serviceAccountDn": "changeme",
+		"serviceAccountPassword": "changeme"
+	},
+	"smtp": {
+		"address": "changeme",
+		"port": 587,
+		"user": "changeme",
+		"password": "changeme",
+		"fromAddress": "changeme"
+	},
 	"ts3": {
 		"address": "localhost",
 		"password": "changeme"

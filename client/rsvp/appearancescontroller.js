@@ -35,11 +35,15 @@ require("../common/rsvpservice.js");
 			app.stillAcceptingRsvps = Date.now() < beginDate;
 			app.lanYear = beginDate.getFullYear();
 			return RsvpService.retrieveAllForYear(app.lanYear);
-		})
-		.then(function(rsvps){
+		}).then(function(rsvps){
 			app.rsvps = rsvps;
 			app.yesCount = 0;
 			app.maybeCount = 0;
+
+			app.rsvps = app.rsvps.filter(function(value){
+				return value.status !== "No";
+			});
+
 			for(var i = 0; i < rsvps.length; i += 1){
 				if(rsvps[i].status === "Yes"){
 					app.yesCount += 1 + rsvps[i].guests;

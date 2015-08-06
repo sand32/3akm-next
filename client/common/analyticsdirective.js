@@ -23,40 +23,32 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var ContentArea = function($rootScope, $window, $timeout){
+	var Analytics = function($rootScope, $window, $location){
 		return {
-			restrict: "C",
+			restrict: "E",
+			replace: true,
+			scope: {
+				analyticsTrackingId: "@"
+			},
 			link: function(scope, element, attrs){
-				var getDocHeight = function() {
-				    return Math.max(
-				        document.body.scrollHeight, document.documentElement.scrollHeight,
-				        document.body.offsetHeight, document.documentElement.offsetHeight,
-				        document.body.clientHeight, document.documentElement.clientHeight
-				    );
-				},
+				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-				resizeContentArea = function(){
-					var documentHeight = getDocHeight(),
-						windowHeight = $window.innerHeight;
+				ga('create', scope.analyticsTrackingId, 'auto');
+				ga('send', 'pageview');
 
-					// Set content area to full height of window
-					element.css({
-						height: Math.max(windowHeight, documentHeight) + "px"
-					});
-				};
-				$rootScope.$on("ResizeContentArea", resizeContentArea);
-				$rootScope.$on("$viewContentLoaded", function(){
-					$timeout(resizeContentArea, 200);
+				$rootScope.$on("$viewContentLoaded", function(e){
+					ga("send", "pageview", {page: $location.url()});
 				});
-				angular.element($window).on("load resize", resizeContentArea);
-				$rootScope.$emit("ResizeContentArea");
 			}
-		};
+		}
 	};
 
 	angular
-		.module("3akm.frontend.styling", [])
-		.directive("contentArea", ContentArea);
+		.module("3akm.common.analytics", [])
+		.directive("analytics", Analytics);
 
-	ContentArea.$inject = ["$rootScope", "$window", "$timeout"];
+	Analytics.$inject = ["$rootScope", "$window", "$location"];
 })();

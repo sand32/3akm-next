@@ -23,6 +23,8 @@
 
 h1 Registration Form
 hr
+p
+	em Upon registration, an email with a verification link will be sent to the provided address. Certain site features may be unavailable to you until your address is verified.
 form(name = "registrationForm", novalidate, ng-controller = "RegistrationController as regCtrl", ng-submit = "regCtrl.register()")
 	.row
 		.form-group.col-xs-6
@@ -36,9 +38,10 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 		.form-group.col-xs-6
 			label Password 
 				span.text-danger (Required)
-			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required)
+			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required, pattern = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,255}")
 			.form-feedback.text-danger(ng-messages = "registrationForm.password.$error", ng-if = "registrationForm.password.$dirty", role = "alert")
 				div(ng-message = "required") A password is required
+				div(ng-message = "pattern") Invalid password: your password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number
 	.row
 		.form-group.col-xs-6
 			label Confirm Password
@@ -48,11 +51,17 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 	hr
 	.row
 		.form-group.col-xs-4
-			label First Name
-			input.form-control(type = "text", name = "firstName", ng-model = "regCtrl.firstName")
+			label First Name 
+				span.text-danger (Required)
+			input.form-control(type = "text", name = "firstName", ng-model = "regCtrl.firstName", required)
+			.form-feedback.text-danger(ng-messages = "registrationForm.firstName.$error", ng-if = "registrationForm.firstName.$dirty", role = "alert")
+				div(ng-message = "required") A first name is required
 		.form-group.col-xs-4
-			label Last Name
-			input.form-control(type = "text", name = "lastName", ng-model = "regCtrl.lastName")
+			label Last Name 
+				span.text-danger (Required)
+			input.form-control(type = "text", name = "lastName", ng-model = "regCtrl.lastName", required)
+			.form-feedback.text-danger(ng-messages = "registrationForm.lastName.$error", ng-if = "registrationForm.lastName.$dirty", role = "alert")
+				div(ng-message = "required") A last name is required
 	.row
 		.form-group.col-xs-6
 			label Handles
@@ -62,5 +71,5 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 			simple-array-entry(array-model = "regCtrl.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
 	.g-recaptcha(data-sitekey = recaptchaSiteKey)
 	hr
-	input.btn.btn-default(type = "submit", value = "Register", ng-disabled = "registrationForm.$invalid")
+	input.btn.btn-default(type = "submit", value = "Register", ng-disabled = "registrationForm.$invalid || regCtrl.busy")
 script(src = "https://www.google.com/recaptcha/api.js", type = "text/javascript-lazy", async, defer)

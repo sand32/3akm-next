@@ -22,11 +22,13 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
+require("./forgotpasswordcontroller.js");
 require("../common/userservice.js");
 
 (function(){
-	var AuthController = function($scope, $rootScope, $state, ngToast, UserService){
+	var AuthController = function($scope, $rootScope, $state, $modal, ngToast, UserService){
 		var ctrl = this;
+		ctrl.busy = false;
 		ctrl.isLoggedIn = false;
 		ctrl.isAdmin = false;
 
@@ -36,22 +38,47 @@ require("../common/userservice.js");
 		});
 
 		ctrl.login = function(){
+			ctrl.busy = true;
 			UserService.login(ctrl.email, ctrl.password)
 			.then(function(){
 				ctrl.email = "";
 				ctrl.password = "";
 				$scope.$emit("AuthChanged", true);
 				$state.go($state.current, {}, {reload: true});
-			}, function(){
+				ctrl.busy = false;
+			}).catch(function(){
 				ngToast.danger("Invalid username or password.");
+				ctrl.busy = false;
 			});
 		};
 
 		ctrl.logout = function(){
+			ctrl.busy = true;
 			UserService.logout()
 			.then(function(){
 				$scope.$emit("AuthChanged", false);
 				$state.go($state.current, {}, {reload: true});
+				ctrl.busy = false;
+			});
+		};
+
+		ctrl.openForgotPasswordModal = function(){
+			var modalInstance = $modal.open({
+				templateUrl: "/partial/forgotpasswordmodal",
+				controller: "ForgotPasswordController as forgotPass"
+			});
+
+			modalInstance.result.then(function(email){
+				UserService.sendPasswordResetEmail(email)
+				.then(function(){
+					ngToast.create("Reset password email sent.");
+				}).catch(function(status){
+					if(status === 404){
+						ngToast.danger("No user with that email exists.");
+					}else{
+						ngToast.danger("Failed to send reset password email.");
+					}
+				});
 			});
 		};
 
@@ -70,8 +97,11 @@ require("../common/userservice.js");
 	};
 
 	angular
-		.module("3akm.user")
+		.module("3akm.auth", [
+			"3akm.user",
+			"3akm.forgotPassword"
+		])
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["$scope", "$rootScope", "$state", "ngToast", "UserService"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "$modal", "ngToast", "UserService"];
 })();

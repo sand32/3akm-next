@@ -24,13 +24,16 @@ misrepresented as being the original software.
 
 require("./articles/articlecontroller.js");
 require("./game/gamelistcontroller.js");
+require("./prep/prepcontroller.js");
 require("./rsvp/appearancescontroller.js");
 require("./rsvp/rsvpcontroller.js");
 require("./user/registrationcontroller.js");
 require("./user/profilecontroller.js");
+require("./user/verifycontroller.js");
+require("./user/resetpasswordcontroller.js");
 require("./user/usermenudirective.js");
+require("./common/analyticsdirective.js");
 require("./common/arrayentrydirectives.js");
-require("./frontend-common/stylingdirectives.js");
 require("./common/validationdirectives.js");
 
 (function(){
@@ -71,6 +74,14 @@ require("./common/validationdirectives.js");
 				url: "/profile",
 				templateUrl: "/partial/profile"
 			})
+			.state("verify", {
+				url: "/verify/:userId/:token",
+				templateUrl: "/partial/verify"
+			})
+			.state("resetpassword", {
+				url: "/resetpassword/:userId/:token",
+				templateUrl: "/partial/resetpassword"
+			})
 			.state("404", {
 				url: "/404",
 				templateUrl: "/partial/404"
@@ -94,11 +105,13 @@ require("./common/validationdirectives.js");
 				"ngMessages",
 				"ngAnimate",
 				"ngToast",
+				"3akm.common.analytics",
 				"3akm.common.arrayentry",
 				"3akm.common.validation",
-				"3akm.frontend.styling",
 				"3akm.article",
+				"3akm.auth",
 				"3akm.gameList",
+				"3akm.prep",
 				"3akm.appearances",
 				"3akm.rsvpSubmission",
 				"3akm.profile",

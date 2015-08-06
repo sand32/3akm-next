@@ -22,19 +22,26 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	inviteRecipientSchema = mongoose.Schema({
-		email: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		firstName: String,
-		lastName: String,
-		vip {
-			type: Boolean,
-			default: false
-		}
-	});
+require("../common/userservice.js");
 
-module.exports = mongoose.model("InviteRecipient", inviteRecipientSchema);
+(function(){
+	var VerifyController = function($scope, $state, UserService){
+		var verify = this;
+		verify.loaded = false;
+		verify.verified = false;
+		UserService.verify($state.params.userId, $state.params.token)
+		.then(function(){
+			verify.verified = true;
+			verify.loaded = true;
+		}).catch(function(err){
+			verify.verified = false;
+			verify.loaded = true;
+		});
+	}
+
+	angular
+		.module("3akm.user")
+		.controller("VerifyController", VerifyController);
+
+	VerifyController.$inject = ["$scope", "$state", "UserService"];
+})();

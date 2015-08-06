@@ -26,8 +26,7 @@ var fs = require("fs"),
 	browserify = require("browserify"),
 	q = require("q"),
 	Store = require("../model/store.js"),
-	loadConfig = require("../utils/common.js").loadConfig,
-	config = loadConfig(__dirname + "/../config/config.json");
+	config = require("../utils/common.js").config;
 
 module.exports = {
 	initializeDatabase: function(){
@@ -68,6 +67,36 @@ module.exports = {
 					icon: "/images/mac28.png",
 					baseUrl: "https://itunes.apple.com/us/genre/mac/id39?mt=12",
 					appUrl: "macappstore://itunes.apple.com/app/id[appid]?mt=12"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
+		Store.findOne({name: "Battle.net"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Battle.net",
+					icon: "/images/bnet28.png",
+					baseUrl: "http://www.battle.net/",
+					appUrl: "https://us.battle.net/shop/en/product/[appid]"
+				});
+				store.save(function(err){
+					if(err){
+						console.error("Error: " + err);
+					}
+				});
+			}
+		});
+		Store.findOne({name: "Website"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Website",
+					icon: "/images/www28.png",
+					baseUrl: "http://www.google.com/",
+					appUrl: "[appid]"
 				});
 				store.save(function(err){
 					if(err){

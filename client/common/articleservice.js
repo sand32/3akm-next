@@ -28,70 +28,55 @@ misrepresented as being the original software.
 			retrieveAll: function(){
 				var deferred = $q.defer();
 				$http.get("/api/article")
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			retrieve: function(id){
 				var deferred = $q.defer();
 				$http.get("/api/article/" + (id || "newest"))
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			create: function(postData){
 				var deferred = $q.defer();
 				$http.post("/api/article", postData)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			edit: function(id, putData){
 				var deferred = $q.defer();
 				$http.put("/api/article/" + id, putData)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			},
 
 			delete: function(id){
 				var deferred = $q.defer();
 				$http.delete("/api/article/" + id)
-				.then(
-					function(response){
-						deferred.resolve(response.data);
-					},
-					function(response){
-						deferred.reject(response.status);
-					}
-				);
+				.then(function(response){
+					deferred.resolve(response.data);
+				}).catch(function(response){
+					deferred.reject(response.status);
+				});
 				return deferred.promise;
 			}
 		};

@@ -29,8 +29,9 @@
 		.form-group
 			label Password
 			input.form-control(type = "password", name = "password", ng-model = "auth.password")
-		input.btn.btn-default(type = "submit" value = "Login")
+		input.btn.btn-default(type = "submit" value = "Login", ng-disabled = "auth.busy")
 		a(class = "btn btn-link", ui-sref = "registration") Register
+	a(class = "btn btn-link", ng-if = "!auth.isLoggedIn", ng-click = "auth.openForgotPasswordModal()") Forgot your password?
 	ul.menu-list(class = "nav nav-stacked", ng-if = "auth.isLoggedIn")
 		li(ui-sref-active = "current")
 			a(ui-sref = "profile") Profile
