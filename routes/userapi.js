@@ -142,51 +142,58 @@ module.exports = function(app, prefix){
 				deferredToken.resolve(doc);
 			}
 		});
-		q.all([deferredUser.promise, deferredToken.promise])
-		.spread(function(user, token){
-			if(verified){
-				res.status(200).end();
-				return;
-			}
-			if(token.validate("verify" + user.email)){
-				user.verified = true;
-				user.modified = Date.now();
-				user.save(function(err){
-					if(err){
-						console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
-						res.status(500).end();
-					}else{
-						Recipient.findOneAndRemove({email: user.email}, function(err, doc){
-							if(!err && doc && doc.vip){
-								user.vip = true;
-								user.save();
-							}
-						});
-						user.syncWithDirectory()
-						.then(function(){
-							res.status(200).end();
-						}).catch(function(err){
-							console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
+		try{
+			q.all([deferredUser.promise, deferredToken.promise])
+			.spread(function(user, token){
+				if(verified){
+					res.status(200).end();
+					return;
+				}
+				if(token.validate("verify" + user.email)){
+					user.verified = true;
+					user.modified = Date.now();
+					user.save(function(err){
+						if(err){
+							console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
 							res.status(500).end();
-						});
-					}
-				});
-			}else{
-				res.status(400).end();
-			}
-		}).catch(function(err){
-			if(verified){
-				res.status(200).end();
-				return;
-			}
-			if(err.reason === "db-error"){
-				res.status(500).end();
-			}else if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(400).end();
-			}
-		});
+						}else{
+							Recipient.findOneAndRemove({email: user.email}, function(err, doc){
+								if(!err && doc && doc.vip){
+									user.vip = true;
+									user.save();
+								}
+							});
+							user.syncWithDirectory()
+							.then(function(){
+								res.status(200).end();
+							}).catch(function(err){
+								console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
+								res.status(500).end();
+							});
+						}
+					});
+				}else{
+					res.status(400).end();
+				}
+			}).catch(function(err){
+				if(verified){
+					res.status(200).end();
+					return;
+				}
+				if(err.reason === "db-error"){
+					console.error(err.message);
+					res.status(500).end();
+				}else if(err.reason === "not-found"){
+					res.status(404).end();
+				}else{
+					console.error(err.message);
+					res.status(400).end();
+				}
+			});
+		}catch(err){
+			console.error(err.message);
+			res.status(500).end();
+		}
 	});
 
 	app.get(prefix + "/:user/verified", 

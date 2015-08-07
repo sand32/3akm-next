@@ -36,8 +36,8 @@ div(ng-controller = "VerifyController as verify")
 				br
 				br
 				| If that's not the case, and you still can't verify your email with the site, 
-				| please contact Seth.
+				| please contact 
+				a(href = "mailto:seth.anderson32@gmail.com") Seth
+				| .
 				br
 				br
-		.row(ng-if = "!verify.verified")
-			a(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()") Resend Verification
