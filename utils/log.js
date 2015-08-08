@@ -30,23 +30,35 @@ var padLeft = function(str, padWith, to){
 		str = padWith + str;
 	}
 	return str;
+},
+
+constructTimestamp = function(date){
+	return date.getFullYear().toString() + "/" +
+		padLeft((date.getMonth() + 1).toString(), "0", 2) + "/" +
+		padLeft(date.getDate().toString(), "0", 2) + " " +
+		padLeft(date.getHours().toString(), "0", 2) + ":" +
+		padLeft(date.getMinutes().toString(), "0", 2) + ":" +
+		padLeft(date.getSeconds().toString(), "0", 2);
 };
 
 module.exports = {
-	error: function(errorObj){
-		var currentTime = new Date(),
-			timestamp = currentTime.getFullYear().toString() + "/" +
-				padLeft((currentTime.getMonth() + 1).toString(), "0", 2) + "/" +
-				padLeft(currentTime.getDate().toString(), "0", 2) + " " +
-				padLeft(currentTime.getHours().toString(), "0", 2) + ":" +
-				padLeft(currentTime.getMinutes().toString(), "0", 2) + ":" +
-				padLeft(currentTime.getSeconds().toString(), "0", 2);
-
+	warn: function(errorObj){
+		var timestamp = constructTimestamp(new Date());
 		if(errorObj
 		&& errorObj.reason){
-			console.error(timestamp + ": Error: " + errorObj.message);
+			console.error(timestamp + " | Warning: " + errorObj.message);
 		}else if(typeof errorObj === "string"){
-			console.error(timestamp + ": Error: " + errorObj);
+			console.error(timestamp + " | Warning: " + errorObj);
+		}
+	},
+
+	error: function(errorObj){
+		var timestamp = constructTimestamp(new Date());
+		if(errorObj
+		&& errorObj.reason){
+			console.error(timestamp + " | Error: " + errorObj.message);
+		}else if(typeof errorObj === "string"){
+			console.error(timestamp + " | Error: " + errorObj);
 		}
 	}
 }

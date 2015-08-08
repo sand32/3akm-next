@@ -26,6 +26,7 @@ var passport = require("passport"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	request = require("request"),
+	log = require("./log.js"),
 	loadConfig = function(file){
 		return JSON.parse(fs.readFileSync(file, "utf8"));
 	};
@@ -77,7 +78,7 @@ module.exports = {
 					if(body.success){
 						next();
 					}else if(body["error-codes"] && (body["error-codes"].length > 1 || body["error-codes"][0] !== "missing-input-response")){
-						console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
+						log.error("recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
 						res.status(500).end();
 					}else{
 						res.status(400).end();
@@ -87,7 +88,7 @@ module.exports = {
 				}
 			});
 		}else{
-			console.warn("Warning: reCAPTCHA secret not set, allowing all registration requests");
+			log.warn("reCAPTCHA secret not set, allowing all registration requests");
 			next();
 		}
 	},
