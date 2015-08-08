@@ -135,6 +135,18 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	deleteEntry = function(client, dn){
+		var deferred = q.defer();
+		client.del(dn, function(err){
+			if(err){
+				deferred.reject(err);
+			}else{
+				deferred.resolve();
+			}
+		});
+		return deferred.promise;
+	},
+
 	findEntry = function(client, dn, filter){
 		var deferred = q.defer();
 		client.search(dn, {
@@ -402,10 +414,38 @@ module.exports = {
 			if(err.reason){
 				deferred.reject(err);
 			}else{
+				deleteUser(entry.cn);
 				deferred.reject({reason: "ldaperr", message: err});
 			}
 		});
 		return deferred.promise;
+	},
+
+	deleteUser: function(cn){
+		console.error("Deleting user: " + cn);
+		var client = createClient(),
+			deferred = q.defer();
+
+		bindServiceAccount(client)
+		.then(function(){
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+		}).then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				return deleteEntry(client, "cn=" + cn + "," + config.ldap.userDn);
+			}
+		}).then(function(){
+			return unbind(client);
+		}).then(function(){
+			deferred.resolve();
+		}).catch(function(err){
+			unbind(client);
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				deferred.reject({reason: "ldaperr", message: err});
+			}
+		});
 	},
 
 	updateUser: function(cn, userTemplate){
