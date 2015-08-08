@@ -42,6 +42,16 @@ constructTimestamp = function(date){
 };
 
 module.exports = {
+	log: function(errorObj){
+		var timestamp = constructTimestamp(new Date());
+		if(errorObj
+		&& errorObj.reason){
+			console.error(timestamp + " | " + errorObj.message);
+		}else if(typeof errorObj === "string"){
+			console.error(timestamp + " | " + errorObj);
+		}
+	},
+
 	warn: function(errorObj){
 		var timestamp = constructTimestamp(new Date());
 		if(errorObj
