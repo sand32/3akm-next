@@ -32,7 +32,10 @@ var padLeft = function(str, padWith, to){
 module.exports = {
 	error: function(errorObj){
 		var currentTime = new Date(),
-			timestamp = padLeft(currentTime.getHours(), "0", 2) + ":" + 
+			timestamp = currentTime.getFullYear() + "/" +
+				padLeft(currentTime.getMonth() + 1, "0", 2) + "/" +
+				padLeft(currentTime.getDate(), "0", 2) + " " +
+				padLeft(currentTime.getHours(), "0", 2) + ":" +
 				padLeft(currentTime.getMinutes(), "0", 2) + ":" +
 				padLeft(currentTime.getSeconds(), "0", 2);
 
