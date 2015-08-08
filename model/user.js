@@ -396,6 +396,7 @@ userModel.authenticate = function(email, password){
 			});
 		}).catch(function(err){
 			deferred.reject(err);
+			log.warn("Failed sign-in attempt for account: \"" + email + "\"");
 		});
 	}else{
 		// Try to find a user with the given email
