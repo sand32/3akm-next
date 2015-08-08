@@ -23,6 +23,9 @@ misrepresented as being the original software.
 */
 
 var padLeft = function(str, padWith, to){
+	if(typeof str !== "string"){
+		console.error("ARGH!!!");
+	}
 	while(str.length < to){
 		str = padWith + str;
 	}
@@ -32,12 +35,12 @@ var padLeft = function(str, padWith, to){
 module.exports = {
 	error: function(errorObj){
 		var currentTime = new Date(),
-			timestamp = currentTime.getFullYear() + "/" +
-				padLeft(currentTime.getMonth() + 1, "0", 2) + "/" +
-				padLeft(currentTime.getDate(), "0", 2) + " " +
-				padLeft(currentTime.getHours(), "0", 2) + ":" +
-				padLeft(currentTime.getMinutes(), "0", 2) + ":" +
-				padLeft(currentTime.getSeconds(), "0", 2);
+			timestamp = currentTime.getFullYear().toString() + "/" +
+				padLeft((currentTime.getMonth() + 1).toString(), "0", 2) + "/" +
+				padLeft(currentTime.getDate().toString(), "0", 2) + " " +
+				padLeft(currentTime.getHours().toString(), "0", 2) + ":" +
+				padLeft(currentTime.getMinutes().toString(), "0", 2) + ":" +
+				padLeft(currentTime.getSeconds().toString(), "0", 2);
 
 		if(errorObj
 		&& errorObj.reason){
