@@ -27,7 +27,7 @@ var mongoose = require("mongoose"),
 	bcrypt = require("bcrypt-nodejs"),
 	config = require("../utils/common.js").config,
 	ldap = require("../utils/ldap.js"),
-	log = require("../utils/log.js")
+	log = require("../utils/log.js"),
 	userSchema = {
 		email: {
 			type: String,
