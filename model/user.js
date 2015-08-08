@@ -27,6 +27,7 @@ var mongoose = require("mongoose"),
 	bcrypt = require("bcrypt-nodejs"),
 	config = require("../utils/common.js").config,
 	ldap = require("../utils/ldap.js"),
+	log = require("../utils/log.js")
 	userSchema = {
 		email: {
 			type: String,
@@ -102,7 +103,7 @@ userSchema.methods.hash = function(pass){
 	if(!config.ldap.enabled){
 		return bcrypt.hashSync(pass, bcrypt.genSaltSync(), null);
 	}else{
-		console.error("Error: hash method should not be used with LDAP enabled");
+		log.error("hash method should not be used with LDAP enabled");
 		return "";
 	}
 };
@@ -111,7 +112,7 @@ userSchema.methods.isValidPassword = function(pass){
 	if(!config.ldap.enabled){
 		return bcrypt.compareSync(pass, this.passwordHash);
 	}else{
-		console.error("Error: isValidPassword method should not be used with LDAP enabled");
+		log.error("isValidPassword method should not be used with LDAP enabled");
 		return false;
 	}
 };
@@ -142,12 +143,12 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			user.modified = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: " + err.message);
+					log.error(err);
 				}
 			});
 			deferred.resolve();
 		}).catch(function(err){
-			console.error("Error: " + err.message);
+			log.error(err);
 			deferred.reject(err);
 		});
 	}else{
@@ -156,7 +157,7 @@ userSchema.methods.changePassword = function(oldPassword, newPassword){
 			user.modified = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: " + err.message);
+					log.error(err);
 				}
 				deferred.resolve();
 			});
@@ -179,12 +180,12 @@ userSchema.methods.resetPassword = function(newPassword){
 			user.modified = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: " + err.message);
+					log.error(err);
 				}
 			});
 			deferred.resolve();
 		}).catch(function(err){
-			console.error("Error: " + err.message);
+			log.error(err);
 			deferred.reject(err);
 		});
 	}else{
@@ -192,7 +193,7 @@ userSchema.methods.resetPassword = function(newPassword){
 		user.modified = Date.now();
 		user.save(function(err){
 			if(err){
-				console.error("Error: " + err.message);
+				log.error(err);
 			}
 			deferred.resolve();
 		});
@@ -226,12 +227,12 @@ userSchema.methods.syncWithDirectory = function(){
 				user.lastSync = Date.now();
 				user.save(function(err){
 					if(err){
-						console.error("Error: " + err.message);
+						log.error(err);
 					}
 					deferred.resolve();
 				});
 			}).catch(function(err){
-				console.error("Error: " + err.message);
+				log.error(err);
 				deferred.reject(err);
 			});
 		}else{
@@ -244,13 +245,13 @@ userSchema.methods.syncWithDirectory = function(){
 			user.lastSync = Date.now();
 			user.save(function(err){
 				if(err){
-					console.error("Error: " + err.message);
+					log.error(err);
 				}
 			});
 			deferred.resolve();
 		}
 	}).catch(function(err){
-		console.error("Error: " + err.message);
+		log.error(err);
 		deferred.reject(err);
 	});
 	return deferred.promise;
@@ -305,7 +306,7 @@ userModel.createNew = function(userTemplate){
 					});
 				}
 			}).catch(function(err){
-				if(err === "User already exists" && !user){
+				if(err.reason === "duplicate" && !user){
 					delete userTemplate.password;
 					var newUser = new userModel(userTemplate);
 					newUser.save(function(err){
@@ -321,6 +322,7 @@ userModel.createNew = function(userTemplate){
 						});
 					});
 				}else{
+					log.error(err);
 					deferred.reject(err);
 				}
 			});

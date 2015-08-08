@@ -41,7 +41,7 @@ module.exports = function(app, prefix){
 				});
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -62,7 +62,7 @@ module.exports = function(app, prefix){
 				res.status(200).end();
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -76,7 +76,7 @@ module.exports = function(app, prefix){
 				res.status(200).send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -87,7 +87,7 @@ module.exports = function(app, prefix){
 				res.send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -106,7 +106,7 @@ module.exports = function(app, prefix){
 				});
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -120,7 +120,7 @@ module.exports = function(app, prefix){
 				res.send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -134,7 +134,7 @@ module.exports = function(app, prefix){
 				res.status(200).end();
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});

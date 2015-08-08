@@ -37,7 +37,8 @@ var passport = require("passport"),
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	smtp = require("../utils/smtp.js"),
-	config = require("../utils/common.js").config;
+	config = require("../utils/common.js").config,
+	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
 	app.post(prefix + "/register", 
@@ -154,7 +155,7 @@ module.exports = function(app, prefix){
 					user.modified = Date.now();
 					user.save(function(err){
 						if(err){
-							console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to update flag");
+							log.error("Successfully verified token for user \"" + user.email + "\", but failed to update flag");
 							res.status(500).end();
 						}else{
 							Recipient.findOneAndRemove({email: user.email}, function(err, doc){
@@ -167,7 +168,7 @@ module.exports = function(app, prefix){
 							.then(function(){
 								res.status(200).end();
 							}).catch(function(err){
-								console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
+								log.error("Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
 								res.status(500).end();
 							});
 						}
@@ -181,17 +182,17 @@ module.exports = function(app, prefix){
 					return;
 				}
 				if(err.reason === "db-error"){
-					console.error(err.message);
+					log.error(err);
 					res.status(500).end();
 				}else if(err.reason === "not-found"){
 					res.status(404).end();
 				}else{
-					console.error(err.message);
+					log.error(err);
 					res.status(400).end();
 				}
 			});
 		}catch(err){
-			console.error(err.message);
+			log.error(err);
 			res.status(500).end();
 		}
 	});
@@ -421,7 +422,7 @@ module.exports = function(app, prefix){
 				.then(function(){
 					res.status(200).end();
 				}).catch(function(err){
-					console.error("Error: Successfully verified token for user \"" + user.email + "\", but failed to reset password");
+					log.error("Successfully verified token for user \"" + user.email + "\", but failed to reset password");
 					res.status(500).end();
 				});
 			}else{

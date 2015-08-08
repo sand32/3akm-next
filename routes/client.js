@@ -25,7 +25,8 @@ misrepresented as being the original software.
 var express = require("express"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
-	config = require("../utils/common.js").config;
+	config = require("../utils/common.js").config,
+	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/partial/registrationform", function(req, res){
@@ -64,7 +65,7 @@ module.exports = function(app, prefix){
 					});
 				},
 				function(error){
-					console.error("Error: " + error);
+					log.error(error);
 					res.status(500).end();
 				}
 			);
@@ -86,7 +87,7 @@ module.exports = function(app, prefix){
 					});
 				},
 				function(error){
-					console.error("Error: " + error);
+					log.error(error);
 					res.status(500).end();
 				}
 			);
