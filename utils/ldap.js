@@ -414,7 +414,7 @@ module.exports = {
 			if(err.reason){
 				deferred.reject(err);
 			}else{
-				deleteUser(entry.cn);
+				module.exports.deleteUser(entry.cn);
 				deferred.reject({reason: "ldaperr", message: err});
 			}
 		});
@@ -422,7 +422,6 @@ module.exports = {
 	},
 
 	deleteUser: function(cn){
-		console.error("Deleting user: " + cn);
 		var client = createClient(),
 			deferred = q.defer();
 
@@ -446,6 +445,7 @@ module.exports = {
 				deferred.reject({reason: "ldaperr", message: err});
 			}
 		});
+		return deferred.promise;
 	},
 
 	updateUser: function(cn, userTemplate){
