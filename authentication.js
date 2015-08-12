@@ -61,7 +61,7 @@ module.exports = function(){
 				.then(function(newUser){
 					done(null, newUser);
 				}).catch(function(err){
-					done(err.message);
+					done(err);
 				});
 			});
 		}

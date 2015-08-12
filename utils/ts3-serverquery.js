@@ -38,12 +38,12 @@ var ServerQuery = require("node-teamspeak"),
 			if(err.errno === "ECONNREFUSED"){
 				callback({
 					id: 1,
-					msg: "Error: ServerQuery connection refused by host: \"" + config.ts3.address + "\""
+					msg: "ServerQuery connection refused by host: \"" + config.ts3.address + "\""
 				});
 			}else{
 				callback({
 					id: 1,
-					msg: "Error: Unknown error from Teamspeak ServerQuery"
+					msg: "Unknown error from Teamspeak ServerQuery"
 				});
 			}
 		});

@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("../common/userservice.js");
 
 (function(){
-	var VerifyController = function($scope, $state, UserService){
+	var VerifyController = function($scope, $state, ngToast, UserService){
 		var verify = this;
 		verify.loaded = false;
 		verify.verified = false;
@@ -33,7 +33,10 @@ require("../common/userservice.js");
 		.then(function(){
 			verify.verified = true;
 			verify.loaded = true;
-		}).catch(function(err){
+		}).catch(function(status){
+			if(status === 500){
+				ngToast.danger("The server has encountered an error, please try again.");
+			}
 			verify.verified = false;
 			verify.loaded = true;
 		});
@@ -43,5 +46,5 @@ require("../common/userservice.js");
 		.module("3akm.user")
 		.controller("VerifyController", VerifyController);
 
-	VerifyController.$inject = ["$scope", "$state", "UserService"];
+	VerifyController.$inject = ["$scope", "$state", "ngToast", "UserService"];
 })();

@@ -26,6 +26,7 @@ var dgram = require("dgram"),
 	loadConfig = require("./common.js").loadConfig,
 	shuffle = require("./common.js").shuffle,
 	config = require("./common.js").config,
+	log = require("./log.js"),
 	gameinfo = loadConfig(__dirname + "/../config/cod4-gameinfo.json"),
 	commandQueue = [];
 
@@ -54,17 +55,17 @@ var dgram = require("dgram"),
 			socket.close();
 		})
 		.on("error", function(err){
-			callback(new Error(err));
+			callback({reason: "socketerr", message: err});
 		});
 		socket.bind(0, null, function(){
 			var buffer = _constructRconCommand(command);
 			socket.send(buffer, 0, buffer.length, config.cod4.port, config.cod4.address, function(err, bytes){
 				if(err){
-					console.log(err);
+					log.error(err);
 				}
 				setTimeout(function(){
 					if(!responseReceived){
-						callback(new Error("Command timed out."));
+						callback({reason: "timeout", message: "Command timed out."});
 					}
 				}, config.cod4.commandTimeout);
 			});

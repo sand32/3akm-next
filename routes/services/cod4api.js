@@ -26,6 +26,7 @@ var cod4 = require("../../utils/cod4-rcon.js"),
 	authorize = require("../../authorization.js").authorize,
 	authenticate = require("../../utils/common.js").authenticate,
 	loadConfig = require("../../utils/common.js").loadConfig,
+	log = require("../../utils/log.js"),
 	gameinfo = loadConfig(__dirname + "/../../config/cod4-gameinfo.json");
 
 module.exports = function(app, prefix){
@@ -41,7 +42,7 @@ module.exports = function(app, prefix){
 				});
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -62,7 +63,7 @@ module.exports = function(app, prefix){
 				res.status(200).end();
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -76,7 +77,7 @@ module.exports = function(app, prefix){
 				res.status(200).send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -87,7 +88,7 @@ module.exports = function(app, prefix){
 				res.send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -106,7 +107,7 @@ module.exports = function(app, prefix){
 				});
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -120,7 +121,7 @@ module.exports = function(app, prefix){
 				res.send(data);
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});
@@ -134,7 +135,7 @@ module.exports = function(app, prefix){
 				res.status(200).end();
 			}else{
 				res.status(500).end();
-				console.log("Error: " + err.message);
+				log.error(err);
 			}
 		});
 	});

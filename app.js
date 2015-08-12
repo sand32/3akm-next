@@ -37,6 +37,7 @@ var express = require("express"),
 	startup = require("./utils/startup.js"),
 	app = express(),
 	config = require("./utils/common.js").config,
+	log = require("./utils/log.js"),
 	corsOptions, server;
 
 // Establish database connection
@@ -99,3 +100,7 @@ if(config.cert !== "changeme"
 
 // Go
 server.listen(config.port);
+
+log.log("----------------------------------------------------------------------");
+log.log("                       Initialization Complete");
+log.log("----------------------------------------------------------------------");

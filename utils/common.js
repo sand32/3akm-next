@@ -26,6 +26,7 @@ var passport = require("passport"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	request = require("request"),
+	log = require("./log.js"),
 	loadConfig = function(file){
 		return JSON.parse(fs.readFileSync(file, "utf8"));
 	};
@@ -36,7 +37,20 @@ module.exports = {
 	config: loadConfig(__dirname + "/../config/config.json"),
 
 	register: function(req, res, next){
-		passport.authenticate("register")(req, res, next);
+		passport.authenticate("register", function(err, user, info){
+			if(err && err.reason === "invalid-password"){
+				return res.status(400).end();
+			}else if(err){
+				return res.status(500).end();
+			}else{
+				req.login(user, function(err){
+					if(err){
+						return next(err);
+					}
+					return next();
+				});
+			}
+		})(req, res, next);
 	},
 
 	login: function(req, res, next){
@@ -77,7 +91,7 @@ module.exports = {
 					if(body.success){
 						next();
 					}else if(body["error-codes"] && (body["error-codes"].length > 1 || body["error-codes"][0] !== "missing-input-response")){
-						console.error("Error: recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
+						log.error("recaptcha request failed with the following error codes:\n" + JSON.stringify(body["error-codes"]));
 						res.status(500).end();
 					}else{
 						res.status(400).end();
@@ -87,7 +101,7 @@ module.exports = {
 				}
 			});
 		}else{
-			console.warn("Warning: reCAPTCHA secret not set, allowing all registration requests");
+			log.warn("reCAPTCHA secret not set, allowing all registration requests");
 			next();
 		}
 	},
