@@ -65,7 +65,7 @@ tokenModel.createToken = function(data){
 	return deferred.promise;
 };
 
-tokenSchema.methods.validate = function(data){
+tokenSchema.methods.validateToken = function(data){
 	return compareHash(this.token, data);
 };
 
