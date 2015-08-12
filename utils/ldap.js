@@ -333,7 +333,7 @@ module.exports = {
 	createUser: function(userTemplate){
 		var client = createClient(),
 			deferred = q.defer(),
-			password, userDn, currentUac;
+			password, userDn, currentUac, lastAttemptedStep = "none";
 		if(userTemplate.password){
 			password = userTemplate.password;
 		}else{
@@ -349,6 +349,7 @@ module.exports = {
 
 		bindServiceAccount(client)
 		.then(function(){
+			lastAttemptedStep = "find-by-email";
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
@@ -362,8 +363,10 @@ module.exports = {
 			entry.sAMAccountName = names.sAMAccountName;
 			entry.userPrincipalName = names.userPrincipalName;
 			userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
+			lastAttemptedStep = "add-entry";
 			return add(client, userDn, entry);
 		}).then(function(){
+			lastAttemptedStep = "find-new-entry";
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
@@ -376,6 +379,7 @@ module.exports = {
 				});
 			}
 		}).then(function(){
+			lastAttemptedStep = "set-password";
 			return modify(client, userDn, [{
 				operation: "delete",
 				modification: {unicodePwd: encodePassword("")}
@@ -384,6 +388,7 @@ module.exports = {
 				modification: {unicodePwd: encodePassword(password)}
 			}]);
 		}).then(function(){
+			lastAttemptedStep = "enable-user-and-set-verified";
 			return modify(client, userDn, [{
 				operation: "replace",
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
@@ -404,8 +409,10 @@ module.exports = {
 					}));
 				}
 			}
+			lastAttemptedStep = "add-groups";
 			return q.all(promises);
 		}).then(function(){
+			lastAttemptedStep = "unbind";
 			return unbind(client);
 		}).then(function(){
 			deferred.resolve(entry.cn);
@@ -415,7 +422,11 @@ module.exports = {
 				deferred.reject(err);
 			}else{
 				module.exports.deleteUser(entry.cn);
-				deferred.reject({reason: "ldaperr", message: err});
+				if(lastAttemptedStep === "set-password"){
+					deferred.reject({reason: "invalid-password", message: "Unable to set password, password rejected by the directory"});
+				}else{
+					deferred.reject({reason: "ldaperr", message: err});
+				}
 			}
 		});
 		return deferred.promise;

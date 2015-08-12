@@ -37,7 +37,20 @@ module.exports = {
 	config: loadConfig(__dirname + "/../config/config.json"),
 
 	register: function(req, res, next){
-		passport.authenticate("register")(req, res, next);
+		passport.authenticate("register", function(err, user, info){
+			if(err && err.reason === "invalid-password"){
+				return res.status(400).end();
+			}else if(err){
+				return res.status(500).end();
+			}else{
+				req.login(user, function(err){
+					if(err){
+						return next(err);
+					}
+					return next();
+				});
+			}
+		})(req, res, next);
 	},
 
 	login: function(req, res, next){
