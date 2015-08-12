@@ -150,7 +150,7 @@ module.exports = function(app, prefix){
 					res.status(200).end();
 					return;
 				}
-				if(token.validate("verify" + user.email)){
+				if(token.validateToken("verify" + user.email)){
 					user.verified = true;
 					user.modified = Date.now();
 					user.save(function(err){
@@ -417,7 +417,7 @@ module.exports = function(app, prefix){
 		});
 		q.all([deferredUser.promise, deferredToken.promise])
 		.spread(function(user, token){
-			if(token.validate("passwordreset" + user.email)){
+			if(token.validateToken("passwordreset" + user.email)){
 				user.resetPassword(req.body.newPassword)
 				.then(function(){
 					res.status(200).end();

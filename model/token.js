@@ -50,6 +50,10 @@ var mongoose = require("mongoose"),
 		}
 	});
 
+tokenSchema.methods.validateToken = function(data){
+	return compareHash(this.token, data);
+};
+
 tokenModel = mongoose.model("Token", tokenSchema);
 
 tokenModel.createToken = function(data){
@@ -63,10 +67,6 @@ tokenModel.createToken = function(data){
 		}
 	});
 	return deferred.promise;
-};
-
-tokenSchema.methods.validate = function(data){
-	return compareHash(this.token, data);
 };
 
 module.exports = tokenModel;
