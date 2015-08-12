@@ -26,7 +26,8 @@ var fs = require("fs"),
 	browserify = require("browserify"),
 	q = require("q"),
 	Store = require("../model/store.js"),
-	config = require("../utils/common.js").config;
+	config = require("./common.js").config,
+	log = require("./log.js");
 
 module.exports = {
 	initializeDatabase: function(){
@@ -40,7 +41,7 @@ module.exports = {
 				});
 				store.save(function(err){
 					if(err){
-						console.error("Error: " + err);
+						log.error(err);
 					}
 				});
 			}
@@ -55,7 +56,7 @@ module.exports = {
 				});
 				store.save(function(err){
 					if(err){
-						console.error("Error: " + err);
+						log.error(err);
 					}
 				});
 			}
@@ -70,7 +71,7 @@ module.exports = {
 				});
 				store.save(function(err){
 					if(err){
-						console.error("Error: " + err);
+						log.error(err);
 					}
 				});
 			}
@@ -85,7 +86,7 @@ module.exports = {
 				});
 				store.save(function(err){
 					if(err){
-						console.error("Error: " + err);
+						log.error(err);
 					}
 				});
 			}
@@ -100,7 +101,7 @@ module.exports = {
 				});
 				store.save(function(err){
 					if(err){
-						console.error("Error: " + err);
+						log.error(err);
 					}
 				});
 			}

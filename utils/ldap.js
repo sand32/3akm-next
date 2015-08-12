@@ -135,6 +135,18 @@ var q = require("q"),
 		return deferred.promise;
 	},
 
+	deleteEntry = function(client, dn){
+		var deferred = q.defer();
+		client.del(dn, function(err){
+			if(err){
+				deferred.reject(err);
+			}else{
+				deferred.resolve();
+			}
+		});
+		return deferred.promise;
+	},
+
 	findEntry = function(client, dn, filter){
 		var deferred = q.defer();
 		client.search(dn, {
@@ -321,7 +333,7 @@ module.exports = {
 	createUser: function(userTemplate){
 		var client = createClient(),
 			deferred = q.defer(),
-			password, userDn, currentUac;
+			password, userDn, currentUac, lastAttemptedStep = "none";
 		if(userTemplate.password){
 			password = userTemplate.password;
 		}else{
@@ -337,6 +349,7 @@ module.exports = {
 
 		bindServiceAccount(client)
 		.then(function(){
+			lastAttemptedStep = "find-by-email";
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
@@ -350,8 +363,10 @@ module.exports = {
 			entry.sAMAccountName = names.sAMAccountName;
 			entry.userPrincipalName = names.userPrincipalName;
 			userDn = "cn=" + entry.cn + "," + config.ldap.userDn;
+			lastAttemptedStep = "add-entry";
 			return add(client, userDn, entry);
 		}).then(function(){
+			lastAttemptedStep = "find-new-entry";
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
@@ -364,6 +379,7 @@ module.exports = {
 				});
 			}
 		}).then(function(){
+			lastAttemptedStep = "set-password";
 			return modify(client, userDn, [{
 				operation: "delete",
 				modification: {unicodePwd: encodePassword("")}
@@ -372,6 +388,7 @@ module.exports = {
 				modification: {unicodePwd: encodePassword(password)}
 			}]);
 		}).then(function(){
+			lastAttemptedStep = "enable-user-and-set-verified";
 			return modify(client, userDn, [{
 				operation: "replace",
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
@@ -392,11 +409,45 @@ module.exports = {
 					}));
 				}
 			}
+			lastAttemptedStep = "add-groups";
 			return q.all(promises);
 		}).then(function(){
+			lastAttemptedStep = "unbind";
 			return unbind(client);
 		}).then(function(){
 			deferred.resolve(entry.cn);
+		}).catch(function(err){
+			unbind(client);
+			if(err.reason){
+				deferred.reject(err);
+			}else{
+				module.exports.deleteUser(entry.cn);
+				if(lastAttemptedStep === "set-password"){
+					deferred.reject({reason: "invalid-password", message: "Unable to set password, password rejected by the directory"});
+				}else{
+					deferred.reject({reason: "ldaperr", message: err});
+				}
+			}
+		});
+		return deferred.promise;
+	},
+
+	deleteUser: function(cn){
+		var client = createClient(),
+			deferred = q.defer();
+
+		bindServiceAccount(client)
+		.then(function(){
+			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+		}).then(function(result){
+			if(result.status === 0
+			&& result.entries.collection.length > 0){
+				return deleteEntry(client, "cn=" + cn + "," + config.ldap.userDn);
+			}
+		}).then(function(){
+			return unbind(client);
+		}).then(function(){
+			deferred.resolve();
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
