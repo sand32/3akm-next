@@ -227,6 +227,9 @@ var q = require("q"),
 					cn: firstName + " " + lastName,
 					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase()
 				};
+				if(names.sAMAccountName.length > 20){
+					names.sAMAccountName = (firstName.toLowerCase() + "." + lastName.toLowerCase()).substr(0, 20);
+				}
 				names.userPrincipalName = names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 			}
 			deferred.resolve(names);
