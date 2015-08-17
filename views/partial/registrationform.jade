@@ -37,7 +37,8 @@ form(name = "registrationForm", novalidate, ng-controller = "RegistrationControl
 	.row
 		.form-group.col-xs-6
 			label Password 
-				span.text-danger (Required)
+				span.text-danger (Required) 
+				.glyphicon.glyphicon-question-sign(tooltip-html-unsafe = "Your password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number.<br/><br/>Your password also must not contain any significant portion of your first or last names.", tooltip-placement = "bottom")
 			input.form-control(type = "password", name = "password", ng-model = "regCtrl.pass", required, pattern = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,255}")
 			.form-feedback.text-danger(ng-messages = "registrationForm.password.$error", ng-if = "registrationForm.password.$dirty", role = "alert")
 				div(ng-message = "required") A password is required
