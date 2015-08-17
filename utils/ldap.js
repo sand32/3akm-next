@@ -213,10 +213,14 @@ var q = require("q"),
 					otherSuffix = otherSuffix !== "" ? parseInt(otherSuffix) : 0;
 					numericSuffix = Math.max(numericSuffix, otherSuffix) + 1;
 				}
+				numericSuffix = numericSuffix.toString();
 				names = {
 					cn: firstName + " " + lastName + numericSuffix,
 					sAMAccountName: firstName.toLowerCase() + "." + lastName.toLowerCase() + numericSuffix
 				};
+				if(names.sAMAccountName.length > 20){
+					names.sAMAccountName = (firstName.toLowerCase() + "." + lastName.toLowerCase()).substr(0, 20 - numericSuffix.length) + numericSuffix;
+				}
 				names.userPrincipalName = names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 			}else{
 				names = {
