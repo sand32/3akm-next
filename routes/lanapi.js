@@ -29,7 +29,8 @@ var mongoose = require("mongoose"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	shuffle = require("../utils/common.js").shuffle;
 
 module.exports = function(app, prefix){
 	app.get(prefix,
@@ -122,8 +123,7 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/:lan/rsvps", 
 	function(req, res){
 		var deferred = q.defer(),
-			query = null,
-			year;
+			query = null;
 		if(req.params.lan === "current"){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 		}else if(req.params.lan === "next"){
@@ -141,7 +141,6 @@ module.exports = function(app, prefix){
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				year = doc.beginDate.getFullYear();
 				deferred.resolve(doc);
 			}
 		});
@@ -204,6 +203,60 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(200).end();
 			}
+		});
+	});
+
+	app.post(prefix + "/:lan/placement/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		var deferred = q.defer(),
+			query = null;
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)
+			|| !mongoose.Types.ObjectId.isValid(req.params.game)){
+				return res.status(404).end();
+			}
+			query = Lan.findById(req.params.lan);
+		}
+		query.exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise.then(function(data){
+			Rsvp.find({lan: data._id})
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else{
+					var users = [];
+					for(var i = 0; i < docs.length; i += 1){
+						users.push(docs[i].user);
+					}
+					for(var i = 0; i < data.games.length; i += 1){
+						if(data.games[i].game === req.params.game){
+							data.games[i].placement = shuffle(users);
+							break;
+						}
+					}
+					data.save();
+					res.send(rsvps);
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
 		});
 	});
 

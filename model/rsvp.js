@@ -61,7 +61,8 @@ var mongoose = require("mongoose"),
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "Game",
 				required: true
-			}
+			},
+			scores: [Number]
 		}],
 		bringingFood: {
 			type: Boolean,
