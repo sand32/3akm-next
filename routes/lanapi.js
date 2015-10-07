@@ -30,7 +30,19 @@ var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
-	shuffle = require("../utils/common.js").shuffle;
+	shuffle = require("../utils/common.js").shuffle,
+
+	getLANQuery = function(id){
+		if(id === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(id === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			query = Lan.findById(req.params.lan);
+		}
+		return query;
+	};
 
 module.exports = function(app, prefix){
 	app.get(prefix,
@@ -47,20 +59,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:lan", 
 	function(req, res){
-		var query = null;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-
-		query.exec(function(err, doc){
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				res.status(500).end();
 			}else if(!doc){
@@ -74,20 +73,8 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/:lan/games", 
 	function(req, res){
 		var deferred = q.defer(),
-			query = null,
 			year;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
@@ -122,20 +109,8 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:lan/rsvps", 
 	function(req, res){
-		var deferred = q.defer(),
-			query = null;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
@@ -214,20 +189,8 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer(),
-			query = null;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
@@ -273,7 +236,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/:lan/scores/:game", 
+	app.put(prefix + "/:lan/scores/:game", 
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
@@ -281,20 +244,8 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer(),
-			query = null;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
@@ -310,13 +261,6 @@ module.exports = function(app, prefix){
 				if(err){
 					res.status(500).end();
 				}else{
-					users = shuffle(users);
-					for(var i = 0; i < data.games.length; i += 1){
-						if(data.games[i].game.toString() === req.params.game){
-							data.games[i].placements = users;
-							break;
-						}
-					}
 					data.save(function(err){
 						if(err){
 							res.status(500).end();
