@@ -206,11 +206,14 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.post(prefix + "/:lan/placement/:game", 
+	app.post(prefix + "/:lan/placements/:game", 
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
 		var deferred = q.defer(),
 			query = null;
 		if(req.params.lan === "current"){
@@ -219,8 +222,7 @@ module.exports = function(app, prefix){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)
-			|| !mongoose.Types.ObjectId.isValid(req.params.game)){
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 				return res.status(404).end();
 			}
 			query = Lan.findById(req.params.lan);
@@ -243,16 +245,85 @@ module.exports = function(app, prefix){
 				}else{
 					var users = [];
 					for(var i = 0; i < docs.length; i += 1){
-						users.push(docs[i].user);
+						for(var j = 0; j < docs[i].tournaments.length; j += 1){
+							if(docs[i].tournaments[j].game.toString() === req.params.game){
+								users.push(docs[i].user);
+								break;
+							}
+						}
 					}
+					users = shuffle(users);
 					for(var i = 0; i < data.games.length; i += 1){
-						if(data.games[i].game === req.params.game){
-							data.games[i].placement = shuffle(users);
+						if(data.games[i].game.toString() === req.params.game){
+							data.games[i].placements = users;
 							break;
 						}
 					}
-					data.save();
-					res.send(rsvps);
+					data.save(function(err){
+						if(err){
+							res.status(500).end();
+						}else{
+							res.send(users);
+						}
+					});
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.post(prefix + "/:lan/scores/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer(),
+			query = null;
+		if(req.params.lan === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(req.params.lan === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
+				return res.status(404).end();
+			}
+			query = Lan.findById(req.params.lan);
+		}
+		query.exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise.then(function(data){
+			Rsvp.find({lan: data._id})
+			.exec(function(err, docs){
+				if(err){
+					res.status(500).end();
+				}else{
+					users = shuffle(users);
+					for(var i = 0; i < data.games.length; i += 1){
+						if(data.games[i].game.toString() === req.params.game){
+							data.games[i].placements = users;
+							break;
+						}
+					}
+					data.save(function(err){
+						if(err){
+							res.status(500).end();
+						}else{
+							res.send(users);
+						}
+					});
 				}
 			});
 		}).catch(function(err){
