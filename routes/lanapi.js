@@ -238,6 +238,48 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/:lan/scores/:game", 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
+			.exec(function(err, rsvps){
+				if(err){
+					res.status(500).end();
+				}else{
+					var scores = [];
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+								scores.push({
+									user: rsvps[i].user,
+									scores: rsvps[i].tournaments[j].scores
+								});
+							}
+						}
+					}
+					res.send(scores);
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
 	app.put(prefix + "/:lan/scores/:game", 
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
