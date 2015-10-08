@@ -33,7 +33,7 @@ div(ng-controller = "AppearancesController as appCtrl")
 			span(ng-if = "appCtrl.maybeCount > 0") and {{appCtrl.maybeCount}} maybes
 		p
 			span(ng-repeat = "rsvp in appCtrl.rsvps") {{rsvp.user.firstName}} {{rsvp.user.lastName}}
-				span(ng-if = "rsvp.user.primaryHandle !== ''")  [{{rsvp.user.primaryHandle}}]
+				span(ng-if = "rsvp.user.primaryHandle && rsvp.user.primaryHandle !== ''")  [{{rsvp.user.primaryHandle}}]
 				span(ng-if = "rsvp.guests > 0")  +{{rsvp.guests}}
 				span(ng-if = "rsvp.status === 'Maybe'")  (Maybe)
 				br
