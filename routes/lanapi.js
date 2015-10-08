@@ -31,6 +31,7 @@ var mongoose = require("mongoose"),
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	shuffle = require("../utils/common.js").shuffle,
+	log = require("../utils/log.js"),
 
 	getLANQuery = function(id){
 		if(id === "current"){
@@ -39,7 +40,7 @@ var mongoose = require("mongoose"),
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
 		}else{
-			query = Lan.findById(req.params.lan);
+			query = Lan.findById(id);
 		}
 		return query;
 	};
@@ -92,13 +93,13 @@ module.exports = function(app, prefix){
 			}
 			Game.find({_id: {$in: gameIds}})
 			.populate("stores.store")
-			.exec(function(err, docs){
+			.exec(function(err, games){
 				if(err){
 					res.status(500).end();
 				}else{
 					res.send({
 						year: year,
-						games: docs
+						games: games
 					});
 				}
 			});
@@ -123,11 +124,11 @@ module.exports = function(app, prefix){
 		deferred.promise.then(function(data){
 			Rsvp.find({lan: data._id})
 			.populate("user tournaments.game", "email firstName lastName primaryHandle name")
-			.exec(function(err, docs){
+			.exec(function(err, rsvps){
 				if(err){
 					res.status(500).end();
 				}else{
-					var rsvps = JSON.parse(JSON.stringify(docs));
+					var rsvps = JSON.parse(JSON.stringify(rsvps));
 					for(var i = 0; i < rsvps.length; i += 1){
 						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
 							for(var k = 0; k < data.games.length; k += 1){
@@ -200,17 +201,18 @@ module.exports = function(app, prefix){
 			}
 		});
 
-		deferred.promise.then(function(data){
+		deferred.promise
+		.then(function(data){
 			Rsvp.find({lan: data._id})
-			.exec(function(err, docs){
+			.exec(function(err, rsvps){
 				if(err){
 					res.status(500).end();
 				}else{
 					var users = [];
-					for(var i = 0; i < docs.length; i += 1){
-						for(var j = 0; j < docs[i].tournaments.length; j += 1){
-							if(docs[i].tournaments[j].game.toString() === req.params.game){
-								users.push(docs[i].user);
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+								users.push(rsvps[i].user);
 								break;
 							}
 						}
@@ -255,18 +257,45 @@ module.exports = function(app, prefix){
 			}
 		});
 
-		deferred.promise.then(function(data){
-			Rsvp.find({lan: data._id})
-			.exec(function(err, docs){
+		deferred.promise
+		.then(function(data){
+			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
+			.exec(function(err, rsvps){
 				if(err){
 					res.status(500).end();
 				}else{
-					data.save(function(err){
-						if(err){
-							res.status(500).end();
-						}else{
-							res.send(users);
+					var promises = [];
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < req.body.length; j += 1){
+							if(rsvps[i].user.toString() === req.body[j].user){
+								for(var k = 0; k < rsvps[i].tournaments.length; k += 1){
+									if(rsvps[i].tournaments[k].game.toString() === req.params.game){
+										rsvps[i].tournaments[k].scores = req.body[j].scores;
+										(function(){
+											var deferred = q.defer();
+											rsvps[i].save(function(err){
+												if(err){
+													deferred.reject(err);
+												}else{
+													deferred.resolve();
+												}
+											});
+											promises.push(deferred.promise);
+										})();
+										break;
+									}
+								}
+								req.body.splice(j, 1);
+								break;
+							}
 						}
+					}
+					q.all(promises)
+					.then(function(){
+						res.status(200).end();
+					}).catch(function(err){
+						log.error(err);
+						res.status(500).end();
 					});
 				}
 			});
