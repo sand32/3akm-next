@@ -1,6 +1,6 @@
 3akm-next
 =========
-The next iteration of the site for the 3AK^M LAN party. Expected to be operational prior to the 2015 invite.
+The next iteration of the site for the 3AK^M LAN party.
 
 Prerequisites
 -------------
