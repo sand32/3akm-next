@@ -182,6 +182,40 @@ module.exports = function(app, prefix){
 		});
 	});
 
+	app.get(prefix + "/:lan/placements/:game", 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			var retVal = null;
+			for(var i = 0; i < data.games.length; i += 1){
+				if(data.games[i].game.toString() === req.params.game){
+					retVal = data.games[i].placements;
+				}
+			}
+			if(retVal !== null){
+				res.send(retVal);
+			}else{
+				res.status(404);
+			}
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
 	app.post(prefix + "/:lan/placements/:game", 
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
@@ -231,6 +265,45 @@ module.exports = function(app, prefix){
 							res.send(users);
 						}
 					});
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.put(prefix + "/:lan/placements/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			for(var i = 0; i < data.games.length; i += 1){
+				if(data.games[i].game.toString() === req.params.game){
+					data.games[i].placements = req.body;
+					break;
+				}
+			}
+			data.save(function(err){
+				if(err){
+					res.status(500).end();
+				}else{
+					res.status(200).end();
 				}
 			});
 		}).catch(function(err){

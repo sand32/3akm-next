@@ -57,8 +57,7 @@ var mongoose = require("mongoose"),
 			tournamentName: String,
 			placements: [{
 				type: mongoose.Schema.Types.ObjectId,
-				ref: "User",
-				required: true
+				ref: "User"
 			}]
 		}],
 		foodRequired: [{
