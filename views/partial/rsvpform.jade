@@ -24,7 +24,7 @@
 h1 RSVP Submission Form
 hr
 .rsvp-submission(ng-controller = "RsvpController as rsvp", ng-show = "rsvp.loaded")
-	.empty-table(ng-if = "rsvp.year === 0") RSVPs are no longer being accepted. Hope to see you next LAN!
+	.empty-table(ng-if = "!rsvp.stillAcceptingRsvps") RSVPs are no longer being accepted. Hope to see you next LAN!
 	.empty-table(ng-if = "rsvp.year !== 0 && !rsvp.isLoggedIn")
 		p Please log in or 
 			a(ui-sref = "registration") register

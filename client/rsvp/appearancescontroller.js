@@ -30,10 +30,10 @@ require("../common/rsvpservice.js");
 		var app = this;
 		LanService.retrieve("current")
 		.then(function(lan){
-			var beginDate = new Date(lan.beginDate);
+			var endDate = new Date(lan.endDate);
 			app.activeLanDefined = true;
-			app.stillAcceptingRsvps = Date.now() < beginDate;
-			app.lanYear = beginDate.getFullYear();
+			app.stillAcceptingRsvps = Date.now() < endDate;
+			app.lanYear = endDate.getFullYear();
 			return RsvpService.retrieveAllForYear(app.lanYear);
 		}).then(function(rsvps){
 			app.rsvps = rsvps;
