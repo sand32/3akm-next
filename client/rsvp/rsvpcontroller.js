@@ -62,10 +62,11 @@ require("../common/enumselectdirective.js");
 			ctrl.isLoggedIn = false;
 		});
 
-		LanService.retrieve("next")
+		LanService.retrieve("current")
 		.then(function(lan){
-			var beginDate = new Date(lan.beginDate);
-			ctrl.year = beginDate.getFullYear();
+			var endDate = new Date(lan.endDate);
+			ctrl.year = endDate.getFullYear();
+			ctrl.stillAcceptingRsvps = Date.now() < endDate;
 			ctrl.entryFee = lan.entryFee;
 			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
