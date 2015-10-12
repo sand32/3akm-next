@@ -99,6 +99,20 @@ require("../common/validationdirectives.js");
 				user.busy = false;
 			});
 		};
+
+		user.verifyEmail = function(){
+			user.busy = true;
+			user.current.verified = true;
+			UserService.edit($state.params.userId, user.current)
+			.then(function(){
+				$scope.reloadList();
+				ngToast.create("User updated.");
+				user.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to update user.");
+				user.busy = false;
+			});
+		};
 	};
 
 	angular
