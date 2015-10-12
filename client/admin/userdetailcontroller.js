@@ -51,8 +51,8 @@ require("../common/validationdirectives.js");
 
 		if($state.params.userId && $state.params.userId !== "new"){
 			UserService.retrieve($state.params.userId)
-			.then(function(data){
-				user.current = data;
+			.then(function(response){
+				user.current = response.data;
 				user.loaded = true;
 			}).catch(function(){
 				$state.go("^");
@@ -66,9 +66,9 @@ require("../common/validationdirectives.js");
 			user.busy = true;
 			if($state.params.userId === "new"){
 				UserService.create(user.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {userId: data._id});
+					$state.go(".", {userId: response.data._id});
 					ngToast.create("User created.");
 					user.busy = false;
 				}).catch(function(){

@@ -42,8 +42,8 @@ require("../common/enumselectdirective.js");
 
 		if($state.params.articleId && $state.params.articleId !== "new"){
 			ArticleService.retrieve($state.params.articleId)
-			.then(function(data){
-				article.current = data;
+			.then(function(response){
+				article.current = response.data;
 			}).catch(function(){
 				$state.go("^");
 				ngToast.danger("Failed to retrieve article.");
@@ -54,9 +54,9 @@ require("../common/enumselectdirective.js");
 			article.busy = true;
 			if($state.params.articleId === "new"){
 				ArticleService.create(article.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {articleId: data._id});
+					$state.go(".", {articleId: response.data._id});
 					ngToast.create("Article created.");
 					article.busy = false;
 				}).catch(function(){

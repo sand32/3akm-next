@@ -30,16 +30,13 @@ require("../common/articleservice.js");
 		article.current = null;
 		article.loaded = false;
 		ArticleService.retrieve($stateParams.articleId)
-		.then(
-			function(data){
-				article.current = data;
-				article.current.content = $sce.trustAsHtml(data.content);
-				article.loaded = true;
-			},
-			function(){
-				article.loaded = true;
-			}
-		);
+		.then(function(response){
+			article.current = response.data;
+			article.current.content = $sce.trustAsHtml(response.data.content);
+			article.loaded = true;
+		}).catch(function(){
+			article.loaded = true;
+		});
 	};
 
 	angular

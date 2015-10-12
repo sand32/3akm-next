@@ -33,8 +33,8 @@ require("../common/userservice.js");
 		ctrl.isAdmin = false;
 
 		UserService.isLoggedIn()
-		.then(function(loggedIn){
-			$scope.$emit("AuthChanged", loggedIn.isLoggedIn);
+		.then(function(response){
+			$scope.$emit("AuthChanged", response.data.isLoggedIn);
 		});
 
 		ctrl.login = function(){
@@ -72,8 +72,8 @@ require("../common/userservice.js");
 				UserService.sendPasswordResetEmail(email)
 				.then(function(){
 					ngToast.create("Reset password email sent.");
-				}).catch(function(status){
-					if(status === 404){
+				}).catch(function(response){
+					if(response.status === 404){
 						ngToast.danger("No user with that email exists.");
 					}else{
 						ngToast.danger("Failed to send reset password email.");
@@ -87,8 +87,8 @@ require("../common/userservice.js");
 			ctrl.isAdmin = false;
 			if(loggedIn){
 				UserService.retrieve("session")
-				.then(function(user){
-					if(user.roles.indexOf("admin") !== -1){
+				.then(function(response){
+					if(response.data.roles.indexOf("admin") !== -1){
 						ctrl.isAdmin = true;
 					}
 				});

@@ -33,8 +33,8 @@ require("../common/userservice.js");
 			UserService.resetPassword($state.params.userId, $state.params.token, newPassword)
 			.then(function(){
 				ngToast.create("Successfully reset password.");
-			}).catch(function(status){
-				if(status === 404){
+			}).catch(function(response){
+				if(response.status === 404){
 					ngToast.danger("Invalid user or token.");
 				}else{
 					ngToast.danger("Failed to reset password.");

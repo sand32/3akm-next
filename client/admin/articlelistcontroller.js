@@ -36,8 +36,8 @@ require("./articledetailcontroller.js");
 
 		$scope.reloadList = function(){
 			ArticleService.retrieveAll()
-			.then(function(data){
-				articles.list = data;
+			.then(function(response){
+				articles.list = response.data;
 			}).catch(function(){
 				ngToast.danger("Failed to retrieve articles.");
 			});

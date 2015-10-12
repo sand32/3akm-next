@@ -49,11 +49,11 @@ require("../common/enumselectdirective.js");
 		};
 
 		GameService.retrieveAll()
-		.then(function(data){
-			for(var i = 0; i < data.length; i += 1){
+		.then(function(response){
+			for(var i = 0; i < response.data.length; i += 1){
 				lan.gamesEnum.push({
-					key: data[i].name,
-					value: data[i]._id
+					key: response.data[i].name,
+					value: response.data[i]._id
 				});
 			}
 		}).catch(function(){
@@ -63,10 +63,10 @@ require("../common/enumselectdirective.js");
 
 		if($state.params.lanId && $state.params.lanId !== "new"){
 			LanService.retrieve($state.params.lanId)
-			.then(function(data){
-				lan.current = data;
-				lan.current.beginDate = new Date(data.beginDate);
-				lan.current.endDate = new Date(data.endDate);
+			.then(function(response){
+				lan.current = response.data;
+				lan.current.beginDate = new Date(response.data.beginDate);
+				lan.current.endDate = new Date(response.data.endDate);
 			}).catch(function(){
 				$state.go("^");
 				ngToast.danger("Failed to retrieve LAN.");
@@ -84,9 +84,9 @@ require("../common/enumselectdirective.js");
 			}
 			if($state.params.lanId === "new"){
 				LanService.create(lan.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {lanId: data._id});
+					$state.go(".", {lanId: response.data._id});
 					ngToast.create("LAN created.");
 					lan.busy = false;
 				}).catch(function(){

@@ -49,18 +49,19 @@ require("../common/enumselectdirective.js");
 
 		if($state.params.rsvpId && $state.params.rsvpId !== "new"){
 			RsvpService.retrieve($state.params.rsvpId)
-			.then(function(data){
-				var promise = LanService.retrieve(data.lan._id);
-				rsvp.current = data;
+			.then(function(response){
+				var promise = LanService.retrieve(response.data.lan._id);
+				rsvp.current = response.data;
 				rsvp.current.lan.beginDate = new Date(rsvp.current.lan.beginDate);
 				return promise;
-			}).then(function(data){
-				for(var i = 0; i < data.games.length; i += 1){
-					if(data.games[i].tournament){
+			}).then(function(response){
+				var lan = response.data;
+				for(var i = 0; i < lan.games.length; i += 1){
+					if(lan.games[i].tournament){
 						rsvp.tournaments.push({
-							name: data.games[i].tournamentName,
-							game: data.games[i].game,
-							signedUp: rsvp.isSignedUpForTournament(data.games[i].game)
+							name: lan.games[i].tournamentName,
+							game: lan.games[i].game,
+							signedUp: rsvp.isSignedUpForTournament(lan.games[i].game)
 						});
 					}
 				}
@@ -94,9 +95,9 @@ require("../common/enumselectdirective.js");
 			}
 			if($state.params.rsvpId === "new"){
 				RsvpService.create(data)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {rsvpId: data._id});
+					$state.go(".", {rsvpId: response.data._id});
 					ngToast.create("RSVP created.");
 					rsvp.busy = false;
 				}).catch(function(){

@@ -44,7 +44,8 @@ require("../../admin-common/visualizationdirectives.js");
 		};
 
 		LanService.retrieve("current")
-		.then(function(lan){
+		.then(function(response){
+			var lan = response.data;
 			currentLan.year = new Date(lan.beginDate).getFullYear();
 			if(new Date() < new Date(lan.beginDate)){
 				currentLan.daysLeft = Math.round((new Date(lan.beginDate) - new Date())/(1000*60*60*24));
@@ -54,7 +55,8 @@ require("../../admin-common/visualizationdirectives.js");
 				currentLan.daysLeft = 0;
 			}
 			return RsvpService.retrieveAllForYear(currentLan.year);
-		}).then(function(rsvps){
+		}).then(function(response){
+			var rsvps = response.data;
 			var yesCount = 0, maybeCount = 0, noCount = 0, cleaningCount = 0;
 			for(var i = 0; i < rsvps.length; i += 1){
 				if(rsvps[i].status === "Yes"){

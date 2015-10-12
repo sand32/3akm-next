@@ -36,10 +36,10 @@ require("./rsvpdetailcontroller.js");
 
 		$scope.reloadList = function(){
 			RsvpService.retrieveAll()
-			.then(function(data){
-				rsvps.list = data;
-				for(var i = 0; i < data.length; i += 1){
-					rsvps.list[i].beginDate = new Date(data[i].lan.beginDate);
+			.then(function(response){
+				rsvps.list = response.data;
+				for(var i = 0; i < response.data.length; i += 1){
+					rsvps.list[i].beginDate = new Date(response.data[i].lan.beginDate);
 				}
 			}).catch(function(){
 				ngToast.danger("Failed to retrieve RSVPs.");

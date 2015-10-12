@@ -38,8 +38,8 @@ require("./recipientdetailcontroller.js");
 
 		$scope.reloadList = function(){
 			RecipientService.retrieveAll()
-			.then(function(data){
-				recipients.list = data;
+			.then(function(response){
+				recipients.list = response.data;
 			}).catch(function(){
 				ngToast.danger("Failed to retrieve recipients.");
 			});
@@ -48,7 +48,8 @@ require("./recipientdetailcontroller.js");
 
 		recipients.showVipEmailList = function(){
 			UserService.retrieveAll()
-			.then(function(users){
+			.then(function(response){
+				var users = response.data;
 				var modalInstance = $modal.open({
 					templateUrl: "/partial/textselectmodal",
 					controller: "TextSelectController as textSelect",
@@ -87,7 +88,8 @@ require("./recipientdetailcontroller.js");
 
 		recipients.showInviteEmailList = function(){
 			UserService.retrieveAll()
-			.then(function(users){
+			.then(function(response){
+				var users = response.data;
 				var modalInstance = $modal.open({
 					templateUrl: "/partial/textselectmodal",
 					controller: "TextSelectController as textSelect",

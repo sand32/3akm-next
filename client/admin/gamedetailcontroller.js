@@ -42,21 +42,21 @@ require("../common/confirmcontroller.js");
 
 		StoreService.retrieveAll()
 		.then(
-			function(data){
-				for(var i = 0; i < data.length; i += 1){
+			function(response){
+				for(var i = 0; i < response.data.length; i += 1){
 					game.storesEnum.push({
-						key: data[i].name,
-						value: data[i]._id
+						key: response.data[i].name,
+						value: response.data[i]._id
 					});
-					game.help.stores += "<strong>" + data[i].name + "</strong>: " + data[i].appUrl + "<br/>";
+					game.help.stores += "<strong>" + response.data[i].name + "</strong>: " + response.data[i].appUrl + "<br/>";
 				}
 			}
 		);
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
-			.then(function(data){
-				game.current = data;
+			.then(function(response){
+				game.current = response.data;
 			}).catch(function(){
 				$state.go("^");
 				ngToast.danger("Failed to retrieve game.");
@@ -67,9 +67,9 @@ require("../common/confirmcontroller.js");
 			game.busy = true;
 			if($state.params.gameId === "new"){
 				GameService.create(game.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {gameId: data._id});
+					$state.go(".", {gameId: response.data._id});
 					ngToast.create("Game created.");
 					game.busy = false;
 				}).catch(function(){

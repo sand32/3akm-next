@@ -36,8 +36,8 @@ require("./landetailcontroller.js");
 
 		$scope.reloadList = function(){
 			LanService.retrieveAll()
-			.then(function(data){
-				lans.list = data;
+			.then(function(response){
+				lans.list = response.data;
 			}).catch(function(){
 				ngToast.danger("Failed to retrieve lans.");
 			});

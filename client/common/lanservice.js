@@ -26,69 +26,27 @@ misrepresented as being the original software.
 	var LanService = function($http, $q){
 		return {
 			retrieveAll: function(){
-				var deferred = $q.defer();
-				$http.get("/api/lan")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/lan");
 			},
 
 			retrieve: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/lan/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/lan/" + id);
 			},
 
 			retrieveGames: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/lan/" + id + "/games")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/lan/" + id + "/games");
 			},
 
 			create: function(postData){
-				var deferred = $q.defer();
-				$http.post("/api/lan", postData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/lan", postData);
 			},
 
 			edit: function(id, putData){
-				var deferred = $q.defer();
-				$http.put("/api/lan/" + id, putData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/lan/" + id, putData);
 			},
 
 			delete: function(id){
-				var deferred = $q.defer();
-				$http.delete("/api/lan/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.delete("/api/lan/" + id);
 			}
 		};
 	};

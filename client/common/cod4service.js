@@ -26,102 +26,39 @@ misrepresented as being the original software.
 	var Cod4Service = function($http, $q){
 		return {
 			retrieveMaps: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/maps")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/maps");
 			},
 
 			retrieveCurrentMap: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/map")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/map");
 			},
 
 			retrieveStatus: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/status")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/status");
 			},
 
 			retrieveMapRotation: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/maprotation")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/maprotation");
 			},
 
 			retrieveGameTypes: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/gametypes")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/gametypes");
 			},
 
 			retrieveCurrentGameType: function(){
-				var deferred = $q.defer();
-				$http.get("/api/service/cod4/gametype")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/service/cod4/gametype");
 			},
 
 			setGameType: function(gametype){
-				var deferred = $q.defer();
-				$http.put("/api/service/cod4/gametype", {gametype: gametype})
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/service/cod4/gametype", {gametype: gametype});
 			},
 
 			rotateMap: function(){
-				var deferred = $q.defer();
-				$http.post("/api/service/cod4/map/rotate")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/service/cod4/map/rotate");
 			},
 
 			say: function(message){
-				var deferred = $q.defer();
-				$http.post("/api/service/cod4/say", {message: message})
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/service/cod4/say", {message: message});
 			}
 		};
 	};

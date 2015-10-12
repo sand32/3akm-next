@@ -37,7 +37,8 @@ require("../common/enumselectdirective.js");
 		];
 
 		UserService.retrieve("session")
-		.then(function(user){
+		.then(function(response){
+			var user = response.data;
 			profile.email = user.email;
 			profile.verified = user.verified;
 			profile.firstName = user.firstName;
@@ -50,8 +51,8 @@ require("../common/enumselectdirective.js");
 
 			// Show the page
 			profile.loaded = true;
-		}).catch(function(status){
-			if(status === 403){
+		}).catch(function(response){
+			if(response.status === 403){
 				$scope.$emit("AuthChanged", false);
 				$state.go("default");
 			}else{
@@ -84,12 +85,12 @@ require("../common/enumselectdirective.js");
 			}).then(function(){
 				ngToast.create("User successfully updated.");
 				profile.busy = false;
-			}).catch(function(status){
-				if(status === 403){
+			}).catch(function(response){
+				if(response.status === 403){
 					$scope.$emit("AuthChanged", false);
 					$state.go("default");
 					ngToast.danger("Failed to update user, your session has expired.");
-				}else if(status === 409){
+				}else if(response.status === 409){
 					ngToast.danger("Failed to update user, you attempted to change your email address to one already in use.");
 				}else{
 					ngToast.danger("Failed to update user.");
