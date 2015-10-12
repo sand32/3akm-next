@@ -26,17 +26,22 @@ require("../common/rsvpservice.js");
 require("../common/lanservice.js");
 require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
+require("../admin-common/userselectcontroller.js");
+require("../admin-common/lanselectcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpDetailController = function($scope, $state, $modal, ngToast, RsvpService, LanService){
+	var RsvpDetailController = function($scope, $state, $modal, ngToast, RsvpService, LanService, UserService){
 		var rsvp = this;
+		rsvp.loaded = false;
 		rsvp.busy = false;
 		rsvp.tournaments = []
 		rsvp.current = {
 			status: "Yes",
 			playing: true
 		};
+		rsvp.userSelectText = "Select";
+		rsvp.lanSelectText = "Select";
 		rsvp.statusPossibles = [
 			{label: "Yes", value: "'Yes'"},
 			{label: "Maybe", value: "'Maybe'"},
@@ -65,10 +70,13 @@ require("../common/enumselectdirective.js");
 						});
 					}
 				}
+				rsvp.loaded = true;
 			}).catch(function(){
 				$state.go("^");
 				ngToast.danger("Failed to retrieve RSVP.");
 			});
+		}else{
+			rsvp.loaded = true;
 		}
 
 		rsvp.isSignedUpForTournament = function(gameId){
@@ -78,6 +86,54 @@ require("../common/enumselectdirective.js");
 				}
 			}
 			return false;
+		};
+
+		rsvp.selectUser = function(){
+			var modalInstance = $modal.open({
+				templateUrl: "/partial/userselectmodal",
+				controller: "UserSelectController as select",
+			});
+
+			modalInstance.result.then(function(userId){
+				rsvp.current.user = userId;
+				rsvp.busy = true;
+				UserService.retrieve(userId)
+				.then(function(response){
+					rsvp.userSelectText = response.data.firstName + " " + response.data.lastName
+					rsvp.busy = false;
+				}).catch(function(){
+					rsvp.busy = false;
+				});
+			});
+		};
+
+		rsvp.selectLan = function(){
+			var modalInstance = $modal.open({
+				templateUrl: "/partial/lanselectmodal",
+				controller: "LanSelectController as select",
+			});
+
+			modalInstance.result.then(function(lanId){
+				rsvp.current.lan = lanId;
+				rsvp.busy = true;
+				LanService.retrieve(lanId)
+				.then(function(response){
+					var lan = response.data;
+					rsvp.lanSelectText = lan.beginDate
+					for(var i = 0; i < lan.games.length; i += 1){
+						if(lan.games[i].tournament){
+							rsvp.tournaments.push({
+								name: lan.games[i].tournamentName,
+								game: lan.games[i].game,
+								signedUp: false
+							});
+						}
+					}
+					rsvp.busy = false;
+				}).catch(function(){
+					rsvp.busy = false;
+				});
+			});
 		};
 
 		rsvp.save = function(){
@@ -147,10 +203,12 @@ require("../common/enumselectdirective.js");
 			[
 				"3akm.rsvp",
 				"3akm.confirmModal",
+				"3akm.userSelectModal",
+				"3akm.lanSelectModal",
 				"3akm.common.arrayentry",
 				"3akm.common.enumselect"
 			])
 		.controller("RsvpDetailController", RsvpDetailController);
 
-	RsvpDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "RsvpService", "LanService"];
+	RsvpDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "RsvpService", "LanService", "UserService"];
 })();
