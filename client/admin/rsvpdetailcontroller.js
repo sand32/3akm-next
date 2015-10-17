@@ -38,7 +38,10 @@ require("../common/enumselectdirective.js");
 		rsvp.tournaments = []
 		rsvp.current = {
 			status: "Yes",
-			playing: true
+			playing: true,
+			cleaning: false,
+			attended: false,
+			guests: 0
 		};
 		rsvp.userSelectText = "Select";
 		rsvp.lanSelectText = "Select";
@@ -48,7 +51,7 @@ require("../common/enumselectdirective.js");
 			{label: "No", value: "'No'"}
 		];
 		rsvp.boolPossibles = [
-			{label: "Yes", value: true}, 
+			{label: "Yes", value: true},
 			{label: "No", value: false}
 		];
 
