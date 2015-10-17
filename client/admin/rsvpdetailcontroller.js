@@ -95,7 +95,7 @@ require("../common/enumselectdirective.js");
 			});
 
 			modalInstance.result.then(function(userId){
-				rsvp.current.user = userId;
+				rsvp.current.user = {_id: userId};
 				rsvp.busy = true;
 				UserService.retrieve(userId)
 				.then(function(response){
@@ -114,7 +114,7 @@ require("../common/enumselectdirective.js");
 			});
 
 			modalInstance.result.then(function(lanId){
-				rsvp.current.lan = lanId;
+				rsvp.current.lan = {_id: lanId};
 				rsvp.busy = true;
 				LanService.retrieve(lanId)
 				.then(function(response){
