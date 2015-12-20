@@ -51,8 +51,8 @@ require("../common/validationdirectives.js");
 
 		if($state.params.userId && $state.params.userId !== "new"){
 			UserService.retrieve($state.params.userId)
-			.then(function(data){
-				user.current = data;
+			.then(function(response){
+				user.current = response.data;
 				user.loaded = true;
 			}).catch(function(){
 				$state.go("^");
@@ -66,9 +66,9 @@ require("../common/validationdirectives.js");
 			user.busy = true;
 			if($state.params.userId === "new"){
 				UserService.create(user.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {userId: data._id});
+					$state.go(".", {userId: response.data._id});
 					ngToast.create("User created.");
 					user.busy = false;
 				}).catch(function(){
@@ -96,6 +96,20 @@ require("../common/validationdirectives.js");
 				user.busy = false;
 			}).catch(function(){
 				ngToast.danger("Failed to send verification email.");
+				user.busy = false;
+			});
+		};
+
+		user.verifyEmail = function(){
+			user.busy = true;
+			user.current.verified = true;
+			UserService.edit($state.params.userId, user.current)
+			.then(function(){
+				$scope.reloadList();
+				ngToast.create("User updated.");
+				user.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to update user.");
 				user.busy = false;
 			});
 		};

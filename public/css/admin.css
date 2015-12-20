@@ -198,7 +198,7 @@ tr {
 	height: 2.5em;
 }
 
-.panel-content > table tr:hover td {
+table tr:hover td {
 	background-color: #ade1fa;
 	cursor: pointer;
 }

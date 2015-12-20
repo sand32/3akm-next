@@ -44,8 +44,8 @@ require("../common/confirmcontroller.js");
 
 		if($state.params.recipientId && $state.params.recipientId !== "new"){
 			RecipientService.retrieve($state.params.recipientId)
-			.then(function(data){
-				recipient.current = data;
+			.then(function(response){
+				recipient.current = response.data;
 				recipient.loaded = true;
 			}).catch(function(){
 				$state.go("^");
@@ -59,13 +59,13 @@ require("../common/confirmcontroller.js");
 			recipient.busy = true;
 			if($state.params.recipientId === "new"){
 				RecipientService.create(recipient.current)
-				.then(function(data){
+				.then(function(response){
 					$scope.reloadList();
-					$state.go(".", {recipientId: data._id});
+					$state.go(".", {recipientId: response.data._id});
 					ngToast.create("Recipient created.");
 					recipient.busy = false;
-				}).catch(function(status){
-					if(status === 409){
+				}).catch(function(response){
+					if(response.status === 409){
 						ngToast.danger("Cannot create recipients with the same email addresses as existing users.");
 					}else{
 						ngToast.danger("Failed to create recipient.");

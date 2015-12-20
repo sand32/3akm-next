@@ -26,102 +26,39 @@ misrepresented as being the original software.
 	var RsvpService = function($http, $q){
 		return {
 			retrieveAll: function(){
-				var deferred = $q.defer();
-				$http.get("/api/rsvp")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/rsvp");
 			},
 
 			retrieve: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/rsvp/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/rsvp/" + id);
 			},
 
 			create: function(postData){
-				var deferred = $q.defer();
-				$http.post("/api/rsvp", postData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/rsvp", postData);
 			},
 
 			edit: function(id, putData){
-				var deferred = $q.defer();
-				$http.put("/api/rsvp/" + id, putData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/rsvp/" + id, putData);
 			},
 
 			delete: function(id){
-				var deferred = $q.defer();
-				$http.delete("/api/rsvp/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.delete("/api/rsvp/" + id);
 			},
 
 			retrieveAllForYear: function(year){
-				var deferred = $q.defer();
-				$http.get("/api/rsvp/year/" + year)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/rsvp/year/" + year);
 			},
 
 			retrieveByYear: function(userId, year){
-				var deferred = $q.defer();
-				$http.get("/api/user/" + userId + "/rsvp/" + year)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/user/" + userId + "/rsvp/" + year);
 			},
 
 			createOrEdit: function(userId, year, putData){
-				var deferred = $q.defer();
-				$http.put("/api/user/" + userId + "/rsvp/" + year, putData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/user/" + userId + "/rsvp/" + year, putData);
 			},
 
 			markAsAttended: function(userId, year){
-				var deferred = $q.defer();
-				$http.put("/api/user/" + userId + "/rsvp/" + year + "/attended")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/user/" + userId + "/rsvp/" + year + "/attended");
 			}
 		};
 	};

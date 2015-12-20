@@ -34,7 +34,9 @@
 						div(ng-message = "email") Invalid email
 				.field-align.col-xs-6(ng-if = "!user.current.verified")
 					span.text-danger.form-control-static.col-xs-6 Email not verified!
-					a.col-xs-6(class = "btn btn-danger" ng-click = "user.resendVerificationEmail()", ng-disabled = "user.busy") Resend Verification
+					.btn-group.col-xs-6
+						a.btn.btn-danger(ng-click = "user.resendVerificationEmail()", ng-disabled = "user.busy") Resend
+						a.btn.btn-danger(ng-click = "user.verifyEmail()", ng-disabled = "user.busy") Verify
 				.field-align.col-xs-6(ng-if = "user.current.verified")
 					span.text-success.form-control-static.col-xs-6 Been verified!
 			.row(ng-if = "user.loaded && !user.current._id")

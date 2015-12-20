@@ -33,8 +33,8 @@ require("../common/sectionentrydirective.js");
 		ctrl.year = 0;
 
 		LanService.retrieveGames("current")
-		.then(function(data){
-			ctrl.games = data.games;
+		.then(function(response){
+			ctrl.games = response.data.games;
 			for(var i = 0; i < ctrl.games.length; i += 1){
 				ctrl.games[i].description = $sce.trustAsHtml(ctrl.games[i].description);
 				for(var j = 0; j < ctrl.games[i].stores.length; j += 1){
@@ -42,7 +42,7 @@ require("../common/sectionentrydirective.js");
 					store.store.appUrl = store.store.appUrl.replace("[appid]", store.appid);
 				}
 			}
-			ctrl.year = data.year;
+			ctrl.year = response.data.year;
 			ctrl.loaded = true;
 		}).catch(function(){
 			ctrl.loaded = true;

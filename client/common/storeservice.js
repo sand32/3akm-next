@@ -26,58 +26,23 @@ misrepresented as being the original software.
 	var StoreService = function($http, $q){
 		return {
 			retrieveAll: function(){
-				var deferred = $q.defer();
-				$http.get("/api/store")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/store");
 			},
 
 			retrieve: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/store/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/store/" + id);
 			},
 
 			create: function(postData){
-				var deferred = $q.defer();
-				$http.post("/api/store", postData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/store", postData);
 			},
 
 			edit: function(id, putData){
-				var deferred = $q.defer();
-				$http.put("/api/store/" + id, putData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/store/" + id, putData);
 			},
 
 			delete: function(id){
-				var deferred = $q.defer();
-				$http.put("/api/store/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/store/" + id);
 			}
 		};
 	};

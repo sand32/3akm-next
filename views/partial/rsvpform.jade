@@ -24,8 +24,8 @@
 h1 RSVP Submission Form
 hr
 .rsvp-submission(ng-controller = "RsvpController as rsvp", ng-show = "rsvp.loaded")
-	.empty-table(ng-if = "rsvp.year === 0") RSVPs are no longer being accepted. Hope to see you next LAN!
-	.empty-table(ng-if = "rsvp.year !== 0 && !rsvp.isLoggedIn")
+	.empty-table(ng-if = "!rsvp.stillAcceptingRsvps") RSVPs are no longer being accepted. Hope to see you next LAN!
+	.empty-table(ng-if = "rsvp.stillAcceptingRsvps && !rsvp.isLoggedIn")
 		p Please log in or 
 			a(ui-sref = "registration") register
 			|  in order to RSVP.
@@ -33,12 +33,12 @@ hr
 			| we'll be associating your RSVP history to your new account by hand. 
 			| Your history will be accessible via your user dashboard (currently under development) 
 			| at a later date.
-	.empty-table(ng-if = "rsvp.year !== 0 && rsvp.isLoggedIn && !rsvp.isVerified")
+	.empty-table(ng-if = "rsvp.stillAcceptingRsvps && rsvp.isLoggedIn && !rsvp.isVerified")
 		p Your account's email address has not been verified, please either click the link in the email 
 			| sent upon registration or head to your 
 			a(ui-sref = "profile") profile page
 			|  and click the "Resend Verification" button to be sent another email.
-	form(name = "rsvpForm", role = "form", ng-submit = "rsvp.submit()", ng-if = "rsvp.year !== 0 && rsvp.isLoggedIn && rsvp.isVerified")
+	form(name = "rsvpForm", role = "form", ng-submit = "rsvp.submit()", ng-if = "rsvp.stillAcceptingRsvps && rsvp.isLoggedIn && rsvp.isVerified")
 		.row
 			p.col-xs-12
 				em Please plan on a small contribution of {{rsvp.entryFee | currency : $ : 0}} to defray the cost of the electric bill, food, door prizes, and other expenses.

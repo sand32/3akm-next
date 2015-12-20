@@ -23,37 +23,29 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var LanService = function($http, $q){
-		return {
-			retrieveAll: function(){
-				return $http.get("/api/lan");
-			},
+	var LanSelectController = function($modalInstance, ngToast, LanService){
+		var ctrl = this;
+		ctrl.lans = [];
 
-			retrieve: function(id){
-				return $http.get("/api/lan/" + id);
-			},
+		LanService.retrieveAll()
+		.then(function(response){
+			ctrl.lans = response.data;
+		}).catch(function(){
+			ngToast.danger("Failed to retrieve LANs.");
+		});
 
-			retrieveGames: function(id){
-				return $http.get("/api/lan/" + id + "/games");
-			},
+		ctrl.ok = function(userId){
+			$modalInstance.close(userId);
+		};
 
-			create: function(postData){
-				return $http.post("/api/lan", postData);
-			},
-
-			edit: function(id, putData){
-				return $http.put("/api/lan/" + id, putData);
-			},
-
-			delete: function(id){
-				return $http.delete("/api/lan/" + id);
-			}
+		ctrl.cancel = function(){
+			$modalInstance.dismiss("cancel");
 		};
 	};
 
 	angular
-		.module("3akm.lan", [])
-		.factory("LanService", LanService);
+		.module("3akm.lanSelectModal", [])
+		.controller("LanSelectController", LanSelectController);
 
-	LanService.$inject = ["$http", "$q"];
+	LanSelectController.$inject = ["$modalInstance", "ngToast", "LanService"];
 })();

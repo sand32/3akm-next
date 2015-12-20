@@ -26,58 +26,23 @@ misrepresented as being the original software.
 	var RecipientService = function($http, $q){
 		return {
 			retrieveAll: function(){
-				var deferred = $q.defer();
-				$http.get("/api/recipient")
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/recipient");
 			},
 
 			retrieve: function(id){
-				var deferred = $q.defer();
-				$http.get("/api/recipient/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.get("/api/recipient/" + id);
 			},
 
 			create: function(postData){
-				var deferred = $q.defer();
-				$http.post("/api/recipient", postData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.post("/api/recipient", postData);
 			},
 
 			edit: function(id, putData){
-				var deferred = $q.defer();
-				$http.put("/api/recipient/" + id, putData)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.put("/api/recipient/" + id, putData);
 			},
 
 			delete: function(id){
-				var deferred = $q.defer();
-				$http.delete("/api/recipient/" + id)
-				.then(function(response){
-					deferred.resolve(response.data);
-				}).catch(function(response){
-					deferred.reject(response.status);
-				});
-				return deferred.promise;
+				return $http.delete("/api/recipient/" + id);
 			}
 		};
 	};

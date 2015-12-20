@@ -33,8 +33,8 @@ require("../common/userservice.js");
 		.then(function(){
 			verify.verified = true;
 			verify.loaded = true;
-		}).catch(function(status){
-			if(status === 500){
+		}).catch(function(response){
+			if(response.status === 500){
 				ngToast.danger("The server has encountered an error, please try again.");
 			}
 			verify.verified = false;

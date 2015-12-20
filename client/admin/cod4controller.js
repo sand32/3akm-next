@@ -35,8 +35,8 @@ require("../common/cod4service.js");
 		cod4.busy = false;
 
 		Cod4Service.retrieveGameTypes()
-		.then(function(data){
-			cod4.gametypes = data;
+		.then(function(response){
+			cod4.gametypes = response.data;
 		});
 
 		cod4.rotateMap = function(){
@@ -45,7 +45,7 @@ require("../common/cod4service.js");
 			.then(function(){
 				cod4.reloadStatus();
 				cod4.busy = false;
-			}).catch(function(status){
+			}).catch(function(){
 				ngToast.danger("Failed to rotate map.");
 				cod4.busy = false;
 			});
@@ -57,7 +57,7 @@ require("../common/cod4service.js");
 			.then(function(){
 				cod4.reloadStatus();
 				cod4.busy = false;
-			}).catch(function(status){
+			}).catch(function(){
 				ngToast.danger("Failed to set gametype.");
 				cod4.busy = false;
 			});
@@ -68,7 +68,7 @@ require("../common/cod4service.js");
 			Cod4Service.say(message || "")
 			.then(function(){
 				cod4.busy = false;
-			}).catch(function(status){
+			}).catch(function(){
 				ngToast.danger("Failed to send message.");
 				cod4.busy = false;
 			});
@@ -76,17 +76,17 @@ require("../common/cod4service.js");
 
 		cod4.reloadStatus = function(){
 			Cod4Service.retrieveStatus()
-			.then(function(data){
-				cod4.map = data.map;
-				cod4.players = data.players;
+			.then(function(response){
+				cod4.map = response.data.map;
+				cod4.players = response.data.players;
 			}).catch(function(){
 				cod4.map = "Unknown";
 				cod4.players = [];
 			});
 			Cod4Service.retrieveCurrentGameType()
-			.then(function(data){
-				cod4.gametype = data.gametype;
-				cod4.latchedGametype = data.latched || data.gametype;
+			.then(function(response){
+				cod4.gametype = response.data.gametype;
+				cod4.latchedGametype = response.data.latched || response.data.gametype;
 			}).catch(function(){
 				cod4.gametype = "Unknown";
 				cod4.latchedGametype = "Unknown";

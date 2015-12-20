@@ -23,37 +23,29 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var LanService = function($http, $q){
-		return {
-			retrieveAll: function(){
-				return $http.get("/api/lan");
-			},
+	var UserSelectController = function($modalInstance, ngToast, UserService){
+		var ctrl = this;
+		ctrl.users = [];
 
-			retrieve: function(id){
-				return $http.get("/api/lan/" + id);
-			},
+		UserService.retrieveAll()
+		.then(function(response){
+			ctrl.users = response.data;
+		}).catch(function(){
+			ngToast.danger("Failed to retrieve users.");
+		});
 
-			retrieveGames: function(id){
-				return $http.get("/api/lan/" + id + "/games");
-			},
+		ctrl.ok = function(userId){
+			$modalInstance.close(userId);
+		};
 
-			create: function(postData){
-				return $http.post("/api/lan", postData);
-			},
-
-			edit: function(id, putData){
-				return $http.put("/api/lan/" + id, putData);
-			},
-
-			delete: function(id){
-				return $http.delete("/api/lan/" + id);
-			}
+		ctrl.cancel = function(){
+			$modalInstance.dismiss("cancel");
 		};
 	};
 
 	angular
-		.module("3akm.lan", [])
-		.factory("LanService", LanService);
+		.module("3akm.userSelectModal", [])
+		.controller("UserSelectController", UserSelectController);
 
-	LanService.$inject = ["$http", "$q"];
+	UserSelectController.$inject = ["$modalInstance", "ngToast", "UserService"];
 })();

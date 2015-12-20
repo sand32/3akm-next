@@ -29,14 +29,14 @@ require("../common/rsvpservice.js");
 	var AppearancesController = function($stateParams, $sce, LanService, RsvpService){
 		var app = this;
 		LanService.retrieve("current")
-		.then(function(lan){
-			var beginDate = new Date(lan.beginDate);
+		.then(function(response){
+			var endDate = new Date(response.data.endDate);
 			app.activeLanDefined = true;
-			app.stillAcceptingRsvps = Date.now() < beginDate;
-			app.lanYear = beginDate.getFullYear();
+			app.stillAcceptingRsvps = Date.now() < endDate;
+			app.lanYear = endDate.getFullYear();
 			return RsvpService.retrieveAllForYear(app.lanYear);
-		}).then(function(rsvps){
-			app.rsvps = rsvps;
+		}).then(function(response){
+			app.rsvps = response.data;
 			app.yesCount = 0;
 			app.maybeCount = 0;
 
@@ -44,11 +44,11 @@ require("../common/rsvpservice.js");
 				return value.status !== "No";
 			});
 
-			for(var i = 0; i < rsvps.length; i += 1){
-				if(rsvps[i].status === "Yes"){
-					app.yesCount += 1 + rsvps[i].guests;
-				}else if(rsvps[i].status === "Maybe"){
-					app.maybeCount += 1 + rsvps[i].guests;
+			for(var i = 0; i < app.rsvps.length; i += 1){
+				if(app.rsvps[i].status === "Yes"){
+					app.yesCount += 1 + app.rsvps[i].guests;
+				}else if(app.rsvps[i].status === "Maybe"){
+					app.maybeCount += 1 + app.rsvps[i].guests;
 				}
 			}
 		});

@@ -55,17 +55,19 @@ require("../common/enumselectdirective.js");
 		};
 
 		UserService.retrieve("session")
-		.then(function(user){
-			ctrl.isVerified = user.verified;
+		.then(function(response){
+			ctrl.isVerified = response.data.verified;
 			ctrl.isLoggedIn = true;
 		}).catch(function(status){
 			ctrl.isLoggedIn = false;
 		});
 
-		LanService.retrieve("next")
-		.then(function(lan){
-			var beginDate = new Date(lan.beginDate);
-			ctrl.year = beginDate.getFullYear();
+		LanService.retrieve("current")
+		.then(function(response){
+			var lan = response.data;
+			var endDate = new Date(lan.endDate);
+			ctrl.year = endDate.getFullYear();
+			ctrl.stillAcceptingRsvps = Date.now() < endDate;
 			ctrl.entryFee = lan.entryFee;
 			var promise = RsvpService.retrieveByYear("session", ctrl.year);
 
@@ -82,21 +84,21 @@ require("../common/enumselectdirective.js");
 			return promise;
 		}, function(){
 			ctrl.loaded = true;
-		}).then(function(rsvp){
-			ctrl.current = rsvp;
+		}).then(function(response){
+			ctrl.current = response.data;
 
 			// Load existing signup info into our controller
-			for(var i = 0; i < rsvp.tournaments.length; i += 1){
+			for(var i = 0; i < ctrl.current.tournaments.length; i += 1){
 				for(var j = 0; j < ctrl.tournaments.length; j += 1){
-					if(rsvp.tournaments[i].game === ctrl.tournaments[j].game){
+					if(ctrl.current.tournaments[i].game === ctrl.tournaments[j].game){
 						ctrl.tournaments[j].signedUp = true;
 					}
 				}
 			}
 
 			ctrl.loaded = true;
-		}).catch(function(status){
-			if(status === 403){
+		}).catch(function(response){
+			if(response.status === 403){
 				$scope.$emit("AuthChanged", false);
 			}
 			ctrl.loaded = true;

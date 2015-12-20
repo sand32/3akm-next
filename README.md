@@ -1,6 +1,9 @@
 3akm-next
 =========
-The next iteration of the site for the 3AK^M LAN party. Expected to be operational prior to the 2015 invite.
+
+![](https://img.shields.io/badge/license-zlib%2Flibpng-blue.svg "License")
+
+The next iteration of the site for the 3AK^M LAN party.
 
 Prerequisites
 -------------

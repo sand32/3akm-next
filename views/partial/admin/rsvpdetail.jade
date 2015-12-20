@@ -27,11 +27,16 @@
 			.row.panel-banner
 				.col-xs-8
 					.form-group(style = "margin: 0;")
-						label User:&nbsp;&nbsp;
-						.horizontal {{rsvp.current.user.firstName}} {{rsvp.current.user.lastName}}
-					.form-group(style = "margin: 0;")
-						label LAN:&nbsp;&nbsp;
-						.horizontal {{rsvp.current.lan.beginDate | date: "mediumDate"}}
+						.col-xs-7
+							label User:&nbsp;&nbsp;
+							.horizontal(ng-if = "rsvp.loaded && rsvp.current._id") {{rsvp.current.user.firstName}} {{rsvp.current.user.lastName}}
+							.horizontal(ng-if = "rsvp.loaded && !rsvp.current._id")
+								a.btn.btn-default(ng-click = "rsvp.selectUser()") {{rsvp.userSelectText}}
+						.col-xs-5
+							label LAN:&nbsp;&nbsp;
+							.horizontal(ng-if = "rsvp.loaded && rsvp.current._id") {{rsvp.current.lan.beginDate | date: "mediumDate"}}
+							.horizontal(ng-if = "rsvp.loaded && !rsvp.current._id")
+								a.btn.btn-default(ng-click = "rsvp.selectLan()") {{rsvp.lanSelectText | date : "mediumDate"}}
 				.form-group.col-xs-4(style = "margin: 0; text-align: right;")
 					enum-select.horizontal(current = "rsvp.current.status", possibles = "rsvp.statusPossibles")
 			.row
