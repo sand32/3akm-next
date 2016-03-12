@@ -39,24 +39,29 @@ require("../admin-common/teamspeakbrowserdirective.js");
 				return TeamspeakService.channelList(1);
 			}).then(function(channelList){
 				ts.channels = channelList.data;
-				var parentageStack = [0], parentFoundAt = -1;
-				for(var i = 0; i < ts.channels.length; i += 1){
-					parentFoundAt = parentageStack.indexOf(ts.channels[i].pid);
-					if(parentFoundAt === parentageStack.length - 1){
-						ts.channels[i].depth = parentFoundAt;
-					}else if(parentFoundAt !== -1){
-						while(parentageStack[parentageStack.length - 1] !== ts.channels[i].pid){
-							parentageStack.pop();
-						}
-						ts.channels[i].depth = parentageStack.length - 1;
-					}else{
-						ts.channels[i].depth = parentageStack.length;
-						parentageStack.push(ts.channels[i].pid);
-					}
-				}
+				calculateChannelDepths(ts.channels);
 				ts.loaded = true;
 			});
+		},
+
+		calculateChannelDepths = function(channels){
+			var parentageStack = [0], parentFoundAt = -1;
+			for(var i = 0; i < channels.length; i += 1){
+				parentFoundAt = parentageStack.indexOf(channels[i].pid);
+				if(parentFoundAt === parentageStack.length - 1){
+					channels[i].depth = parentFoundAt;
+				}else if(parentFoundAt !== -1){
+					while(parentageStack[parentageStack.length - 1] !== channels[i].pid){
+						parentageStack.pop();
+					}
+					channels[i].depth = parentageStack.length - 1;
+				}else{
+					channels[i].depth = parentageStack.length;
+					parentageStack.push(channels[i].pid);
+				}
+			}
 		};
+
 		updateBrowser();
 	};
 
