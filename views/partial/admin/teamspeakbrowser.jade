@@ -27,3 +27,6 @@
 	.teamspeak-channel(ng-repeat = "channel in channelList", style = "margin-left: {{1 * channel.depth + 1}}em")
 		.teamspeak-channel-icon
 		| {{channel.channel_name}}
+		.teamspeak-client(ng-repeat = "client in channel.clients")
+			.teamspeak-client-icon
+			| {{client.client_nickname}}

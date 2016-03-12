@@ -32,8 +32,9 @@ misrepresented as being the original software.
 				channelList: "="
 			},
 			link: function(scope, element, attrs){
-				var childrens = angular.element(angular.element(element.contents()[0]).contents()[1]).contents();
-				var length = childrens;
+				scope.serverSelected = function(server){scope.$parent.serverSelected(server);};
+				scope.channelSelected = function(channel){scope.$parent.channelSelected(channel);};
+				scope.clientSelected = function(client){scope.$parent.clientSelected(client);};
 			}
 		}
 	};

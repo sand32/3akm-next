@@ -40,6 +40,9 @@ require("../admin-common/teamspeakbrowserdirective.js");
 			}).then(function(channelList){
 				ts.channels = channelList.data;
 				calculateChannelDepths(ts.channels);
+				return TeamspeakService.clientList(1);
+			}).then(function(clientList){
+				addClientsToChannels(clientList.data);
 				ts.loaded = true;
 			});
 		},
@@ -58,6 +61,20 @@ require("../admin-common/teamspeakbrowserdirective.js");
 				}else{
 					channels[i].depth = parentageStack.length;
 					parentageStack.push(channels[i].pid);
+				}
+			}
+		},
+
+		addClientsToChannels = function(clients){
+			for(var i = 0; i < clients.length; i += 1){
+				for(var j = 0; j < ts.channels.length; j += 1){
+					if(!ts.channels[j].clients){
+						ts.channels[j].clients = [];
+					}
+					if(ts.channels[j].cid === clients[i].cid
+					&& clients[i].client_type === 0){
+						ts.channels[j].clients.push(clients[i]);
+					}
 				}
 			}
 		};

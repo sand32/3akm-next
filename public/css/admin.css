@@ -310,3 +310,17 @@ td {
 	display: inline-block;
 	vertical-align: middle;
 }
+
+.teamspeak-client {
+	margin-left: 1em;
+}
+
+.teamspeak-client-icon {
+	background: url('/images/teamspeak/player_on.png') no-repeat center;
+	background-size: 1em 1em;
+	height: 1em;
+	width: 1em;
+	margin-right: .2em;
+	display: inline-block;
+	vertical-align: middle;
+}

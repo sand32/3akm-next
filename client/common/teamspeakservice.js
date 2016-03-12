@@ -31,6 +31,10 @@ misrepresented as being the original software.
 
 			channelList: function(serverId){
 				return $http.get("/api/service/ts3/server/" + serverId + "/channel");
+			},
+
+			clientList: function(serverId){
+				return $http.get("/api/service/ts3/server/" + serverId + "/client");
 			}
 		};
 	};
