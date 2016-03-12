@@ -23,67 +23,8 @@ misrepresented as being the original software.
 */
 
 var ServerQuery = require("node-teamspeak"),
+	Promise = require("bluebird"),
 	config = require("./common").config,
-	sq,
-
-	_login = function(callback){
-		sq = new ServerQuery(config.ts3.address);
-		sq.on("connect", function(){
-			sq.send("login", {
-				client_login_name: "serveradmin",
-				client_login_password: config.ts3.password
-			}, callback);
-		});
-		sq.on("error", function(err){
-			if(err.errno === "ECONNREFUSED"){
-				callback({
-					id: 1,
-					msg: "ServerQuery connection refused by host: \"" + config.ts3.address + "\""
-				});
-			}else{
-				callback({
-					id: 1,
-					msg: "Unknown error from Teamspeak ServerQuery"
-				});
-			}
-		});
-	},
-
-	_logout = function(){
-		sq.send("logout", null, function(err, response, rawResponse){
-			sq.send("quit");
-		});
-	},
-
-	_send = function(command, params, options, virtualServer, callback){
-		if(virtualServer){
-			sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
-				if(!err){
-					sq.send(command, params, options, callback);
-				}else{
-					callback(err, response, rawResponse);
-				}
-			});
-		}else{
-			sq.send(command, params, options, callback);
-		}
-	},
-
-	_sequentialSend = function(commands, results, callback){
-		var current = commands[results.length];
-		sq.send(current.command, current.params, current.options, function(err, response, rawResponse){
-			if(!err){
-				results.push(response);
-				if(results.length !== commands.length){
-					_sequentialSend(commands, results, callback);
-				}else{
-					callback(err, response, rawResponse);
-				}
-			}else{
-				callback(err);
-			}
-		});
-	},
 
 	_errorMessage = function(err){
 		var error = err.msg;
@@ -93,184 +34,261 @@ var ServerQuery = require("node-teamspeak"),
 		return error;
 	},
 
-	_resultsOnly = function(command, params, options, virtualServer, callback){
-		_login(function(err, response, rawResponse){
+	_handleCallback = function(resolve, reject){
+		return function(err, response, rawResponse){
 			if(!err){
-				_send(command, params, options, virtualServer, function(err, response, rawResponse){
+				resolve(response);
+			}else{
+				reject(_errorMessage(err));
+			}
+		}
+	},
+
+	_login = function(){
+		return new Promise(function(resolve, reject){
+			var sq = new ServerQuery(config.ts3.address);
+			sq.on("connect", function(){
+				sq.send("login", {
+					client_login_name: "serveradmin",
+					client_login_password: config.ts3.password
+				}, function(err){
 					if(!err){
-						callback(null, response);
+						resolve(sq);
 					}else{
-						callback(_errorMessage(err));
+						sq.send("quit");
+						reject(err);
 					}
-					_logout();
+				});
+			});
+			sq.on("error", function(err){
+				sq.send("quit");
+				if(err.errno === "ECONNREFUSED"){
+					reject({
+						reason: "connection-refused",
+						id: 1,
+						message: "ServerQuery connection refused by host: \"" + config.ts3.address + "\""
+					});
+				}else{
+					reject({
+						reason: "unknown",
+						id: 1,
+						message: "Unknown error from Teamspeak ServerQuery"
+					});
+				}
+			});
+		});
+	},
+
+	_logout = function(sq){
+		return new Promise(function(resolve, reject){
+			sq.send("logout", null, function(err, response, rawResponse){
+				sq.send("quit");
+				resolve();
+			});
+		});
+	},
+
+	_send = function(sq, command, params, options, virtualServer){
+		return new Promise(function(resolve, reject){
+			if(virtualServer){
+				sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
+					if(!err){
+						sq.send(command, params, options, _handleCallback(resolve, reject));
+					}else{
+						reject(_errorMessage(err));
+					}
 				});
 			}else{
-				callback(_errorMessage(err));
-				sq.send("quit");
+				sq.send(command, params, options, _handleCallback(resolve, reject));
 			}
 		});
 	},
 
-	_sequentialResultsOnly = function(commands, results, virtualServer, callback){
-		_login(function(err, response, rawResponse){
-			if(!err){
-				if(virtualServer){
-					sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
-						_sequentialSend(commands, results, function(err, response, rawResponse){
-							if(!err){
-								callback(null, response);
-							}else{
-								callback(_errorMessage(err));
-							}
-							_logout();
-						});
-					});
+	_sequentialSend = function(sq, commands, results){
+		return new Promise(function(resolve, reject){
+			_send(
+				sq,
+				commands[0].command,
+				commands[0].params,
+				commands[0].options
+			).then(function(response){
+				results.push(response);
+				commands.splice(0, 1);
+				if(commands.length > 0){
+					_sequentialSend(sq, commands, results)
+					.then(resolve);
 				}else{
-					_sequentialSend(commands, results, function(err, response, rawResponse){
-						if(!err){
-							callback(null, response);
-						}else{
-							callback(_errorMessage(err));
-						}
+					resolve();
+				}
+			});
+		});
+	},
+
+	_resultsOnly = function(command, params, options, virtualServer){
+		return new Promise(function(resolve, reject){
+			var sequenceSq, result;
+			_login()
+			.then(function(sq){
+				sequenceSq = sq;
+				return _send(sq, command, params, options, virtualServer)
+			}).then(function(response){
+				result = response;
+				return _logout(sequenceSq)
+			}).then(function(){
+				resolve(result);
+			});
+		});
+	},
+
+	_sequentialResultsOnly = function(commands, results, virtualServer){
+		return new Promise(function(resolve, reject){
+			_login()
+			.then(function(sq){
+				sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
+					_sequentialSend(sq, commands, results)
+					.then(function(){
 						_logout();
 					});
-				}
-			}else{
-				callback(_errorMessage(err));
-				sq.send("quit");
-			}
+				});
+			});
 		});
 	};
 
 module.exports = {
-	version: function(callback){
-		_resultsOnly("version", {}, [], null, callback);
+	version: function(){
+		return _resultsOnly("version", {}, [], null);
 	},
 
-	hostInfo: function(callback){
-		_resultsOnly("hostinfo", {}, [], null, callback);
+	hostInfo: function(){
+		return _resultsOnly("hostinfo", {}, [], null);
 	},
 
-	instanceInfo: function(callback){
-		_resultsOnly("instanceinfo", {}, [], null, callback);
+	instanceInfo: function(){
+		return _resultsOnly("instanceinfo", {}, [], null);
 	},
 
-	editInstance: function(params, callback){
-		_resultsOnly("instanceedit", params, [], null, callback);
+	editInstance: function(params){
+		return _resultsOnly("instanceedit", params, [], null);
 	},
 
-	bindingList: function(callback){
-		_resultsOnly("bindinglist", {}, [], null, callback);
+	bindingList: function(){
+		return _resultsOnly("bindinglist", {}, [], null);
 	},
 
-	listServers: function(callback){
-		_resultsOnly("serverlist", {}, [], null, callback);
+	listServers: function(){
+		return _resultsOnly("serverlist", {}, [], null);
 	},
 
-	serverIdByPort: function(port, callback){
-		_resultsOnly("serveridgetbyport", {virtualserver_port: port}, [], null, callback);
+	serverIdByPort: function(port){
+		return _resultsOnly("serveridgetbyport", {virtualserver_port: port}, [], null);
 	},
 
-	deleteServer: function(serverId, callback){
-		_resultsOnly("serverdelete", {sid: serverId}, [], null, callback);
+	deleteServer: function(serverId){
+		return _resultsOnly("serverdelete", {sid: serverId}, [], null);
 	},
 
-	createServer: function(properties, callback){
+	createServer: function(properties){
 		if(!properties.virtualserver_name){
-			callback("Error: Must provide a name for the new server.");
-			return;
+			return Promise.reject({
+				reason: "name-required",
+				message: "Must provide a name for the new server."
+			});
 		}
-		_resultsOnly("servercreate", properties, [], null, callback);
+		return _resultsOnly("servercreate", properties, [], null);
 	},
 
-	startServer: function(serverId, callback){
-		_resultsOnly("serverstart", {sid: serverId}, [], null, callback);
+	startServer: function(serverId){
+		return _resultsOnly("serverstart", {sid: serverId}, [], null);
 	},
 
-	stopServer: function(serverId, callback){
-		_resultsOnly("serverstop", {sid: serverId}, [], null, callback);
+	stopServer: function(serverId){
+		return _resultsOnly("serverstop", {sid: serverId}, [], null);
 	},
 
-	stopInstance: function(callback){
-		_resultsOnly("serverprocessstop", {}, [], null, callback);
+	stopInstance: function(){
+		return _resultsOnly("serverprocessstop", {}, [], null);
 	},
 
-	serverInfo: function(serverId, callback){
-		_resultsOnly("serverinfo", {}, [], serverId, callback);
+	serverInfo: function(serverId){
+		return _resultsOnly("serverinfo", {}, [], serverId);
 	},
 
-	editServer: function(serverId, properties, callback){
-		_resultsOnly("serveredit", properties, [], serverId, callback);
+	editServer: function(serverId, properties){
+		return _resultsOnly("serveredit", properties, [], serverId);
 	},
 
-	serverConnectionInfo: function(serverId, callback){
-		_resultsOnly("serverrequestconnectioninfo", {}, [], serverId, callback);
+	serverConnectionInfo: function(serverId){
+		return _resultsOnly("serverrequestconnectioninfo", {}, [], serverId);
 	},
 
-	addTemporaryServerPassword: function(serverId, password, description, durationS, defaultChannel, channelPassword, callback){
-		_resultsOnly("servertemppasswordadd", {
+	addTemporaryServerPassword: function(serverId, password, description, durationS, defaultChannel, channelPassword){
+		return _resultsOnly("servertemppasswordadd", {
 			pw: password,
 			desc: description,
 			duration: durationS,
 			tcid: defaultChannel,
 			tcpw: channelPassword
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	deleteTemporaryServerPassword: function(serverId, password, callback){
-		_resultsOnly("servertemppassworddel", {pw: password}, [], serverId, callback);
+	deleteTemporaryServerPassword: function(serverId, password){
+		return _resultsOnly("servertemppassworddel", {pw: password}, [], serverId);
 	},
 
-	listTemporaryServerPasswords: function(serverId, callback){
-		_resultsOnly("servertemppasswordlist", {}, [], serverId, callback);
+	listTemporaryServerPasswords: function(serverId){
+		return _resultsOnly("servertemppasswordlist", {}, [], serverId);
 	},
 
-	listServerGroups: function(serverId, callback){
-		_resultsOnly("servergrouplist", {}, [], serverId, callback);
+	listServerGroups: function(serverId){
+		return _resultsOnly("servergrouplist", {}, [], serverId);
 	},
 
-	addServerGroup: function(serverId, groupName, groupType, callback){
+	addServerGroup: function(serverId, groupName, groupType){
 		var params = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		_resultsOnly("servergroupadd", params, [], serverId, callback);
+		return _resultsOnly("servergroupadd", params, [], serverId);
 	},
 
-	deleteServerGroup: function(serverId, groupId, force, callback){
+	deleteServerGroup: function(serverId, groupId, force){
 		var params = {
 			sgid: groupId,
 			force: force
 		};
 		if(params.force !== 0
 		&& params.force !== 1){
-			callback("Error: Invalid force value, must be 0 or 1.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "Invalid force value, must be 0 or 1."
+			});
 		}
-		_resultsOnly("servergroupdel", params, [], serverId, callback);
+		return _resultsOnly("servergroupdel", params, [], serverId);
 	},
 
-	copyServerGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType, callback){
-		_resultsOnly("servergroupcopy", {
+	copyServerGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType){
+		return _resultsOnly("servergroupcopy", {
 			ssgid: sourceGroupId,
 			tsgid: targetGroupId,
 			name: groupName,
 			type: groupType
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	renameServerGroup: function(serverId, groupId, newName, callback){
-		_resultsOnly("servergrouprename", {sgid: groupId, name: newName}, [], serverId, callback);
+	renameServerGroup: function(serverId, groupId, newName){
+		return _resultsOnly("servergrouprename", {sgid: groupId, name: newName}, [], serverId);
 	},
 
-	listServerGroupPermissions: function(serverId, groupId, callback){
-		_resultsOnly("servergrouppermlist", {sgid: groupId}, [], serverId, callback);
+	listServerGroupPermissions: function(serverId, groupId){
+		return _resultsOnly("servergrouppermlist", {sgid: groupId}, [], serverId);
 	},
 
-	addServerGroupPermissions: function(serverId, groupId, permissions, callback){
+	addServerGroupPermissions: function(serverId, groupId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -281,57 +299,61 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], serverId, callback);
+		return _sequentialResultsOnly(commands, [], serverId);
 	},
 
-	deleteServerGroupPermissions: function(serverId, groupId, permissions, callback){
+	deleteServerGroupPermissions: function(serverId, groupId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("servergroupdelperm", {
+			return _resultsOnly("servergroupdelperm", {
 				sgid: groupId,
 				permsid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}else{
-			_resultsOnly("servergroupdelperm", {
+			return _resultsOnly("servergroupdelperm", {
 				sgid: groupId,
 				permid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}
 	},
 
-	listClientsInServerGroup: function(serverId, groupId, names, callback){
+	listClientsInServerGroup: function(serverId, groupId, names){
 		if(names){
-			_resultsOnly("servergroupclientlist", {sgid: groupId}, ["names"], serverId, callback);
+			return _resultsOnly("servergroupclientlist", {sgid: groupId}, ["names"], serverId);
 		}else{
-			_resultsOnly("servergroupclientlist", {sgid: groupId}, [], serverId, callback);
+			return _resultsOnly("servergroupclientlist", {sgid: groupId}, [], serverId);
 		}
 	},
 
-	addClientToServerGroup: function(serverId, groupId, clientDbId, callback){
-		_resultsOnly("servergroupaddclient", {
+	addClientToServerGroup: function(serverId, groupId, clientDbId){
+		return _resultsOnly("servergroupaddclient", {
 			sgid: groupId,
 			cldbid: clientDbId
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	removeClientFromServerGroup: function(serverId, groupId, clientDbId, callback){
-		_resultsOnly("servergroupdelclient", {
+	removeClientFromServerGroup: function(serverId, groupId, clientDbId){
+		return _resultsOnly("servergroupdelclient", {
 			sgid: groupId,
 			cldbid: clientDbId
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	serverGroupsContainingClient: function(serverId, clientDbId, callback){
-		_resultsOnly("servergroupsbyclientid", {cldbid: clientDbId}, [], serverId, callback);
+	serverGroupsContainingClient: function(serverId, clientDbId){
+		return _resultsOnly("servergroupsbyclientid", {cldbid: clientDbId}, [], serverId);
 	},
 
-	autoAddPermissionsToServerGroupType: function(groupType, permissions, callback){
+	autoAddPermissionsToServerGroupType: function(groupType, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -342,39 +364,43 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], null, callback);
+		return _sequentialResultsOnly(commands, [], null);
 	},
 
-	autoDeletePermissionsFromServerGroupType: function(groupType, permissions, callback){
+	autoDeletePermissionsFromServerGroupType: function(groupType, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("servergroupautodelperm", {
+			return _resultsOnly("servergroupautodelperm", {
 				sgtype: groupType,
 				permsid: permissions
-			}, [], null, callback);
+			}, [], null);
 		}else{
-			_resultsOnly("servergroupautodelperm", {
+			return _resultsOnly("servergroupautodelperm", {
 				sgtype: groupType,
 				permid: permissions
-			}, [], null, callback);
+			}, [], null);
 		}
 	},
 
-	sendGeneralMessage: function(message, callback){
-		_resultsOnly("gm", {msg: message}, [], null, callback);
+	sendGeneralMessage: function(message){
+		return _resultsOnly("gm", {msg: message}, [], null);
 	},
 
-	sendTargetedMessage: function(serverId, targetMode, target, message, callback){
-		_resultsOnly("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, [], serverId, callback);
+	sendTargetedMessage: function(serverId, targetMode, target, message){
+		return _resultsOnly("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, [], serverId);
 	},
 
-	listChannels: function(serverId, filters, callback){
+	listChannels: function(serverId, filters){
 		if(!Array.isArray(filters)){
-			callback("Error: filters must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "filters must be an array."
+			});
 		}
 		filters = filters || [];
 		for(var i = 0; i < filters.length; i += 1){
@@ -387,18 +413,18 @@ module.exports = {
 			}
 		}
 
-		_resultsOnly("channellist", {}, filters, serverId, callback);
+		return _resultsOnly("channellist", {}, filters, serverId);
 	},
 
-	channelInfo: function(serverId, channelId, callback){
-		_resultsOnly("channelinfo", {cid: channelId}, [], serverId, callback);
+	channelInfo: function(serverId, channelId){
+		return _resultsOnly("channelinfo", {cid: channelId}, [], serverId);
 	},
 
-	findChannel: function(serverId, pattern, callback){
-		_resultsOnly("channelfind", {pattern: pattern}, [], serverId, callback);
+	findChannel: function(serverId, pattern){
+		return _resultsOnly("channelfind", {pattern: pattern}, [], serverId);
 	},
 
-	moveChannel: function(serverId, channelId, newParentChannelId, sortOrder, callback){
+	moveChannel: function(serverId, channelId, newParentChannelId, sortOrder){
 		var params = {
 			cid: channelId,
 			cpid: newParentChannelId,
@@ -408,26 +434,30 @@ module.exports = {
 			delete params.order;
 		}
 
-		_resultsOnly("channelfind", params, [], serverId, callback);
+		return _resultsOnly("channelfind", params, [], serverId);
 	},
 
-	createChannel: function(serverId, properties, callback){
+	createChannel: function(serverId, properties){
 		if(!properties.channel_name){
-			callback("Error: Must provide a name for the new channel.");
-			return;
+			return Promise.reject({
+				reason: "name-required",
+				message: "Must provide a name for the new channel."
+			});
 		}
-		_resultsOnly("channelcreate", properties, [], serverId, callback);
+		return _resultsOnly("channelcreate", properties, [], serverId);
 	},
 
-	editChannel: function(serverId, properties, callback){
+	editChannel: function(serverId, properties){
 		if(!properties.cid){
-			callback("Error: Must provide an ID for the channel you wish to edit.");
-			return;
+			return Promise.reject({
+				reason: "id-required",
+				message: "Must provide an ID for the channel you wish to edit."
+			});
 		}
-		_resultsOnly("channeledit", properties, [], serverId, callback);
+		return _resultsOnly("channeledit", properties, [], serverId);
 	},
 
-	deleteChannel: function(serverId, channelId, force, callback){
+	deleteChannel: function(serverId, channelId, force){
 		var params = {
 			cid: channelId,
 			force: force
@@ -438,17 +468,19 @@ module.exports = {
 			return;
 		}
 
-		_resultsOnly("channeldelete", params, [], serverId, callback);
+		return _resultsOnly("channeldelete", params, [], serverId);
 	},
 
-	listChannelPermissions: function(serverId, channelId, callback){
-		_resultsOnly("channelpermlist", {cid: channelId}, [], serverId, callback);
+	listChannelPermissions: function(serverId, channelId){
+		return _resultsOnly("channelpermlist", {cid: channelId}, [], serverId);
 	},
 
-	addChannelPermissions: function(serverId, channelId, permissions, callback){
+	addChannelPermissions: function(serverId, channelId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -459,76 +491,82 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], serverId, callback);
+		_sequentialResultsOnly(commands, [], serverId);
 	},
 
-	deleteChannelPermissions: function(serverId, channelId, permissions, callback){
+	deleteChannelPermissions: function(serverId, channelId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("channeldelperm", {
+			return _resultsOnly("channeldelperm", {
 				cid: channelId,
 				permsid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}else{
-			_resultsOnly("channeldelperm", {
+			return _resultsOnly("channeldelperm", {
 				cid: channelId,
 				permid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}
 	},
 
-	listChannelGroups: function(serverId, callback){
-		_resultsOnly("channelgrouplist", {}, [], serverId, callback);
+	listChannelGroups: function(serverId){
+		return _resultsOnly("channelgrouplist", {}, [], serverId);
 	},
 
-	addChannelGroup: function(serverId, groupName, groupType, callback){
+	addChannelGroup: function(serverId, groupName, groupType){
 		var params = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		_resultsOnly("channelgroupadd", params, [], serverId, callback);
+		return _resultsOnly("channelgroupadd", params, [], serverId);
 	},
 
-	deleteChannelGroup: function(serverId, groupId, force, callback){
+	deleteChannelGroup: function(serverId, groupId, force){
 		var params = {
 			cgid: groupId,
 			force: force
 		};
 		if(params.force !== 0
 		&& params.force !== 1){
-			callback("Error: Invalid force value, must be 0 or 1.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "Invalid force value, must be 0 or 1."
+			});
 		}
-		_resultsOnly("channelgroupdel", params, [], serverId, callback);
+		return _resultsOnly("channelgroupdel", params, [], serverId);
 	},
 
-	copyChannelGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType, callback){
-		_resultsOnly("channelgroupcopy", {
+	copyChannelGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType){
+		return _resultsOnly("channelgroupcopy", {
 			scgid: sourceGroupId,
 			tcgid: targetGroupId,
 			name: groupName,
 			type: groupType
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	renameChannelGroup: function(serverId, groupId, newName, callback){
-		_resultsOnly("channelgrouprename", {
+	renameChannelGroup: function(serverId, groupId, newName){
+		return _resultsOnly("channelgrouprename", {
 			cgid: groupId,
 			name: newName
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	listChannelGroupPermissions: function(serverId, groupId, callback){
-		_resultsOnly("channelgrouppermlist", {cgid: groupId}, [], serverId, callback);
+	listChannelGroupPermissions: function(serverId, groupId){
+		return _resultsOnly("channelgrouppermlist", {cgid: groupId}, [], serverId);
 	},
 
-	addChannelGroupPermissions: function(serverId, groupId, permissions, callback){
+	addChannelGroupPermissions: function(serverId, groupId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -539,48 +577,52 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], serverId, callback);
+		_sequentialResultsOnly(commands, [], serverId);
 	},
 
-	deleteChannelGroupPermissions: function(serverId, groupId, permissions, callback){
+	deleteChannelGroupPermissions: function(serverId, groupId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("channelgroupdelperm", {
+			return _resultsOnly("channelgroupdelperm", {
 				cgid: groupId,
 				permsid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}else{
-			_resultsOnly("channelgroupdelperm", {
+			return _resultsOnly("channelgroupdelperm", {
 				cgid: groupId,
 				permid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}
 	},
 
-	listClientsInChannelGroup: function(serverId, channelId, clientDbId, groupId, callback){
+	listClientsInChannelGroup: function(serverId, channelId, clientDbId, groupId){
 		var params = {};
 		if(channelId) params.cid = channelId;
 		if(clientDbId) params.cldbid = clientDbId;
 		if(groupId) params.cgid = groupId;
 
-		_resultsOnly("channelgroupclientlist", params, [], serverId, callback);
+		return _resultsOnly("channelgroupclientlist", params, [], serverId);
 	},
 
-	setClientChannelGroup: function(serverId, groupId, channelId, clientDbId, callback){
-		_resultsOnly("setclientchannelgroup", {
+	setClientChannelGroup: function(serverId, groupId, channelId, clientDbId){
+		return _resultsOnly("setclientchannelgroup", {
 			cgid: groupId,
 			cid: channelId,
 			cldbid: clientDbId
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	listClients: function(serverId, filters, callback){
+	listClients: function(serverId, filters){
 		if(!Array.isArray(filters)){
-			callback("Error: filters must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "filters must be an array."
+			});
 		}
 		filters = filters || [];
 		for(var i = 0; i < filters.length; i += 1){
@@ -593,120 +635,128 @@ module.exports = {
 			&& filters[i] !== "icon"
 			&& filters[i] !== "country"
 			&& filters[i] !== "ip"){
-				callback("Error: Invalid filter: \"" + filters[i] + "\"");
-				return;
+				return Promise.reject({
+					reason: "invalid-filter",
+					message: "Invalid filter: \"" + filters[i] + "\""
+				});
 			}
 		}
-		_resultsOnly("clientlist", {}, filters, serverId, callback);
+		return _resultsOnly("clientlist", {}, filters, serverId);
 	},
 
-	clientInfo: function(serverId, clientId, callback){
-		_resultsOnly("clientinfo", {clid: clientId}, [], serverId, callback);
+	clientInfo: function(serverId, clientId){
+		return _resultsOnly("clientinfo", {clid: clientId}, [], serverId);
 	},
 
-	findClient: function(serverId, pattern, callback){
-		_resultsOnly("clientfind", {pattern: pattern}, [], serverId, callback);
+	findClient: function(serverId, pattern){
+		return _resultsOnly("clientfind", {pattern: pattern}, [], serverId);
 	},
 
-	editClient: function(serverId, properties, callback){
+	editClient: function(serverId, properties){
 		if(!properties.clid){
-			callback("Error: Must provide an ID for the client you wish to edit.");
-			return;
+			return Promise.reject({
+				reason: "id-required",
+				message: "Must provide an ID for the client you wish to edit."
+			});
 		}
-		_resultsOnly("clientedit", properties, [], serverId, callback);
+		return _resultsOnly("clientedit", properties, [], serverId);
 	},
 
-	listClientDbEntries: function(serverId, start, duration, count, callback){
+	listClientDbEntries: function(serverId, start, duration, count){
 		var params = {};
 		if(start) params.start = start;
 		if(duration) params.duration = duration;
 		if(count) count = ["count"];
 
-		_resultsOnly("clientdblist", params, count, serverId, callback);
+		return _resultsOnly("clientdblist", params, count, serverId);
 	},
 
-	findClientDbEntries: function(serverId, pattern, uid, callback){
+	findClientDbEntries: function(serverId, pattern, uid){
 		if(uid){
-			_resultsOnly("clientdbfind", {pattern: pattern}, ["uid"], serverId, callback);
+			return _resultsOnly("clientdbfind", {pattern: pattern}, ["uid"], serverId);
 		}else{
-			_resultsOnly("clientdbfind", {pattern: pattern}, [], serverId, callback);
+			return _resultsOnly("clientdbfind", {pattern: pattern}, [], serverId);
 		}
 	},
 
-	clientDbEntryInfo: function(serverId, clientDbId, callback){
-		_resultsOnly("clientdbinfo", {cldbid: clientDbId}, [], serverId, callback);
+	clientDbEntryInfo: function(serverId, clientDbId){
+		return _resultsOnly("clientdbinfo", {cldbid: clientDbId}, [], serverId);
 	},
 
-	editClientDbEntry: function(serverId, properties, callback){
+	editClientDbEntry: function(serverId, properties){
 		if(!properties.cldbid){
-			callback("Error: Must provide an ID for the database client you wish to edit.");
-			return;
+			return Promise.reject({
+				reason: "id-required",
+				message: "Must provide an ID for the database client you wish to edit."
+			});
 		}
-		_resultsOnly("clientdbedit", properties, [], serverId, callback);
+		return _resultsOnly("clientdbedit", properties, [], serverId);
 	},
 
-	deleteClientDbEntry: function(serverId, clientDbId, callback){
-		_resultsOnly("clientdbdelete", {cldbid: clientDbId}, [], serverId, callback);
+	deleteClientDbEntry: function(serverId, clientDbId){
+		return _resultsOnly("clientdbdelete", {cldbid: clientDbId}, [], serverId);
 	},
 
-	clientByUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetids", {cluid: clientUid}, [], serverId, callback);
+	clientByUid: function(serverId, clientUid){
+		return _resultsOnly("clientgetids", {cluid: clientUid}, [], serverId);
 	},
 
-	clientDbIdFromUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetdbidfromuid", {cluid: clientUid}, [], serverId, callback);
+	clientDbIdFromUid: function(serverId, clientUid){
+		return _resultsOnly("clientgetdbidfromuid", {cluid: clientUid}, [], serverId);
 	},
 
-	clientNameFromUid: function(serverId, clientUid, callback){
-		_resultsOnly("clientgetnamefromuid", {cluid: clientUid}, [], serverId, callback);
+	clientNameFromUid: function(serverId, clientUid){
+		return _resultsOnly("clientgetnamefromuid", {cluid: clientUid}, [], serverId);
 	},
 
-	clientNameFromDbId: function(serverId, clientDbId, callback){
-		_resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, [], serverId, callback);
+	clientNameFromDbId: function(serverId, clientDbId){
+		return _resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, [], serverId);
 	},
 
-	setClientServerQueryLogin: function(newLoginName, callback){
-		_resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, [], null, callback);
+	setClientServerQueryLogin: function(newLoginName){
+		return _resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, [], null);
 	},
 
-	updateClient: function(properties, callback){
-		_resultsOnly("clientupdate", properties, [], null, callback);
+	updateClient: function(properties){
+		return _resultsOnly("clientupdate", properties, [], null);
 	},
 
-	moveClient: function(serverId, clientId, channelId, channelPassword, callback){
+	moveClient: function(serverId, clientId, channelId, channelPassword){
 		var params = {
 			clid: clientId,
 			cid: channelId
 		}
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("clientmove", params, [], serverId, callback);
+		return _resultsOnly("clientmove", params, [], serverId);
 	},
 
-	kickClient: function(serverId, clientIds, reasonId, reasonMessage, callback){
+	kickClient: function(serverId, clientIds, reasonId, reasonMessage){
 		var params = {
 			clid: clientIds,
 			reasonid: reasonId
 		}
 		if(reasonMessage) params.reasonmsg = reasonMessage;
 
-		_resultsOnly("clientkick", params, [], serverId, callback);
+		return _resultsOnly("clientkick", params, [], serverId);
 	},
 
-	pokeClient: function(serverId, clientId, message, callback){
-		_resultsOnly("clientpoke", {clid: clientId, msg: message}, [], serverId, callback);
+	pokeClient: function(serverId, clientId, message){
+		return _resultsOnly("clientpoke", {clid: clientId, msg: message}, [], serverId);
 	},
 
-	listClientPermissions: function(serverId, clientDbId, permsid, callback){
+	listClientPermissions: function(serverId, clientDbId, permsid){
 		var option = [];
 		if(permsid) option = ["permsid"];
-		_resultsOnly("clientpermlist", {cldbid: clientDbId}, option, serverId, callback);
+		return _resultsOnly("clientpermlist", {cldbid: clientDbId}, option, serverId);
 	},
 
-	addClientPermissions: function(serverId, clientDbId, permissions, callback){
+	addClientPermissions: function(serverId, clientDbId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -717,40 +767,44 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], serverId, callback);
+		_sequentialResultsOnly(commands, [], serverId);
 	},
 
-	deleteClientPermissions: function(serverId, clientDbId, permissions, callback){
+	deleteClientPermissions: function(serverId, clientDbId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("channeldelperm", {
+			return _resultsOnly("channeldelperm", {
 				cldbid: clientDbId,
 				permsid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}else{
-			_resultsOnly("channeldelperm", {
+			return _resultsOnly("channeldelperm", {
 				cldbid: clientDbId,
 				permid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}
 	},
 
-	listChannelClientPermissions: function(serverId, channelId, clientDbId, permsid, callback){
+	listChannelClientPermissions: function(serverId, channelId, clientDbId, permsid){
 		var option = [];
 		if(permsid) option = ["permsid"];
-		_resultsOnly("channelclientpermlist", {
+		return _resultsOnly("channelclientpermlist", {
 			cid: channelId,
 			cldbid: clientDbId
-		}, option, serverId, callback);
+		}, option, serverId);
 	},
 
-	addChannelClientPermissions: function(serverId, channelId, clientDbId, permissions, callback){
+	addChannelClientPermissions: function(serverId, channelId, clientDbId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		var commands = []
 		for(var i = 0; i < permissions.length; i += 1){
@@ -762,38 +816,40 @@ module.exports = {
 				options: []
 			});
 		}
-		_sequentialResultsOnly(commands, [], serverId, callback);
+		_sequentialResultsOnly(commands, [], serverId);
 	},
 
-	deleteChannelClientPermissions: function(serverId, channelId, clientDbId, permissions, callback){
+	deleteChannelClientPermissions: function(serverId, channelId, clientDbId, permissions){
 		if(!Array.isArray(permissions)){
-			callback("Error: permissions must be an array.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "permissions must be an array."
+			});
 		}
 		if(isNaN(permissions[0])){
-			_resultsOnly("channelclientdelperm", {
+			return _resultsOnly("channelclientdelperm", {
 				cid: channelId,
 				cldbid: clientDbId,
 				permsid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}else{
-			_resultsOnly("channelclientdelperm", {
+			return _resultsOnly("channelclientdelperm", {
 				cid: channelId,
 				cldbid: clientDbId,
 				permid: permissions
-			}, [], serverId, callback);
+			}, [], serverId);
 		}
 	},
 
-	listPermissions: function(callback){
-		_resultsOnly("permissionlist", {}, [], null, callback);
+	listPermissions: function(){
+		return _resultsOnly("permissionlist", {}, [], null);
 	},
 
-	permissionByName: function(permissionName, callback){
-		_resultsOnly("permidgetbyname", {permsid: permissionName}, [], null, callback);
+	permissionByName: function(permissionName){
+		return _resultsOnly("permidgetbyname", {permsid: permissionName}, [], null);
 	},
 
-	clientPermissionsByChannel: function(serverId, channelId, clientDbId, permissionId, permissionName, callback){
+	clientPermissionsByChannel: function(serverId, channelId, clientDbId, permissionId, permissionName){
 		var params = {
 			cid: channelId,
 			cldbid: clientDbId
@@ -801,38 +857,40 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permoverview", params, [], serverId, callback);
+		return _resultsOnly("permoverview", params, [], serverId);
 	},
 
-	currentPermissions: function(permissionId, permissionName, callback){
+	currentPermissions: function(permissionId, permissionName){
 		var params = {};
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permget", params, [], null, callback);
+		return _resultsOnly("permget", params, [], null);
 	},
 
-	findPermissions: function(serverId, permissionId, permissionName, callback){
+	findPermissions: function(serverId, permissionId, permissionName){
 		var params = {};
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		_resultsOnly("permfind", params, [], serverId, callback);
+		return _resultsOnly("permfind", params, [], serverId);
 	},
 
-	resetPermissions: function(serverId, callback){
-		_resultsOnly("permreset", {}, [], serverId, callback);
+	resetPermissions: function(serverId){
+		return _resultsOnly("permreset", {}, [], serverId);
 	},
 
-	listPrivilegeKeys: function(serverId, callback){
-		_resultsOnly("privilegekeylist", {}, [], serverId, callback);
+	listPrivilegeKeys: function(serverId){
+		return _resultsOnly("privilegekeylist", {}, [], serverId);
 	},
 
-	addPrivilegeKey: function(serverId, tokenType, tokenId1, tokenId2, tokenDesc, tokenCustomSet, callback){
+	addPrivilegeKey: function(serverId, tokenType, tokenId1, tokenId2, tokenDesc, tokenCustomSet){
 		if(tokenType !== 0
 		&& tokenType !== 1){
-			callback("Error: tokenType must be 0 or 1.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "tokenType must be 0 or 1."
+			});
 		}
 
 		var params = {
@@ -843,89 +901,91 @@ module.exports = {
 		if(tokenDesc) params.tokendescription = tokenDesc;
 		if(tokenCustomSet) params.tokencustomset = tokenCustomSet;
 
-		_resultsOnly("privilegekeyadd", params, [], serverId, callback);
+		return _resultsOnly("privilegekeyadd", params, [], serverId);
 	},
 
-	deletePrivilegeKey: function(serverId, token, callback){
-		_resultsOnly("privilegekeydelete", {token: token}, [], serverId, callback);
+	deletePrivilegeKey: function(serverId, token){
+		return _resultsOnly("privilegekeydelete", {token: token}, [], serverId);
 	},
 
-	usePrivilegeKey: function(serverId, token, callback){
-		_resultsOnly("privilegekeyuse", {token: token}, [], serverId, callback);
+	usePrivilegeKey: function(serverId, token){
+		return _resultsOnly("privilegekeyuse", {token: token}, [], serverId);
 	},
 
-	listMessages: function(callback){
-		_resultsOnly("messagelist", {}, [], null, callback);
+	listMessages: function(){
+		return _resultsOnly("messagelist", {}, [], null);
 	},
 
-	sendMessage: function(clientUid, subject, message, callback){
-		_resultsOnly("messageadd", {
+	sendMessage: function(clientUid, subject, message){
+		return _resultsOnly("messageadd", {
 			cluid: clientUid,
 			subject: subject,
 			message: message
-		}, [], null, callback);
+		}, [], null);
 	},
 
-	deleteMessage: function(messageId, callback){
-		_resultsOnly("messagedel", {msgid: messageId}, [], null, callback);
+	deleteMessage: function(messageId){
+		return _resultsOnly("messagedel", {msgid: messageId}, [], null);
 	},
 
-	retrieveMessage: function(messageId, callback){
-		_resultsOnly("messageget", {msgid: messageId}, [], null, callback);
+	retrieveMessage: function(messageId){
+		return _resultsOnly("messageget", {msgid: messageId}, [], null);
 	},
 
-	updateMessageReadFlag: function(messageId, flagValue, callback){
+	updateMessageReadFlag: function(messageId, flagValue){
 		if(flagValue !== 0
 		&& flagValue !== 1){
-			callback("Error: flagValue must be 0 or 1.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "flagValue must be 0 or 1."
+			});
 		}
-		_resultsOnly("messageupdateflag", {
+		return _resultsOnly("messageupdateflag", {
 			msgid: messageId,
 			flag: flagValue
-		}, [], null, callback);
+		}, [], null);
 	},
 
-	listComplaints: function(serverId, targetClientDbId, callback){
+	listComplaints: function(serverId, targetClientDbId){
 		var params = {};
 		if(targetClientDbId) params.tcldbid = targetClientDbId;
 
-		_resultsOnly("complainlist", params, [], serverId, callback);
+		return _resultsOnly("complainlist", params, [], serverId);
 	},
 
-	addComplaintAgainstClient: function(serverId, targetClientDbId, message, callback){
-		_resultsOnly("complainadd", {
+	addComplaintAgainstClient: function(serverId, targetClientDbId, message){
+		return _resultsOnly("complainadd", {
 			tcldbid: targetClientDbId,
 			message: message
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	deleteAllComplaintsAgainstClient: function(serverId, targetClientDbId, callback){
-		_resultsOnly("complaindelall", {tcldbid: targetClientDbId}, [], serverId, callback);
+	deleteAllComplaintsAgainstClient: function(serverId, targetClientDbId){
+		return _resultsOnly("complaindelall", {tcldbid: targetClientDbId}, [], serverId);
 	},
 
-	deleteComplaint: function(serverId, targetClientDbId, sourceClientDbId, callback){
-		_resultsOnly("complaindel", {
+	deleteComplaint: function(serverId, targetClientDbId, sourceClientDbId){
+		return _resultsOnly("complaindel", {
 			tcldbid: targetClientDbId,
 			fcldbid: sourceClientDbId
-		}, [], serverId, callback);
+		}, [], serverId);
 	},
 
-	listActiveBans: function(serverId, callback){
-		_resultsOnly("banlist", {}, [], serverId, callback);
+	listActiveBans: function(serverId){
+		return _resultsOnly("banlist", {}, [], serverId);
 	},
 
-	banClient: function(serverId, clientId, durationS, reason, callback){
+	banClient: function(serverId, clientId, durationS, reason){
 		var params = {
 			clid: clientId
 		};
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		_resultsOnly("banclient", params, [], serverId, callback);
+		return _resultsOnly("banclient", params, [], serverId);
 	},
 
-	addBan: function(serverId, ip, name, clientUid, durationS, reason, callback){
+	addBan: function(serverId, ip, name, clientUid, durationS, reason){
 		var params = {};
 		if(ip) params.ip = ip;
 		if(name) params.name = name;
@@ -933,31 +993,33 @@ module.exports = {
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		_resultsOnly("banadd", params, [], serverId, callback);
+		return _resultsOnly("banadd", params, [], serverId);
 	},
 
-	deleteBan: function(serverId, banId, callback){
-		_resultsOnly("bandel", {banid: banId}, [], serverId, callback);
+	deleteBan: function(serverId, banId){
+		return _resultsOnly("bandel", {banid: banId}, [], serverId);
 	},
 
-	deleteAllActiveBans: function(serverId, callback){
-		_resultsOnly("bandelall", {}, [], serverId, callback);
+	deleteAllActiveBans: function(serverId){
+		return _resultsOnly("bandelall", {}, [], serverId);
 	},
 
-	listActiveFileTransfers: function(serverId, callback){
-		_resultsOnly("ftlist", {}, [], serverId, callback);
+	listActiveFileTransfers: function(serverId){
+		return _resultsOnly("ftlist", {}, [], serverId);
 	},
 
-	stopFileTransfer: function(serverId, transferId, deleteFile, callback){
+	stopFileTransfer: function(serverId, transferId, deleteFile){
 		if(deleteFile !== 0
 		&& deleteFile !== 1){
-			callback("Error: deleteFile must be 0 or 1.");
-			return;
+			return Promise.reject({
+				reason: "invalid-parameter",
+				message: "deleteFile must be 0 or 1."
+			});
 		}
-		_resultsOnly("ftstop", {serverftfid: transferId, "delete": deleteFile}, [], serverId, callback);
+		return _resultsOnly("ftstop", {serverftfid: transferId, "delete": deleteFile}, [], serverId);
 	},
 
-	listFiles: function(serverId, channelId, channelPassword, path, callback){
+	listFiles: function(serverId, channelId, channelPassword, path){
 		var params = {
 			cid: channelId,
 			cpw: "",
@@ -966,10 +1028,10 @@ module.exports = {
 		if(channelPassword) params.cpw = channelPassword;
 		if(path) params.path = path;
 
-		_resultsOnly("ftgetfilelist", params, [], serverId, callback);
+		return _resultsOnly("ftgetfilelist", params, [], serverId);
 	},
 
-	fileInfo: function(serverId, channelId, channelPassword, filename, callback){
+	fileInfo: function(serverId, channelId, channelPassword, filename){
 		var params = {
 			cid: channelId,
 			cpw: "",
@@ -977,10 +1039,10 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftgetfileinfo", params, [], serverId, callback);
+		return _resultsOnly("ftgetfileinfo", params, [], serverId);
 	},
 
-	deleteFile: function(serverId, channelId, channelPassword, filename, callback){
+	deleteFile: function(serverId, channelId, channelPassword, filename){
 		var params = {
 			cid: channelId,
 			cpw: "",
@@ -988,10 +1050,10 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftdeletefile", params, [], serverId, callback);
+		return _resultsOnly("ftdeletefile", params, [], serverId);
 	},
 
-	createDirectory: function(serverId, channelId, channelPassword, directory, callback){
+	createDirectory: function(serverId, channelId, channelPassword, directory){
 		var params = {
 			cid: channelId,
 			cpw: "",
@@ -999,10 +1061,10 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		_resultsOnly("ftcreatedir", params, [], serverId, callback);
+		return _resultsOnly("ftcreatedir", params, [], serverId);
 	},
 
-	moveFile: function(serverId, sourceChannelId, sourceChannelPassword, sourceFileName, targetChannelId, targetChannelPassword, targetFileName, callback){
+	moveFile: function(serverId, sourceChannelId, sourceChannelPassword, sourceFileName, targetChannelId, targetChannelPassword, targetFileName){
 		var params = {
 			cid: sourceChannelId,
 			cpw: "",
@@ -1013,10 +1075,10 @@ module.exports = {
 		if(targetChannelId) params.tcid = targetChannelId;
 		if(targetChannelPassword) params.tcpw = targetChannelPassword;
 
-		_resultsOnly("ftrenamefile", params, [], serverId, callback);
+		return _resultsOnly("ftrenamefile", params, [], serverId);
 	},
 
-	whoAmI: function(callback){
-		_resultsOnly("whoami", {}, [], null, callback);
+	whoAmI: function(){
+		return _resultsOnly("whoami", {}, [], null);
 	}
 }

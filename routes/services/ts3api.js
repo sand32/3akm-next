@@ -32,13 +32,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.version(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.version()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -46,13 +45,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.hostInfo(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.hostInfo()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -60,13 +58,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.instanceInfo(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.instanceInfo()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -74,13 +71,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.editInstance(req.body, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.editInstance(req.body)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -88,13 +84,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.stopInstance(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.stopInstance()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -102,13 +97,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.bindingList(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.bindingList()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -120,13 +114,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.serverIdByPort(req.params.port, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.serverIdByPort(req.params.port)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -134,13 +127,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.listServers(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listServers()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -168,13 +160,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.serverInfo(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.serverInfo(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -186,13 +177,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.editServer(req.params.serverId, req.body, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.editServer(req.params.serverId, req.body)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -204,13 +194,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.deleteServer(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.deleteServer(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -222,13 +211,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.serverConnectionInfo(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.serverConnectionInfo(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -240,13 +228,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.startServer(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.startServer(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -258,13 +245,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.stopServer(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.stopServer(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -276,13 +262,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.listTemporaryServerPasswords(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listTemporaryServerPasswords(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -301,13 +286,11 @@ module.exports = function(app, prefix){
 			req.body.duration,
 			req.body.defaultChannel,
 			req.body.channelPassword
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -322,13 +305,11 @@ module.exports = function(app, prefix){
 		ts3.deleteTemporaryServerPassword(
 			req.params.serverId,
 			req.body.password
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -340,13 +321,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.listServerGroups(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listServerGroups(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -362,15 +342,13 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.body.groupName,
 			req.body.groupType
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/group/" + data.sgid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/group/" + data.sgid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -387,13 +365,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.force || 1
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -412,15 +388,13 @@ module.exports = function(app, prefix){
 			req.body.targetGroupId,
 			req.body.name,
 			req.body.type
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/group/" + data.sgid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/group/" + data.sgid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -437,13 +411,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.newName
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -459,13 +431,11 @@ module.exports = function(app, prefix){
 		ts3.listServerGroupPermissions(
 			req.params.serverId,
 			req.params.groupId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -482,13 +452,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -505,13 +473,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -533,13 +499,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			names
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -556,13 +520,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.clientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -579,13 +541,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.clientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -608,13 +568,11 @@ module.exports = function(app, prefix){
 		ts3.listChannels(
 			req.params.serverId,
 			filters
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -630,15 +588,13 @@ module.exports = function(app, prefix){
 		ts3.createChannel(
 			req.params.serverId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/channel/" + data.cid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/channel/" + data.cid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -653,13 +609,11 @@ module.exports = function(app, prefix){
 		ts3.findChannel(
 			req.params.serverId,
 			req.query.pattern
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -675,13 +629,11 @@ module.exports = function(app, prefix){
 		ts3.channelInfo(
 			req.params.serverId,
 			req.params.channelId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -699,13 +651,11 @@ module.exports = function(app, prefix){
 		ts3.editChannel(
 			req.params.serverId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -722,13 +672,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.channelId,
 			req.body.force || 1
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -744,13 +692,11 @@ module.exports = function(app, prefix){
 		ts3.listChannelPermissions(
 			req.params.serverId,
 			req.params.channelId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -767,13 +713,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.channelId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -790,13 +734,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.channelId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -817,13 +759,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			req.body.newParentChannelId,
 			order
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -846,13 +786,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			channelPassword,
 			path
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -873,13 +811,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			channelPassword,
 			"/" + req.params[0]
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -900,13 +836,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			channelPassword,
 			"/" + req.params[0]
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -920,13 +854,11 @@ module.exports = function(app, prefix){
 
 		ts3.listChannelGroups(
 			req.params.serverId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -941,15 +873,13 @@ module.exports = function(app, prefix){
 		ts3.addChannelGroup(
 			req.params.serverId,
 			req.body.groupName
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/channelgroup/" + data.cgid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/channelgroup/" + data.cgid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -966,13 +896,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.force || 1
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -991,15 +919,13 @@ module.exports = function(app, prefix){
 			req.body.targetGroupId || 0,
 			req.body.groupName,
 			req.body.groupType
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/channelgroup/" + data.cgid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/channelgroup/" + data.cgid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1016,13 +942,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body.newName
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1038,13 +962,11 @@ module.exports = function(app, prefix){
 		ts3.listChannelGroupPermissions(
 			req.params.serverId,
 			req.params.groupId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1061,13 +983,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1084,13 +1004,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.groupId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1114,13 +1032,11 @@ module.exports = function(app, prefix){
 			channelId,
 			clientDbId,
 			channelGroupId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1144,13 +1060,11 @@ module.exports = function(app, prefix){
 			start,
 			duration,
 			count
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1169,13 +1083,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.query.pattern,
 			uid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1190,13 +1102,11 @@ module.exports = function(app, prefix){
 		ts3.clientNameFromUid(
 			req.params.serverId,
 			req.query.uid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1212,13 +1122,11 @@ module.exports = function(app, prefix){
 		ts3.clientDbEntryInfo(
 			req.params.serverId,
 			req.params.clientDbId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1236,13 +1144,11 @@ module.exports = function(app, prefix){
 		ts3.editClientDbEntry(
 			req.params.serverId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1258,13 +1164,11 @@ module.exports = function(app, prefix){
 		ts3.deleteClientDbEntry(
 			req.params.serverId,
 			req.params.clientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1280,13 +1184,11 @@ module.exports = function(app, prefix){
 		ts3.clientNameFromDbId(
 			req.params.serverId,
 			req.params.clientDbId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1302,13 +1204,11 @@ module.exports = function(app, prefix){
 		ts3.serverGroupsContainingClient(
 			req.params.serverId,
 			req.params.clientDbId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1325,13 +1225,11 @@ module.exports = function(app, prefix){
 			req.body.channelGroupId,
 			req.body.channelId,
 			req.params.clientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1351,13 +1249,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.clientDbId,
 			permsid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1374,13 +1270,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.clientDbId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1397,13 +1291,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.clientDbId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1425,13 +1317,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			req.params.clientDbId,
 			permsid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1456,13 +1346,11 @@ module.exports = function(app, prefix){
 			req.params.clientDbId,
 			permid,
 			permsid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1481,13 +1369,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			req.params.clientDbId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1506,13 +1392,11 @@ module.exports = function(app, prefix){
 			req.params.channelId,
 			req.params.clientDbId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1538,13 +1422,11 @@ module.exports = function(app, prefix){
 		ts3.listClients(
 			req.params.serverId,
 			filters
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1559,13 +1441,11 @@ module.exports = function(app, prefix){
 		ts3.findClient(
 			req.params.serverId,
 			req.query.pattern
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1580,13 +1460,11 @@ module.exports = function(app, prefix){
 		ts3.clientByUid(
 			req.params.serverId,
 			req.query.uid
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1602,13 +1480,11 @@ module.exports = function(app, prefix){
 		ts3.clientInfo(
 			req.params.serverId,
 			req.params.clientId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1626,13 +1502,11 @@ module.exports = function(app, prefix){
 		ts3.clientInfo(
 			req.params.serverId,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1653,13 +1527,11 @@ module.exports = function(app, prefix){
 			req.params.clientId,
 			req.body.channelId,
 			channelPassword
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1680,13 +1552,11 @@ module.exports = function(app, prefix){
 			req.params.clientId,
 			req.body.reasonId,
 			reasonMessage
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1703,13 +1573,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.clientId,
 			req.body.message
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1732,13 +1600,11 @@ module.exports = function(app, prefix){
 			req.params.clientId,
 			time,
 			banreason
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1750,13 +1616,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.listPrivilegeKeys(req.params.serverId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listPrivilegeKeys(req.params.serverId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1782,15 +1647,13 @@ module.exports = function(app, prefix){
 			channelId,
 			description,
 			customset
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location("/server/" + req.params.serverId + "/privilegekey/" + data.token)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location("/server/" + req.params.serverId + "/privilegekey/" + data.token)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1805,13 +1668,11 @@ module.exports = function(app, prefix){
 		ts3.usePrivilegeKey(
 			req.params.serverId,
 			req.params.token
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1826,13 +1687,11 @@ module.exports = function(app, prefix){
 		ts3.deletePrivilegeKey(
 			req.params.serverId,
 			req.params.token
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1850,13 +1709,11 @@ module.exports = function(app, prefix){
 		ts3.listComplaints(
 			req.params.serverId,
 			clientDbId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1873,13 +1730,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.targetClientDbId,
 			req.body.message
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1895,13 +1750,11 @@ module.exports = function(app, prefix){
 		ts3.deleteAllComplaintsAgainstClient(
 			req.params.serverId,
 			req.params.targetClientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1919,13 +1772,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.targetClientDbId,
 			req.params.sourceClientDbId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1939,13 +1790,11 @@ module.exports = function(app, prefix){
 
 		ts3.listActiveBans(
 			req.params.serverId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1959,13 +1808,11 @@ module.exports = function(app, prefix){
 
 		ts3.deleteAllActiveBans(
 			req.params.serverId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -1995,15 +1842,13 @@ module.exports = function(app, prefix){
 			uid,
 			time,
 			banreason
-		, function(err, data){
-			if(!err){
-				res.status(201)
-				   .location(prefix + "/server/" + req.params.serverId + "/ban/" + data.banid)
-				   .end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201)
+			   .location(prefix + "/server/" + req.params.serverId + "/ban/" + data.banid)
+			   .end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2019,13 +1864,11 @@ module.exports = function(app, prefix){
 		ts3.deleteBan(
 			req.params.serverId,
 			req.params.banId
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2039,13 +1882,11 @@ module.exports = function(app, prefix){
 
 		ts3.listActiveFileTransfers(
 			req.params.serverId
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2062,13 +1903,11 @@ module.exports = function(app, prefix){
 			req.params.serverId,
 			req.params.fileTransferId,
 			req.query.deleteFile || 1
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2085,13 +1924,11 @@ module.exports = function(app, prefix){
 			req.body.targetMode,
 			req.body.target,
 			req.body.message
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2103,13 +1940,13 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.resetPermissions(req.params.serverId, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.resetPermissions(
+			req.params.serverId
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2117,13 +1954,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.listMessages(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listMessages()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2135,13 +1971,11 @@ module.exports = function(app, prefix){
 			req.body.recipientClientUid,
 			req.body.subject,
 			req.body.message
-		, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2153,13 +1987,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.retrieveMessage(req.params.messageId, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.retrieveMessage(req.params.messageId)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2174,13 +2007,11 @@ module.exports = function(app, prefix){
 		ts3.updateMessageReadFlag(
 			req.params.messageId,
 			req.body.readFlag
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2192,13 +2023,13 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		ts3.deleteMessage(req.params.messageId, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.deleteMessage(
+			req.params.messageId
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2206,13 +2037,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.listPermissions(function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.listPermissions()
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2225,13 +2055,14 @@ module.exports = function(app, prefix){
 		if(req.query.permissionId) permid = req.query.permissionId;
 		if(req.query.permissionName) permsid = req.query.permissionName;
 
-		ts3.currentPermissions(permid, permsid, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.currentPermissions(
+			permid,
+			permsid
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2244,13 +2075,15 @@ module.exports = function(app, prefix){
 		if(req.query.permissionId) permid = req.query.permissionId;
 		if(req.query.permissionName) permsid = req.query.permissionName;
 
-		ts3.findPermissions(req.query.serverId, permid, permsid, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.findPermissions(
+			req.query.serverId,
+			permid,
+			permsid
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2258,13 +2091,13 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.permissionByName(req.query.permissionName, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.permissionByName(
+			req.query.permissionName
+		).then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2279,13 +2112,11 @@ module.exports = function(app, prefix){
 		ts3.autoAddPermissionsToServerGroupType(
 			req.params.groupType,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(201).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(201).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2300,13 +2131,11 @@ module.exports = function(app, prefix){
 		ts3.autoAddPermissionsToServerGroupType(
 			req.params.groupType,
 			req.body
-		, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2314,13 +2143,13 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.sendGeneralMessage(req.body.message, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.sendGeneralMessage(
+			req.body.message
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2328,13 +2157,12 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.setClientServerQueryLogin(req.body.newLogin, function(err, data){
-			if(!err){
-				res.send(data);
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.setClientServerQueryLogin(req.body.newLogin)
+		.then(function(data){
+			res.send(data);
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 
@@ -2342,13 +2170,13 @@ module.exports = function(app, prefix){
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		ts3.updateClient(req.body, function(err, data){
-			if(!err){
-				res.status(200).end();
-			}else{
-				res.status(500).end();
-				log.error(err);
-			}
+		ts3.updateClient(
+			req.body
+		).then(function(data){
+			res.status(200).end();
+		}).catch(function(err){
+			res.status(500).end();
+			log.error(err);
 		});
 	});
 }

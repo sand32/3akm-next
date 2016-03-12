@@ -31,6 +31,7 @@ require("./admin/lanlistcontroller.js");
 require("./admin/rsvplistcontroller.js");
 require("./admin/recipientlistcontroller.js");
 require("./admin/cod4controller.js");
+require("./admin/teamspeakcontroller.js");
 require("./common/analyticsdirective.js");
 
 (function(){
@@ -118,6 +119,10 @@ require("./common/analyticsdirective.js");
 			.state("cod4", {
 				url: "/cod4",
 				templateUrl: "/partial/admin/cod4"
+			})
+			.state("teamspeak", {
+				url: "/teamspeak",
+				templateUrl: "/partial/admin/teamspeak"
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
@@ -147,7 +152,8 @@ require("./common/analyticsdirective.js");
 				"3akm.admin.lanList",
 				"3akm.admin.rsvpList",
 				"3akm.admin.recipientList",
-				"3akm.admin.cod4"
+				"3akm.admin.cod4",
+				"3akm.admin.teamspeak"
 			])
 		.config(Config);
 

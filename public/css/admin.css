@@ -291,3 +291,22 @@ td {
 	width: 400px;
 	max-width: 400px;
 }
+
+.teamspeak-server-icon {
+	background: url('/images/teamspeak/server_green.png') no-repeat center;
+	background-size: 1em 1em;
+	height: 1em;
+	width: 1em;
+	margin-right: .2em;
+	display: inline-block;
+}
+
+.teamspeak-channel-icon {
+	background: url('/images/teamspeak/channel_green.png') no-repeat center;
+	background-size: 1em 1em;
+	height: 1em;
+	width: 1em;
+	margin-right: .2em;
+	display: inline-block;
+	vertical-align: middle;
+}
