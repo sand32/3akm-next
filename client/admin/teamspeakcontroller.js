@@ -44,6 +44,7 @@ require("../admin-common/teamspeakbrowserdirective.js");
 				ts.channels = results[1].data;
 				calculateChannelDepths(ts.channels);
 				addClientsToChannels(results[2].data);
+				ts.loaded = true;
 			});
 		},
 

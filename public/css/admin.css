@@ -292,6 +292,20 @@ td {
 	max-width: 400px;
 }
 
+.teamspeak-server,
+.teamspeak-channel,
+.teamspeak-client {
+	cursor: pointer;
+	color: initial;
+}
+
+.teamspeak-server:hover,
+.teamspeak-channel:hover,
+.teamspeak-client:hover {
+	cursor: pointer;
+	color: rgb(96, 125, 139);
+}
+
 .teamspeak-server-icon {
 	background: url('/images/teamspeak/server_green.png') no-repeat center;
 	background-size: 1em 1em;
