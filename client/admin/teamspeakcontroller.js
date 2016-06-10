@@ -26,24 +26,24 @@ require("../common/teamspeakservice.js");
 require("../admin-common/teamspeakbrowserdirective.js");
 
 (function(){
-	var TeamspeakController = function($scope, ngToast, TeamspeakService){
+	var TeamspeakController = function($q, $scope, ngToast, TeamspeakService){
 		var ts = this;
 		ts.loaded = false;
 		ts.serverInfo = {};
 		ts.channels = [];
 
 		var updateBrowser = function(){
-			TeamspeakService.serverInfo(1)
-			.then(function(serverInfo){
-				ts.serverInfo = serverInfo.data;
-				return TeamspeakService.channelList(1);
-			}).then(function(channelList){
-				ts.channels = channelList.data;
+			var queries = [
+				TeamspeakService.serverInfo(1),
+				TeamspeakService.channelList(1),
+				TeamspeakService.clientList(1)
+			];
+			$q.all(queries)
+			.then(function(results){
+				ts.serverInfo = results[0].data;
+				ts.channels = results[1].data;
 				calculateChannelDepths(ts.channels);
-				return TeamspeakService.clientList(1);
-			}).then(function(clientList){
-				addClientsToChannels(clientList.data);
-				ts.loaded = true;
+				addClientsToChannels(results[2].data);
 			});
 		},
 
@@ -90,5 +90,5 @@ require("../admin-common/teamspeakbrowserdirective.js");
 			])
 		.controller("TeamspeakController", TeamspeakController);
 
-	TeamspeakController.$inject = ["$scope", "ngToast", "TeamspeakService"];
+	TeamspeakController.$inject = ["$q", "$scope", "ngToast", "TeamspeakService"];
 })();

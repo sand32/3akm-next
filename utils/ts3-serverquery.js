@@ -80,43 +80,82 @@ var ServerQuery = require("node-teamspeak"),
 	},
 
 	_logout = function(sq){
+		console.log("Logging out...");
 		return new Promise(function(resolve, reject){
 			sq.send("logout", null, function(err, response, rawResponse){
+				console.log("Logged out");
 				sq.send("quit");
 				resolve();
 			});
 		});
 	},
 
-	_send = function(sq, command, params, options, virtualServer){
+	_selectVirtualServer = function(sq, virtualServer){
 		return new Promise(function(resolve, reject){
-			if(virtualServer){
-				sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
-					if(!err){
-						sq.send(command, params, options, _handleCallback(resolve, reject));
-					}else{
-						reject(_errorMessage(err));
-					}
-				});
-			}else{
-				sq.send(command, params, options, _handleCallback(resolve, reject));
+			sq.send("use", {sid: virtualServer}, _handleCallback(resolve, reject));
+		});
+	},
+
+	_send = function(sq, command, params, options){
+		return new Promise(function(resolve, reject){
+			sq.send(command, params, options, _handleCallback(resolve, reject));
+		});
+	},
+
+	_commandQueue = [],
+	_processingQueue = false,
+	_currentVirtualServer = 0,
+
+	_enqueueCommand = function(command, params, options, virtualServer){
+		return new Promise(function(resolve, reject){
+			_commandQueue.push({
+				command: command,
+				params: params,
+				options: options,
+				virtualServer: virtualServer,
+				resolve: resolve,
+				reject: reject
+			});
+			if(!_processingQueue){
+				_processQueue();
 			}
 		});
 	},
 
-	_sequentialSend = function(sq, commands, results){
+	_processCommands = function(sq){
 		return new Promise(function(resolve, reject){
+			if(_commandQueue.Length === 0){
+				resolve();
+				return;
+			}
+
+			if(_currentVirtualServer !== _commandQueue[0].virtualServer){
+				_selectVirtualServer(sq, _commandQueue[0].virtualServer)
+				.then(function(){
+					_currentVirtualServer = _commandQueue[0].virtualServer;
+					_processCommands(sq).then(resolve);
+				});
+				return;
+			}
+
 			_send(
 				sq,
-				commands[0].command,
-				commands[0].params,
-				commands[0].options
+				_commandQueue[0].command,
+				_commandQueue[0].params,
+				_commandQueue[0].options
 			).then(function(response){
-				results.push(response);
-				commands.splice(0, 1);
-				if(commands.length > 0){
-					_sequentialSend(sq, commands, results)
-					.then(resolve);
+				_commandQueue[0].resolve(response);
+				_commandQueue.splice(0, 1);
+				if(_commandQueue.length > 0){
+					_processCommands(sq).then(resolve);
+				}else{
+					resolve();
+				}
+			}).catch(function(error){
+				_commandQueue[0].reject(error);
+				_commandQueue.splice(0, 1);
+				if(_commandQueue.length > 0){
+					_processCommands(sq).then(resolve);
 				}else{
 					resolve();
 				}
@@ -124,67 +163,52 @@ var ServerQuery = require("node-teamspeak"),
 		});
 	},
 
-	_resultsOnly = function(command, params, options, virtualServer){
-		return new Promise(function(resolve, reject){
-			var sequenceSq, result;
-			_login()
-			.then(function(sq){
-				sequenceSq = sq;
-				return _send(sq, command, params, options, virtualServer)
-			}).then(function(response){
-				result = response;
-				return _logout(sequenceSq)
-			}).then(function(){
-				resolve(result);
-			});
-		});
-	},
-
-	_sequentialResultsOnly = function(commands, results, virtualServer){
-		return new Promise(function(resolve, reject){
-			_login()
-			.then(function(sq){
-				sq.send("use", {sid: virtualServer}, function(err, response, rawResponse){
-					_sequentialSend(sq, commands, results)
-					.then(function(){
-						_logout();
-					});
-				});
-			});
+	_processQueue = function(){
+		_processingQueue = true;
+		var sequenceSq;
+		_login()
+		.then(function(sq){
+			sequenceSq = sq;
+			return _processCommands(sequenceSq);
+		}).then(function(){
+			return _logout(sequenceSq);
+		}).then(function(){
+			_currentVirtualServer = 0;
+			_processingQueue = false;
 		});
 	};
 
 module.exports = {
 	version: function(){
-		return _resultsOnly("version", {}, [], null);
+		return _enqueueCommand("version", {}, [], null);
 	},
 
 	hostInfo: function(){
-		return _resultsOnly("hostinfo", {}, [], null);
+		return _enqueueCommand("hostinfo", {}, [], null);
 	},
 
 	instanceInfo: function(){
-		return _resultsOnly("instanceinfo", {}, [], null);
+		return _enqueueCommand("instanceinfo", {}, [], null);
 	},
 
 	editInstance: function(params){
-		return _resultsOnly("instanceedit", params, [], null);
+		return _enqueueCommand("instanceedit", params, [], null);
 	},
 
 	bindingList: function(){
-		return _resultsOnly("bindinglist", {}, [], null);
+		return _enqueueCommand("bindinglist", {}, [], null);
 	},
 
 	listServers: function(){
-		return _resultsOnly("serverlist", {}, [], null);
+		return _enqueueCommand("serverlist", {}, [], null);
 	},
 
 	serverIdByPort: function(port){
-		return _resultsOnly("serveridgetbyport", {virtualserver_port: port}, [], null);
+		return _enqueueCommand("serveridgetbyport", {virtualserver_port: port}, [], null);
 	},
 
 	deleteServer: function(serverId){
-		return _resultsOnly("serverdelete", {sid: serverId}, [], null);
+		return _enqueueCommand("serverdelete", {sid: serverId}, [], null);
 	},
 
 	createServer: function(properties){
@@ -194,35 +218,35 @@ module.exports = {
 				message: "Must provide a name for the new server."
 			});
 		}
-		return _resultsOnly("servercreate", properties, [], null);
+		return _enqueueCommand("servercreate", properties, [], null);
 	},
 
 	startServer: function(serverId){
-		return _resultsOnly("serverstart", {sid: serverId}, [], null);
+		return _enqueueCommand("serverstart", {sid: serverId}, [], null);
 	},
 
 	stopServer: function(serverId){
-		return _resultsOnly("serverstop", {sid: serverId}, [], null);
+		return _enqueueCommand("serverstop", {sid: serverId}, [], null);
 	},
 
 	stopInstance: function(){
-		return _resultsOnly("serverprocessstop", {}, [], null);
+		return _enqueueCommand("serverprocessstop", {}, [], null);
 	},
 
 	serverInfo: function(serverId){
-		return _resultsOnly("serverinfo", {}, [], serverId);
+		return _enqueueCommand("serverinfo", {}, [], serverId);
 	},
 
 	editServer: function(serverId, properties){
-		return _resultsOnly("serveredit", properties, [], serverId);
+		return _enqueueCommand("serveredit", properties, [], serverId);
 	},
 
 	serverConnectionInfo: function(serverId){
-		return _resultsOnly("serverrequestconnectioninfo", {}, [], serverId);
+		return _enqueueCommand("serverrequestconnectioninfo", {}, [], serverId);
 	},
 
 	addTemporaryServerPassword: function(serverId, password, description, durationS, defaultChannel, channelPassword){
-		return _resultsOnly("servertemppasswordadd", {
+		return _enqueueCommand("servertemppasswordadd", {
 			pw: password,
 			desc: description,
 			duration: durationS,
@@ -232,15 +256,15 @@ module.exports = {
 	},
 
 	deleteTemporaryServerPassword: function(serverId, password){
-		return _resultsOnly("servertemppassworddel", {pw: password}, [], serverId);
+		return _enqueueCommand("servertemppassworddel", {pw: password}, [], serverId);
 	},
 
 	listTemporaryServerPasswords: function(serverId){
-		return _resultsOnly("servertemppasswordlist", {}, [], serverId);
+		return _enqueueCommand("servertemppasswordlist", {}, [], serverId);
 	},
 
 	listServerGroups: function(serverId){
-		return _resultsOnly("servergrouplist", {}, [], serverId);
+		return _enqueueCommand("servergrouplist", {}, [], serverId);
 	},
 
 	addServerGroup: function(serverId, groupName, groupType){
@@ -248,7 +272,7 @@ module.exports = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		return _resultsOnly("servergroupadd", params, [], serverId);
+		return _enqueueCommand("servergroupadd", params, [], serverId);
 	},
 
 	deleteServerGroup: function(serverId, groupId, force){
@@ -263,11 +287,11 @@ module.exports = {
 				message: "Invalid force value, must be 0 or 1."
 			});
 		}
-		return _resultsOnly("servergroupdel", params, [], serverId);
+		return _enqueueCommand("servergroupdel", params, [], serverId);
 	},
 
 	copyServerGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType){
-		return _resultsOnly("servergroupcopy", {
+		return _enqueueCommand("servergroupcopy", {
 			ssgid: sourceGroupId,
 			tsgid: targetGroupId,
 			name: groupName,
@@ -276,11 +300,11 @@ module.exports = {
 	},
 
 	renameServerGroup: function(serverId, groupId, newName){
-		return _resultsOnly("servergrouprename", {sgid: groupId, name: newName}, [], serverId);
+		return _enqueueCommand("servergrouprename", {sgid: groupId, name: newName}, [], serverId);
 	},
 
 	listServerGroupPermissions: function(serverId, groupId){
-		return _resultsOnly("servergrouppermlist", {sgid: groupId}, [], serverId);
+		return _enqueueCommand("servergrouppermlist", {sgid: groupId}, [], serverId);
 	},
 
 	addServerGroupPermissions: function(serverId, groupId, permissions){
@@ -290,16 +314,16 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].sgid = groupId;
-			commands.push({
-				command: "servergroupaddperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"servergroupaddperm",
+				permissions[i],
+				[]
+			));
 		}
-		return _sequentialResultsOnly(commands, [], serverId);
+		return Promise.all(commands);
 	},
 
 	deleteServerGroupPermissions: function(serverId, groupId, permissions){
@@ -310,12 +334,12 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("servergroupdelperm", {
+			return _enqueueCommand("servergroupdelperm", {
 				sgid: groupId,
 				permsid: permissions
 			}, [], serverId);
 		}else{
-			return _resultsOnly("servergroupdelperm", {
+			return _enqueueCommand("servergroupdelperm", {
 				sgid: groupId,
 				permid: permissions
 			}, [], serverId);
@@ -324,28 +348,28 @@ module.exports = {
 
 	listClientsInServerGroup: function(serverId, groupId, names){
 		if(names){
-			return _resultsOnly("servergroupclientlist", {sgid: groupId}, ["names"], serverId);
+			return _enqueueCommand("servergroupclientlist", {sgid: groupId}, ["names"], serverId);
 		}else{
-			return _resultsOnly("servergroupclientlist", {sgid: groupId}, [], serverId);
+			return _enqueueCommand("servergroupclientlist", {sgid: groupId}, [], serverId);
 		}
 	},
 
 	addClientToServerGroup: function(serverId, groupId, clientDbId){
-		return _resultsOnly("servergroupaddclient", {
+		return _enqueueCommand("servergroupaddclient", {
 			sgid: groupId,
 			cldbid: clientDbId
 		}, [], serverId);
 	},
 
 	removeClientFromServerGroup: function(serverId, groupId, clientDbId){
-		return _resultsOnly("servergroupdelclient", {
+		return _enqueueCommand("servergroupdelclient", {
 			sgid: groupId,
 			cldbid: clientDbId
 		}, [], serverId);
 	},
 
 	serverGroupsContainingClient: function(serverId, clientDbId){
-		return _resultsOnly("servergroupsbyclientid", {cldbid: clientDbId}, [], serverId);
+		return _enqueueCommand("servergroupsbyclientid", {cldbid: clientDbId}, [], serverId);
 	},
 
 	autoAddPermissionsToServerGroupType: function(groupType, permissions){
@@ -355,16 +379,16 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].sgtype = groupType;
-			commands.push({
-				command: "servergroupautoaddperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"servergroupautoaddperm",
+				permissions[i],
+				[]
+			));
 		}
-		return _sequentialResultsOnly(commands, [], null);
+		return Promise.all(commands);
 	},
 
 	autoDeletePermissionsFromServerGroupType: function(groupType, permissions){
@@ -375,12 +399,12 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("servergroupautodelperm", {
+			return _enqueueCommand("servergroupautodelperm", {
 				sgtype: groupType,
 				permsid: permissions
 			}, [], null);
 		}else{
-			return _resultsOnly("servergroupautodelperm", {
+			return _enqueueCommand("servergroupautodelperm", {
 				sgtype: groupType,
 				permid: permissions
 			}, [], null);
@@ -388,11 +412,11 @@ module.exports = {
 	},
 
 	sendGeneralMessage: function(message){
-		return _resultsOnly("gm", {msg: message}, [], null);
+		return _enqueueCommand("gm", {msg: message}, [], null);
 	},
 
 	sendTargetedMessage: function(serverId, targetMode, target, message){
-		return _resultsOnly("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, [], serverId);
+		return _enqueueCommand("sendtextmessage", {targetmode: targetMode, target: target, msg: message}, [], serverId);
 	},
 
 	listChannels: function(serverId, filters){
@@ -413,15 +437,15 @@ module.exports = {
 			}
 		}
 
-		return _resultsOnly("channellist", {}, filters, serverId);
+		return _enqueueCommand("channellist", {}, filters, serverId);
 	},
 
 	channelInfo: function(serverId, channelId){
-		return _resultsOnly("channelinfo", {cid: channelId}, [], serverId);
+		return _enqueueCommand("channelinfo", {cid: channelId}, [], serverId);
 	},
 
 	findChannel: function(serverId, pattern){
-		return _resultsOnly("channelfind", {pattern: pattern}, [], serverId);
+		return _enqueueCommand("channelfind", {pattern: pattern}, [], serverId);
 	},
 
 	moveChannel: function(serverId, channelId, newParentChannelId, sortOrder){
@@ -434,7 +458,7 @@ module.exports = {
 			delete params.order;
 		}
 
-		return _resultsOnly("channelfind", params, [], serverId);
+		return _enqueueCommand("channelfind", params, [], serverId);
 	},
 
 	createChannel: function(serverId, properties){
@@ -444,7 +468,7 @@ module.exports = {
 				message: "Must provide a name for the new channel."
 			});
 		}
-		return _resultsOnly("channelcreate", properties, [], serverId);
+		return _enqueueCommand("channelcreate", properties, [], serverId);
 	},
 
 	editChannel: function(serverId, properties){
@@ -454,7 +478,7 @@ module.exports = {
 				message: "Must provide an ID for the channel you wish to edit."
 			});
 		}
-		return _resultsOnly("channeledit", properties, [], serverId);
+		return _enqueueCommand("channeledit", properties, [], serverId);
 	},
 
 	deleteChannel: function(serverId, channelId, force){
@@ -468,11 +492,11 @@ module.exports = {
 			return;
 		}
 
-		return _resultsOnly("channeldelete", params, [], serverId);
+		return _enqueueCommand("channeldelete", params, [], serverId);
 	},
 
 	listChannelPermissions: function(serverId, channelId){
-		return _resultsOnly("channelpermlist", {cid: channelId}, [], serverId);
+		return _enqueueCommand("channelpermlist", {cid: channelId}, [], serverId);
 	},
 
 	addChannelPermissions: function(serverId, channelId, permissions){
@@ -482,16 +506,16 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].cid = channelId;
-			commands.push({
-				command: "channeladdperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"channeladdperm",
+				permissions[i],
+				[]
+			));
 		}
-		_sequentialResultsOnly(commands, [], serverId);
+		return Promise.all(commands);
 	},
 
 	deleteChannelPermissions: function(serverId, channelId, permissions){
@@ -502,12 +526,12 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("channeldelperm", {
+			return _enqueueCommand("channeldelperm", {
 				cid: channelId,
 				permsid: permissions
 			}, [], serverId);
 		}else{
-			return _resultsOnly("channeldelperm", {
+			return _enqueueCommand("channeldelperm", {
 				cid: channelId,
 				permid: permissions
 			}, [], serverId);
@@ -515,7 +539,7 @@ module.exports = {
 	},
 
 	listChannelGroups: function(serverId){
-		return _resultsOnly("channelgrouplist", {}, [], serverId);
+		return _enqueueCommand("channelgrouplist", {}, [], serverId);
 	},
 
 	addChannelGroup: function(serverId, groupName, groupType){
@@ -523,7 +547,7 @@ module.exports = {
 			name: groupName
 		};
 		if(groupType) params.type = groupType;
-		return _resultsOnly("channelgroupadd", params, [], serverId);
+		return _enqueueCommand("channelgroupadd", params, [], serverId);
 	},
 
 	deleteChannelGroup: function(serverId, groupId, force){
@@ -538,11 +562,11 @@ module.exports = {
 				message: "Invalid force value, must be 0 or 1."
 			});
 		}
-		return _resultsOnly("channelgroupdel", params, [], serverId);
+		return _enqueueCommand("channelgroupdel", params, [], serverId);
 	},
 
 	copyChannelGroup: function(serverId, sourceGroupId, targetGroupId, groupName, groupType){
-		return _resultsOnly("channelgroupcopy", {
+		return _enqueueCommand("channelgroupcopy", {
 			scgid: sourceGroupId,
 			tcgid: targetGroupId,
 			name: groupName,
@@ -551,14 +575,14 @@ module.exports = {
 	},
 
 	renameChannelGroup: function(serverId, groupId, newName){
-		return _resultsOnly("channelgrouprename", {
+		return _enqueueCommand("channelgrouprename", {
 			cgid: groupId,
 			name: newName
 		}, [], serverId);
 	},
 
 	listChannelGroupPermissions: function(serverId, groupId){
-		return _resultsOnly("channelgrouppermlist", {cgid: groupId}, [], serverId);
+		return _enqueueCommand("channelgrouppermlist", {cgid: groupId}, [], serverId);
 	},
 
 	addChannelGroupPermissions: function(serverId, groupId, permissions){
@@ -568,16 +592,16 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].cgid = groupId;
-			commands.push({
-				command: "channelgroupaddperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"channelgroupaddperm",
+				permissions[i],
+				[]
+			));
 		}
-		_sequentialResultsOnly(commands, [], serverId);
+		return Promise.all(commands);
 	},
 
 	deleteChannelGroupPermissions: function(serverId, groupId, permissions){
@@ -588,12 +612,12 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("channelgroupdelperm", {
+			return _enqueueCommand("channelgroupdelperm", {
 				cgid: groupId,
 				permsid: permissions
 			}, [], serverId);
 		}else{
-			return _resultsOnly("channelgroupdelperm", {
+			return _enqueueCommand("channelgroupdelperm", {
 				cgid: groupId,
 				permid: permissions
 			}, [], serverId);
@@ -606,11 +630,11 @@ module.exports = {
 		if(clientDbId) params.cldbid = clientDbId;
 		if(groupId) params.cgid = groupId;
 
-		return _resultsOnly("channelgroupclientlist", params, [], serverId);
+		return _enqueueCommand("channelgroupclientlist", params, [], serverId);
 	},
 
 	setClientChannelGroup: function(serverId, groupId, channelId, clientDbId){
-		return _resultsOnly("setclientchannelgroup", {
+		return _enqueueCommand("setclientchannelgroup", {
 			cgid: groupId,
 			cid: channelId,
 			cldbid: clientDbId
@@ -641,15 +665,15 @@ module.exports = {
 				});
 			}
 		}
-		return _resultsOnly("clientlist", {}, filters, serverId);
+		return _enqueueCommand("clientlist", {}, filters, serverId);
 	},
 
 	clientInfo: function(serverId, clientId){
-		return _resultsOnly("clientinfo", {clid: clientId}, [], serverId);
+		return _enqueueCommand("clientinfo", {clid: clientId}, [], serverId);
 	},
 
 	findClient: function(serverId, pattern){
-		return _resultsOnly("clientfind", {pattern: pattern}, [], serverId);
+		return _enqueueCommand("clientfind", {pattern: pattern}, [], serverId);
 	},
 
 	editClient: function(serverId, properties){
@@ -659,7 +683,7 @@ module.exports = {
 				message: "Must provide an ID for the client you wish to edit."
 			});
 		}
-		return _resultsOnly("clientedit", properties, [], serverId);
+		return _enqueueCommand("clientedit", properties, [], serverId);
 	},
 
 	listClientDbEntries: function(serverId, start, duration, count){
@@ -668,19 +692,19 @@ module.exports = {
 		if(duration) params.duration = duration;
 		if(count) count = ["count"];
 
-		return _resultsOnly("clientdblist", params, count, serverId);
+		return _enqueueCommand("clientdblist", params, count, serverId);
 	},
 
 	findClientDbEntries: function(serverId, pattern, uid){
 		if(uid){
-			return _resultsOnly("clientdbfind", {pattern: pattern}, ["uid"], serverId);
+			return _enqueueCommand("clientdbfind", {pattern: pattern}, ["uid"], serverId);
 		}else{
-			return _resultsOnly("clientdbfind", {pattern: pattern}, [], serverId);
+			return _enqueueCommand("clientdbfind", {pattern: pattern}, [], serverId);
 		}
 	},
 
 	clientDbEntryInfo: function(serverId, clientDbId){
-		return _resultsOnly("clientdbinfo", {cldbid: clientDbId}, [], serverId);
+		return _enqueueCommand("clientdbinfo", {cldbid: clientDbId}, [], serverId);
 	},
 
 	editClientDbEntry: function(serverId, properties){
@@ -690,35 +714,35 @@ module.exports = {
 				message: "Must provide an ID for the database client you wish to edit."
 			});
 		}
-		return _resultsOnly("clientdbedit", properties, [], serverId);
+		return _enqueueCommand("clientdbedit", properties, [], serverId);
 	},
 
 	deleteClientDbEntry: function(serverId, clientDbId){
-		return _resultsOnly("clientdbdelete", {cldbid: clientDbId}, [], serverId);
+		return _enqueueCommand("clientdbdelete", {cldbid: clientDbId}, [], serverId);
 	},
 
 	clientByUid: function(serverId, clientUid){
-		return _resultsOnly("clientgetids", {cluid: clientUid}, [], serverId);
+		return _enqueueCommand("clientgetids", {cluid: clientUid}, [], serverId);
 	},
 
 	clientDbIdFromUid: function(serverId, clientUid){
-		return _resultsOnly("clientgetdbidfromuid", {cluid: clientUid}, [], serverId);
+		return _enqueueCommand("clientgetdbidfromuid", {cluid: clientUid}, [], serverId);
 	},
 
 	clientNameFromUid: function(serverId, clientUid){
-		return _resultsOnly("clientgetnamefromuid", {cluid: clientUid}, [], serverId);
+		return _enqueueCommand("clientgetnamefromuid", {cluid: clientUid}, [], serverId);
 	},
 
 	clientNameFromDbId: function(serverId, clientDbId){
-		return _resultsOnly("clientgetnamefromdbid", {cldbid: clientDbId}, [], serverId);
+		return _enqueueCommand("clientgetnamefromdbid", {cldbid: clientDbId}, [], serverId);
 	},
 
 	setClientServerQueryLogin: function(newLoginName){
-		return _resultsOnly("clientsetserverquerylogin", {client_login_name: newLoginName}, [], null);
+		return _enqueueCommand("clientsetserverquerylogin", {client_login_name: newLoginName}, [], null);
 	},
 
 	updateClient: function(properties){
-		return _resultsOnly("clientupdate", properties, [], null);
+		return _enqueueCommand("clientupdate", properties, [], null);
 	},
 
 	moveClient: function(serverId, clientId, channelId, channelPassword){
@@ -728,7 +752,7 @@ module.exports = {
 		}
 		if(channelPassword) params.cpw = channelPassword;
 
-		return _resultsOnly("clientmove", params, [], serverId);
+		return _enqueueCommand("clientmove", params, [], serverId);
 	},
 
 	kickClient: function(serverId, clientIds, reasonId, reasonMessage){
@@ -738,17 +762,17 @@ module.exports = {
 		}
 		if(reasonMessage) params.reasonmsg = reasonMessage;
 
-		return _resultsOnly("clientkick", params, [], serverId);
+		return _enqueueCommand("clientkick", params, [], serverId);
 	},
 
 	pokeClient: function(serverId, clientId, message){
-		return _resultsOnly("clientpoke", {clid: clientId, msg: message}, [], serverId);
+		return _enqueueCommand("clientpoke", {clid: clientId, msg: message}, [], serverId);
 	},
 
 	listClientPermissions: function(serverId, clientDbId, permsid){
 		var option = [];
 		if(permsid) option = ["permsid"];
-		return _resultsOnly("clientpermlist", {cldbid: clientDbId}, option, serverId);
+		return _enqueueCommand("clientpermlist", {cldbid: clientDbId}, option, serverId);
 	},
 
 	addClientPermissions: function(serverId, clientDbId, permissions){
@@ -758,16 +782,16 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].cldbid = clientDbId;
-			commands.push({
-				command: "clientaddperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"clientaddperm",
+				permissions[i],
+				[]
+			));
 		}
-		_sequentialResultsOnly(commands, [], serverId);
+		return Promise.all(commands);
 	},
 
 	deleteClientPermissions: function(serverId, clientDbId, permissions){
@@ -778,12 +802,12 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("channeldelperm", {
+			return _enqueueCommand("channeldelperm", {
 				cldbid: clientDbId,
 				permsid: permissions
 			}, [], serverId);
 		}else{
-			return _resultsOnly("channeldelperm", {
+			return _enqueueCommand("channeldelperm", {
 				cldbid: clientDbId,
 				permid: permissions
 			}, [], serverId);
@@ -793,7 +817,7 @@ module.exports = {
 	listChannelClientPermissions: function(serverId, channelId, clientDbId, permsid){
 		var option = [];
 		if(permsid) option = ["permsid"];
-		return _resultsOnly("channelclientpermlist", {
+		return _enqueueCommand("channelclientpermlist", {
 			cid: channelId,
 			cldbid: clientDbId
 		}, option, serverId);
@@ -806,17 +830,17 @@ module.exports = {
 				message: "permissions must be an array."
 			});
 		}
-		var commands = []
+		var commands = [];
 		for(var i = 0; i < permissions.length; i += 1){
 			permissions[i].cid = channelId;
 			permissions[i].cldbid = clientDbId;
-			commands.push({
-				command: "channelclientaddperm",
-				params: permissions[i],
-				options: []
-			});
+			commands.push(_enqueueCommand(
+				"channelclientaddperm",
+				permissions[i],
+				[]
+			));
 		}
-		_sequentialResultsOnly(commands, [], serverId);
+		return Promise.all(commands);
 	},
 
 	deleteChannelClientPermissions: function(serverId, channelId, clientDbId, permissions){
@@ -827,13 +851,13 @@ module.exports = {
 			});
 		}
 		if(isNaN(permissions[0])){
-			return _resultsOnly("channelclientdelperm", {
+			return _enqueueCommand("channelclientdelperm", {
 				cid: channelId,
 				cldbid: clientDbId,
 				permsid: permissions
 			}, [], serverId);
 		}else{
-			return _resultsOnly("channelclientdelperm", {
+			return _enqueueCommand("channelclientdelperm", {
 				cid: channelId,
 				cldbid: clientDbId,
 				permid: permissions
@@ -842,11 +866,11 @@ module.exports = {
 	},
 
 	listPermissions: function(){
-		return _resultsOnly("permissionlist", {}, [], null);
+		return _enqueueCommand("permissionlist", {}, [], null);
 	},
 
 	permissionByName: function(permissionName){
-		return _resultsOnly("permidgetbyname", {permsid: permissionName}, [], null);
+		return _enqueueCommand("permidgetbyname", {permsid: permissionName}, [], null);
 	},
 
 	clientPermissionsByChannel: function(serverId, channelId, clientDbId, permissionId, permissionName){
@@ -857,7 +881,7 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		return _resultsOnly("permoverview", params, [], serverId);
+		return _enqueueCommand("permoverview", params, [], serverId);
 	},
 
 	currentPermissions: function(permissionId, permissionName){
@@ -865,7 +889,7 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		return _resultsOnly("permget", params, [], null);
+		return _enqueueCommand("permget", params, [], null);
 	},
 
 	findPermissions: function(serverId, permissionId, permissionName){
@@ -873,15 +897,15 @@ module.exports = {
 		if(permissionId) params.permid = permissionId;
 		else if(permissionName) params.permsid = permissionName;
 
-		return _resultsOnly("permfind", params, [], serverId);
+		return _enqueueCommand("permfind", params, [], serverId);
 	},
 
 	resetPermissions: function(serverId){
-		return _resultsOnly("permreset", {}, [], serverId);
+		return _enqueueCommand("permreset", {}, [], serverId);
 	},
 
 	listPrivilegeKeys: function(serverId){
-		return _resultsOnly("privilegekeylist", {}, [], serverId);
+		return _enqueueCommand("privilegekeylist", {}, [], serverId);
 	},
 
 	addPrivilegeKey: function(serverId, tokenType, tokenId1, tokenId2, tokenDesc, tokenCustomSet){
@@ -901,23 +925,23 @@ module.exports = {
 		if(tokenDesc) params.tokendescription = tokenDesc;
 		if(tokenCustomSet) params.tokencustomset = tokenCustomSet;
 
-		return _resultsOnly("privilegekeyadd", params, [], serverId);
+		return _enqueueCommand("privilegekeyadd", params, [], serverId);
 	},
 
 	deletePrivilegeKey: function(serverId, token){
-		return _resultsOnly("privilegekeydelete", {token: token}, [], serverId);
+		return _enqueueCommand("privilegekeydelete", {token: token}, [], serverId);
 	},
 
 	usePrivilegeKey: function(serverId, token){
-		return _resultsOnly("privilegekeyuse", {token: token}, [], serverId);
+		return _enqueueCommand("privilegekeyuse", {token: token}, [], serverId);
 	},
 
 	listMessages: function(){
-		return _resultsOnly("messagelist", {}, [], null);
+		return _enqueueCommand("messagelist", {}, [], null);
 	},
 
 	sendMessage: function(clientUid, subject, message){
-		return _resultsOnly("messageadd", {
+		return _enqueueCommand("messageadd", {
 			cluid: clientUid,
 			subject: subject,
 			message: message
@@ -925,11 +949,11 @@ module.exports = {
 	},
 
 	deleteMessage: function(messageId){
-		return _resultsOnly("messagedel", {msgid: messageId}, [], null);
+		return _enqueueCommand("messagedel", {msgid: messageId}, [], null);
 	},
 
 	retrieveMessage: function(messageId){
-		return _resultsOnly("messageget", {msgid: messageId}, [], null);
+		return _enqueueCommand("messageget", {msgid: messageId}, [], null);
 	},
 
 	updateMessageReadFlag: function(messageId, flagValue){
@@ -940,7 +964,7 @@ module.exports = {
 				message: "flagValue must be 0 or 1."
 			});
 		}
-		return _resultsOnly("messageupdateflag", {
+		return _enqueueCommand("messageupdateflag", {
 			msgid: messageId,
 			flag: flagValue
 		}, [], null);
@@ -950,29 +974,29 @@ module.exports = {
 		var params = {};
 		if(targetClientDbId) params.tcldbid = targetClientDbId;
 
-		return _resultsOnly("complainlist", params, [], serverId);
+		return _enqueueCommand("complainlist", params, [], serverId);
 	},
 
 	addComplaintAgainstClient: function(serverId, targetClientDbId, message){
-		return _resultsOnly("complainadd", {
+		return _enqueueCommand("complainadd", {
 			tcldbid: targetClientDbId,
 			message: message
 		}, [], serverId);
 	},
 
 	deleteAllComplaintsAgainstClient: function(serverId, targetClientDbId){
-		return _resultsOnly("complaindelall", {tcldbid: targetClientDbId}, [], serverId);
+		return _enqueueCommand("complaindelall", {tcldbid: targetClientDbId}, [], serverId);
 	},
 
 	deleteComplaint: function(serverId, targetClientDbId, sourceClientDbId){
-		return _resultsOnly("complaindel", {
+		return _enqueueCommand("complaindel", {
 			tcldbid: targetClientDbId,
 			fcldbid: sourceClientDbId
 		}, [], serverId);
 	},
 
 	listActiveBans: function(serverId){
-		return _resultsOnly("banlist", {}, [], serverId);
+		return _enqueueCommand("banlist", {}, [], serverId);
 	},
 
 	banClient: function(serverId, clientId, durationS, reason){
@@ -982,7 +1006,7 @@ module.exports = {
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		return _resultsOnly("banclient", params, [], serverId);
+		return _enqueueCommand("banclient", params, [], serverId);
 	},
 
 	addBan: function(serverId, ip, name, clientUid, durationS, reason){
@@ -993,19 +1017,19 @@ module.exports = {
 		if(durationS) params.time = durationS;
 		if(reason) params.banreason = reason;
 
-		return _resultsOnly("banadd", params, [], serverId);
+		return _enqueueCommand("banadd", params, [], serverId);
 	},
 
 	deleteBan: function(serverId, banId){
-		return _resultsOnly("bandel", {banid: banId}, [], serverId);
+		return _enqueueCommand("bandel", {banid: banId}, [], serverId);
 	},
 
 	deleteAllActiveBans: function(serverId){
-		return _resultsOnly("bandelall", {}, [], serverId);
+		return _enqueueCommand("bandelall", {}, [], serverId);
 	},
 
 	listActiveFileTransfers: function(serverId){
-		return _resultsOnly("ftlist", {}, [], serverId);
+		return _enqueueCommand("ftlist", {}, [], serverId);
 	},
 
 	stopFileTransfer: function(serverId, transferId, deleteFile){
@@ -1016,7 +1040,7 @@ module.exports = {
 				message: "deleteFile must be 0 or 1."
 			});
 		}
-		return _resultsOnly("ftstop", {serverftfid: transferId, "delete": deleteFile}, [], serverId);
+		return _enqueueCommand("ftstop", {serverftfid: transferId, "delete": deleteFile}, [], serverId);
 	},
 
 	listFiles: function(serverId, channelId, channelPassword, path){
@@ -1028,7 +1052,7 @@ module.exports = {
 		if(channelPassword) params.cpw = channelPassword;
 		if(path) params.path = path;
 
-		return _resultsOnly("ftgetfilelist", params, [], serverId);
+		return _enqueueCommand("ftgetfilelist", params, [], serverId);
 	},
 
 	fileInfo: function(serverId, channelId, channelPassword, filename){
@@ -1039,7 +1063,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		return _resultsOnly("ftgetfileinfo", params, [], serverId);
+		return _enqueueCommand("ftgetfileinfo", params, [], serverId);
 	},
 
 	deleteFile: function(serverId, channelId, channelPassword, filename){
@@ -1050,7 +1074,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		return _resultsOnly("ftdeletefile", params, [], serverId);
+		return _enqueueCommand("ftdeletefile", params, [], serverId);
 	},
 
 	createDirectory: function(serverId, channelId, channelPassword, directory){
@@ -1061,7 +1085,7 @@ module.exports = {
 		};
 		if(channelPassword) params.cpw = channelPassword;
 
-		return _resultsOnly("ftcreatedir", params, [], serverId);
+		return _enqueueCommand("ftcreatedir", params, [], serverId);
 	},
 
 	moveFile: function(serverId, sourceChannelId, sourceChannelPassword, sourceFileName, targetChannelId, targetChannelPassword, targetFileName){
@@ -1075,10 +1099,10 @@ module.exports = {
 		if(targetChannelId) params.tcid = targetChannelId;
 		if(targetChannelPassword) params.tcpw = targetChannelPassword;
 
-		return _resultsOnly("ftrenamefile", params, [], serverId);
+		return _enqueueCommand("ftrenamefile", params, [], serverId);
 	},
 
 	whoAmI: function(){
-		return _resultsOnly("whoami", {}, [], null);
+		return _enqueueCommand("whoami", {}, [], null);
 	}
 }
