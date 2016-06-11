@@ -27,12 +27,14 @@ require("../common/userservice.js");
 (function(){
 	var ResetPasswordController = function($scope, $state, ngToast, UserService){
 		var ctrl = this;
+		ctrl.busy = false;
 		ctrl.newPass = "";
 
 		ctrl.resetPassword = function(newPassword){
 			UserService.resetPassword($state.params.userId, $state.params.token, newPassword)
 			.then(function(){
 				ngToast.create("Successfully reset password.");
+				$state.go("default");
 			}).catch(function(response){
 				if(response.status === 404){
 					ngToast.danger("Invalid user or token.");
