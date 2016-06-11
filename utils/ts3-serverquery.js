@@ -80,10 +80,8 @@ var ServerQuery = require("node-teamspeak"),
 	},
 
 	_logout = function(sq){
-		console.log("Logging out...");
 		return new Promise(function(resolve, reject){
 			sq.send("logout", null, function(err, response, rawResponse){
-				console.log("Logged out");
 				sq.send("quit");
 				resolve();
 			});
