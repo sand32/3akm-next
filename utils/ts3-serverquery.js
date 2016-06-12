@@ -127,7 +127,8 @@ var ServerQuery = require("node-teamspeak"),
 				return;
 			}
 
-			if(_currentVirtualServer !== _commandQueue[0].virtualServer){
+			if(_commandQueue[0].virtualServer !== null
+			&& _currentVirtualServer !== _commandQueue[0].virtualServer){
 				_selectVirtualServer(sq, _commandQueue[0].virtualServer)
 				.then(function(){
 					_currentVirtualServer = _commandQueue[0].virtualServer;
