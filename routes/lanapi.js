@@ -35,6 +35,7 @@ module.exports = function(app, prefix){
 	app.get(prefix,
 	function(req, res){
 		Lan.find({})
+		.sort("-beginDate")
 		.exec(function(err, docs){
 			if(err){
 				res.status(500).end();
