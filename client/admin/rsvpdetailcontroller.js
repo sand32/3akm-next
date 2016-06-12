@@ -93,7 +93,7 @@ require("../common/enumselectdirective.js");
 
 		rsvp.selectUser = function(){
 			var modalInstance = $modal.open({
-				templateUrl: "/partial/userselectmodal",
+				templateUrl: "/partial/admin/userselectmodal",
 				controller: "UserSelectController as select",
 			});
 
@@ -112,7 +112,7 @@ require("../common/enumselectdirective.js");
 
 		rsvp.selectLan = function(){
 			var modalInstance = $modal.open({
-				templateUrl: "/partial/lanselectmodal",
+				templateUrl: "/partial/admin/lanselectmodal",
 				controller: "LanSelectController as select",
 			});
 
