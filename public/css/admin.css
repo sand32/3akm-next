@@ -303,7 +303,8 @@ td {
 .teamspeak-channel:hover,
 .teamspeak-client:hover {
 	cursor: pointer;
-	color: rgb(96, 125, 139);
+	/*color: rgb(96, 125, 139);*/
+	background-color: #ade1fa;
 }
 
 .teamspeak-server-icon {
@@ -320,7 +321,7 @@ td {
 	background-size: 1em 1em;
 	height: 1em;
 	width: 1em;
-	margin-right: .2em;
+	padding-right: .2em;
 	display: inline-block;
 	vertical-align: middle;
 }

@@ -24,26 +24,58 @@ misrepresented as being the original software.
 
 require("../common/teamspeakservice.js");
 require("../admin-common/teamspeakbrowserdirective.js");
+require("./clientdbdetailcontroller.js");
 
 (function(){
-	var TeamspeakController = function($q, $scope, ngToast, TeamspeakService){
+	var TeamspeakController = function($q, $scope, $state, ngToast, TeamspeakService){
 		var ts = this;
 		ts.loaded = false;
+		ts.selected = null;
+		ts.selectedType = "";
+		ts.version = {};
+		ts.hostInfo = {};
+		ts.instanceInfo = {};
 		ts.serverInfo = {};
 		ts.channels = [];
+		ts.knownClients = [];
 
-		var updateBrowser = function(){
+		$scope.$on("$stateChangeSuccess", function(){
+			ts.selected = null;
+			ts.selectedType = "";
+			if($state.params.cldbid){
+				ts.selected = $state.params.cldbid;
+				ts.selectedType = "cldb";
+			}
+		});
+
+		$scope.updateBrowser = function(){
 			var queries = [
+				TeamspeakService.version(),
+				TeamspeakService.hostInfo(),
+				TeamspeakService.instanceInfo(),
 				TeamspeakService.serverInfo(1),
 				TeamspeakService.channelList(1),
-				TeamspeakService.clientList(1)
+				TeamspeakService.clientList(1),
+				TeamspeakService.knownClientList(1)
 			];
 			$q.all(queries)
 			.then(function(results){
-				ts.serverInfo = results[0].data;
-				ts.channels = results[1].data;
+				ts.version = results[0].data;
+
+				ts.hostInfo = results[1].data;
+				ts.hostInfo.instance_uptime = secondsToHumanReadableDuration(ts.hostInfo.instance_uptime);
+
+				ts.instanceInfo = results[2].data;
+				ts.serverInfo = results[3].data;
+				ts.channels = results[4].data;
 				calculateChannelDepths(ts.channels);
-				addClientsToChannels(results[2].data);
+				addClientsToChannels(results[5].data);
+
+				ts.knownClients = results[6].data;
+				for(var i = 0; i < ts.knownClients.length; i += 1){
+					ts.knownClients[i].client_lastconnected = new Date(ts.knownClients[i].client_lastconnected * 1000);
+				}
+
 				ts.loaded = true;
 			});
 		},
@@ -78,18 +110,42 @@ require("../admin-common/teamspeakbrowserdirective.js");
 					}
 				}
 			}
+		},
+
+		secondsToHumanReadableDuration = function(secondsDuration){
+			var seconds = secondsDuration % 60,
+			minutes = (secondsDuration / 60) % 60,
+			hours = (secondsDuration / 3600) % 24,
+			days = secondsDuration / 86400,
+			string = "";
+			if(days > 1){
+				string += parseInt(days) + "d ";
+			}
+			if(hours > 1 || string !== ""){
+				string += parseInt(hours) + "h ";
+			}
+			if(minutes > 1 || string !== ""){
+				string += parseInt(minutes) + "m ";
+			}
+			if(seconds > 1 || string !== ""){
+				string += parseInt(seconds) + "s";
+			}else{
+				string = "0s";
+			}
+			return string;
 		};
 
-		updateBrowser();
+		$scope.updateBrowser();
 	};
 
 	angular
 		.module("3akm.admin.teamspeak", 
 			[
 				"3akm.teamspeak",
-				"3akm.common.teamspeak"
+				"3akm.common.teamspeak",
+				"3akm.admin.clientDbDetail"
 			])
 		.controller("TeamspeakController", TeamspeakController);
 
-	TeamspeakController.$inject = ["$q", "$scope", "ngToast", "TeamspeakService"];
+	TeamspeakController.$inject = ["$q", "$scope", "$state", "ngToast", "TeamspeakService"];
 })();

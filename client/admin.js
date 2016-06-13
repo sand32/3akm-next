@@ -123,6 +123,14 @@ require("./common/analyticsdirective.js");
 			.state("teamspeak", {
 				url: "/teamspeak",
 				templateUrl: "/partial/admin/teamspeak"
+			})
+			.state("teamspeak.clientDbDetail", {
+				url: "/cldb/:cldbid",
+				views: {
+					"detail": {
+						templateUrl: "/partial/admin/clientdbdetail"
+					}
+				}
 			});
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);

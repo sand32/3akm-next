@@ -25,6 +25,18 @@ misrepresented as being the original software.
 (function(){
 	var TeamspeakService = function($http){
 		return {
+			version: function(){
+				return $http.get("/api/service/ts3/version");
+			},
+
+			hostInfo: function(){
+				return $http.get("/api/service/ts3/host");
+			},
+
+			instanceInfo: function(){
+				return $http.get("/api/service/ts3/instance");
+			},
+
 			serverInfo: function(serverId){
 				return $http.get("/api/service/ts3/server/" + serverId);
 			},
@@ -35,6 +47,22 @@ misrepresented as being the original software.
 
 			clientList: function(serverId){
 				return $http.get("/api/service/ts3/server/" + serverId + "/client");
+			},
+
+			knownClientList: function(serverId){
+				return $http.get("/api/service/ts3/server/" + serverId + "/knownclient");
+			},
+
+			knownClient: function(serverId, cldbid){
+				return $http.get("/api/service/ts3/server/" + serverId + "/knownclient/" + cldbid);
+			},
+
+			editKnownClient: function(serverId, cldbid, putData){
+				return $http.put("/api/service/ts3/server/" + serverId + "/knownclient/" + cldbid, putData);
+			},
+
+			deleteKnownClient: function(serverId, cldbid){
+				return $http.delete("/api/service/ts3/server/" + serverId + "/knownclient/" + cldbid);
 			}
 		};
 	};

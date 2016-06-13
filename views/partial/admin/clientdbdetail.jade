@@ -1,0 +1,70 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2016 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "ClientDbDetailController as cldb")
+	.panel-body
+		form(name = "cldbForm", novalidate, ng-submit = "cldb.save()")
+			.row
+				.form-group.col-xs-6
+					label Nickname 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "nickname", autofocus, ng-model = "cldb.current.client_nickname", required)
+				.form-group.col-xs-6
+					label Description
+					input.form-control(type = "text", name = "nickname", autofocus, ng-model = "cldb.current.client_description")
+			.row
+				.form-group.col-xs-6
+					label Unique Identifier
+					p {{cldb.current.client_unique_identifier}}
+				.form-group.col-xs-6
+					label Created
+					p {{cldb.current.client_created | date}}
+			.row
+				.form-group.col-xs-6
+					label Last Connected
+					p {{cldb.current.client_lastconnected | date}}
+				.form-group.col-xs-6
+					label Most Recent IP
+					p {{cldb.current.client_lastip}}
+			.row
+				.form-group.col-xs-4
+					label Total Connections
+					p {{cldb.current.client_totalconnections}}
+				.form-group.col-xs-4
+					label Total Uploaded (bytes)
+					p {{cldb.current.client_total_bytes_uploaded}}
+				.form-group.col-xs-4
+					label Total Downloaded (bytes)
+					p {{cldb.current.client_total_bytes_downloaded}}
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "cldb.$invalid || cldb.busy")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "cldb.current.client_database_id", ng-click = "cldb.delete()", ng-disabled = "cldb.busy")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

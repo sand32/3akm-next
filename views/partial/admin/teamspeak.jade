@@ -25,10 +25,52 @@
 	.page-title
 		h2 Teamspeak
 	.page-content
-		.col-lg-3
-			.panel
-				.panel-header
-					h2 Channel Browser
-				.panel-body
-					teamspeak-browser(server-info = "ts.serverInfo", channel-list = "ts.channels")
-		.col-lg-9
+		.col-lg-6
+			.row
+				.col-lg-6
+					.panel
+						.panel-header
+							h2 Channel Browser
+						.panel-body
+							teamspeak-browser(server-info = "ts.serverInfo", channel-list = "ts.channels")
+				.col-lg-6
+					.panel
+						.panel-header
+							h2 Server Info
+						.panel-body
+							.row
+								.col-xs-6.form-group
+									label Version
+									p {{ts.version.version}}.{{ts.version.build}}
+								.col-xs-6.form-group
+									label Platform
+									p {{ts.version.platform}}
+							.row
+								.col-xs-6.form-group
+									label Uptime
+									p {{ts.hostInfo.instance_uptime}}
+								.col-xs-6.form-group
+									label Clients
+									p {{ts.hostInfo.virtualservers_total_clients_online}} / {{ts.hostInfo.virtualservers_total_maxclients}}
+			.row
+				.col-lg-12
+					.panel.no-padding
+						.panel-content
+							.empty-table(ng-if = "ts.knownClients.length === 0") No known clients
+							table(ng-if = "ts.knownClients.length > 0")
+								thead.panel-banner
+									tr
+										th Nickname
+										th Last Connected
+										th Total Connections
+								tbody
+									tr(ng-repeat = "client in ts.knownClients",
+										ui-sref = ".clientDbDetail({cldbid: ts.knownClients[$index].cldbid})",
+										ng-class = "ts.knownClients[$index].cldbid === ts.selected && ts.selectedType === 'cldb' ? 'selected' : ''")
+										td {{client.client_nickname}}
+										td {{client.client_lastconnected | date}}
+										td {{client.client_totalconnections}}
+		.col-lg-6
+			.no-selection(ng-if = "!ts.selected")
+				| Nothing selected
+			div(ui-view = "detail")
