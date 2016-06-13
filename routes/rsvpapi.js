@@ -35,6 +35,7 @@ module.exports = function(app, prefix, prefix2){
 	function(req, res){
 		Rsvp.find({})
 		.populate("user lan", "email firstName lastName beginDate")
+		.sort("-lan.beginDate")
 		.exec(function(err, docs){
 			if(err){
 				res.status(500).end();
