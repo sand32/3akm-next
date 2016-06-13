@@ -33,6 +33,7 @@ require("../common/validationdirectives.js");
 		user.loaded = false;
 		user.busy = false;
 		user.current = {
+			verified: false,
 			lanInviteDesired: true,
 			blacklisted: false,
 			vip: false,
