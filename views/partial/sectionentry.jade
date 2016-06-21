@@ -27,5 +27,5 @@
 		ng-mouseenter = "hover = true",
 		ng-mouseleave = "hover = false",
 		ng-click = "toggleSection()")
-		h2 {{name}}
+		h2(ng-if = "!headerImage || headerImage === ''") {{name}}
 	.section-body(ng-transclude, collapse = "collapsed")
