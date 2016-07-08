@@ -106,6 +106,15 @@ a.btn-link:hover {
 	border-color: #444;
 }
 
+.version {
+	color: #666;
+	text-align: center;
+	position: fixed;
+	width: 16.66%;
+	bottom: 0;
+	margin-bottom: 1em;
+}
+
 .panel {
 	border-top: 1px solid #CCC;
 	border-left: 1px solid #CCC;
