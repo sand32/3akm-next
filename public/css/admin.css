@@ -109,6 +109,10 @@ a.btn-link:hover {
 .version {
 	color: #666;
 	text-align: center;
+	position: fixed;
+	width: 16.66%;
+	bottom: 0;
+	margin-bottom: 1em;
 }
 
 .panel {
