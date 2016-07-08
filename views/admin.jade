@@ -68,8 +68,7 @@ html(ng-app = "3akm.admin")
 					li
 						a(href = "/", target = "_self")
 							| Frontend
-				.version-container(ng-controller = "VersionController as version")
-					.version(ng-if = "version.loaded", ng-bind = "version.version")
+				.version v#{version}
 			.menu-slim.button-row.hidden-md.hidden-lg
 				a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
 			.menu.hidden-md.hidden-lg(ng-show = "showMenu")
