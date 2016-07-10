@@ -58,7 +58,11 @@ var mongoose = require("mongoose"),
 			placements: [{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User"
-			}]
+			}],
+			sortIndex: {
+				type: Number,
+				default: 0
+			}
 		}],
 		foodRequired: [{
 			name: {

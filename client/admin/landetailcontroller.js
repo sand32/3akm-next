@@ -76,6 +76,7 @@ require("../admin-common/gamearrayentrydirective.js");
 		lan.save = function(){
 			lan.busy = true;
 			for(var i = 0; i < lan.current.games.length; i += 1){
+				lan.current.games[i].sortIndex = i;
 				if(lan.current.games[i].tournamentName === ""){
 					lan.current.games[i].tournament = false;
 				}else{

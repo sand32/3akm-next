@@ -26,7 +26,7 @@ require("../common/lanservice.js");
 require("../common/sectionentrydirective.js");
 
 (function(){
-	var GameListController = function($q, $sce, LanService){
+	var GameListController = function($sce, LanService){
 		var ctrl = this;
 		ctrl.loaded = false;
 		ctrl.games = null;
@@ -57,5 +57,5 @@ require("../common/sectionentrydirective.js");
 			])
 		.controller("GameListController", GameListController);
 
-	GameListController.$inject = ["$q", "$sce", "LanService"];
+	GameListController.$inject = ["$sce", "LanService"];
 })();
