@@ -29,7 +29,21 @@ var mongoose = require("mongoose"),
 	Rsvp = require("../model/rsvp.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	shuffle = require("../utils/common.js").shuffle,
+	log = require("../utils/log.js"),
+
+	getLANQuery = function(id){
+		if(id === "current"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+		}else if(id === "next"){
+			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
+			query.where("beginDate").gt(Date.now());
+		}else{
+			query = Lan.findById(id);
+		}
+		return query;
+	};
 
 module.exports = function(app, prefix){
 	app.get(prefix,
@@ -47,20 +61,7 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:lan", 
 	function(req, res){
-		var query = null;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-
-		query.exec(function(err, doc){
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				res.status(500).end();
 			}else if(!doc){
@@ -74,20 +75,8 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/:lan/games", 
 	function(req, res){
 		var deferred = q.defer(),
-			query = null,
 			year;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
@@ -105,13 +94,13 @@ module.exports = function(app, prefix){
 			}
 			Game.find({_id: {$in: gameIds}})
 			.populate("stores.store")
-			.exec(function(err, docs){
+			.exec(function(err, games){
 				if(err){
 					res.status(500).end();
 				}else{
 					res.send({
 						year: year,
-						games: docs
+						games: games
 					});
 				}
 			});
@@ -122,27 +111,13 @@ module.exports = function(app, prefix){
 
 	app.get(prefix + "/:lan/rsvps", 
 	function(req, res){
-		var deferred = q.defer(),
-			query = null,
-			year;
-		if(req.params.lan === "current"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-		}else if(req.params.lan === "next"){
-			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
-			query.where("beginDate").gt(Date.now());
-		}else{
-			if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-				return res.status(404).end();
-			}
-			query = Lan.findById(req.params.lan);
-		}
-		query.exec(function(err, doc){
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
 			if(err){
 				deferred.reject(err);
 			}else if(!doc){
 				res.status(404).end();
 			}else{
-				year = doc.beginDate.getFullYear();
 				deferred.resolve(doc);
 			}
 		});
@@ -150,11 +125,11 @@ module.exports = function(app, prefix){
 		deferred.promise.then(function(data){
 			Rsvp.find({lan: data._id})
 			.populate("user tournaments.game", "email firstName lastName primaryHandle name")
-			.exec(function(err, docs){
+			.exec(function(err, rsvps){
 				if(err){
 					res.status(500).end();
 				}else{
-					var rsvps = JSON.parse(JSON.stringify(docs));
+					var rsvps = JSON.parse(JSON.stringify(rsvps));
 					for(var i = 0; i < rsvps.length; i += 1){
 						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
 							for(var k = 0; k < data.games.length; k += 1){
@@ -205,6 +180,243 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(200).end();
 			}
+		});
+	});
+
+	app.get(prefix + "/:lan/placements/:game", 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			var retVal = null;
+			for(var i = 0; i < data.games.length; i += 1){
+				if(data.games[i].game.toString() === req.params.game){
+					retVal = data.games[i].placements;
+				}
+			}
+			if(retVal !== null){
+				res.send(retVal);
+			}else{
+				res.status(404);
+			}
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.post(prefix + "/:lan/placements/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			Rsvp.find({lan: data._id})
+			.exec(function(err, rsvps){
+				if(err){
+					res.status(500).end();
+				}else{
+					var users = [];
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+								users.push(rsvps[i].user);
+								break;
+							}
+						}
+					}
+					users = shuffle(users);
+					for(var i = 0; i < data.games.length; i += 1){
+						if(data.games[i].game.toString() === req.params.game){
+							data.games[i].placements = users;
+							break;
+						}
+					}
+					data.save(function(err){
+						if(err){
+							res.status(500).end();
+						}else{
+							res.send(users);
+						}
+					});
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.put(prefix + "/:lan/placements/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			for(var i = 0; i < data.games.length; i += 1){
+				if(data.games[i].game.toString() === req.params.game){
+					data.games[i].placements = req.body;
+					break;
+				}
+			}
+			data.save(function(err){
+				if(err){
+					res.status(500).end();
+				}else{
+					res.status(200).end();
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.get(prefix + "/:lan/scores/:game", 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
+			.exec(function(err, rsvps){
+				if(err){
+					res.status(500).end();
+				}else{
+					var scores = [];
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+								scores.push({
+									user: rsvps[i].user,
+									scores: rsvps[i].tournaments[j].scores
+								});
+							}
+						}
+					}
+					res.send(scores);
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
+		});
+	});
+
+	app.put(prefix + "/:lan/scores/:game", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+		sanitizeBodyForDB, 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
+			return res.status(404).end();
+		}
+		var deferred = q.defer();
+		getLANQuery(req.params.lan).exec(function(err, doc){
+			if(err){
+				deferred.reject(err);
+			}else if(!doc){
+				res.status(404).end();
+			}else{
+				deferred.resolve(doc);
+			}
+		});
+
+		deferred.promise
+		.then(function(data){
+			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
+			.exec(function(err, rsvps){
+				if(err){
+					res.status(500).end();
+				}else{
+					var promises = [];
+					for(var i = 0; i < rsvps.length; i += 1){
+						for(var j = 0; j < req.body.length; j += 1){
+							if(rsvps[i].user.toString() === req.body[j].user){
+								for(var k = 0; k < rsvps[i].tournaments.length; k += 1){
+									if(rsvps[i].tournaments[k].game.toString() === req.params.game){
+										rsvps[i].tournaments[k].scores = req.body[j].scores;
+										(function(){
+											var deferred = q.defer();
+											rsvps[i].save(function(err){
+												if(err){
+													deferred.reject(err);
+												}else{
+													deferred.resolve();
+												}
+											});
+											promises.push(deferred.promise);
+										})();
+										break;
+									}
+								}
+								req.body.splice(j, 1);
+								break;
+							}
+						}
+					}
+					q.all(promises)
+					.then(function(){
+						res.status(200).end();
+					}).catch(function(err){
+						log.error(err);
+						res.status(500).end();
+					});
+				}
+			});
+		}).catch(function(err){
+			res.status(500).end();
 		});
 	});
 
