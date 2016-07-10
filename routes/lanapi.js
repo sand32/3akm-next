@@ -62,14 +62,14 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/:lan", 
 	function(req, res){
 		getLANQuery(req.params.lan).exec(function(err, doc){
-			doc.games.sort(function(a, b){
-				return a.sortIndex - b.sortIndex;
-			});
 			if(err){
 				res.status(500).end();
 			}else if(!doc){
 				res.status(404).end();
 			}else{
+				doc.games.sort(function(a, b){
+					return a.sortIndex - b.sortIndex;
+				});
 				res.send(doc);
 			}
 		});
@@ -86,21 +86,27 @@ module.exports = function(app, prefix){
 				res.status(404).end();
 			}else{
 				year = doc.beginDate.getFullYear();
+				doc.games.sort(function(a, b){
+					return a.sortIndex - b.sortIndex;
+				});
 				deferred.resolve(doc.games);
 			}
 		});
 
 		deferred.promise.then(function(data){
-			var gameIds = [];
+			var gameSelection = {};
 			for(var i = 0; i < data.length; i += 1){
-				gameIds.push(data[i].game);
+				gameSelection[data[i].game] = data[i].sortIndex;
 			}
-			Game.find({_id: {$in: gameIds}})
+			Game.find({_id: {$in: Object.keys(gameSelection)}})
 			.populate("stores.store")
 			.exec(function(err, games){
 				if(err){
 					res.status(500).end();
 				}else{
+					games.sort(function(a, b){
+						return gameSelection[a._id] - gameSelection[b._id];
+					});
 					res.send({
 						year: year,
 						games: games
