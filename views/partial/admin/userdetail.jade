@@ -32,7 +32,10 @@
 					.form-feedback.text-danger(ng-messages = "userForm.email.$error", ng-if = "userForm.email.$dirty", role = "alert")
 						div(ng-message = "required") An email is required
 						div(ng-message = "email") Invalid email
-				.field-align.col-xs-6(ng-if = "!user.current.verified")
+				.form-group.col-xs-6(ng-if = "user.loaded && !user.current._id")
+					label Autoverify Email
+					enum-select(current = "user.current.verified", possibles = "user.boolPossibles")
+				.field-align.col-xs-6(ng-if = "user.current._id && !user.current.verified")
 					span.text-danger.form-control-static.col-xs-6 Email not verified!
 					.btn-group.col-xs-6
 						a.btn.btn-danger(ng-click = "user.resendVerificationEmail()", ng-disabled = "user.busy") Resend

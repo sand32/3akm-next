@@ -420,6 +420,7 @@ module.exports = function(app, prefix){
 			if(token.validateToken("passwordreset" + user.email)){
 				user.resetPassword(req.body.newPassword)
 				.then(function(){
+					Token.remove({token: req.params.token}).exec();
 					res.status(200).end();
 				}).catch(function(err){
 					log.error("Successfully verified token for user \"" + user.email + "\", but failed to reset password");

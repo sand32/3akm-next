@@ -22,32 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-require("../common/userservice.js");
-
 (function(){
-	var ResetPasswordController = function($scope, $state, ngToast, UserService){
+	var GameSelectController = function($modalInstance, ngToast, GameService){
 		var ctrl = this;
-		ctrl.busy = false;
-		ctrl.newPass = "";
+		ctrl.games = [];
 
-		ctrl.resetPassword = function(newPassword){
-			UserService.resetPassword($state.params.userId, $state.params.token, newPassword)
-			.then(function(){
-				ngToast.create("Successfully reset password.");
-				$state.go("default");
-			}).catch(function(response){
-				if(response.status === 404){
-					ngToast.danger("Invalid user or token.");
-				}else{
-					ngToast.danger("Failed to reset password.");
-				}
-			});
+		GameService.retrieveAll()
+		.then(function(response){
+			ctrl.games = response.data;
+		}).catch(function(){
+			ngToast.danger("Failed to retrieve games.");
+		});
+
+		ctrl.ok = function(gameId){
+			$modalInstance.close(gameId);
 		};
-	}
+
+		ctrl.cancel = function(){
+			$modalInstance.dismiss("cancel");
+		};
+	};
 
 	angular
-		.module("3akm.user")
-		.controller("ResetPasswordController", ResetPasswordController);
+		.module("3akm.admin.common.gameSelectModal", [])
+		.controller("GameSelectController", GameSelectController);
 
-	ResetPasswordController.$inject = ["$scope", "$state", "ngToast", "UserService"];
+	GameSelectController.$inject = ["$modalInstance", "ngToast", "GameService"];
 })();

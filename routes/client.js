@@ -26,6 +26,7 @@ var express = require("express"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
 	config = require("../utils/common.js").config,
+	version = require("../utils/common.js").version,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
@@ -61,7 +62,8 @@ module.exports = function(app, prefix){
 			.then(
 				function(){
 					res.render("admin", {
-						analyticsTrackingId: config.analyticsTrackingId
+						analyticsTrackingId: config.analyticsTrackingId,
+						version: version
 					});
 				},
 				function(error){
@@ -71,7 +73,8 @@ module.exports = function(app, prefix){
 			);
 		}else{
 			res.render("admin", {
-				analyticsTrackingId: config.analyticsTrackingId
+				analyticsTrackingId: config.analyticsTrackingId,
+				version: version
 			});
 		}
 	});
