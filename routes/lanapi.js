@@ -62,6 +62,9 @@ module.exports = function(app, prefix){
 	app.get(prefix + "/:lan", 
 	function(req, res){
 		getLANQuery(req.params.lan).exec(function(err, doc){
+			doc.games.sort(function(a, b){
+				return a.sortIndex - b.sortIndex;
+			});
 			if(err){
 				res.status(500).end();
 			}else if(!doc){
