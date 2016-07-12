@@ -455,7 +455,12 @@ module.exports = function(app, prefix){
 			}else if(!user){
 				res.status(404).end();
 			}else{
-				user.syncWithDirectory();
+				user.syncWithDirectory()
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(500).end();
+				});
 			}
 		});
 	});
