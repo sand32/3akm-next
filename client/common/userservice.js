@@ -78,6 +78,10 @@ misrepresented as being the original software.
 
 			resetPassword: function(id, token, newPassword){
 				return $http.post("/api/user/" + id + "/password/reset/" + token, {newPassword: newPassword});
+			},
+
+			sync: function(id){
+				return $http.post("/api/user/" + id + "/sync");
 			}
 		};
 	};

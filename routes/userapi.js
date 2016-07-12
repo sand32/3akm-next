@@ -439,4 +439,29 @@ module.exports = function(app, prefix){
 			}
 		});
 	});
+
+	app.post(prefix + "/:user/sync", 
+		authenticate, 
+		authorizeSessionUser(), 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)
+		|| !config.ldap.enabled){
+			return res.status(404).end();
+		}
+
+		User.findById(req.params.user, function(err, user){
+			if(err){
+				res.status(500).end();
+			}else if(!user){
+				res.status(404).end();
+			}else{
+				user.syncWithDirectory()
+				.then(function(){
+					res.status(200).end();
+				}).catch(function(){
+					res.status(500).end();
+				});
+			}
+		});
+	});
 }
