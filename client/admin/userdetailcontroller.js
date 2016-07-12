@@ -114,6 +114,19 @@ require("../common/validationdirectives.js");
 				user.busy = false;
 			});
 		};
+
+		user.sync = function(){
+			user.busy = true;
+			UserService.sync(user.current._id)
+			.then(function(){
+				$scope.reloadList();
+				ngToast.create("User synchronized between database and Active Directory.");
+				user.busy = false;
+			}).catch(function(){
+				ngToast.danger("Failed to synchronize user.");
+				user.busy = false;
+			});
+		};
 	};
 
 	angular
