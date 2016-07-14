@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	q = require("q"),
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var q = require("q"),
 	bcrypt = require("bcrypt-nodejs"),
 	config = require("../utils/common.js").config,
 	ldap = require("../utils/ldap.js"),

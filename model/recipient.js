@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	recipientSchema = mongoose.Schema({
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var recipientSchema = mongoose.Schema({
 		email: {
 			type: String,
 			required: true,

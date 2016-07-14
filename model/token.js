@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	q = require("q"),
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var q = require("q"),
 	crypto = require("crypto"),
 
 	genHash = function(value, salt){

@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	q = require("q"),
+	Promise = require("bluebird"),
 	Lan = require("../model/lan.js"),
 	Game = require("../model/game.js"),
 	Rsvp = require("../model/rsvp.js"),
@@ -39,8 +39,10 @@ var mongoose = require("mongoose"),
 		}else if(id === "next"){
 			query = Lan.findOne({active: true, acceptingRsvps: true}, null, {sort: {beginDate: "-1"}});
 			query.where("beginDate").gt(Date.now());
-		}else{
+		}else if(mongoose.Types.ObjectId.isValid(id)){
 			query = Lan.findById(id);
+		}else{
+			return "not-found";
 		}
 		return query;
 	};
@@ -48,111 +50,107 @@ var mongoose = require("mongoose"),
 module.exports = function(app, prefix){
 	app.get(prefix,
 	function(req, res){
-		Lan.find({})
-		.sort("-beginDate")
-		.exec(function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else{
-				res.send(docs || []);
-			}
+		Lan.find({}).sort("-beginDate").exec()
+		.then(function(lans){
+			res.send(lans || []);
+		}).catch(function(){
+			res.status(500).end();
 		});
 	});
 
 	app.get(prefix + "/:lan", 
 	function(req, res){
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
+		var query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
+
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			lan.games.sort(function(a, b){
+				return a.sortIndex - b.sortIndex;
+			});
+			res.send(lan);
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				doc.games.sort(function(a, b){
-					return a.sortIndex - b.sortIndex;
-				});
-				res.send(doc);
+				res.status(500).end();
 			}
 		});
 	});
 
 	app.get(prefix + "/:lan/games", 
 	function(req, res){
-		var deferred = q.defer(),
-			year;
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
+		var year,
+			gameSelection = {},
+			query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
+
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			year = lan.beginDate.getFullYear();
+			for(var i = 0; i < lan.games.length; i += 1){
+				gameSelection[lan.games[i].game] = lan.games[i].sortIndex;
+			}
+			return Game.find({_id: {$in: Object.keys(gameSelection)}})
+				.populate("stores.store")
+				.exec();
+		}).then(function(games){
+			if(!games) throw {reason: "not-found"};
+			games.sort(function(a, b){
+				return gameSelection[a._id] - gameSelection[b._id];
+			});
+			res.send({
+				year: year,
+				games: games
+			});
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				year = doc.beginDate.getFullYear();
-				doc.games.sort(function(a, b){
-					return a.sortIndex - b.sortIndex;
-				});
-				deferred.resolve(doc.games);
+				res.status(500).end();
 			}
-		});
-
-		deferred.promise.then(function(data){
-			var gameSelection = {};
-			for(var i = 0; i < data.length; i += 1){
-				gameSelection[data[i].game] = data[i].sortIndex;
-			}
-			Game.find({_id: {$in: Object.keys(gameSelection)}})
-			.populate("stores.store")
-			.exec(function(err, games){
-				if(err){
-					res.status(500).end();
-				}else{
-					games.sort(function(a, b){
-						return gameSelection[a._id] - gameSelection[b._id];
-					});
-					res.send({
-						year: year,
-						games: games
-					});
-				}
-			});
-		}, function(err){
-			res.status(500).end();
 		});
 	});
 
 	app.get(prefix + "/:lan/rsvps", 
 	function(req, res){
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				deferred.resolve(doc);
-			}
-		});
+		var query = getLANQuery(req.params.lan),
+			thisLan;
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
 
-		deferred.promise.then(function(data){
-			Rsvp.find({lan: data._id})
-			.populate("user tournaments.game", "email firstName lastName primaryHandle name")
-			.exec(function(err, rsvps){
-				if(err){
-					res.status(500).end();
-				}else{
-					var rsvps = JSON.parse(JSON.stringify(rsvps));
-					for(var i = 0; i < rsvps.length; i += 1){
-						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
-							for(var k = 0; k < data.games.length; k += 1){
-								if(data.games[k].game.toString() === rsvps[i].tournaments[j].game._id.toString()){
-									rsvps[i].tournaments[j].game.tournamentName = data.games[k].tournamentName;
-								}
-							}
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			thisLan = lan;
+			return Rsvp.find({lan: lan._id})
+				.populate("user tournaments.game", "email firstName lastName primaryHandle name")
+				.exec();
+		}).then(function(rsvps){
+			for(var i = 0; i < rsvps.length; i += 1){
+				for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+					for(var k = 0; k < thisLan.games.length; k += 1){
+						if(thisLan.games[k].game.toString() === rsvps[i].tournaments[j].game._id.toString()){
+							rsvps[i].tournaments[j].game.tournamentName = thisLan.games[k].tournamentName;
 						}
 					}
-					res.send(rsvps);
 				}
-			});
-		}, function(err){
-			res.status(500).end();
+			}
+			res.send(rsvps);
+		}).catch(function(err){
+			if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(500).end();
+			}
+			console.error(err);
 		});
 	});
 
@@ -162,14 +160,13 @@ module.exports = function(app, prefix){
 		sanitizeBodyForDB, 
 	function(req, res){
 		var lan = new Lan(req.body);
-		lan.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + lan._id)
-				.send({_id: lan._id});
-			}
+		lan.save()
+		.then(function(){
+			res.status(201)
+			.location(prefix + "/" + lan._id)
+			.send({_id: lan._id});
+		}).catch(function(err){
+			res.status(400).end();
 		});
 	});
 
@@ -181,13 +178,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();
 		}
-		Lan.findByIdAndUpdate(req.params.lan, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
+		Lan.findByIdAndUpdate(req.params.lan, req.body)
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				res.status(500).end();
 			}
 		});
 	});
@@ -197,23 +196,18 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				deferred.resolve(doc);
-			}
-		});
+		var query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
 
-		deferred.promise
-		.then(function(data){
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
 			var retVal = null;
-			for(var i = 0; i < data.games.length; i += 1){
-				if(data.games[i].game.toString() === req.params.game){
-					retVal = data.games[i].placements;
+			for(var i = 0; i < lan.games.length; i += 1){
+				if(lan.games[i].game.toString() === req.params.game){
+					retVal = lan.games[i].placements;
 				}
 			}
 			if(retVal !== null){
@@ -222,7 +216,11 @@ module.exports = function(app, prefix){
 				res.status(404);
 			}
 		}).catch(function(err){
-			res.status(500).end();
+			if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(500).end();
+			}
 		});
 	});
 
@@ -234,51 +232,43 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
+		var query = getLANQuery(req.params.lan),
+			users = [],
+			thisLan;
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
+
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			thisLan = lan;
+			return Rsvp.find({lan: lan._id}).exec();
+		}).then(function(rsvps){
+			for(var i = 0; i < rsvps.length; i += 1){
+				for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+					if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+						users.push(rsvps[i].user);
+						break;
+					}
+				}
+			}
+			users = shuffle(users);
+			for(var i = 0; i < thisLan.games.length; i += 1){
+				if(thisLan.games[i].game.toString() === req.params.game){
+					thisLan.games[i].placements = users;
+					break;
+				}
+			}
+			return thisLan.save();
+		}).then(function(){
+			res.send(users);
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				deferred.resolve(doc);
+				res.status(500).end();
 			}
-		});
-
-		deferred.promise
-		.then(function(data){
-			Rsvp.find({lan: data._id})
-			.exec(function(err, rsvps){
-				if(err){
-					res.status(500).end();
-				}else{
-					var users = [];
-					for(var i = 0; i < rsvps.length; i += 1){
-						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
-							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
-								users.push(rsvps[i].user);
-								break;
-							}
-						}
-					}
-					users = shuffle(users);
-					for(var i = 0; i < data.games.length; i += 1){
-						if(data.games[i].game.toString() === req.params.game){
-							data.games[i].placements = users;
-							break;
-						}
-					}
-					data.save(function(err){
-						if(err){
-							res.status(500).end();
-						}else{
-							res.send(users);
-						}
-					});
-				}
-			});
-		}).catch(function(err){
-			res.status(500).end();
 		});
 	});
 
@@ -290,34 +280,29 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				deferred.resolve(doc);
-			}
-		});
+		var query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
 
-		deferred.promise
-		.then(function(data){
-			for(var i = 0; i < data.games.length; i += 1){
-				if(data.games[i].game.toString() === req.params.game){
-					data.games[i].placements = req.body;
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			for(var i = 0; i < lan.games.length; i += 1){
+				if(lan.games[i].game.toString() === req.params.game){
+					lan.games[i].placements = req.body;
 					break;
 				}
 			}
-			data.save(function(err){
-				if(err){
-					res.status(500).end();
-				}else{
-					res.status(200).end();
-				}
-			});
+			return lan.save();
+		}).then(function(){
+			res.status(200).end();
 		}).catch(function(err){
-			res.status(500).end();
+			if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(500).end();
+			}
 		});
 	});
 
@@ -326,40 +311,34 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
+		var query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
+
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
+		}).then(function(rsvps){
+			var scores = [];
+			for(var i = 0; i < rsvps.length; i += 1){
+				for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
+					if(rsvps[i].tournaments[j].game.toString() === req.params.game){
+						scores.push({
+							user: rsvps[i].user,
+							scores: rsvps[i].tournaments[j].scores
+						});
+					}
+				}
+			}
+			res.send(scores);
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				deferred.resolve(doc);
+				res.status(500).end();
 			}
-		});
-
-		deferred.promise
-		.then(function(data){
-			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
-			.exec(function(err, rsvps){
-				if(err){
-					res.status(500).end();
-				}else{
-					var scores = [];
-					for(var i = 0; i < rsvps.length; i += 1){
-						for(var j = 0; j < rsvps[i].tournaments.length; j += 1){
-							if(rsvps[i].tournaments[j].game.toString() === req.params.game){
-								scores.push({
-									user: rsvps[i].user,
-									scores: rsvps[i].tournaments[j].scores
-								});
-							}
-						}
-					}
-					res.send(scores);
-				}
-			});
-		}).catch(function(err){
-			res.status(500).end();
 		});
 	});
 
@@ -371,61 +350,45 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
 			return res.status(404).end();
 		}
-		var deferred = q.defer();
-		getLANQuery(req.params.lan).exec(function(err, doc){
-			if(err){
-				deferred.reject(err);
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				deferred.resolve(doc);
-			}
-		});
+		var query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
 
-		deferred.promise
-		.then(function(data){
-			Rsvp.find({$and: [{lan: data._id}, {tournaments: {$ne: []}}]})
-			.exec(function(err, rsvps){
-				if(err){
-					res.status(500).end();
-				}else{
-					var promises = [];
-					for(var i = 0; i < rsvps.length; i += 1){
-						for(var j = 0; j < req.body.length; j += 1){
-							if(rsvps[i].user.toString() === req.body[j].user){
-								for(var k = 0; k < rsvps[i].tournaments.length; k += 1){
-									if(rsvps[i].tournaments[k].game.toString() === req.params.game){
-										rsvps[i].tournaments[k].scores = req.body[j].scores;
-										(function(){
-											var deferred = q.defer();
-											rsvps[i].save(function(err){
-												if(err){
-													deferred.reject(err);
-												}else{
-													deferred.resolve();
-												}
-											});
-											promises.push(deferred.promise);
-										})();
-										break;
-									}
-								}
-								req.body.splice(j, 1);
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
+		}).then(function(rsvps){
+			var promises = [];
+			for(var i = 0; i < rsvps.length; i += 1){
+				for(var j = 0; j < req.body.length; j += 1){
+					if(rsvps[i].user.toString() === req.body[j].user){
+						for(var k = 0; k < rsvps[i].tournaments.length; k += 1){
+							if(rsvps[i].tournaments[k].game.toString() === req.params.game){
+								rsvps[i].tournaments[k].scores = req.body[j].scores;
+								promises.push(rsvps[i].save());
 								break;
 							}
 						}
+						req.body.splice(j, 1);
+						break;
 					}
-					q.all(promises)
-					.then(function(){
-						res.status(200).end();
-					}).catch(function(err){
-						log.error(err);
-						res.status(500).end();
-					});
 				}
+			}
+			Promise.all(promises)
+			.then(function(){
+				res.status(200).end();
+			}).catch(function(err){
+				log.error(err);
+				res.status(500).end();
 			});
 		}).catch(function(err){
-			res.status(500).end();
+			if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				res.status(500).end();
+			}
 		});
 	});
 
@@ -436,13 +399,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
 			return res.status(404).end();
 		}
-		Lan.findByIdAndRemove(req.params.lan, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
+		Lan.findByIdAndRemove(req.params.lan)
+		.then(function(lan){
+			if(!lan) throw {reason: "not-found"};
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				res.status(500).end();
 			}
 		});
 	});

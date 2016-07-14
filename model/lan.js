@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	lanSchema = mongoose.Schema({
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var lanSchema = mongoose.Schema({
 		beginDate: {
 			type: Date,
 			required: true
