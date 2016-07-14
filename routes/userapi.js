@@ -24,7 +24,7 @@ misrepresented as being the original software.
 
 var passport = require("passport"),
 	mongoose = require("mongoose"),
-	q = require("q"),
+	Promise = require("bluebird"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
 	Recipient = require("../model/recipient.js"),
@@ -77,18 +77,17 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/resetpassword", function(req, res){
-		User.findOne({email: req.body.email}, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
+		User.findOne({email: req.body.email})
+		.then(function(user){
+			if(!user) throw {reason: "not-found"};
+			return smtp.sendPasswordReset(app, user, req.protocol + '://' + config.domain);
+		}).then(function(){
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				smtp.sendPasswordReset(app, doc, req.protocol + '://' + config.domain)
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(err){
-					res.status(400).end();
-				});
+				res.status(500).end();
 			}
 		});
 	});
@@ -101,18 +100,17 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
+		User.findById(req.params.user)
+		.then(function(user){
+			if(!user) throw {reason: "not-found"};
+			return smtp.sendEmailVerification(app, user, req.protocol + '://' + config.domain);
+		}).then(function(){
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				smtp.sendEmailVerification(app, doc, req.protocol + '://' + config.domain)
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(err){
-					res.status(400).end();
-				});
+				res.status(500).end();
 			}
 		});
 	});
@@ -122,79 +120,54 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		var deferredUser = q.defer(), deferredToken = q.defer(),
-			verified = false;
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				deferredUser.reject({reason: "db-error", message: err});
-			}else if(!doc){
-				deferredUser.reject({reason: "not-found", message: "User not found"});
-			}else{
-				verified = doc.verified;
-				deferredUser.resolve(doc);
+		var verified = false, thisUser;
+		Promise.all([
+			User.findById(req.params.user),
+			Token.findOne({token: req.params.token})
+		]).spread(function(user, token){
+			if(!user || !token) throw {reason: "not-found"};
+			thisUser = user;
+			if(verified){
+				return Promise.resolve();
 			}
-		});
-		Token.findOne({token: req.params.token}, function(err, doc){
-			if(err){
-				deferredToken.reject({reason: "db-error", message: err});
-			}else if(!doc){
-				deferredToken.reject({reason: "not-found", message: "Token not found"});
-			}else{
-				deferredToken.resolve(doc);
-			}
-		});
-		try{
-			q.all([deferredUser.promise, deferredToken.promise])
-			.spread(function(user, token){
-				if(verified){
-					res.status(200).end();
-					return;
-				}
-				if(token.validateToken("verify" + user.email)){
-					user.verified = true;
-					user.modified = Date.now();
-					user.save(function(err){
-						if(err){
-							log.error("Successfully verified token for user \"" + user.email + "\", but failed to update flag");
-							res.status(500).end();
-						}else{
-							Recipient.findOneAndRemove({email: user.email}, function(err, doc){
-								if(!err && doc && doc.vip){
-									user.vip = true;
-									user.save();
-								}
-							});
-							user.syncWithDirectory()
-							.then(function(){
-								res.status(200).end();
-							}).catch(function(err){
-								log.error("Successfully verified token for user \"" + user.email + "\", but failed to sync with directory");
-								res.status(500).end();
-							});
-						}
+			if(token.validateToken("verify" + thisUser.email)){
+				thisUser.verified = true;
+				thisUser.modified = Date.now();
+				return thisUser.save()
+					.catch(function(err){
+						log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to update flag");
+						res.status(500).end();
 					});
-				}else{
-					res.status(400).end();
-				}
-			}).catch(function(err){
-				if(verified){
-					res.status(200).end();
-					return;
-				}
-				if(err.reason === "db-error"){
-					log.error(err);
-					res.status(500).end();
-				}else if(err.reason === "not-found"){
-					res.status(404).end();
-				}else{
-					log.error(err);
-					res.status(400).end();
+			}else{
+				res.status(400).end();
+			}
+		}).then(function(){
+			Recipient.findOneAndRemove({email: thisUser.email})
+			.then(function(recipient){
+				if(recipient && recipient.vip){
+					thisUser.vip = true;
+					thisUser.save();
 				}
 			});
-		}catch(err){
-			log.error(err);
-			res.status(500).end();
-		}
+			return thisUser.syncWithDirectory()
+				.catch(function(err){
+					log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
+					res.status(500).end();
+				});
+		}).then(function(){
+			res.status(200).end();
+		}).catch(function(err){
+			if(verified){
+				res.status(200).end();
+				return;
+			}
+			if(err.reason === "not-found"){
+				res.status(404).end();
+			}else{
+				log.error(err);
+				res.status(500).end();
+			}
+		});
 	});
 
 	app.get(prefix + "/:user/verified", 
