@@ -31,14 +31,11 @@ var mongoose = require("mongoose"),
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
-		Recipient.find({}, function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else if(!docs){
-				res.status(404).end();
-			}else{
-				res.status(200).send(docs);
-			}
+		Recipient.find({})
+		.then(function(recipients){
+			res.send(recipients);
+		}).catch(function(err){
+			res.status(500).end();
 		});
 	});
 
@@ -47,13 +44,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
 			return res.status(404).end();
 		}
-		Recipient.findById(req.params.recipient, function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
+		Recipient.findById(req.params.recipient)
+		.then(function(recipient){
+			if(!recipient) throw {reason: "not-found"};
+			res.send(recipient);
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).send(doc);
+				res.status(500).end();
 			}
 		});
 	});
@@ -63,22 +62,24 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 		sanitizeBodyForDB, 
 	function(req, res){
-		User.findOne({email: req.body.email}, function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(doc){
+		var thisRecipient;
+		User.findOne({email: req.body.email})
+		.then(function(user){
+			if(user) throw {reason: "conflict"};
+			thisRecipient = new Recipient(req.body);
+			return thisRecipient.save()
+				.catch(function(err){
+					res.status(400).end();
+				});
+		}).then(function(){
+			res.status(201)
+			.location(prefix + "/" + thisRecipient._id)
+			.send({_id: thisRecipient._id});
+		}).catch(function(err){
+			if(err.reason === "conflict"){
 				res.status(409).end();
 			}else{
-				var recipient = new Recipient(req.body);
-				recipient.save(function(err){
-					if(err){
-						res.status(400).end();
-					}else{
-						res.status(201)
-						.location(prefix + "/" + recipient._id)
-						.send({_id: recipient._id});
-					}
-				});
+				res.status(500).end();
 			}
 		});
 	});
@@ -91,13 +92,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
 			return res.status(404).end();
 		}
-		Recipient.findByIdAndUpdate(req.params.recipient, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
+		Recipient.findByIdAndUpdate(req.params.recipient, req.body)
+		.then(function(recipient){
+			if(!recipient) throw {reason: "not-found"};
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				res.status(500).end();
 			}
 		});
 	});
@@ -109,13 +112,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
 			return res.status(404).end();
 		}
-		Recipient.findByIdAndRemove(req.params.recipient, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
+		Recipient.findByIdAndRemove(req.params.recipient)
+		.then(function(recipient){
+			if(!recipient) throw {reason: "not-found"};
+			res.status(200).end();
+		}).catch(function(err){
+			if(err.reason === "not-found"){
 				res.status(404).end();
 			}else{
-				res.status(200).end();
+				res.status(500).end();
 			}
 		});
 	});

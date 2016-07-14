@@ -150,7 +150,6 @@ module.exports = function(app, prefix){
 			}else{
 				res.status(500).end();
 			}
-			console.error(err);
 		});
 	});
 
