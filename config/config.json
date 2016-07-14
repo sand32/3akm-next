@@ -14,6 +14,7 @@
 	"dbUser": "",
 	"dbPassword": "",
 	"corsWhitelist": [],
+	"slackRsvpHook": "",
 	"ldap": {
 		"enabled": false,
 		"url": "changeme",
