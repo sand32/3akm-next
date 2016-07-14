@@ -25,10 +25,14 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
+	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	config = require("../utils/common.js").config,
+	log = require("../utils/log.js"),
+	Request = require("request");
 
 module.exports = function(app, prefix, prefix2){
 	app.get(prefix,
@@ -192,9 +196,9 @@ module.exports = function(app, prefix, prefix2){
 			if(err || !lanDoc){
 				res.status(404).end();
 			}else{
-				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, doc){
-					if(err || !doc){
-						var rsvp = new Rsvp();
+				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, rsvp){
+					if(err || !rsvp){
+						rsvp = new Rsvp();
 						rsvp.user = req.params.user;
 						rsvp.lan = lanDoc._id;
 						rsvp.status = req.body.status;
@@ -213,17 +217,36 @@ module.exports = function(app, prefix, prefix2){
 							}
 						});
 					}else{
-						doc.status = req.body.status;
-						doc.playing = req.body.playing;
-						doc.guests = req.body.guests;
-						doc.cleaning = req.body.cleaning;
-						doc.tournaments = req.body.tournaments;
-						doc.bringingFood = req.body.bringingFood;
-						doc.save(function(err){
+						rsvp.status = req.body.status;
+						rsvp.playing = req.body.playing;
+						rsvp.guests = req.body.guests;
+						rsvp.cleaning = req.body.cleaning;
+						rsvp.tournaments = req.body.tournaments;
+						rsvp.bringingFood = req.body.bringingFood;
+						rsvp.save(function(err){
 							if(err){
 								res.status(500).end();
 							}else{
 								res.status(200).end();
+							}
+						});
+					}
+
+					// Send a notification to Slack
+					if(config.slackRsvpHook.startsWith("http")){
+						User.findById(req.params.user, function(err, user){
+							if(!err && user){
+								Request({
+									method: "POST",
+									uri: config.slackRsvpHook,
+									json: {
+										text: user.firstName + " " + user.lastName + " has RSVPed for LAN " + req.params.year + " (see the <https://www.3akm.com/appearances|full RSVP list>)"
+									}
+								}, function(err, res, body){
+									if(err){
+										log.warn("Slack notification failed with code: " + err.code + ".");
+									}
+								});
 							}
 						});
 					}
