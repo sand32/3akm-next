@@ -71,4 +71,4 @@ module.exports = {
 			console.error(timestamp + " | Error: " + errorObj);
 		}
 	}
-}
+};

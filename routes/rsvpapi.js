@@ -248,4 +248,4 @@ module.exports = function(app, prefix, prefix2){
 			res.status(200).end();
 		}).catch(handleError(res));
 	});
-}
+};
