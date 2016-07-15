@@ -27,7 +27,8 @@ var mongoose = require("mongoose"),
 	User = require("../model/user.js"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
@@ -46,15 +47,9 @@ module.exports = function(app, prefix){
 		}
 		Recipient.findById(req.params.recipient)
 		.then(function(recipient){
-			if(!recipient) throw {reason: "not-found"};
+			if(!recipient) throw 404;
 			res.send(recipient);
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -65,23 +60,17 @@ module.exports = function(app, prefix){
 		var thisRecipient;
 		User.findOne({email: req.body.email})
 		.then(function(user){
-			if(user) throw {reason: "conflict"};
+			if(user) throw 409;
 			thisRecipient = new Recipient(req.body);
-			return thisRecipient.save()
-				.catch(function(err){
-					res.status(400).end();
-				});
-		}).then(function(){
-			res.status(201)
-			.location(prefix + "/" + thisRecipient._id)
-			.send({_id: thisRecipient._id});
-		}).catch(function(err){
-			if(err.reason === "conflict"){
-				res.status(409).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+			thisRecipient.save()
+			.then(function(){
+				res.status(201)
+				.location(prefix + "/" + thisRecipient._id)
+				.send({_id: thisRecipient._id});
+			}).catch(function(err){
+				res.status(400).end();
+			});
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:recipient", 
@@ -94,15 +83,9 @@ module.exports = function(app, prefix){
 		}
 		Recipient.findByIdAndUpdate(req.params.recipient, req.body)
 		.then(function(recipient){
-			if(!recipient) throw {reason: "not-found"};
+			if(!recipient) throw 404;
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:recipient", 
@@ -114,14 +97,8 @@ module.exports = function(app, prefix){
 		}
 		Recipient.findByIdAndRemove(req.params.recipient)
 		.then(function(recipient){
-			if(!recipient) throw {reason: "not-found"};
+			if(!recipient) throw 404;
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 };
