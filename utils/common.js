@@ -27,8 +27,14 @@ var passport = require("passport"),
 	fs = require("fs"),
 	request = require("request"),
 	log = require("./log.js"),
+
 	loadConfig = function(file){
 		return JSON.parse(fs.readFileSync(file, "utf8"));
+	},
+
+	isNumeric = function(input){
+		var RE = /^-{0,1}\d*\.{0,1}\d+$/;
+		return (RE.test(input));
 	};
 
 module.exports = {
@@ -144,5 +150,24 @@ module.exports = {
 			array[index] = temp;
 		}
 		return array;
+	},
+
+	handleError: function(res){
+		return function(err){
+			if(isNumeric(err)){
+				return res.status(parseInt(err)).end();
+			}
+			if(err.status){
+				return res.status(err.status).end();
+			}
+			if(err.reason === "bad-request"){
+				res.status(400).end();
+			}else if(err.reason.indefOf("not-found") !== -1){
+				res.status(404).end();
+			}else if(err.reason.indefOf("in-use") !== -1){
+			}else{
+				res.status(500).end();
+			}
+		};
 	}
-}
+};

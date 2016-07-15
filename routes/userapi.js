@@ -38,6 +38,7 @@ var passport = require("passport"),
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	smtp = require("../utils/smtp.js"),
 	config = require("../utils/common.js").config,
+	handleError = require("../utils/common.js").handleError,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
@@ -79,17 +80,11 @@ module.exports = function(app, prefix){
 	app.post(prefix + "/resetpassword", function(req, res){
 		User.findOne({email: req.body.email})
 		.then(function(user){
-			if(!user) throw {reason: "not-found"};
+			if(!user) throw 404;
 			return smtp.sendPasswordReset(app, user, req.protocol + '://' + config.domain);
 		}).then(function(){
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/:user/verify", 
@@ -102,17 +97,11 @@ module.exports = function(app, prefix){
 
 		User.findById(req.params.user)
 		.then(function(user){
-			if(!user) throw {reason: "not-found"};
+			if(!user) throw 404;
 			return smtp.sendEmailVerification(app, user, req.protocol + '://' + config.domain);
 		}).then(function(){
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/:user/verify/:token", function(req, res){
@@ -125,7 +114,8 @@ module.exports = function(app, prefix){
 			User.findById(req.params.user),
 			Token.findOne({token: req.params.token})
 		]).spread(function(user, token){
-			if(!user || !token) throw {reason: "not-found"};
+			if(!user || !token) throw 404;
+			verified = user.verified;
 			thisUser = user;
 			if(verified){
 				return Promise.resolve();
@@ -133,13 +123,9 @@ module.exports = function(app, prefix){
 			if(token.validateToken("verify" + thisUser.email)){
 				thisUser.verified = true;
 				thisUser.modified = Date.now();
-				return thisUser.save()
-					.catch(function(err){
-						log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to update flag");
-						res.status(500).end();
-					});
+				return thisUser.save();
 			}else{
-				res.status(400).end();
+				throw 400;
 			}
 		}).then(function(){
 			Recipient.findOneAndRemove({email: thisUser.email})
@@ -149,24 +135,19 @@ module.exports = function(app, prefix){
 					thisUser.save();
 				}
 			});
-			return thisUser.syncWithDirectory()
-				.catch(function(err){
-					log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
-					res.status(500).end();
-				});
-		}).then(function(){
-			res.status(200).end();
+			thisUser.syncWithDirectory()
+			.then(function(){
+				res.status(200).end();
+			}).catch(function(err){
+				log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
+				res.status(500).end();
+			});
 		}).catch(function(err){
 			if(verified){
 				res.status(200).end();
 				return;
 			}
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				log.error(err);
-				res.status(500).end();
-			}
+			handleError(res)(err);
 		});
 	});
 
@@ -178,25 +159,22 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 		// Retrieve and return the "verified" value
-		User.findById(req.params.user, function(err, doc){
-			if(doc){
-				res.status(200).send({verified: doc.verified});
-			}else{
-				res.status(404).end();
-			}
-		});
+		User.findById(req.params.user)
+		.then(function(user){
+			if(!user) throw 404;
+			res.send({verified: user.verified});
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix, 
 		authenticate, 
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
-		User.find({}, function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else{
-				res.send(docs || []);
-			}
+		User.find({})
+		.then(function(users){
+			res.send(users || []);
+		}).catch(function(err){
+			res.status(500).end();
 		});
 	});
 
@@ -207,37 +185,33 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				var responseData = {
-					email: doc.email,
-					verified: doc.verified,
-					created: doc.created,
-					modified: doc.modified,
-					accessed: doc.accessed,
-					vip: doc.vip,
-					lanInviteDesired: doc.lanInviteDesired,
-					firstName: doc.firstName,
-					lastName: doc.lastName,
-					primaryHandle: doc.primaryHandle,
-					tertiaryHandles: doc.tertiaryHandles,
-					roles: doc.roles,
-					services: doc.services
-				};
+		User.findById(req.params.user)
+		.then(function(user){
+			if(!user) throw 404;
+			var responseData = {
+				email: user.email,
+				verified: user.verified,
+				created: user.created,
+				modified: user.modified,
+				accessed: user.accessed,
+				vip: user.vip,
+				lanInviteDesired: user.lanInviteDesired,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				primaryHandle: user.primaryHandle,
+				tertiaryHandles: user.tertiaryHandles,
+				roles: user.roles,
+				services: user.services
+			};
 
-				if(req.user.hasRole("admin")){
-					responseData.__v = doc.__v;
-					responseData._id = doc._id;
-					responseData.blacklisted = doc.blacklisted;
-				}
-
-				res.send(responseData);
+			if(req.user.hasRole("admin")){
+				responseData.__v = user.__v;
+				responseData._id = user._id;
+				responseData.blacklisted = user.blacklisted;
 			}
-		});
+
+			res.send(responseData);
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -266,30 +240,19 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
+		var editUser;
 
-		var deferredExistingUser = q.defer(), deferredEditUser = q.defer();
-		User.findOne({email: req.body.email}, function(err, doc){
-			if(err){
-				deferredExistingUser.reject({reason: "db-error", message: err});
-			}else{
-				deferredExistingUser.resolve(doc);
-			}
-		});
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				deferredEditUser.reject({reason: "db-error", message: err});
-			}else if(!doc){
-				deferredEditUser.reject({reason: "not-found", message: "User not found"});
-			}else{
-				deferredEditUser.resolve(doc);
-			}
-		});
-		q.all([deferredExistingUser.promise, deferredEditUser.promise])
-		.spread(function(existingUser, editUser){
+		Promise.all([
+			User.findOne({email: req.body.email}),
+			User.findById(req.params.user)
+		]).spread(function(existingUser, user2){
+			editUser = user2;
+			if(!editUser) throw 404;
 			if(existingUser && existingUser._id.toString() !== editUser._id.toString()){
-				return q.reject({reason: "address-in-use", message: "User already using that email address"});
+				throw 409;
 			}
 			if(req.body.email !== editUser.email){
+				console.log(req.body.email + "|" + editUser.email);
 				editUser.verified = false;
 			}
 			editUser.email = req.body.email;
@@ -300,41 +263,23 @@ module.exports = function(app, prefix){
 			editUser.tertiaryHandles = removeDuplicates(req.body.tertiaryHandles);
 			editUser.modified = Date.now();
 
-			var onSave = function(err){
-				if(err){
-					res.status(500).end();
-				}else{
-					editUser.syncWithDirectory()
-					.then(function(){
-						res.status(200).end();
-					}).catch(function(){
-						res.status(500).end();
-					});
-				}
-			};
-
-			req.user.hasRole("admin")
+			var nextPromise;
+			return req.user.hasRole("admin")
 			.then(function(){
 				editUser.verified = req.body.verified;
 				editUser.vip = req.body.vip;
 				editUser.blacklisted = req.body.blacklisted;
 				editUser.roles = removeDuplicates(req.body.roles);
 				editUser.services = req.body.services;
-				editUser.save(onSave);
+				editUser.save();
 			}).catch(function(){
-				editUser.save(onSave);
+				editUser.save();
 			});
-		}).catch(function(err){
-			if(err.reason === "db-error"){
-				res.status(500).end();
-			}else if(err.reason === "address-in-use"){
-				res.status(409).end();
-			}else if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(400).end();
-			}
-		});
+		}).then(function(){
+			return editUser.syncWithDirectory();
+		}).then(function(){
+			return res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:user/password", 
@@ -346,20 +291,13 @@ module.exports = function(app, prefix){
 		}
 
 		// Update the user 
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				doc.changePassword(req.body.oldPassword, req.body.newPassword)
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(){
-					res.status(400).end();
-				});
-			}
-		});
+		User.findById(req.params.user)
+		.then(function(user){
+			if(!user) throw 404;
+			return user.changePassword(req.body.oldPassword, req.body.newPassword);
+		}).then(function(){
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/:user/password/reset/:token", function(req, res){
@@ -367,29 +305,11 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		var deferredUser = q.defer(), deferredToken = q.defer(),
-			verified = false;
-		User.findById(req.params.user, function(err, doc){
-			if(err){
-				deferredUser.reject({reason: "db-error", message: err});
-			}else if(!doc){
-				deferredUser.reject({reason: "not-found", message: "User not found"});
-			}else{
-				verified = doc.verified;
-				deferredUser.resolve(doc);
-			}
-		});
-		Token.findOne({token: req.params.token}, function(err, doc){
-			if(err){
-				deferredToken.reject({reason: "db-error", message: err});
-			}else if(!doc){
-				deferredToken.reject({reason: "not-found", message: "Token not found"});
-			}else{
-				deferredToken.resolve(doc);
-			}
-		});
-		q.all([deferredUser.promise, deferredToken.promise])
-		.spread(function(user, token){
+		Promise.all([
+			User.findById(req.params.user),
+			Token.findOne({token: req.params.token})
+		]).spread(function(user, token){
+			if(!user || !token) throw 404;
 			if(token.validateToken("passwordreset" + user.email)){
 				user.resetPassword(req.body.newPassword)
 				.then(function(){
@@ -400,17 +320,9 @@ module.exports = function(app, prefix){
 					res.status(500).end();
 				});
 			}else{
-				res.status(400).end();
+				throw 400;
 			}
-		}).catch(function(err){
-			if(err.reason === "db-error"){
-				res.status(500).end();
-			}else if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(400).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/:user/sync", 
@@ -422,19 +334,12 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		User.findById(req.params.user, function(err, user){
-			if(err){
-				res.status(500).end();
-			}else if(!user){
-				res.status(404).end();
-			}else{
-				user.syncWithDirectory()
-				.then(function(){
-					res.status(200).end();
-				}).catch(function(){
-					res.status(500).end();
-				});
-			}
-		});
+		User.findById(req.params.user)
+		.then(function(err, user){
+			if(!user) throw 404;
+			return user.syncWithDirectory();
+		}).then(function(){
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 }
