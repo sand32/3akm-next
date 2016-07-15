@@ -252,7 +252,6 @@ module.exports = function(app, prefix){
 				throw 409;
 			}
 			if(req.body.email !== editUser.email){
-				console.log(req.body.email + "|" + editUser.email);
 				editUser.verified = false;
 			}
 			editUser.email = req.body.email;

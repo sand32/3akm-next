@@ -22,30 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var q = require("q");
+var Promise = require("bluebird");
 
 rules = {
 	isUser: function(thisUser, otherUserId){
-		var deferred = q.defer();
-		if(!otherUserId
-		|| thisUser._id == otherUserId){
-			deferred.resolve();
-		}else{
-			deferred.reject();
-		}
-		return deferred.promise;
+		return new Promise(function(resolve, reject){
+			if(!otherUserId
+			|| thisUser._id == otherUserId){
+				resolve();
+			}else{
+				reject();
+			}
+		});
 	},
 
 	hasRoles: function(user, roles){
 		if(!roles){
-			return q.resolve();
+			return Promise.resolve();
 		}
 
 		var promises = [];
 		for(var i = 0; i < roles.length; i+=1){
 			promises.push(user.hasRole(roles[i]));
 		}
-		return q.all(promises);
+		return Promise.all(promises);
 	}
 }
 
@@ -59,23 +59,20 @@ module.exports = {
 	// }
 	isAuthorized: function(user, ruleset){
 		if(!ruleset){
-			return q.resolve();
+			return Promise.resolve();
 		}
 
-		var deferred = q.defer();
-		rules.hasRoles(user, ["admin"])
-		.done(
-			function(){
-				deferred.resolve();
-			},
-			function(){
-				q.all([
+		return new Promise(function(resolve, reject){
+			rules.hasRoles(user, ["admin"])
+			.then(function(){
+				resolve();
+			}).catch(function(){
+				Promise.all([
 					rules.isUser(user, ruleset.isUser),
 					rules.hasRoles(user, ruleset.hasRoles)
-				]).done(deferred.resolve, deferred.reject);
-			}
-		);
-		return deferred.promise;
+				]).then(resolve).catch(reject);
+			});
+		});
 	},
 
 	// Middleware for denying connections without authorization
