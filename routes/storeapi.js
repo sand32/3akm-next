@@ -26,19 +26,15 @@ var mongoose = require("mongoose"),
 	Store = require("../model/store.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
-		Store.find({}, function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else if(!docs){
-				res.status(404).end();
-			}else{
-				res.status(200).send(docs);
-			}
-		});
+		Store.find({})
+		.then(function(stores){
+			res.send(stores || []);
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:store", 
@@ -46,13 +42,11 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
 			return res.status(404).end();
 		}
-		Store.findById(req.params.store, function(err, doc){
-			if(doc){
-				res.status(200).send(doc);
-			}else{
-				res.status(404).end();
-			}
-		});
+		Store.findById(req.params.store)
+		.then(function(store){
+			if(!store) throw 404;
+			res.send(store);
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -61,15 +55,14 @@ module.exports = function(app, prefix){
 		sanitizeBodyForDB, 
 	function(req, res){
 		var store = new Store(req.body);
-		store.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + store._id)
-				.end();
-			}
-		});
+		store.save()
+		.then(function(){
+			res.status(201)
+			.location(prefix + "/" + store._id)
+			.end();
+		}).catch(function(err){
+			throw 400;
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:store", 
@@ -80,15 +73,11 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
 			return res.status(404).end();
 		}
-		Store.findByIdAndUpdate(req.params.store, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Store.findByIdAndUpdate(req.params.store, req.body)
+		.then(function(store){
+			if(!store) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:store", 
@@ -98,14 +87,10 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
 			return res.status(404).end();
 		}
-		Store.findByIdAndRemove(req.params.store, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Store.findByIdAndRemove(req.params.store)
+		.then(function(store){
+			if(!store) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
-}
+};
