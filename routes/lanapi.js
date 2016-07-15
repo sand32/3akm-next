@@ -31,6 +31,7 @@ var mongoose = require("mongoose"),
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	shuffle = require("../utils/common.js").shuffle,
+	handleError = require("../utils/common.js").handleError,
 	log = require("../utils/log.js"),
 
 	getLANQuery = function(id){
@@ -67,18 +68,12 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			lan.games.sort(function(a, b){
 				return a.sortIndex - b.sortIndex;
 			});
 			res.send(lan);
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:lan/games", 
@@ -92,7 +87,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			year = lan.beginDate.getFullYear();
 			for(var i = 0; i < lan.games.length; i += 1){
 				gameSelection[lan.games[i].game] = lan.games[i].sortIndex;
@@ -101,7 +96,7 @@ module.exports = function(app, prefix){
 				.populate("stores.store")
 				.exec();
 		}).then(function(games){
-			if(!games) throw {reason: "not-found"};
+			if(!games) throw 404;
 			games.sort(function(a, b){
 				return gameSelection[a._id] - gameSelection[b._id];
 			});
@@ -109,13 +104,7 @@ module.exports = function(app, prefix){
 				year: year,
 				games: games
 			});
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:lan/rsvps", 
@@ -128,7 +117,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			thisLan = lan;
 			return Rsvp.find({lan: lan._id})
 				.populate("user tournaments.game", "email firstName lastName primaryHandle name")
@@ -144,13 +133,7 @@ module.exports = function(app, prefix){
 				}
 			}
 			res.send(rsvps);
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -179,15 +162,9 @@ module.exports = function(app, prefix){
 		}
 		Lan.findByIdAndUpdate(req.params.lan, req.body)
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:lan/placements/:game", 
@@ -202,7 +179,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			var retVal = null;
 			for(var i = 0; i < lan.games.length; i += 1){
 				if(lan.games[i].game.toString() === req.params.game){
@@ -212,15 +189,9 @@ module.exports = function(app, prefix){
 			if(retVal !== null){
 				res.send(retVal);
 			}else{
-				res.status(404);
+				throw 404;
 			}
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/:lan/placements/:game", 
@@ -240,7 +211,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			thisLan = lan;
 			return Rsvp.find({lan: lan._id}).exec();
 		}).then(function(rsvps){
@@ -262,13 +233,7 @@ module.exports = function(app, prefix){
 			return thisLan.save();
 		}).then(function(){
 			res.send(users);
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:lan/placements/:game", 
@@ -286,7 +251,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			for(var i = 0; i < lan.games.length; i += 1){
 				if(lan.games[i].game.toString() === req.params.game){
 					lan.games[i].placements = req.body;
@@ -296,13 +261,7 @@ module.exports = function(app, prefix){
 			return lan.save();
 		}).then(function(){
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:lan/scores/:game", 
@@ -317,7 +276,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
 		}).then(function(rsvps){
 			var scores = [];
@@ -332,13 +291,7 @@ module.exports = function(app, prefix){
 				}
 			}
 			res.send(scores);
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:lan/scores/:game", 
@@ -356,7 +309,7 @@ module.exports = function(app, prefix){
 
 		query.exec()
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
 		}).then(function(rsvps){
 			var promises = [];
@@ -382,13 +335,7 @@ module.exports = function(app, prefix){
 				log.error(err);
 				res.status(500).end();
 			});
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:lan", 
@@ -400,14 +347,8 @@ module.exports = function(app, prefix){
 		}
 		Lan.findByIdAndRemove(req.params.lan)
 		.then(function(lan){
-			if(!lan) throw {reason: "not-found"};
+			if(!lan) throw 404;
 			res.status(200).end();
-		}).catch(function(err){
-			if(err.reason === "not-found"){
-				res.status(404).end();
-			}else{
-				res.status(500).end();
-			}
-		});
+		}).catch(handleError(res));
 	});
 }
