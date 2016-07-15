@@ -143,4 +143,4 @@ module.exports = function(app, prefix){
 			res.status(200).end();
 		}).catch(handleError(res));
 	});
-}
+};
