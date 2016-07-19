@@ -26,7 +26,6 @@
 		"jade": "1.11.x",
 		"request": "2.60.x",
 		"node-teamspeak": "1.0.x",
-		"q": "1.4.x",
 		"bluebird": "3.4.x",
 		"ldapjs": "0.7.x",
 		"nodemailer": "1.4.x",
