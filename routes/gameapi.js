@@ -27,19 +27,16 @@ var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
 	app.get(prefix, 
 	function(req, res){
 		Game.find({})
-		.exec(function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else{
-				res.send(docs || []);
-			}
-		});
+		.then(function(games){
+			res.send(games || []);
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:game", 
@@ -48,15 +45,10 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 		Game.findById(req.params.game)
-		.exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.send(doc);
-			}
-		});
+		.then(function(game){
+			if(!game) throw 404;
+			res.send(game);
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -76,15 +68,14 @@ module.exports = function(app, prefix){
 		}
 
 		var game = new Game(req.body);
-		game.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + game._id)
-				.send({_id: game._id});
-			}
-		});
+		game.save()
+		.then(function(){
+			res.status(201)
+			.location(prefix + "/" + game._id)
+			.send({_id: game._id});
+		}).catch(function(err){
+			throw 400;
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:game", 
@@ -110,15 +101,11 @@ module.exports = function(app, prefix){
 		}
 
 		// Apply the update
-		Game.findByIdAndUpdate(req.params.game, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Game.findByIdAndUpdate(req.params.game, req.body)
+		.then(function(game){
+			if(!game) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:game", 
@@ -129,26 +116,23 @@ module.exports = function(app, prefix){
 			return res.status(404).end();
 		}
 
-		Lan.find({"games.game": req.params.game}, function(err, docs){
-			if(!err && docs){
-				for(var i = 0; i < docs.length; i += 1){
-					for(var j = 0; j < docs[i].games.length; j += 1){
-						if(docs[i].games[j].game.toString() == req.params.game){
-							docs[i].games.splice(j, 1);
+		Lan.find({"games.game": req.params.game})
+		.then(function(lans){
+			if(lans){
+				for(var i = 0; i < lans.length; i += 1){
+					for(var j = 0; j < lans[i].games.length; j += 1){
+						if(lans[i].games[j].game.toString() == req.params.game){
+							lans[i].games.splice(j, 1);
 						}
 					}
-					docs[i].save();
+					lans[i].save();
 				}
 			}
 		});
-		Game.findByIdAndRemove(req.params.game, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Game.findByIdAndRemove(req.params.game)
+		.then(function(game){
+			if(!game) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
-}
+};

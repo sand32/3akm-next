@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	storeSchema = mongoose.Schema({
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var storeSchema = mongoose.Schema({
 		name: {
 			type: String,
 			required: true
