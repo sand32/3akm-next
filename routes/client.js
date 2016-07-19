@@ -59,18 +59,15 @@ module.exports = function(app, prefix){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("admin", {
-						analyticsTrackingId: config.analyticsTrackingId,
-						version: version
-					});
-				},
-				function(error){
-					log.error(error);
-					res.status(500).end();
-				}
-			);
+			.then(function(){
+				res.render("admin", {
+					analyticsTrackingId: config.analyticsTrackingId,
+					version: version
+				});
+			}).catch(function(error){
+				log.error(error);
+				res.status(500).end();
+			});
 		}else{
 			res.render("admin", {
 				analyticsTrackingId: config.analyticsTrackingId,
@@ -83,17 +80,14 @@ module.exports = function(app, prefix){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("frontend", {
-						analyticsTrackingId: config.analyticsTrackingId
-					});
-				},
-				function(error){
-					log.error(error);
-					res.status(500).end();
-				}
-			);
+			.then(function(){
+				res.render("frontend", {
+					analyticsTrackingId: config.analyticsTrackingId
+				});
+			}).catch(function(error){
+				log.error(error);
+				res.status(500).end();
+			});
 		}else{
 			res.render("frontend", {
 				analyticsTrackingId: config.analyticsTrackingId
