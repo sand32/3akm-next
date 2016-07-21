@@ -34,6 +34,7 @@ module.exports = function(app, prefix){
 	app.get(prefix, 
 	function(req, res){
 		Game.find({})
+		.sort("name")
 		.then(function(games){
 			res.send(games || []);
 		}).catch(handleError(res));

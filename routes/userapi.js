@@ -171,6 +171,7 @@ module.exports = function(app, prefix){
 		authorize({hasRoles: ["admin"]}), 
 	function(req, res){
 		User.find({})
+		.sort("lastName firstName")
 		.then(function(users){
 			res.send(users || []);
 		}).catch(function(err){
