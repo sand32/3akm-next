@@ -25,10 +25,15 @@ misrepresented as being the original software.
 var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
+	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
 	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
 	authenticate = require("../utils/common.js").authenticate,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	handleError = require("../utils/common.js").handleError,
+	config = require("../utils/common.js").config,
+	log = require("../utils/log.js"),
+	Request = require("request");
 
 module.exports = function(app, prefix, prefix2){
 	app.get(prefix,
@@ -36,13 +41,10 @@ module.exports = function(app, prefix, prefix2){
 		Rsvp.find({})
 		.populate("user lan", "email firstName lastName beginDate")
 		.sort("-lan.beginDate")
-		.exec(function(err, docs){
-			if(err){
-				res.status(500).end();
-			}else{
-				res.send(docs || []);
-			}
-		});
+		.exec()
+		.then(function(rsvps){
+			res.send(rsvps || []);
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:rsvp",
@@ -52,15 +54,11 @@ module.exports = function(app, prefix, prefix2){
 		}
 		Rsvp.findById(req.params.rsvp)
 		.populate("user lan", "email firstName lastName beginDate")
-		.exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.send(doc);
-			}
-		});
+		.exec()
+		.then(function(rsvp){
+			if(!rsvp) throw 404;
+			res.send(rsvp);
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix,
@@ -69,15 +67,14 @@ module.exports = function(app, prefix, prefix2){
 		sanitizeBodyForDB, 
 	function(req, res){
 		var rsvp = new Rsvp(req.body);
-		rsvp.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix2 + "/" + rsvp._id)
-				.send({_id: rsvp._id});
-			}
-		});
+		rsvp.save()
+		.then(function(){
+			res.status(201)
+			.location(prefix2 + "/" + rsvp._id)
+			.send({_id: rsvp._id});
+		}).catch(function(err){
+			throw 400;
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:rsvp", 
@@ -88,15 +85,11 @@ module.exports = function(app, prefix, prefix2){
 		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
 			return res.status(404).end();
 		}
-		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body)
+		.then(function(rsvp){
+			if(!rsvp) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:rsvp", 
@@ -106,15 +99,11 @@ module.exports = function(app, prefix, prefix2){
 		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
 			return res.status(404).end();
 		}
-		Rsvp.findByIdAndRemove(req.params.rsvp, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Rsvp.findByIdAndRemove(req.params.rsvp)
+		.then(function(rsvp){
+			if(!rsvp) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/year/:year",
@@ -123,24 +112,15 @@ module.exports = function(app, prefix, prefix2){
 			active: true,
 			acceptingRsvps: true
 		})
-		.$where("this.beginDate.getFullYear() === " + req.params.year)
-		.exec(function(err, lan){
-			if(err){
-				res.status(500).end();
-			}else if(!lan){
-				res.status(404).end();
-			}else{
-				Rsvp.find({lan: lan._id})
-				.populate("user", "email firstName lastName primaryHandle")
-				.exec(function(err, docs){
-					if(err){
-						res.status(500).end();
-					}else{
-						res.send(docs || []);
-					}
-				});
-			}
-		});
+		.$where("this.beginDate.getFullYear() === " + req.params.year).exec()
+		.then(function(lan){
+			if(!lan) throw 404;
+			return Rsvp.find({lan: lan._id})
+			.populate("user", "email firstName lastName primaryHandle")
+			.exec();
+		}).then(function(rsvps){
+			res.send(rsvps || []);
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix2 + "/:year", 
@@ -156,23 +136,14 @@ module.exports = function(app, prefix, prefix2){
 			acceptingRsvps: true
 		})
 		.$where("this.beginDate.getFullYear() === " + req.params.year)
-		.exec(function(err, lan){
-			if(err){
-				res.status(500).end();
-			}else if(!lan){
-				res.status(404).end();
-			}else{
-				Rsvp.findOne({user: req.params.user}, function(err, doc){
-					if(err){
-						res.status(500).end();
-					}else if(!doc){
-						res.status(404).end();
-					}else{
-						res.send(doc);
-					}
-				});
-			}
-		});
+		.exec()
+		.then(function(lan){
+			if(!lan) throw 404;
+			return Rsvp.findOne({user: req.params.user});
+		}).then(function(rsvp){
+			if(!rsvp) throw 404;
+			res.send(doc);
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix2 + "/:year", 
@@ -182,53 +153,73 @@ module.exports = function(app, prefix, prefix2){
 		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
 			return res.status(404).end();
 		}
+		var lan, rsvp;
 
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
 		})
 		.$where("this.beginDate.getFullYear() === " + req.params.year)
-		.exec(function(err, lanDoc){
-			if(err || !lanDoc){
-				res.status(404).end();
-			}else{
-				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, doc){
-					if(err || !doc){
-						var rsvp = new Rsvp();
-						rsvp.user = req.params.user;
-						rsvp.lan = lanDoc._id;
-						rsvp.status = req.body.status;
-						rsvp.playing = req.body.playing;
-						rsvp.guests = req.body.guests;
-						rsvp.cleaning = req.body.cleaning;
-						rsvp.tournaments = req.body.tournaments;
-						rsvp.bringingFood = req.body.bringingFood;
-						rsvp.save(function(err){
-							if(err){
-								res.status(500).end();
-							}else{
-								res.status(201)
-								.location(prefix + "/" + req.params.year)
-								.end();
+		.exec()
+		.then(function(doc){
+			lan = doc;
+			if(!lan) throw 404;
+			return Rsvp.findOne({user: req.params.user, lan: lan._id});
+		}).then(function(doc){
+			rsvp = doc;
+			if(!rsvp) throw 404;
+			rsvp.status = req.body.status;
+			rsvp.playing = req.body.playing;
+			rsvp.guests = req.body.guests;
+			rsvp.cleaning = req.body.cleaning;
+			rsvp.tournaments = req.body.tournaments;
+			rsvp.bringingFood = req.body.bringingFood;
+			rsvp.save(function(err){
+				if(err){
+					res.status(400).end();
+				}else{
+					res.status(200).end();
+				}
+			});
+
+			// Send a notification to Slack
+			if(config.slackRsvpHook.startsWith("http")){
+				User.findById(req.params.user)
+				.then(function(user){
+					if(user){
+						Request({
+							method: "POST",
+							uri: config.slackRsvpHook,
+							json: {
+								text: user.firstName + " " + user.lastName + " has RSVPed for LAN " + req.params.year + " (see the <https://www.3akm.com/appearances|full RSVP list>)"
 							}
-						});
-					}else{
-						doc.status = req.body.status;
-						doc.playing = req.body.playing;
-						doc.guests = req.body.guests;
-						doc.cleaning = req.body.cleaning;
-						doc.tournaments = req.body.tournaments;
-						doc.bringingFood = req.body.bringingFood;
-						doc.save(function(err){
+						}, function(err, res, body){
 							if(err){
-								res.status(500).end();
-							}else{
-								res.status(200).end();
+								log.warn("Slack notification failed with code: " + err.code + ".");
 							}
 						});
 					}
 				});
 			}
+		}).catch(function(){
+			rsvp = new Rsvp();
+			rsvp.user = req.params.user;
+			rsvp.lan = lan._id;
+			rsvp.status = req.body.status;
+			rsvp.playing = req.body.playing;
+			rsvp.guests = req.body.guests;
+			rsvp.cleaning = req.body.cleaning;
+			rsvp.tournaments = req.body.tournaments;
+			rsvp.bringingFood = req.body.bringingFood;
+			rsvp.save(function(err){
+				if(err){
+					res.status(400).end();
+				}else{
+					res.status(201)
+					.location(prefix + "/" + req.params.year)
+					.end();
+				}
+			});
 		});
 	});
 
@@ -245,25 +236,16 @@ module.exports = function(app, prefix, prefix2){
 			acceptingRsvps: true
 		})
 		.$where("this.beginDate.getFullYear() === " + req.params.year)
-		.exec(function(err, lanDoc){
-			if(err || !lanDoc){
-				res.status(404).end();
-			}else{
-				Rsvp.findOne({user: req.params.user, lan: lanDoc._id}, function(err, doc){
-					if(err || !doc){
-						res.status(404).end();
-					}else{
-						doc.attended = true;
-						doc.save(function(err){
-							if(err){
-								res.status(500).end();
-							}else{
-								res.status(200).end();
-							}
-						});
-					}
-				});
-			}
-		});
+		.exec()
+		.then(function(lan){
+			if(!lan) throw 404;
+			return Rsvp.findOne({user: req.params.user, lan: lanDoc._id});
+		}).then(function(rsvp){
+			if(!rsvp) throw 404;
+			rsvp.attended = true;
+			return rsvp.save();
+		}).then(function(){
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
-}
+};

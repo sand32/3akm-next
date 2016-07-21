@@ -26,6 +26,7 @@ var express = require("express"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
 	config = require("../utils/common.js").config,
+	version = require("../utils/common.js").version,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
@@ -58,20 +59,19 @@ module.exports = function(app, prefix){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("admin", {
-						analyticsTrackingId: config.analyticsTrackingId
-					});
-				},
-				function(error){
-					log.error(error);
-					res.status(500).end();
-				}
-			);
+			.then(function(){
+				res.render("admin", {
+					analyticsTrackingId: config.analyticsTrackingId,
+					version: version
+				});
+			}).catch(function(error){
+				log.error(error);
+				res.status(500).end();
+			});
 		}else{
 			res.render("admin", {
-				analyticsTrackingId: config.analyticsTrackingId
+				analyticsTrackingId: config.analyticsTrackingId,
+				version: version
 			});
 		}
 	});
@@ -80,21 +80,18 @@ module.exports = function(app, prefix){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
 			startup.bundleClientJS()
-			.then(
-				function(){
-					res.render("frontend", {
-						analyticsTrackingId: config.analyticsTrackingId
-					});
-				},
-				function(error){
-					log.error(error);
-					res.status(500).end();
-				}
-			);
+			.then(function(){
+				res.render("frontend", {
+					analyticsTrackingId: config.analyticsTrackingId
+				});
+			}).catch(function(error){
+				log.error(error);
+				res.status(500).end();
+			});
 		}else{
 			res.render("frontend", {
 				analyticsTrackingId: config.analyticsTrackingId
 			});
 		}
 	});
-}
+};

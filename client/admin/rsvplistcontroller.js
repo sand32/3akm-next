@@ -41,6 +41,9 @@ require("./rsvpdetailcontroller.js");
 				for(var i = 0; i < response.data.length; i += 1){
 					rsvps.list[i].beginDate = new Date(response.data[i].lan.beginDate);
 				}
+				rsvps.list.sort(function(a, b){
+					return b.beginDate - a.beginDate;
+				});
 			}).catch(function(){
 				ngToast.danger("Failed to retrieve RSVPs.");
 			});

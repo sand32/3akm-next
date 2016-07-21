@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	lanSchema = mongoose.Schema({
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var lanSchema = mongoose.Schema({
 		beginDate: {
 			type: Date,
 			required: true
@@ -54,7 +55,15 @@ var mongoose = require("mongoose"),
 				type: Boolean,
 				default: false
 			},
-			tournamentName: String
+			tournamentName: String,
+			placements: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}],
+			sortIndex: {
+				type: Number,
+				default: 0
+			}
 		}],
 		foodRequired: [{
 			name: {

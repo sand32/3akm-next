@@ -22,34 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var q = require("q"),
+var Promise = require("bluebird"),
 	nodemailer = require("nodemailer"),
 	smtpPool = require("nodemailer-smtp-pool"),
 	Token = require("../model/token.js"),
 	config = require("./common.js").config,
-	transport = nodemailer.createTransport(smtpPool({
+	transport = Promise.promisifyAll(nodemailer.createTransport(smtpPool({
 		host: config.smtp.address,
 		port: config.smtp.port,
 		auth: {
 			user: config.smtp.user,
 			pass: config.smtp.password
 		}
-	})),
+	}))),
 
 	sendMail = function(message){
-		var deferred = q.defer();
 		message.from = {
 			name: "3AKM",
 			address: config.smtp.fromAddress
 		};
-		transport.sendMail(message, function(err, info){
-			if(err){
-				deferred.reject({reason: "smtp-error", message: err});
-			}else{
-				deferred.resolve();
-			}
+
+		return transport.sendMailAsync(message)
+		.catch(function(err){
+			return Promise.reject({reason: "smtp-error", message: err});
 		});
-		return deferred.promise;
 	};
 
 module.exports = {
@@ -58,8 +54,7 @@ module.exports = {
 	},
 
 	sendEmailVerification: function(app, user, siteUrl){
-		var deferred = q.defer();
-		Token.createToken("verify" + user.email)
+		return Token.createToken("verify" + user.email)
 		.then(function(token){
 			message = {
 				to: {
@@ -68,28 +63,28 @@ module.exports = {
 				},
 				subject: "Email Verification"
 			};
-			app.render("mail/emailverification.jade", {
-				siteUrl: siteUrl,
-				verificationLink: siteUrl + "/verify/" + user._id + "/" + token
-			}, function(err, html){
-				if(err){
-					deferred.reject({reason: "html-rendering-error", message: err});
-				}else{
-					message.html = html;
-					sendMail(message).then(function(){
-						deferred.resolve();
-					}).catch(function(err){
-						deferred.reject(err);
-					});
-				}
+			return new Promise(function(resolve, reject){
+				app.render("mail/emailverification.jade", {
+					siteUrl: siteUrl,
+					verificationLink: siteUrl + "/verify/" + user._id + "/" + token
+				}, function(err, html){
+					if(err){
+						reject({reason: "html-rendering-error", message: err});
+					}else{
+						message.html = html;
+						sendMail(message).then(function(){
+							resolve();
+						}).catch(function(err){
+							reject(err);
+						});
+					}
+				});
 			});
 		});
-		return deferred.promise;
 	},
 
 	sendPasswordReset: function(app, user, siteUrl){
-		var deferred = q.defer();
-		Token.createToken("passwordreset" + user.email)
+		return Token.createToken("passwordreset" + user.email)
 		.then(function(token){
 			message = {
 				to: {
@@ -98,22 +93,23 @@ module.exports = {
 				},
 				subject: "Forgot Password"
 			};
-			app.render("mail/resetpassword.jade", {
-				siteUrl: siteUrl,
-				verificationLink: siteUrl + "/resetpassword/" + user._id + "/" + token
-			}, function(err, html){
-				if(err){
-					deferred.reject({reason: "html-rendering-error", message: err});
-				}else{
-					message.html = html;
-					sendMail(message).then(function(){
-						deferred.resolve();
-					}).catch(function(err){
-						deferred.reject(err);
-					});
-				}
+			return new Promise(function(resolve, reject){
+				app.render("mail/resetpassword.jade", {
+					siteUrl: siteUrl,
+					verificationLink: siteUrl + "/resetpassword/" + user._id + "/" + token
+				}, function(err, html){
+					if(err){
+						reject({reason: "html-rendering-error", message: err});
+					}else{
+						message.html = html;
+						sendMail(message).then(function(){
+							resolve();
+						}).catch(function(err){
+							reject(err);
+						});
+					}
+				});
 			});
 		});
-		return deferred.promise;
 	}
 };

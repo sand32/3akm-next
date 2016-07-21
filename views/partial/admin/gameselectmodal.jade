@@ -21,11 +21,19 @@
 	3. This notice may not be removed or altered from any source distribution.
 	-----------------------------------------------------------------------------
 
-.section-entry
-	.section-header(
-		ng-class = "{grayscale: !hover}",
-		ng-mouseenter = "hover = true",
-		ng-mouseleave = "hover = false",
-		ng-click = "toggleSection()")
-		h2(ng-if = "!headerImage || headerImage === ''") {{name}}
-	.section-body(ng-transclude, collapse = "collapsed")
+.modal-header
+	h4.modal-title Select Game
+.modal-body
+	.empty-table(ng-if = "select.games.length === 0") No games found
+	table(ng-if = "select.games.length > 0")
+		thead.panel-banner
+			tr
+				th Name
+				th Version
+				th Files
+		tbody
+			tr(ng-repeat = "game in select.games",
+				ng-click = "select.ok(game._id)")
+				td {{game.name}}
+				td {{game.version}}
+				td {{game.supplementalFiles.length}}

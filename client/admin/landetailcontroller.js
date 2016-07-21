@@ -26,7 +26,7 @@ require("../common/lanservice.js");
 require("../common/storeservice.js");
 require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
-require("../common/enumselectdirective.js");
+require("../admin-common/gamearrayentrydirective.js");
 
 (function(){
 	var LanDetailController = function($scope, $state, $modal, ngToast, LanService, GameService){
@@ -76,6 +76,7 @@ require("../common/enumselectdirective.js");
 		lan.save = function(){
 			lan.busy = true;
 			for(var i = 0; i < lan.current.games.length; i += 1){
+				lan.current.games[i].sortIndex = i;
 				if(lan.current.games[i].tournamentName === ""){
 					lan.current.games[i].tournament = false;
 				}else{
@@ -137,7 +138,8 @@ require("../common/enumselectdirective.js");
 				"3akm.lan",
 				"3akm.confirmModal",
 				"3akm.common.arrayentry",
-				"3akm.common.enumselect"
+				"3akm.common.enumselect",
+				"3akm.admin.common.gamearrayentry"
 			])
 		.controller("LanDetailController", LanDetailController);
 

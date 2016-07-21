@@ -22,10 +22,30 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-module.exports = function(app, prefix){
-	var cod4Routes = require("./cod4api.js"),
-		ts3Routes = require("./ts3api.js");
+(function(){
+	var GameSelectController = function($modalInstance, ngToast, GameService){
+		var ctrl = this;
+		ctrl.games = [];
 
-	cod4Routes(app, prefix + "/cod4");
-	ts3Routes(app, prefix + "/ts3");
-};
+		GameService.retrieveAll()
+		.then(function(response){
+			ctrl.games = response.data;
+		}).catch(function(){
+			ngToast.danger("Failed to retrieve games.");
+		});
+
+		ctrl.ok = function(gameId){
+			$modalInstance.close(gameId);
+		};
+
+		ctrl.cancel = function(){
+			$modalInstance.dismiss("cancel");
+		};
+	};
+
+	angular
+		.module("3akm.admin.common.gameSelectModal", [])
+		.controller("GameSelectController", GameSelectController);
+
+	GameSelectController.$inject = ["$modalInstance", "ngToast", "GameService"];
+})();

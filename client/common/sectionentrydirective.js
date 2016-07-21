@@ -30,7 +30,7 @@ misrepresented as being the original software.
 			transclude: true,
 			scope: {
 				headerImage: "=",
-				name: "@"
+				name: "="
 			},
 			templateUrl: "/partial/sectionentry",
 			link: function(scope, element, attrs){
