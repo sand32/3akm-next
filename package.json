@@ -1,6 +1,6 @@
 {
 	"name": "3akm-lan",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "The site for the 3AK^M annual LAN party",
 	"private": true,
 	"main": "app.js",
