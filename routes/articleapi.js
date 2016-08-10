@@ -28,7 +28,8 @@ var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
-	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB;
+	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
@@ -36,24 +37,18 @@ module.exports = function(app, prefix){
 			Article.find({})
 			.sort("-created")
 			.populate("author modifiedBy", "email firstName lastName")
-			.exec(function(err, docs){
-				if(err){
-					res.status(500).end();
-				}else{
-					res.send(docs || []);
-				}
-			});
+			.exec()
+			.then(function(articles){
+				res.send(articles || []);
+			}).catch(handleError(res));
 		}else{
 			Article.find({published: true})
 			.sort("-created")
 			.populate("author modifiedBy", "email firstName lastName")
-			.exec(function(err, docs){
-				if(err){
-					res.status(500).end();
-				}else{
-					res.send(docs || []);
-				}
-			});
+			.exec()
+			.then(function(articles){
+				res.send(articles || []);
+			}).catch(handleError(res));
 		}
 	});
 
@@ -61,15 +56,11 @@ module.exports = function(app, prefix){
 		Article.findOne({published: true})
 		.sort("-created")
 		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.send(doc);
-			}
-		});
+		.exec()
+		.then(function(article){
+			if(!article) throw 404;
+			res.send(article);
+		}).catch(handleError(res));
 	});
 
 	app.get(prefix + "/:article", function(req, res){
@@ -78,19 +69,14 @@ module.exports = function(app, prefix){
 		}
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
-		.exec(function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
+		.then(function(article){
+			if(!article) throw 404;
+			if(article.published || isAuthorized(req.user, {hasRoles: ["author"]})){
+				res.send(article);
 			}else{
-				if(doc.published || isAuthorized(req.user, {hasRoles: ["author"]})){
-					res.status(200).send(doc);
-				}else{
-					res.status(403).end();
-				}
+				throw 403;
 			}
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix, 
@@ -104,15 +90,14 @@ module.exports = function(app, prefix){
 		article.published = req.body.published;
 		article.tags = removeDuplicates(req.body.tags);
 		article.content = req.body.content;
-		article.save(function(err){
-			if(err){
-				res.status(400).end();
-			}else{
-				res.status(201)
-				.location(prefix + "/" + article._id)
-				.send({_id: article._id});
-			}
-		});
+		article.save()
+		.then(function(){
+			res.status(201)
+			.location(prefix + "/" + article._id)
+			.send({_id: article._id});
+		}).catch(function(){
+			throw 400;
+		}).catch(handleError(res));
 	});
 
 	app.put(prefix + "/:article", 
@@ -138,15 +123,11 @@ module.exports = function(app, prefix){
 		req.body.modified = Date.now();
 
 		// Apply the update
-		Article.findByIdAndUpdate(req.params.article, req.body, function(err, doc){
-			if(err){
-				res.status(400).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Article.findByIdAndUpdate(req.params.article, req.body)
+		.then(function(article){
+			if(!article) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
 
 	app.delete(prefix + "/:article", 
@@ -156,14 +137,10 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
 		}
-		Article.findByIdAndRemove(req.params.article, function(err, doc){
-			if(err){
-				res.status(500).end();
-			}else if(!doc){
-				res.status(404).end();
-			}else{
-				res.status(200).end();
-			}
-		});
+		Article.findByIdAndRemove(req.params.article)
+		.then(function(article){
+			if(!article) throw 404;
+			res.status(200).end();
+		}).catch(handleError(res));
 	});
-}
+};

@@ -23,8 +23,9 @@ misrepresented as being the original software.
 */
 
 var mongoose = require("mongoose"),
-	q = require("q"),
-	crypto = require("crypto"),
+	Promise = require("bluebird");
+mongoose.Promise = Promise;
+var crypto = require("crypto"),
 
 	genHash = function(value, salt){
 		var hash = crypto.createHash("sha256");
@@ -57,16 +58,11 @@ tokenSchema.methods.validateToken = function(data){
 tokenModel = mongoose.model("Token", tokenSchema);
 
 tokenModel.createToken = function(data){
-	var deferred = q.defer(),
-		token = new tokenModel({token: genHash(data)});
-	token.save(function(err){
-		if(err){
-			deferred.reject(err);
-		}else{
-			deferred.resolve(token.token);
-		}
+	var token = new tokenModel({token: genHash(data)});
+	return token.save()
+	.then(function(){
+		return token.token;
 	});
-	return deferred.promise;
 };
 
 module.exports = tokenModel;

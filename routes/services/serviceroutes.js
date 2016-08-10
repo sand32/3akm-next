@@ -28,4 +28,4 @@ module.exports = function(app, prefix){
 
 	cod4Routes(app, prefix + "/cod4");
 	ts3Routes(app, prefix + "/ts3");
-}
+};

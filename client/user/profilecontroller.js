@@ -35,21 +35,13 @@ require("../common/enumselectdirective.js");
 			{label: "Yes", value: true}, 
 			{label: "No", value: false}
 		];
+		profile.current = null;
 
 		UserService.retrieve("session")
 		.then(function(response){
-			var user = response.data;
-			profile.email = user.email;
-			profile.verified = user.verified;
-			profile.firstName = user.firstName;
-			profile.lastName = user.lastName;
-			profile.primaryHandle = user.primaryHandle;
-			profile.tertiaryHandles = user.tertiaryHandles || [];
-			profile.lanInviteDesired = user.lanInviteDesired;
-			profile.roles = user.roles || [];
-			profile.services = user.services;
-
-			// Show the page
+			profile.current = response.data;
+			profile.current.tertiaryHandles = profile.current.tertiaryHandles || [];
+			profile.current.roles = profile.current.roles || [];
 			profile.loaded = true;
 		}).catch(function(response){
 			if(response.status === 403){
@@ -74,15 +66,8 @@ require("../common/enumselectdirective.js");
 
 		profile.save = function(){
 			profile.busy = true;
-			UserService.edit("session", {
-				email: profile.email,
-				firstName: profile.firstName,
-				lastName: profile.lastName,
-				primaryHandle: profile.primaryHandle,
-				tertiaryHandles: profile.tertiaryHandles,
-				lanInviteDesired: profile.lanInviteDesired,
-				roles: profile.roles
-			}).then(function(){
+			UserService.edit("session", profile.current)
+			.then(function(){
 				ngToast.create("User successfully updated.");
 				profile.busy = false;
 			}).catch(function(response){

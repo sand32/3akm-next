@@ -24,7 +24,7 @@ misrepresented as being the original software.
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var q = require("q"),
+var Promise = require("bluebird"),
 	ldapjs = require("ldapjs"),
 	config = require("./common.js").config,
 
@@ -60,139 +60,108 @@ var q = require("q"),
 		});
 	},
 
-	bind = function(client, cn, password){
-		var deferred = q.defer();
-		client.bind("cn=" + cn + "," + config.ldap.userDn, password, function(err){
+	// promisifyAll on the client object explodes sometimes.
+	// I need to figure out why. Until then...
+	handleCallback = function(resolve, reject){
+		return function(err){
 			if(err){
-				deferred.reject(err);
+				reject(err);
 			}else{
-				deferred.resolve();
+				resolve();
 			}
+		};
+	},
+
+	bind = function(client, cn, password){
+		return new Promise(function(resolve, reject){
+			client.bind("cn=" + cn + "," + config.ldap.userDn, password, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	bindServiceAccount = function(client){
-		var deferred = q.defer();
-		client.bind(config.ldap.serviceAccountDn, config.ldap.serviceAccountPassword, function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.bind(config.ldap.serviceAccountDn, config.ldap.serviceAccountPassword, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	unbind = function(client){
-		var deferred = q.defer();
-		client.unbind(function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.unbind(handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	add = function(client, dn, entry){
-		var deferred = q.defer();
-		client.add(dn, entry, function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.add(dn, entry, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	modify = function(client, dn, changes){
-		var deferred = q.defer();
-		client.modify(dn, changes, function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.modify(dn, changes, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	rename = function(client, dn, newDn){
 		if(dn === newDn){
-			return q.resolve();
+			return Promise.resolve();
 		}
-		var deferred = q.defer();
-		client.modifyDN(dn, newDn, function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.modifyDN(dn, newDn, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	deleteEntry = function(client, dn){
-		var deferred = q.defer();
-		client.del(dn, function(err){
-			if(err){
-				deferred.reject(err);
-			}else{
-				deferred.resolve();
-			}
+		return new Promise(function(resolve, reject){
+			client.del(dn, handleCallback(resolve, reject));
 		});
-		return deferred.promise;
 	},
 
 	findEntry = function(client, dn, filter){
-		var deferred = q.defer();
-		client.search(dn, {
-			scope: "sub",
-			filter: filter
-		}, function(err, res){
-			if(err){
-				deferred.reject(err);
-			}
-			var entries = {
-				collection: [],
-
-				find: function(fieldName, fieldValue){
-					for(var i = 0; i < entries.collection.length; i += 1){
-						if(entries.collection[i][fieldName] === fieldValue){
-							return entries.collection[i];
-						}
-					}
-				},
-
-				contains: function(fieldName, fieldValue){
-					for(var i = 0; i < entries.collection.length; i += 1){
-						if(entries.collection[i][fieldName] === fieldValue){
-							return true;
-						}
-					}
-					return false;
+		return new Promise(function(resolve, reject){
+			client.search(dn, {
+				scope: "sub",
+				filter: filter
+			}, function(err, res){
+				if(err){
+					reject(err);
 				}
-			};
+				var entries = {
+					collection: [],
 
-			res.on("searchEntry", function(entry){
-				entries.collection.push(entry.object);
-			});
-			res.on("error", function(err){
-				deferred.reject(err.message, entries);
-			});
-			res.on("end", function(result){
-				deferred.resolve({status: result.status, entries: entries});
+					find: function(fieldName, fieldValue){
+						for(var i = 0; i < entries.collection.length; i += 1){
+							if(entries.collection[i][fieldName] === fieldValue){
+								return entries.collection[i];
+							}
+						}
+					},
+
+					contains: function(fieldName, fieldValue){
+						for(var i = 0; i < entries.collection.length; i += 1){
+							if(entries.collection[i][fieldName] === fieldValue){
+								return true;
+							}
+						}
+						return false;
+					}
+				};
+
+				res.on("searchEntry", function(entry){
+					entries.collection.push(entry.object);
+				});
+				res.on("error", function(err){
+					reject(err.message, entries);
+				});
+				res.on("end", function(result){
+					resolve({status: result.status, entries: entries});
+				});
 			});
 		});
-		return deferred.promise;
 	},
 
 	constructUniqueNaming = function(client, firstName, lastName, existingCn){
-		var deferred = q.defer();
-		findEntry(client, config.ldap.userDn, "(sAMAccountName=" + firstName.toLowerCase() + "." + lastName.toLowerCase() + "*)")
+		return findEntry(client, config.ldap.userDn, "(sAMAccountName=" + firstName.toLowerCase() + "." + lastName.toLowerCase() + "*)")
 		.then(function(result){
 			var numericSuffix, names, i, thisEntry, otherSuffix;
 			if(result.status === 0
@@ -206,8 +175,7 @@ var q = require("q"),
 							sAMAccountName: thisEntry.sAMAccountName,
 							userPrincipalName: thisEntry.userPrincipalName
 						};
-						deferred.resolve(names);
-						return;
+						return names;
 					}
 					otherSuffix = thisEntry.sAMAccountName.replace(firstName.toLowerCase() + "." + lastName.toLowerCase(), "");
 					otherSuffix = otherSuffix !== "" ? parseInt(otherSuffix) : 0;
@@ -232,9 +200,8 @@ var q = require("q"),
 				}
 				names.userPrincipalName = names.sAMAccountName + config.ldap.userPrincipalNameSuffix;
 			}
-			deferred.resolve(names);
-		}).catch(function(err){deferred.reject(err);});
-		return deferred.promise;
+			return names;
+		});
 	},
 
 	ldapDateToJsDate = function(ldapDate){
@@ -305,9 +272,9 @@ var q = require("q"),
 module.exports = {
 	authenticate: function(email, password){
 		var client = createClient(),
-			deferred = q.defer(),
 			cn;
-		bindServiceAccount(client)
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 		}).then(function(result){
@@ -316,52 +283,49 @@ module.exports = {
 				cn = result.entries.collection[0].cn;
 				return unbind(client);
 			}else{
-				deferred.reject({
+				throw {
 					reason: "invalid-user",
 					message: "Unable to retrieve user, \"" + cn + "\" not found in directory"
-				});
+				};
 			}
 		}).then(function(){
 			client = createClient();
 			return bind(client, cn, password);
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){
+		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	createUser: function(userTemplate){
 		var client = createClient(),
-			deferred = q.defer(),
 			password, userDn, currentUac, lastAttemptedStep = "none";
 		if(userTemplate.password){
 			password = userTemplate.password;
 		}else{
-			deferred.reject({
+			return Promise.reject({
 				reason: "no-password",
 				message: "A password must be provided on user creation"
 			});
-			return deferred.promise;
 		}
 
 		entry = translateFromUserTemplate(userTemplate);
 		entry.objectClass = "user";
 
-		bindServiceAccount(client)
+		return bindServiceAccount(client)
 		.then(function(){
 			lastAttemptedStep = "find-by-email";
 			return findEntry(client, config.ldap.userDn, "(mail=" + entry.mail + ")");
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
-				deferred.reject({reason: "duplicate", message: "User already exists"});
+				throw {reason: "duplicate", message: "User already exists"};
 			}else{
 				return constructUniqueNaming(client, userTemplate.firstName, userTemplate.lastName);
 			}
@@ -380,10 +344,10 @@ module.exports = {
 			&& result.entries.collection.length > 0){
 				currentUac = result.entries.collection[0].userAccountControl;
 			}else{
-				deferred.reject({
-					reason: "ldaperr",
+				throw {
+					reason: "ldap-error",
 					message: "Failed to create directory user, unknown error"
-				});
+				};
 			}
 		}).then(function(){
 			lastAttemptedStep = "set-password";
@@ -417,33 +381,31 @@ module.exports = {
 				}
 			}
 			lastAttemptedStep = "add-groups";
-			return q.all(promises);
+			return Promise.all(promises);
 		}).then(function(){
 			lastAttemptedStep = "unbind";
 			return unbind(client);
 		}).then(function(){
-			deferred.resolve(entry.cn);
+			return entry.cn;
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
 				module.exports.deleteUser(entry.cn);
 				if(lastAttemptedStep === "set-password"){
-					deferred.reject({reason: "invalid-password", message: "Unable to set password, password rejected by the directory"});
+					throw {reason: "invalid-password", message: "Unable to set password for user \"" + entry.cn + "\", password rejected by the directory"};
 				}else{
-					deferred.reject({reason: "ldaperr", message: err});
+					throw {reason: "ldap-error", message: err.message};
 				}
 			}
 		});
-		return deferred.promise;
 	},
 
 	deleteUser: function(cn){
-		var client = createClient(),
-			deferred = q.defer();
+		var client = createClient();
 
-		bindServiceAccount(client)
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
@@ -453,29 +415,25 @@ module.exports = {
 			}
 		}).then(function(){
 			return unbind(client);
-		}).then(function(){
-			deferred.resolve();
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	updateUser: function(cn, userTemplate){
 		var client = createClient(),
-			deferred = q.defer(),
 			entry = translateFromUserTemplate(userTemplate),
 			userDn = "cn=" + cn + "," + config.ldap.userDn,
 			currentEntry, newCn;
 
 		delete entry.cn;
 
-		bindServiceAccount(client)
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
@@ -488,10 +446,10 @@ module.exports = {
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
 				if(result.entries.collection[0].cn !== cn){
-					deferred.reject({
+					throw {
 						reason: "email-in-use",
 						message: "Unable to update user, attempted to change email to one owned by another user"
-					});
+					};
 				}
 			}
 			return constructUniqueNaming(client, userTemplate.firstName, userTemplate.lastName, cn);
@@ -555,32 +513,31 @@ module.exports = {
 					}));
 				}
 			}
-			return q.all(promises);
+			return Promise.all(promises);
 		}).then(function(){
 			if(newCn !== cn){
 				return rename(client, userDn, "cn=" + newCn + "," + config.ldap.userDn);
 			}
-			return q.resolve();
+			return Promise.resolve();
 		}).then(function(){
 			return unbind(client);
 		}).then(function(){
-			deferred.resolve(newCn);
+			return newCn;
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	setPassword: function(cn, oldPassword, newPassword){
 		var client = createClient(),
-			deferred = q.defer(),
 			userDn = "cn=" + cn + "," + config.ldap.userDn;
-		bindServiceAccount(client)
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
@@ -592,10 +549,10 @@ module.exports = {
 					modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
 				});
 			}else{
-				deferred.reject({
+				throw {
 					reason: "invalid-user",
 					message: "Unable to set password, \"" + cn + "\" not found in directory"
-				});
+				};
 			}
 		}).then(function(){
 			return modify(client, userDn, [{
@@ -604,36 +561,35 @@ module.exports = {
 			},{
 				operation: "add",
 				modification: {unicodePwd: encodePassword(newPassword)}
-			}]);
+			}]).catch(function(){
+				modify(client, userDn, {
+					operation: "replace",
+					modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				});
+				return Promise.reject({reason: "invalid-password", message: "Unable to change password, new password does not meet format requirements"});
+			});
 		}).then(function(){
 			return modify(client, userDn, {
 				operation: "replace",
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
 			});
-		},function(){
-			modify(client, userDn, {
-				operation: "replace",
-				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
-			});
-			return q.reject({reason: "invalid-password", message: "Unable to change password, new password does not meet format requirements"});
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){
+		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	resetPassword: function(cn, newPassword){
 		var client = createClient(),
-			deferred = q.defer(),
 			userDn = "cn=" + cn + "," + config.ldap.userDn;
-		bindServiceAccount(client)
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
@@ -645,71 +601,69 @@ module.exports = {
 					modification: {userAccountControl: addUacFlag(currentUac, uacFlags.disabled)}
 				});
 			}else{
-				deferred.reject({
+				throw {
 					reason: "invalid-user",
 					message: "Unable to reset password, \"" + cn + "\" not found in directory"
-				});
+				};
 			}
 		}).then(function(){
 			return modify(client, userDn, {
 				operation: "replace",
 				modification: {unicodePwd: encodePassword(newPassword)}
+			}).catch(function(){
+				modify(client, userDn, {
+					operation: "replace",
+					modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				});
+				return Promise.reject({reason: "invalid-password", message: "Unable to change password, new password does not meet format requirements"});
 			});
 		}).then(function(){
 			return modify(client, userDn, {
 				operation: "replace",
 				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
 			});
-		},function(){
-			modify(client, userDn, {
-				operation: "replace",
-				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
-			});
-			return q.reject({reason: "invalid-password", message: "Unable to change password, new password does not meet format requirements"});
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){
+		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	getUser: function(cn){
-		var client = createClient(),
-			deferred = q.defer();
-		bindServiceAccount(client)
+		var client = createClient();
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
-				deferred.resolve(translateToUserTemplate(result.entries.collection[0]));
+				return translateToUserTemplate(result.entries.collection[0]);
 			}else{
-				deferred.reject({
+				throw {
 					reason: "invalid-user",
 					message: "Unable to retrieve user, \"" + cn + "\" not found in directory"
-				});
+				};
 			}
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	hasRole: function(cn, role){
-		var client = createClient(),
-			deferred = q.defer();
-		bindServiceAccount(client)
+		var client = createClient();
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
 		}).then(function(result){
@@ -719,54 +673,51 @@ module.exports = {
 				entry = result.entries.collection[0];
 				for(var i = 0; i < entry.memberOf.length; i += 1){
 					if(entry.memberOf[i].toLowerCase() === groupDn){
-						deferred.resolve();
-						return;
+						return Promise.resolve();
 					}
 				}
 			}
-			deferred.reject({
+			throw {
 				reason: "role-not-found",
 				message: "The given user has no role by that name"
-			});
+			};
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){
+		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	},
 
 	userExists: function(email){
-		var client = createClient(),
-			deferred = q.defer();
-		bindServiceAccount(client)
+		var client = createClient();
+
+		return bindServiceAccount(client)
 		.then(function(){
 			return findEntry(client, config.ldap.userDn, "(mail=" + email + ")");
 		}).then(function(result){
 			if(result.status === 0
 			&& result.entries.collection.length > 0){
-				deferred.resolve();
+				return Promise.resolve();
 			}else{
-				deferred.reject({
+				throw {
 					reason: "invalid-user",
 					message: "Unable to retrieve user, no user with the email \"" + email + "\" found"
-				});
+				};
 			}
 		}).then(function(){
 			return unbind(client);
-		}).then(deferred.resolve).catch(function(err){
+		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
-				deferred.reject(err);
+				throw err;
 			}else{
-				deferred.reject({reason: "ldaperr", message: err});
+				throw {reason: "ldap-error", message: err};
 			}
 		});
-		return deferred.promise;
 	}
 };
