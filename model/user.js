@@ -256,6 +256,40 @@ userSchema.methods.syncWithDirectory = function(){
 			reject(err);
 		});
 	});
+},
+
+userSchema.methods.recreateInDirectory = function(tempPassword){
+	var user = this;
+	var userTemplate = {
+		email: this.email,
+		password: tempPassword,
+		firstName: this.firstName,
+		lastName: this.lastName,
+		roles: []
+	};
+	return ldap.createUser(userTemplate)
+	.then(function(cn){
+		userTemplate = {
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			verified: user.verified,
+			roles: user.roles
+		};
+		ldap.updateUser(user.cn, userTemplate)
+		.then(function(newCn){
+			user.cn = newCn;
+			user.lastSync = Date.now();
+			user.save(function(err){
+				if(err){
+					log.error(err);
+				}
+			});
+		}).catch(function(err){
+			log.error(err);
+		});
+		return cn;
+	});
 };
 
 userModel = mongoose.model("User", userSchema);

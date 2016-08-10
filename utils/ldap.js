@@ -394,9 +394,9 @@ module.exports = {
 			}else{
 				module.exports.deleteUser(entry.cn);
 				if(lastAttemptedStep === "set-password"){
-					throw {reason: "invalid-password", message: "Unable to set password, password rejected by the directory"};
+					throw {reason: "invalid-password", message: "Unable to set password for user \"" + entry.cn + "\", password rejected by the directory"};
 				}else{
-					throw {reason: "ldap-error", message: err};
+					throw {reason: "ldap-error", message: err.message};
 				}
 			}
 		});

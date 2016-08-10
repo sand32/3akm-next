@@ -335,9 +335,32 @@ module.exports = function(app, prefix){
 		}
 
 		User.findById(req.params.user)
-		.then(function(err, user){
+		.then(function(user){
 			if(!user) throw 404;
 			return user.syncWithDirectory();
+		}).then(function(){
+			res.status(200).end();
+		}).catch(handleError(res));
+	});
+
+	app.post(prefix + "/:user/recreateindirectory", 
+		authenticate, 
+		authorize({hasRoles: ["admin"]}), 
+	function(req, res){
+		if(!mongoose.Types.ObjectId.isValid(req.params.user)
+		|| !config.ldap.enabled){
+			return res.status(404).end();
+		}
+
+		var user;
+		User.findById(req.params.user)
+		.then(function(doc){
+			user = doc;
+			if(!user) throw 404;
+			return user.recreateInDirectory(req.body.password);
+		}).then(function(cn){
+			user.cn = cn;
+			return user.save();
 		}).then(function(){
 			res.status(200).end();
 		}).catch(handleError(res));

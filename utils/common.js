@@ -164,9 +164,15 @@ module.exports = {
 				res.status(400).end();
 			}else if(err.reason && err.reason.indexOf("not-found") !== -1){
 				res.status(404).end();
-			}else if(err.reason && err.reason.indexOf("in-use") !== -1){
+			}else if(err.reason && err.reason.indexOf("in-use") !== -1
+				  || err.reason && err.reason.indexOf("duplicate") !== -1){
 				res.status(409).end();
 			}else{
+				if(err.message){
+					log.error(err.message);
+				}else{
+					log.error(err);
+				}
 				res.status(500).end();
 			}
 		};
