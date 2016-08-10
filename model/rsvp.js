@@ -22,8 +22,9 @@ misrepresented as being the original software.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	rsvpSchema = mongoose.Schema({
+var mongoose = require("mongoose")
+mongoose.Promise = require("bluebird");
+var rsvpSchema = mongoose.Schema({
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

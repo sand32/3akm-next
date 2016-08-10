@@ -24,10 +24,28 @@ misrepresented as being the original software.
 
 var fs = require("fs"),
 	browserify = require("browserify"),
-	q = require("q"),
+	Promise = require("bluebird"),
 	Store = require("../model/store.js"),
 	config = require("./common.js").config,
-	log = require("./log.js");
+	log = require("./log.js"),
+
+	makeJSBundle = function(bundleRoot, outFile){
+		return new Promise(function(resolve, reject){
+			var b = browserify();
+			if(!config.debugMode){
+				b.plugin("minifyify", {map: false});
+			}
+
+			b.add(bundleRoot);
+			var outputFileStream = fs.createWriteStream(outFile);
+			outputFileStream.on("finish", function(){
+				resolve();
+			}).on("error", function(){
+				reject("Failed to write JS bundle: " + outFile);
+			});
+			b.bundle().pipe(outputFileStream);
+		});
+	};
 
 module.exports = {
 	initializeDatabase: function(){
@@ -109,42 +127,9 @@ module.exports = {
 	},
 
 	bundleClientJS: function(){
-		// Bundle client javascript
-		var b = browserify(),
-			frontendDeferred = q.defer(),
-			adminDeferred = q.defer(),
-			promise = q.all([frontendDeferred.promise, adminDeferred.promise]);
-
-		if(!config.debugMode){
-			b.plugin("minifyify", {map: false});
-		}
-
-		// Bundle frontend
-		b.add("client/frontend.js");
-		var outputFileStream = fs.createWriteStream("public/js/frontend.js");
-		outputFileStream.on("finish", function(){
-			frontendDeferred.resolve();
-		}).on("error", function(){
-			frontendDeferred.reject("Failed to write JS bundle");
-		});
-		b.bundle().pipe(outputFileStream);
-
-		b = browserify();
-
-		if(!config.debugMode){
-			b.plugin("minifyify", {map: false});
-		}
-
-		// Bundle admin portal
-		b.add("client/admin.js");
-		outputFileStream = fs.createWriteStream("public/js/admin.js");
-		outputFileStream.on("finish", function(){
-			adminDeferred.resolve();
-		}).on("error", function(){
-			adminDeferred.reject("Failed to write JS bundle");
-		});
-		b.bundle().pipe(outputFileStream);
-
-		return promise;
+		return Promise.all([
+			makeJSBundle("client/frontend.js", "public/js/frontend.js"),
+			makeJSBundle("client/admin.js", "public/js/admin.js")
+		]);
 	}
 };
