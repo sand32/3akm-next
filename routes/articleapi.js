@@ -79,7 +79,7 @@ module.exports = function(app, prefix){
 			return isAuthorized(req.user, {hasRoles: ["author"]});
 		}).then(function(authorized){
 			if(thisArticle.published || authorized){
-				res.send(article);
+				res.send(thisArticle);
 			}else{
 				throw 403;
 			}
