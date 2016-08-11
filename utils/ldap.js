@@ -360,12 +360,19 @@ module.exports = {
 			}]);
 		}).then(function(){
 			lastAttemptedStep = "enable-user-and-set-verified";
+			currentUac = removeUacFlag(currentUac, uacFlags.disabled);
 			return modify(client, userDn, [{
 				operation: "replace",
-				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				modification: {userAccountControl: currentUac}
 			},{
 				operation: "add",
 				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
+			}]);
+		}).then(function(){
+			lastAttemptedStep = "set-dont-expire-password";
+			return modify(client, userDn, [{
+				operation: "replace",
+				modification: {userAccountControl: addUacFlag(currentUac, uacFlags.dontExpirePassword)}
 			}]);
 		}).then(function(){
 			var promises = [modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, {
