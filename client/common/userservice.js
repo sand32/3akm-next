@@ -81,7 +81,7 @@ misrepresented as being the original software.
 			},
 
 			sync: function(id){
-				return $http.post("/api/user/" + id + "/sync");
+				return $http.post("/api/user/" + id + "/directory/sync");
 			}
 		};
 	};

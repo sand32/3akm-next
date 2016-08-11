@@ -33,23 +33,26 @@ var mongoose = require("mongoose"),
 
 module.exports = function(app, prefix){
 	app.get(prefix, function(req, res){
-		if(isAuthorized(req.user, {hasRoles: ["author"]})){
-			Article.find({})
-			.sort("-created")
-			.populate("author modifiedBy", "email firstName lastName")
-			.exec()
-			.then(function(articles){
-				res.send(articles || []);
-			}).catch(handleError(res));
-		}else{
-			Article.find({published: true})
-			.sort("-created")
-			.populate("author modifiedBy", "email firstName lastName")
-			.exec()
-			.then(function(articles){
-				res.send(articles || []);
-			}).catch(handleError(res));
-		}
+		isAuthorized(req.user, {hasRoles: ["author"]})
+		.then(function(authorized){
+			if(authorized){
+				Article.find({})
+				.sort("-created")
+				.populate("author modifiedBy", "email firstName lastName")
+				.exec()
+				.then(function(articles){
+					res.send(articles || []);
+				}).catch(handleError(res));
+			}else{
+				Article.find({published: true})
+				.sort("-created")
+				.populate("author modifiedBy", "email firstName lastName")
+				.exec()
+				.then(function(articles){
+					res.send(articles || []);
+				}).catch(handleError(res));
+			}
+		});
 	});
 
 	app.get(prefix + "/newest", function(req, res){
@@ -67,11 +70,15 @@ module.exports = function(app, prefix){
 		if(!mongoose.Types.ObjectId.isValid(req.params.article)){
 			return res.status(404).end();
 		}
+		var thisArticle;
 		Article.findById(req.params.article)
 		.populate("author modifiedBy", "email firstName lastName")
 		.then(function(article){
 			if(!article) throw 404;
-			if(article.published || isAuthorized(req.user, {hasRoles: ["author"]})){
+			thisArticle = article;
+			return isAuthorized(req.user, {hasRoles: ["author"]});
+		}).then(function(authorized){
+			if(thisArticle.published || authorized){
 				res.send(article);
 			}else{
 				throw 403;

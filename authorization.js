@@ -26,26 +26,32 @@ var Promise = require("bluebird");
 
 rules = {
 	isUser: function(thisUser, otherUserId){
-		return new Promise(function(resolve, reject){
-			if(!otherUserId
-			|| thisUser._id == otherUserId){
-				resolve();
-			}else{
-				reject();
-			}
-		});
+		if(!otherUserId
+		|| thisUser._id == otherUserId){
+			return Promise.resolve(true);
+		}else{
+			return Promise.resolve(false);
+		}
 	},
 
 	hasRoles: function(user, roles){
 		if(!roles){
-			return Promise.resolve();
+			return Promise.resolve(true);
 		}
 
 		var promises = [];
 		for(var i = 0; i < roles.length; i+=1){
 			promises.push(user.hasRole(roles[i]));
 		}
-		return Promise.all(promises);
+		return Promise.all(promises)
+		.then(function(results){
+			for(var i = 0; i < results.length; i += 1){
+				if(results[i] !== true){
+					return Promise.resolve(false);
+				}
+			}
+			return Promise.resolve(true);
+		});
 	}
 }
 
@@ -59,18 +65,25 @@ module.exports = {
 	// }
 	isAuthorized: function(user, ruleset){
 		if(!ruleset){
-			return Promise.resolve();
+			return Promise.resolve(true);
 		}
 
-		return new Promise(function(resolve, reject){
-			rules.hasRoles(user, ["admin"])
-			.then(function(){
-				resolve();
-			}).catch(function(){
-				Promise.all([
-					rules.isUser(user, ruleset.isUser),
-					rules.hasRoles(user, ruleset.hasRoles)
-				]).then(resolve).catch(reject);
+		return rules.hasRoles(user, ["admin"])
+		.then(function(isAdmin){
+			if(isAdmin){
+				return Promise.resolve(true);
+			}
+
+			return Promise.all([
+				rules.isUser(user, ruleset.isUser),
+				rules.hasRoles(user, ruleset.hasRoles)
+			]).then(function(results){
+				for(var i = 0; i < results.length; i += 1){
+					if(results[i] !== true){
+						return Promise.resolve(false);
+					}
+				}
+				return Promise.resolve(true);
 			});
 		});
 	},
@@ -79,10 +92,12 @@ module.exports = {
 	authorize: function(ruleset){
 		return function(req, res, next){
 			module.exports.isAuthorized(req.user, ruleset)
-			.then(function(){
-				next();
-			}).catch(function(){
-				res.status(403).end();
+			.then(function(authorized){
+				if(authorized){
+					next();
+				}else{
+					res.status(403).end();
+				}
 			});
 		};
 	},
@@ -94,12 +109,18 @@ module.exports = {
 				req.params.user = req.user._id.toString();
 			}
 			module.exports.isAuthorized(req.user, ruleset)
-			.then(function(){
-				return module.exports.isAuthorized(req.user, {isUser: req.params.user})
-			}).then(function(){
-				next();
-			}).catch(function(){
-				res.status(403).end();
+			.then(function(authorized){
+				if(authorized){
+					return module.exports.isAuthorized(req.user, {isUser: req.params.user});
+				}else{
+					res.status(403).end();
+				}
+			}).then(function(authorized){
+				if(authorized){
+					next();
+				}else{
+					res.status(403).end();
+				}
 			});
 		};
 	}
