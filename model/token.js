@@ -52,7 +52,11 @@ var crypto = require("crypto"),
 	});
 
 tokenSchema.methods.validateToken = function(data){
-	return compareHash(this.token, data);
+	var success = compareHash(this.token, data);
+	if(success){
+		this.remove();
+	}
+	return success;
 };
 
 tokenModel = mongoose.model("Token", tokenSchema);
