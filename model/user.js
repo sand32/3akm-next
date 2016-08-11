@@ -123,16 +123,11 @@ userSchema.methods.hasRole = function(role){
 	if(config.ldap.enabled){
 		return ldap.hasRole(user.cn, role);
 	}else{
-		return new Promise(function(resolve, reject){
-			if(user.roles.indexOf(role) !== -1){
-				resolve();
-			}else{
-				reject({
-					reason: "role-not-found",
-					message: "The given user has no role by that name"
-				});
-			}
-		});
+		if(user.roles.indexOf(role) !== -1){
+			return Promise.resolve(true);
+		}else{
+			return Promise.resolve(false);
+		}
 	}
 };
 
@@ -288,7 +283,33 @@ userSchema.methods.recreateInDirectory = function(tempPassword){
 		}).catch(function(err){
 			log.error(err);
 		});
-		return cn;
+	});
+},
+
+userSchema.methods.updateDirectory = function(){
+	var user = this,
+		userTemplate = {
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			verified: user.verified,
+			roles: user.roles
+		};
+	return new Promise(function(resolve, reject){
+		ldap.updateUser(user.cn, userTemplate)
+		.then(function(newCn){
+			user.cn = newCn;
+			user.lastSync = Date.now();
+			user.save(function(err){
+				if(err){
+					log.error(err);
+				}
+				resolve();
+			});
+		}).catch(function(err){
+			log.error(err);
+			reject(err);
+		});
 	});
 };
 

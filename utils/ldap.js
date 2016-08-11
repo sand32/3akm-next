@@ -663,33 +663,33 @@ module.exports = {
 	hasRole: function(cn, role){
 		var client = createClient();
 
-		return bindServiceAccount(client)
-		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
-		}).then(function(result){
-			var entry, groupDn = "cn=" + config.ldap.roleGroupCns[role].toLowerCase() + "," + config.ldap.groupDn.toLowerCase();
-			if(result.status === 0
-			&& result.entries.collection.length > 0){
-				entry = result.entries.collection[0];
-				for(var i = 0; i < entry.memberOf.length; i += 1){
-					if(entry.memberOf[i].toLowerCase() === groupDn){
-						return Promise.resolve();
+		return new Promise(function(resolve, reject){
+			bindServiceAccount(client)
+			.then(function(){
+				return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+			}).then(function(result){
+				var entry, groupDn = "cn=" + config.ldap.roleGroupCns[role].toLowerCase() + "," + config.ldap.groupDn.toLowerCase();
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
+					entry = result.entries.collection[0];
+					for(var i = 0; i < entry.memberOf.length; i += 1){
+						if(entry.memberOf[i].toLowerCase() === groupDn){
+							resolve(true);
+							return;
+						}
 					}
 				}
-			}
-			throw {
-				reason: "role-not-found",
-				message: "The given user has no role by that name"
-			};
-		}).then(function(){
-			return unbind(client);
-		}).catch(function(err){
-			unbind(client);
-			if(err.reason){
-				throw err;
-			}else{
-				throw {reason: "ldap-error", message: err};
-			}
+				resolve(false);
+			}).then(function(){
+				return unbind(client);
+			}).catch(function(err){
+				unbind(client);
+				if(err.reason){
+					reject(err);
+				}else{
+					reject({reason: "ldap-error", message: err});
+				}
+			});
 		});
 	},
 
