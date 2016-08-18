@@ -142,7 +142,7 @@ module.exports = function(app, prefix, prefix2){
 			return Rsvp.findOne({user: req.params.user});
 		}).then(function(rsvp){
 			if(!rsvp) throw 404;
-			res.send(doc);
+			res.send(rsvp);
 		}).catch(handleError(res));
 	});
 
