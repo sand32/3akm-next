@@ -139,7 +139,7 @@ module.exports = function(app, prefix, prefix2){
 		.exec()
 		.then(function(lan){
 			if(!lan) throw 404;
-			return Rsvp.findOne({user: req.params.user});
+			return Rsvp.findOne({user: req.params.user, lan: lan._id});
 		}).then(function(rsvp){
 			if(!rsvp) throw 404;
 			res.send(rsvp);
