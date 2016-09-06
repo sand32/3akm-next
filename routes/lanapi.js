@@ -27,6 +27,7 @@ var mongoose = require("mongoose"),
 	Lan = require("../model/lan.js"),
 	Game = require("../model/game.js"),
 	Rsvp = require("../model/rsvp.js"),
+	User = require("../model/user.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
@@ -209,7 +210,23 @@ module.exports = function(app, prefix){
 				}
 			}
 			if(retVal !== null){
-				res.send(retVal);
+				if(req.query.populate !== "true"){
+					res.send(retVal);
+				}else{
+					User.find({_id: {$in: retVal}})
+					.then(function(users){
+						var userInfo = [];
+						for(var i = 0; i < users.length; i += 1){
+							userInfo.push({
+								_id: users[i]._id,
+								firstName: users[i].firstName,
+								lastName: users[i].lastName,
+								primaryHandle: users[i].primaryHandle
+							});
+						}
+						res.send(userInfo);
+					}).catch(handleError(res));
+				}
 			}else{
 				throw 404;
 			}
