@@ -107,6 +107,28 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
+	app.get(prefix + "/:lan/tournaments",
+	function(req, res){
+		var year,
+			gameSelection = {},
+			query = getLANQuery(req.params.lan);
+		if(query === "not-found"){
+			return res.status(404).end();
+		}
+
+		query.exec()
+		.then(function(lan){
+			if(!lan) throw 404;
+			var tournaments = [];
+			for(var i = 0; i < lan.games.length; i += 1){
+				if(lan.games[i].tournament === true){
+					tournaments.push(lan.games[i]);
+				}
+			}
+			res.send(tournaments);
+		}).catch(handleError(res));
+	});
+
 	app.get(prefix + "/:lan/rsvps", 
 	function(req, res){
 		var query = getLANQuery(req.params.lan),
