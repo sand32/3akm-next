@@ -27,6 +27,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var Promise = require("bluebird"),
 	ldapjs = require("ldapjs"),
 	config = require("./common.js").config,
+	log = require("./log.js"),
 
 	uacFlags = {
 		disabled: 0x00000002,
@@ -55,9 +56,14 @@ var Promise = require("bluebird"),
 	},
 
 	createClient = function(){
-		return ldapjs.createClient({
-			url: config.ldap.url
+		var client = ldapjs.createClient({
+			url: config.ldap.url,
+			reconnect: true
 		});
+		client.on("error", function(err){
+			log.warn("LDAP connection failed, reconnecting...");
+		});
+		return client;
 	},
 
 	// promisifyAll on the client object explodes sometimes.
