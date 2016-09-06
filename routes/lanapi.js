@@ -277,7 +277,14 @@ module.exports = function(app, prefix){
 		query.exec()
 		.then(function(lan){
 			if(!lan) throw 404;
-			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
+			var placements = null;
+			for(var i = 0; i < lan.games.length; i+=1){
+				if(lan.games[i].game.toString() === req.params.game){
+					placements = lan.games[i].placements;
+				}
+			}
+
+			return Rsvp.find({lan: lan._id, user: {$in: placements}, tournaments: {$ne: []}}).exec();
 		}).then(function(rsvps){
 			var scores = [];
 			for(var i = 0; i < rsvps.length; i += 1){
