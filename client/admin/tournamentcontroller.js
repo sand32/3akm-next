@@ -52,6 +52,7 @@ require("../common/lanservice.js");
 			.then(function(){
 				ngToast.create("Roster generated.");
 				ctrl.busy = false;
+				ctrl.reloadRoster();
 			}).catch(function(){
 				ngToast.danger("Failed to generate roster.");
 				ctrl.busy = false;
