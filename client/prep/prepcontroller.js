@@ -23,12 +23,15 @@ misrepresented as being the original software.
 */
 
 require("../common/lanservice.js");
+require("../common/userservice.js");
 
 (function(){
-	var PrepController = function(LanService){
+	var PrepController = function(LanService, UserService){
 		var prep = this;
 		prep.lan = null;
 		prep.loaded = false;
+		prep.isLoggedIn = false;
+
 		LanService.retrieve("current")
 		.then(function(response){
 			prep.lan = response.data;
@@ -36,13 +39,21 @@ require("../common/lanservice.js");
 		}).catch(function(){
 			prep.loaded = true;
 		});
+
+		UserService.retrieve("session")
+		.then(function(response){
+			prep.isLoggedIn = true;
+		}).catch(function(status){
+			prep.isLoggedIn = false;
+		});
 	};
 
 	angular
 		.module("3akm.prep", [
-				"3akm.lan"
+				"3akm.lan",
+				"3akm.user"
 			])
 		.controller("PrepController", PrepController);
 
-	PrepController.$inject = ["LanService"];
+	PrepController.$inject = ["LanService", "UserService"];
 })();
