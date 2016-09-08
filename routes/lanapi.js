@@ -203,26 +203,26 @@ module.exports = function(app, prefix){
 		query.exec()
 		.then(function(lan){
 			if(!lan) throw 404;
-			var retVal = null;
+			var placements = null;
 			for(var i = 0; i < lan.games.length; i += 1){
 				if(lan.games[i].game.toString() === req.params.game){
-					retVal = lan.games[i].placements;
+					placements = lan.games[i].placements;
 				}
 			}
-			if(retVal !== null){
+			if(placements !== null){
 				if(req.query.populate !== "true"){
-					res.send(retVal);
+					res.send(placements);
 				}else{
-					User.find({_id: {$in: retVal}})
+					User.find({_id: {$in: placements}})
 					.then(function(users){
 						var userInfo = [];
 						for(var i = 0; i < users.length; i += 1){
-							userInfo.push({
+							userInfo[placements.indexOf(users[i]._id)] = {
 								_id: users[i]._id,
 								firstName: users[i].firstName,
 								lastName: users[i].lastName,
 								primaryHandle: users[i].primaryHandle
-							});
+							};
 						}
 						res.send(userInfo);
 					}).catch(handleError(res));
