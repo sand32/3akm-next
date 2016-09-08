@@ -60,6 +60,10 @@ var lanSchema = mongoose.Schema({
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User"
 			}],
+			placementsLocked: {
+				type: Boolean,
+				default: false
+			},
 			sortIndex: {
 				type: Number,
 				default: 0
