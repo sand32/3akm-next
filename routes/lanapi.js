@@ -251,6 +251,13 @@ module.exports = function(app, prefix){
 		query.exec()
 		.then(function(lan){
 			if(!lan) throw 404;
+			for(var i = 0; i < lan.games.length; i += 1){
+				if(lan.games[i].game.toString() === req.params.game
+				&& lan.games[i].placementsLocked
+				&& req.query.force !== "true"){
+					throw 423;
+				}
+			}
 			thisLan = lan;
 			return Rsvp.find({lan: lan._id}).exec();
 		}).then(function(rsvps){
@@ -293,6 +300,9 @@ module.exports = function(app, prefix){
 			if(!lan) throw 404;
 			for(var i = 0; i < lan.games.length; i += 1){
 				if(lan.games[i].game.toString() === req.params.game){
+					if(lan.games[i].placementsLocked && req.query.force !== "true"){
+						throw 423;
+					}
 					lan.games[i].placements = req.body;
 					break;
 				}
@@ -356,6 +366,12 @@ module.exports = function(app, prefix){
 		query.exec()
 		.then(function(lan){
 			if(!lan) throw 404;
+			for(var i = 0; i < lan.games.length; i += 1){
+				if(lan.games[i].game.toString() === req.params.game){
+					lan.games[i].placementsLocked = true;
+					lan.save();
+				}
+			}
 			return Rsvp.find({$and: [{lan: lan._id}, {tournaments: {$ne: []}}]}).exec();
 		}).then(function(rsvps){
 			var promises = [];
