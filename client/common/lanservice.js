@@ -37,6 +37,10 @@ misrepresented as being the original software.
 				return $http.get("/api/lan/" + id + "/games");
 			},
 
+			retrieveTournaments: function(id){
+				return $http.get("/api/lan/" + id + "/tournaments");
+			},
+
 			create: function(postData){
 				return $http.post("/api/lan", postData);
 			},
@@ -47,6 +51,14 @@ misrepresented as being the original software.
 
 			delete: function(id){
 				return $http.delete("/api/lan/" + id);
+			},
+
+			retrieveRoster: function(id, game){
+				return $http.get("/api/lan/" + id + "/placements/" + game + "?populate=true");
+			},
+
+			generateRoster: function(id, game){
+				return $http.post("/api/lan/" + id + "/placements/" + game);
 			}
 		};
 	};
