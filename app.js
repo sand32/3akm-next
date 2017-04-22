@@ -55,7 +55,7 @@ mongoose.connection.on("error", function(e){
 
 // Declare view engine
 app.set("views", __dirname + "/views");
-app.set("view engine", "jade");
+app.set("view engine", "pug");
 
 // Define CORS policy
 corsOptions = {

@@ -31,16 +31,16 @@ var express = require("express"),
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/partial/registrationform", function(req, res){
-		res.render("partial/registrationform.jade", {
+		res.render("partial/registrationform.pug", {
 			recaptchaSiteKey: config.recaptchaSiteKey
 		});
 	});
 
 	app.get(prefix + "/partial/*", function(req, res){
 		if(config.debugMode){
-			res.render("partial/" + req.params[0] + ".jade");
+			res.render("partial/" + req.params[0] + ".pug");
 		}else{
-			res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
+			res.render("partial/" + req.params[0] + ".pug", {}, function(err, html){
 				if(err){
 					res.redirect("/partial/404");
 				}else{
