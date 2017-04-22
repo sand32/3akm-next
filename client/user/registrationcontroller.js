@@ -29,6 +29,9 @@ require("../common/userservice.js");
 		var reg = this;
 		reg.busy = false;
 		reg.tertiaryHandles = [];
+		reg.help = {
+			password: "Your password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number.<br/><br/>Your password also must not contain any significant portion of your first or last names."
+		}
 
 		reg.register = function(){
 			reg.busy = true;

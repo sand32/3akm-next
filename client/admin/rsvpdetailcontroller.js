@@ -31,7 +31,7 @@ require("../admin-common/lanselectcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpDetailController = function($scope, $state, $modal, ngToast, RsvpService, LanService, UserService){
+	var RsvpDetailController = function($scope, $state, $uibModal, ngToast, RsvpService, LanService, UserService){
 		var rsvp = this;
 		rsvp.loaded = false;
 		rsvp.busy = false;
@@ -92,7 +92,7 @@ require("../common/enumselectdirective.js");
 		};
 
 		rsvp.selectUser = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/admin/userselectmodal",
 				controller: "UserSelectController as select",
 			});
@@ -111,7 +111,7 @@ require("../common/enumselectdirective.js");
 		};
 
 		rsvp.selectLan = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/admin/lanselectmodal",
 				controller: "LanSelectController as select",
 			});
@@ -177,7 +177,7 @@ require("../common/enumselectdirective.js");
 		};
 
 		rsvp.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -213,5 +213,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("RsvpDetailController", RsvpDetailController);
 
-	RsvpDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "RsvpService", "LanService", "UserService"];
+	RsvpDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "RsvpService", "LanService", "UserService"];
 })();

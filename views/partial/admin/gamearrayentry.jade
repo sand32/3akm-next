@@ -29,5 +29,5 @@
 		.form-group.col-xs-6
 			label(ng-if = "$index === 0") Tournament Name (leave blank if no tournament)
 			input.form-control(type = "text", ng-model = "item.tournamentName")
-		a.btn.btn-default.glyphicon.glyphicon-minus(tooltip = "{{removalTooltip}}", tooltip-placement = "{{removalTooltipPlacement}}", ng-click = "removeItem($index)", ng-style = "{'margin-top': $index === 0 ? '1.7em' : '-1px'}")
-	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(tooltip = "{{additionTooltip}}", tooltip-placement = "{{additionTooltipPlacement}}", ng-click = "addItem()")
+		a.btn.btn-default.glyphicon.glyphicon-minus(uib-tooltip = "{{removalTooltip}}", tooltip-placement = "{{removalTooltipPlacement}}", ng-click = "removeItem($index)", ng-style = "{'margin-top': $index === 0 ? '1.7em' : '-1px'}")
+	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(uib-tooltip = "{{additionTooltip}}", tooltip-placement = "{{additionTooltipPlacement}}", ng-click = "addItem()")

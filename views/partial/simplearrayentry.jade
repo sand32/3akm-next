@@ -25,5 +25,5 @@
 	.input-group.array-item(ng-repeat = "item in items track by $index")
 		input.form-control(type = "text", ng-model = "items[$index]")
 		span.input-group-btn.input-group-align
-			a.btn.btn-default.glyphicon.glyphicon-minus(tooltip = "{{removalTooltip}}", tooltip-placement = "right", ng-click = "removeItem($index)")
-	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(tooltip = "{{additionTooltip}}", tooltip-placement = "right", ng-click = "addItem()")
+			a.btn.btn-default.glyphicon.glyphicon-minus(uib-tooltip = "{{removalTooltip}}", tooltip-placement = "right", ng-click = "removeItem($index)")
+	a.array-item.btn.btn-default.glyphicon.glyphicon-plus(uib-tooltip = "{{additionTooltip}}", tooltip-placement = "right", ng-click = "addItem()")

@@ -23,15 +23,15 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var ConfirmController = function($modalInstance, message){
+	var ConfirmController = function($uibModalInstance, message){
 		this.message = message;
 
 		this.ok = function(){
-			$modalInstance.close();
+			$uibModalInstance.close();
 		};
 
 		this.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -39,5 +39,5 @@ misrepresented as being the original software.
 		.module("3akm.confirmModal", [])
 		.controller("ConfirmController", ConfirmController);
 
-	ConfirmController.$inject = ["$modalInstance", "message"];
+	ConfirmController.$inject = ["$uibModalInstance", "message"];
 })();

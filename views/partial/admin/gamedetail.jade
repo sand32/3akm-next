@@ -49,7 +49,7 @@
 			.row
 				.form-group.col-xs-12
 					label Stores 
-						.glyphicon.glyphicon-question-sign(tooltip-html-unsafe = "{{game.help.stores}}", tooltip-placement = "bottom", tooltip-class = "tooltip-wide tooltip-left")
+						.glyphicon.glyphicon-question-sign(uib-tooltip-html = "game.help.stores", tooltip-placement = "bottom", tooltip-class = "tooltip-wide tooltip-left")
 					enum-value-array-entry(array-model = "game.current.stores", enumeration = "game.storesEnum", key-label = "Store", value-label = "AppID", key-name = "store", value-name = "appid", addition-tooltip = "Add another store", removal-tooltip = "Remove this store", removal-tooltip-placement = "bottom")
 			.row
 				.col-xs-6

@@ -27,7 +27,7 @@ require("../common/enumselectdirective.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var RecipientDetailController = function($scope, $state, $modal, ngToast, RecipientService){
+	var RecipientDetailController = function($scope, $state, $uibModal, ngToast, RecipientService){
 		var recipient = this;
 		recipient.loaded = false;
 		recipient.busy = false;
@@ -86,7 +86,7 @@ require("../common/confirmcontroller.js");
 		};
 
 		recipient.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -119,5 +119,5 @@ require("../common/confirmcontroller.js");
 			])
 		.controller("RecipientDetailController", RecipientDetailController);
 
-	RecipientDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "RecipientService"];
+	RecipientDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "RecipientService"];
 })();

@@ -27,7 +27,7 @@ require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ProfileController = function($scope, $state, $modal, ngToast, UserService){
+	var ProfileController = function($scope, $state, $uibModal, ngToast, UserService){
 		var profile = this;
 		profile.busy = false;
 		profile.loaded = false;
@@ -85,7 +85,7 @@ require("../common/enumselectdirective.js");
 		};
 
 		profile.openChangePasswordModal = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/changepasswordmodal",
 				controller: "ChangePasswordController as changePass"
 			});
@@ -111,5 +111,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ProfileController", ProfileController);
 
-	ProfileController.$inject = ["$scope", "$state", "$modal", "ngToast", "UserService"];
+	ProfileController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "UserService"];
 })();

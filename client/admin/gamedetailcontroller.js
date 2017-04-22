@@ -28,7 +28,7 @@ require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
+	var GameDetailController = function($scope, $state, $uibModal, ngToast, GameService, StoreService){
 		var game = this;
 		game.busy = false;
 		game.current = {
@@ -41,17 +41,15 @@ require("../common/confirmcontroller.js");
 		}
 
 		StoreService.retrieveAll()
-		.then(
-			function(response){
-				for(var i = 0; i < response.data.length; i += 1){
-					game.storesEnum.push({
-						key: response.data[i].name,
-						value: response.data[i]._id
-					});
-					game.help.stores += "<strong>" + response.data[i].name + "</strong>: " + response.data[i].appUrl + "<br/>";
-				}
+		.then(function(response){
+			for(var i = 0; i < response.data.length; i += 1){
+				game.storesEnum.push({
+					key: response.data[i].name,
+					value: response.data[i]._id
+				});
+				game.help.stores += "<strong>" + response.data[i].name + "</strong>: " + response.data[i].appUrl + "<br/>";
 			}
-		);
+		});
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
@@ -90,7 +88,7 @@ require("../common/confirmcontroller.js");
 		};
 
 		game.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -122,5 +120,5 @@ require("../common/confirmcontroller.js");
 			])
 		.controller("GameDetailController", GameDetailController);
 
-	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService", "StoreService"];
+	GameDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "GameService", "StoreService"];
 })();

@@ -23,5 +23,5 @@
 
 .enum-select
 	.btn-group(data-toggle = "buttons")
-		label.btn.btn-default(ng-repeat = "possible in possibles", ng-model = "$parent.current", btn-radio = "{{possible.value}}")
+		label.btn.btn-default(ng-repeat = "possible in possibles", ng-model = "$parent.current", uib-btn-radio = "{{possible.value}}")
 			| {{possible.label}}

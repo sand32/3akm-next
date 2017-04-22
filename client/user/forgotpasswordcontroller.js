@@ -23,16 +23,16 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var ForgotPasswordController = function($modalInstance){
+	var ForgotPasswordController = function($uibModalInstance){
 		var ctrl = this;
 		ctrl.email = "";
 
 		ctrl.ok = function(){
-			$modalInstance.close(ctrl.email);
+			$uibModalInstance.close(ctrl.email);
 		};
 
 		ctrl.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -40,5 +40,5 @@ misrepresented as being the original software.
 		.module("3akm.forgotPassword", [])
 		.controller("ForgotPasswordController", ForgotPasswordController);
 
-	ForgotPasswordController.$inject = ["$modalInstance"];
+	ForgotPasswordController.$inject = ["$uibModalInstance"];
 })();

@@ -39,11 +39,11 @@
 						div(ng-message = "required") An end date is required
 				.form-group.col-xs-3
 					label Active 
-						.glyphicon.glyphicon-question-sign(tooltip = "{{lan.help.active}}", tooltip-placement = "bottom")
+						.glyphicon.glyphicon-question-sign(uib-tooltip = "{{lan.help.active}}", tooltip-placement = "bottom")
 					enum-select(current = "lan.current.active", possibles = "lan.boolPossibles")
 				.form-group.col-xs-3
 					label RSVPs 
-						.glyphicon.glyphicon-question-sign(tooltip = "{{lan.help.acceptingRsvps}}", tooltip-placement = "bottom")
+						.glyphicon.glyphicon-question-sign(uib-tooltip = "{{lan.help.acceptingRsvps}}", tooltip-placement = "bottom")
 					enum-select(current = "lan.current.acceptingRsvps", possibles = "lan.boolPossibles")
 			.row
 				.form-group.col-xs-6

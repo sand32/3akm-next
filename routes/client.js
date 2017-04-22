@@ -82,7 +82,8 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(function(){
 				res.render("frontend", {
-					analyticsTrackingId: config.analyticsTrackingId
+					analyticsTrackingId: config.analyticsTrackingId,
+					debugMode: config.debugMode
 				});
 			}).catch(function(error){
 				log.error(error);
@@ -90,7 +91,8 @@ module.exports = function(app, prefix){
 			});
 		}else{
 			res.render("frontend", {
-				analyticsTrackingId: config.analyticsTrackingId
+				analyticsTrackingId: config.analyticsTrackingId,
+				debugMode: config.debugMode
 			});
 		}
 	});

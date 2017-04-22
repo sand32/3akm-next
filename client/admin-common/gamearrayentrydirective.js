@@ -26,7 +26,7 @@ require("../common/gameservice.js");
 require("./gameselectcontroller.js");
 
 (function(){
-	var GameArrayEntry = function($modal, GameService){
+	var GameArrayEntry = function($uibModal, GameService){
 		return {
 			restrict: "E",
 			replace: true,
@@ -70,7 +70,7 @@ require("./gameselectcontroller.js");
 				};
 
 				scope.selectGame = function(index){
-					var modalInstance = $modal.open({
+					var modalInstance = $uibModal.open({
 						templateUrl: "/partial/admin/gameselectmodal",
 						controller: "GameSelectController as select",
 					});
@@ -91,5 +91,5 @@ require("./gameselectcontroller.js");
 			])
 		.directive("gameArrayEntry", GameArrayEntry)
 
-	GameArrayEntry.$inject = ["$modal", "GameService"];
+	GameArrayEntry.$inject = ["$uibModal", "GameService"];
 })();

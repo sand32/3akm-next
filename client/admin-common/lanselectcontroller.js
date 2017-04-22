@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var LanSelectController = function($modalInstance, ngToast, LanService){
+	var LanSelectController = function($uibModalInstance, ngToast, LanService){
 		var ctrl = this;
 		ctrl.lans = [];
 
@@ -35,11 +35,11 @@ misrepresented as being the original software.
 		});
 
 		ctrl.ok = function(userId){
-			$modalInstance.close(userId);
+			$uibModalInstance.close(userId);
 		};
 
 		ctrl.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -47,5 +47,5 @@ misrepresented as being the original software.
 		.module("3akm.lanSelectModal", [])
 		.controller("LanSelectController", LanSelectController);
 
-	LanSelectController.$inject = ["$modalInstance", "ngToast", "LanService"];
+	LanSelectController.$inject = ["$uibModalInstance", "ngToast", "LanService"];
 })();

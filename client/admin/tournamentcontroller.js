@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("../common/lanservice.js");
 
 (function(){
-	var TournamentController = function($modal, ngToast, LanService){
+	var TournamentController = function(ngToast, LanService){
 		var ctrl = this;
 		ctrl.tournament = null;
 		ctrl.roster = [];
@@ -67,10 +67,9 @@ require("../common/lanservice.js");
 	angular
 		.module("3akm.admin.tournament", 
 			[
-				"3akm.lan",
-				"3akm.confirmModal"
+				"3akm.lan"
 			])
 		.controller("TournamentController", TournamentController);
 
-	TournamentController.$inject = ["$modal", "ngToast", "LanService"];
+	TournamentController.$inject = ["ngToast", "LanService"];
 })();

@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var GameSelectController = function($modalInstance, ngToast, GameService){
+	var GameSelectController = function($uibModalInstance, ngToast, GameService){
 		var ctrl = this;
 		ctrl.games = [];
 
@@ -35,11 +35,11 @@ misrepresented as being the original software.
 		});
 
 		ctrl.ok = function(gameId){
-			$modalInstance.close(gameId);
+			$uibModalInstance.close(gameId);
 		};
 
 		ctrl.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -47,5 +47,5 @@ misrepresented as being the original software.
 		.module("3akm.admin.common.gameSelectModal", [])
 		.controller("GameSelectController", GameSelectController);
 
-	GameSelectController.$inject = ["$modalInstance", "ngToast", "GameService"];
+	GameSelectController.$inject = ["$uibModalInstance", "ngToast", "GameService"];
 })();

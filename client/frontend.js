@@ -87,6 +87,7 @@ require("./common/validationdirectives.js");
 				templateUrl: "/partial/404"
 			});
 
+		$compileProvider.debugInfoEnabled(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
 		ngToastProvider.configure({

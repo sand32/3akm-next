@@ -28,7 +28,7 @@ require("../common/textselectcontroller.js");
 require("./recipientdetailcontroller.js");
 
 (function(){
-	var RecipientListController = function($scope, $state, $modal, ngToast, RecipientService, UserService){
+	var RecipientListController = function($scope, $state, $uibModal, ngToast, RecipientService, UserService){
 		var recipients = this;
 		recipients.list = [];
 
@@ -50,7 +50,7 @@ require("./recipientdetailcontroller.js");
 			UserService.retrieveAll()
 			.then(function(response){
 				var users = response.data;
-				var modalInstance = $modal.open({
+				var modalInstance = $uibModal.open({
 					templateUrl: "/partial/textselectmodal",
 					controller: "TextSelectController as textSelect",
 					resolve: {
@@ -90,7 +90,7 @@ require("./recipientdetailcontroller.js");
 			UserService.retrieveAll()
 			.then(function(response){
 				var users = response.data;
-				var modalInstance = $modal.open({
+				var modalInstance = $uibModal.open({
 					templateUrl: "/partial/textselectmodal",
 					controller: "TextSelectController as textSelect",
 					resolve: {
@@ -134,5 +134,5 @@ require("./recipientdetailcontroller.js");
 			])
 		.controller("RecipientListController", RecipientListController);
 
-	RecipientListController.$inject = ["$scope", "$state", "$modal", "ngToast", "RecipientService", "UserService"];
+	RecipientListController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "RecipientService", "UserService"];
 })();
