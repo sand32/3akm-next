@@ -25,10 +25,10 @@
 	.row.array-item(ng-repeat = "item in items track by $index")
 		.form-group.col-xs-5
 			label(ng-if = "$index === 0") {{keyLabel}}
-			div.dropdown(dropdown)
-				a.dropdown-toggle.btn.btn-default.full-width(dropdown-toggle) {{getEnumKeyFromValue(item[keyName])}} 
+			div.dropdown(uib-dropdown)
+				a.dropdown-toggle.btn.btn-default.full-width(uib-dropdown-toggle) {{getEnumKeyFromValue(item[keyName])}}
 					span.caret
-				ul.dropdown-menu
+				ul.dropdown-menu(uib-dropdown-menu)
 					li(ng-repeat = "enumItem in enumeration")
 						a(href = "#", ng-click = "setEnumKey($parent.$index, $index, enumItem.value)") {{enumItem.key}}
 		.form-group.col-xs-6
