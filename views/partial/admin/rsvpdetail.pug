@@ -1,0 +1,79 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "RsvpDetailController as rsvp")
+	.panel-body.has-banner
+		form(name = "rsvpForm", novalidate, ng-submit = "rsvp.save()")
+			.row.panel-banner
+				.col-xs-8
+					.form-group(style = "margin: 0;")
+						.col-xs-7
+							label User:&nbsp;&nbsp;
+							.horizontal(ng-if = "rsvp.loaded && rsvp.current._id") {{rsvp.current.user.firstName}} {{rsvp.current.user.lastName}}
+							.horizontal(ng-if = "rsvp.loaded && !rsvp.current._id")
+								a.btn.btn-default(ng-click = "rsvp.selectUser()") {{rsvp.userSelectText}}
+						.col-xs-5
+							label LAN:&nbsp;&nbsp;
+							.horizontal(ng-if = "rsvp.loaded && rsvp.current._id") {{rsvp.current.lan.beginDate | date: "mediumDate"}}
+							.horizontal(ng-if = "rsvp.loaded && !rsvp.current._id")
+								a.btn.btn-default(ng-click = "rsvp.selectLan()") {{rsvp.lanSelectText | date : "mediumDate"}}
+				.form-group.col-xs-4(style = "margin: 0; text-align: right;")
+					enum-select.horizontal(current = "rsvp.current.status", possibles = "rsvp.statusPossibles")
+			.row
+				.form-group.col-xs-3
+					label Playing
+					enum-select(current = "rsvp.current.playing", possibles = "rsvp.boolPossibles")
+				.form-group.col-xs-3
+					label Cleaning
+					enum-select(current = "rsvp.current.cleaning", possibles = "rsvp.boolPossibles")
+				.form-group.col-xs-3
+					label Attended
+					enum-select(current = "rsvp.current.attended", possibles = "rsvp.boolPossibles")
+			.row
+				.form-group.col-xs-6
+					label Guests
+					input.form-control(type = "number", min = "0", pattern = "^\\d+$", name = "guests", ng-model = "rsvp.current.guests", placeholder = "0")
+					.form-feedback.text-danger(ng-messages = "rsvpForm.guests.$error", ng-if = "rsvpForm.guests.$dirty", role = "alert")
+						div(ng-message = "number") Must be a non-negative number
+						div(ng-message = "min") Must be a non-negative number
+			.row
+				p.col-xs-6
+					label Tournaments
+			.row
+				.well.col-xs-6
+					.row(ng-repeat = "tournament in rsvp.tournaments")
+						.form-group.col-xs-12
+							label.form-control-static.col-xs-6 {{tournament.name}}
+							enum-select(current = "tournament.signedUp", possibles = "rsvp.boolPossibles")
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "rsvpForm.$invalid || rsvp.busy")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "rsvp.current._id", ng-click = "rsvp.delete()", ng-disabled = "rsvp.busy")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

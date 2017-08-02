@@ -1,24 +1,24 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
@@ -27,6 +27,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var Promise = require("bluebird"),
 	ldapjs = require("ldapjs"),
 	config = require("./common.js").config,
+	log = require("./log.js"),
 
 	uacFlags = {
 		disabled: 0x00000002,
@@ -55,9 +56,14 @@ var Promise = require("bluebird"),
 	},
 
 	createClient = function(){
-		return ldapjs.createClient({
-			url: config.ldap.url
+		var client = ldapjs.createClient({
+			url: config.ldap.url,
+			reconnect: true
 		});
+		client.on("error", function(err){
+			log.warn("LDAP connection failed, reconnecting...");
+		});
+		return client;
 	},
 
 	// promisifyAll on the client object explodes sometimes.
@@ -360,12 +366,19 @@ module.exports = {
 			}]);
 		}).then(function(){
 			lastAttemptedStep = "enable-user-and-set-verified";
+			currentUac = removeUacFlag(currentUac, uacFlags.disabled);
 			return modify(client, userDn, [{
 				operation: "replace",
-				modification: {userAccountControl: removeUacFlag(currentUac, uacFlags.disabled)}
+				modification: {userAccountControl: currentUac}
 			},{
 				operation: "add",
 				modification: {extensionAttribute1: userTemplate.verified ? "true" : "false"}
+			}]);
+		}).then(function(){
+			lastAttemptedStep = "set-dont-expire-password";
+			return modify(client, userDn, [{
+				operation: "replace",
+				modification: {userAccountControl: addUacFlag(currentUac, uacFlags.dontExpirePassword)}
 			}]);
 		}).then(function(){
 			var promises = [modify(client, "cn=" + config.ldap.userGroupCn + "," + config.ldap.groupDn, {
@@ -394,9 +407,9 @@ module.exports = {
 			}else{
 				module.exports.deleteUser(entry.cn);
 				if(lastAttemptedStep === "set-password"){
-					throw {reason: "invalid-password", message: "Unable to set password, password rejected by the directory"};
+					throw {reason: "invalid-password", message: "Unable to set password for user \"" + entry.cn + "\", password rejected by the directory"};
 				}else{
-					throw {reason: "ldap-error", message: err};
+					throw {reason: "ldap-error", message: err.message};
 				}
 			}
 		});
@@ -663,33 +676,33 @@ module.exports = {
 	hasRole: function(cn, role){
 		var client = createClient();
 
-		return bindServiceAccount(client)
-		.then(function(){
-			return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
-		}).then(function(result){
-			var entry, groupDn = "cn=" + config.ldap.roleGroupCns[role].toLowerCase() + "," + config.ldap.groupDn.toLowerCase();
-			if(result.status === 0
-			&& result.entries.collection.length > 0){
-				entry = result.entries.collection[0];
-				for(var i = 0; i < entry.memberOf.length; i += 1){
-					if(entry.memberOf[i].toLowerCase() === groupDn){
-						return Promise.resolve();
+		return new Promise(function(resolve, reject){
+			bindServiceAccount(client)
+			.then(function(){
+				return findEntry(client, config.ldap.userDn, "(cn=" + cn + ")");
+			}).then(function(result){
+				var entry, groupDn = "cn=" + config.ldap.roleGroupCns[role].toLowerCase() + "," + config.ldap.groupDn.toLowerCase();
+				if(result.status === 0
+				&& result.entries.collection.length > 0){
+					entry = result.entries.collection[0];
+					for(var i = 0; i < entry.memberOf.length; i += 1){
+						if(entry.memberOf[i].toLowerCase() === groupDn){
+							resolve(true);
+							return;
+						}
 					}
 				}
-			}
-			throw {
-				reason: "role-not-found",
-				message: "The given user has no role by that name"
-			};
-		}).then(function(){
-			return unbind(client);
-		}).catch(function(err){
-			unbind(client);
-			if(err.reason){
-				throw err;
-			}else{
-				throw {reason: "ldap-error", message: err};
-			}
+				resolve(false);
+			}).then(function(){
+				return unbind(client);
+			}).catch(function(err){
+				unbind(client);
+				if(err.reason){
+					reject(err);
+				}else{
+					reject({reason: "ldap-error", message: err});
+				}
+			});
 		});
 	},
 

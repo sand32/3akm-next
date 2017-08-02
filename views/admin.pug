@@ -1,0 +1,130 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+doctype html
+html(ng-app = "3akm.admin")
+	head
+		title 3AKM Administrative Portal
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast-animations.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/fontawesome/css/font-awesome.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/textangular/textAngular.css")
+		link(rel = "stylesheet", type = "text/css", href = "/css/admin.css")
+		meta(name = "viewport", content = "width=device-width, initial-scale=1")
+	body
+		base(href = "/admin/")
+		toast
+		.container-fluid.content-area
+			.menu.col-xs-2.visible-md.visible-lg
+				a(ui-sref = "default")
+					.logo
+				ul.menu-list.nav.nav-stacked
+					li(ui-sref-active = "current")
+						a(ui-sref = "default")
+							| Dashboard
+					li(ui-sref-active = "current")
+						a(ui-sref = "article")
+							| Articles
+					li(ui-sref-active = "current")
+						a(ui-sref = "user")
+							| Users
+					li(ui-sref-active = "current")
+						a(ui-sref = "game")
+							| Games
+					li(ui-sref-active = "current")
+						a(ui-sref = "lan")
+							| LANs
+					li(ui-sref-active = "current")
+						a(ui-sref = "rsvp")
+							| RSVPs
+					li(ui-sref-active = "current")
+						a(ui-sref = "tournament")
+							| Current Tournament
+					li(ui-sref-active = "current")
+						a(ui-sref = "recipient")
+							| Invite Recipients
+					li(ui-sref-active = "current")
+						a(ui-sref = "teamspeak")
+							| Teamspeak
+					li(ui-sref-active = "current")
+						a(ui-sref = "cod4")
+							| Call of Duty 4
+					hr
+					li
+						a(href = "/", target = "_self")
+							| Frontend
+				.version v#{version}
+			.menu-slim.button-row.hidden-md.hidden-lg
+				a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
+			.menu.hidden-md.hidden-lg(ng-show = "showMenu")
+				ul.menu-list.nav.nav-stacked
+					li(ui-sref-active = "current")
+						a(ui-sref = "default", ng-click = "showMenu = false")
+							| Dashboard
+					li(ui-sref-active = "current")
+						a(ui-sref = "article", ng-click = "showMenu = false")
+							| Articles
+					li(ui-sref-active = "current")
+						a(ui-sref = "user", ng-click = "showMenu = false")
+							| Users
+					li(ui-sref-active = "current")
+						a(ui-sref = "game", ng-click = "showMenu = false")
+							| Games
+					li(ui-sref-active = "current")
+						a(ui-sref = "lan", ng-click = "showMenu = false")
+							| LANs
+					li(ui-sref-active = "current")
+						a(ui-sref = "rsvp", ng-click = "showMenu = false")
+							| RSVPs
+					li(ui-sref-active = "current")
+						a(ui-sref = "tournament", ng-click = "showMenu = false")
+							| Current Tournament
+					li(ui-sref-active = "current")
+						a(ui-sref = "recipient", ng-click = "showMenu = false")
+							| Invite Recipients
+					li(ui-sref-active = "current")
+						a(ui-sref = "teamspeak", ng-click = "showMenu = false")
+							| Teamspeak
+					li(ui-sref-active = "current")
+						a(ui-sref = "cod4", ng-click = "showMenu = false")
+							| Call of Duty 4
+					hr
+					li
+						a(href = "/", target = "_self")
+							| Frontend
+			.content.col-md-10(ui-view)
+	script(src = "/thirdparty/angular.min.js")
+	script(src = "/thirdparty/angular-messages.min.js")
+	script(src = "/thirdparty/angular-animate.min.js")
+	script(src = "/thirdparty/angular-sanitize.min.js")
+	script(src = "/thirdparty/angular-ui-router.min.js")
+	script(src = "/thirdparty/angular-loadscript.js")
+	script(src = "/thirdparty/ui-bootstrap-tpls-2.5.0.min.js")
+	script(src = "/thirdparty/textangular/textAngular-rangy.min.js")
+	script(src = "/thirdparty/textangular/textAngular-sanitize.min.js")
+	script(src = "/thirdparty/textangular/textAngular.min.js")
+	script(src = "/thirdparty/ngToast/ngToast.min.js")
+	script(src = "/thirdparty/d3.min.js")
+	script(src = "/js/admin.js")
+	analytics(analytics-tracking-id = analyticsTrackingId)
