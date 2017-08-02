@@ -37,6 +37,7 @@ var express = require("express"),
 	startup = require("./utils/startup.js"),
 	app = express(),
 	config = require("./utils/common.js").config,
+	httpLog = require("./utils/common.js").httpLog,
 	log = require("./utils/log.js"),
 	corsOptions, server;
 
@@ -65,6 +66,8 @@ corsOptions = {
 	}
 };
 app.use(cors(corsOptions));
+
+app.use(httpLog);
 
 // Define session
 app.use(cookieParser(config.cookieSecret));

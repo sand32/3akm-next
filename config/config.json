@@ -28,6 +28,11 @@
 		"serviceAccountDn": "changeme",
 		"serviceAccountPassword": "changeme"
 	},
+	"elasticsearch": {
+		"enabled": false,
+		"host": "changeme",
+		"indexPrefix": "direct-3akm-"
+	},
 	"smtp": {
 		"address": "changeme",
 		"port": 587,

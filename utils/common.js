@@ -120,6 +120,30 @@ module.exports = {
 		next();
 	},
 
+	httpLog: function(req, res, next){
+		var requestTime = new Date();
+		next();
+		var responseTime = new Date();
+		var logBody = {
+			timestamp: new Date(),
+			method: req.method,
+			requestUri: req.originalUrl,
+			remoteIp: req.ip,
+			forwardedIPs: req.ips.join(", "),
+			userAgent: req.get("User-Agent"),
+			requestContentLength: req.get("Content-Length") || 0,
+			requestContent: req.body || "N/A",
+			responseContentLength: res.get("Content-Length") || 0,
+			responseContent: res.body || "N/A",
+			statusCode: res.statusCode,
+			duration: responseTime - requestTime
+		};
+		if(req.route){
+			logBody.endpoint = req.method + " " + req.route.path;
+		}
+		log.writeElastic(logBody, "HTTP");
+	},
+
 	removeDuplicates: function(array){
 		if(!array || !Array.isArray(array)){
 			return array;
