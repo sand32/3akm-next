@@ -32,7 +32,7 @@ div(ng-controller = "PrepController as prep")
 			strong 
 				em Cover Charge:
 			br
-			| Please plan on a small contribution of {{prep.lan.entryFee | currency : $ : 0}} dollars to defray the electric bill, food and other expenses. If you’re bringing some food to share the fee can be waived.
+			| Please plan on a small contribution of {{prep.lan.entryFee | currency : $ : 0}} to defray the electric bill, food and other expenses. If you’re bringing some food to share the fee can be waived.
 
 		p
 			strong
@@ -78,8 +78,7 @@ div(ng-controller = "PrepController as prep")
 			br
 			| 1785 Leavitt Woods Ln, Shakopee, MN 55379
 			br
-			a(href = "https://goo.gl/maps/A7gQWGtkcwP2", target = "_blank")
-				img(src = "images/annotatedLANMap.png")
+			iframe(src = "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d4764.866232197112!2d-93.50189907870471!3d44.75620493557425!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87f616d350391a43%3A0xcf7ba03b7e4aebae!2s1785+Leavitt+Woods+Ln%2C+Shakopee%2C+MN+55379!5e0!3m2!1sen!2sus!4v1499734902333", width = "100%", height = "600", frameborder = "0", style = "border:0;", allowFullscreen)
 		p(ng-if = "!prep.isLoggedIn")
 			strong
 				em Location
