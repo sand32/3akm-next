@@ -1,0 +1,74 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "ArticleDetailController as article")
+	.panel-body
+		form(name = "articleForm", novalidate, ng-submit = "article.save()")
+			.row
+				.form-group.col-xs-6
+					label Title 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "title", autofocus, ng-model = "article.current.title", required)
+					.form-feedback.text-danger(ng-messages = "articleForm.title.$error", ng-if = "articleForm.title.$dirty", role = "alert")
+						div(ng-message = "required") A title is required
+				.form-group.col-xs-6
+					label Published
+					enum-select(current = "article.current.published", possibles = "article.boolPossibles")
+			.row
+				.well.col-xs-6
+					.row
+						label.col-xs-5 Created By:
+						.col-xs-7(ng-if = "article.current.author") {{article.current.author.firstName}} {{article.current.author.lastName}}
+						.col-xs-7(ng-if = "!article.current.author") N/A
+					.row
+						label.col-xs-5 Created:
+						.col-xs-7(ng-if = "article.current.created") {{article.current.created | date: "medium"}}
+						.col-xs-7(ng-if = "!article.current.created") N/A
+					.row
+						label.col-xs-5 Modified By:
+						.col-xs-7(ng-if = "article.current.modifiedBy") {{article.current.modifiedBy.firstName}} {{article.current.modifiedBy.lastName}}
+						.col-xs-7(ng-if = "!article.current.modifiedBy") N/A
+					.row
+						label.col-xs-5 Modified:
+						.col-xs-7(ng-if = "article.current.modified") {{article.current.modified | date: "medium"}}
+						.col-xs-7(ng-if = "!article.current.modified") N/A
+			.row
+				.form-group.col-xs-6
+					label Tags
+					simple-array-entry(array-model = "article.current.tags", addition-tooltip = "Add another tag", removal-tooltip = "Remove this tag")
+			.row
+				.form-group.col-xs-12
+					label Content
+					text-angular(ng-model = "article.current.content")
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "articleForm.$invalid")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "article.current._id", ng-click = "article.delete()")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

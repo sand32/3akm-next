@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -26,7 +26,7 @@ require("./forgotpasswordcontroller.js");
 require("../common/userservice.js");
 
 (function(){
-	var AuthController = function($scope, $rootScope, $state, $modal, ngToast, UserService){
+	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService){
 		var ctrl = this;
 		ctrl.busy = false;
 		ctrl.isLoggedIn = false;
@@ -63,7 +63,7 @@ require("../common/userservice.js");
 		};
 
 		ctrl.openForgotPasswordModal = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/forgotpasswordmodal",
 				controller: "ForgotPasswordController as forgotPass"
 			});
@@ -103,5 +103,5 @@ require("../common/userservice.js");
 		])
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["$scope", "$rootScope", "$state", "$modal", "ngToast", "UserService"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService"];
 })();

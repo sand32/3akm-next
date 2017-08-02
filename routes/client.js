@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -31,16 +31,16 @@ var express = require("express"),
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/partial/registrationform", function(req, res){
-		res.render("partial/registrationform.jade", {
+		res.render("partial/registrationform.pug", {
 			recaptchaSiteKey: config.recaptchaSiteKey
 		});
 	});
 
 	app.get(prefix + "/partial/*", function(req, res){
 		if(config.debugMode){
-			res.render("partial/" + req.params[0] + ".jade");
+			res.render("partial/" + req.params[0] + ".pug");
 		}else{
-			res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
+			res.render("partial/" + req.params[0] + ".pug", {}, function(err, html){
 				if(err){
 					res.redirect("/partial/404");
 				}else{
@@ -82,7 +82,8 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(function(){
 				res.render("frontend", {
-					analyticsTrackingId: config.analyticsTrackingId
+					analyticsTrackingId: config.analyticsTrackingId,
+					debugMode: config.debugMode
 				});
 			}).catch(function(error){
 				log.error(error);
@@ -90,7 +91,8 @@ module.exports = function(app, prefix){
 			});
 		}else{
 			res.render("frontend", {
-				analyticsTrackingId: config.analyticsTrackingId
+				analyticsTrackingId: config.analyticsTrackingId,
+				debugMode: config.debugMode
 			});
 		}
 	});

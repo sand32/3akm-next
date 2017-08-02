@@ -1,0 +1,84 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+doctype html
+html(ng-app = "3akm.frontend", ng-strict-di)
+	head
+		title 3AKM
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/bootstrap/css/bootstrap.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/thirdparty/ngToast/ngToast-animations.min.css")
+		link(rel = "stylesheet", type = "text/css", href = "/css/main.css")
+		meta(name = "viewport", content = "width=device-width, initial-scale=1")
+	body
+		base(href = "/")
+		toast
+		.container.content-area
+			.row.header
+				.menu-slim.button-row.hidden-md.hidden-lg
+					a.btn.menu-button.glyphicon.glyphicon-menu-hamburger(ng-click = "showMenu = !showMenu")
+				.menu.hidden-md.hidden-lg(ng-show = "showMenu")
+					ul.menu-list.nav.nav-stacked
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "default") Home
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "games") Games
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "prep") Preparation
+						li(ui-sref-active = "current", ng-click = "showMenu = false")
+							a(ui-sref = "appearances") Confirmed Appearances
+					user-menu
+			.row.content-row
+				.content.col-md-9(ui-view)
+				.menu.col-md-3.visible-md-block.visible-lg-block
+					.menu-container.affix-top
+					a(ui-sref = "default")
+						.logo
+
+					ul.menu-list.nav.nav-stacked
+						li(ui-sref-active = "current")
+							a(ui-sref = "default") Home
+						li(ui-sref-active = "current")
+							a(ui-sref = "games") Games
+						li(ui-sref-active = "current")
+							a(ui-sref = "prep") Preparation
+						li(ui-sref-active = "current")
+							a(ui-sref = "appearances") Confirmed Appearances
+					user-menu
+			.row.footer
+				.col-xs-12
+					p Copyright &copy; 2014-#{new Date().getFullYear()} Seth Anderson
+					p Source available under the zlib/libpng license on
+						br
+						a(href = "https://github.com/sand32/3akm-next", target = "_blank")
+							img(src = "/images/GitHub_Logo.png")
+	script(src = "/thirdparty/angular.min.js")
+	script(src = "/thirdparty/angular-messages.min.js")
+	script(src = "/thirdparty/angular-animate.min.js")
+	script(src = "/thirdparty/angular-sanitize.min.js")
+	script(src = "/thirdparty/angular-ui-router.min.js")
+	script(src = "/thirdparty/angular-loadscript.js")
+	script(src = "/thirdparty/ui-bootstrap-tpls-2.5.0.min.js")
+	script(src = "/thirdparty/ngToast/ngToast.min.js")
+	script(src = "/js/frontend.js")
+	analytics(analytics-tracking-id = analyticsTrackingId)

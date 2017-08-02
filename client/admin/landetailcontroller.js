@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -29,7 +29,7 @@ require("../common/confirmcontroller.js");
 require("../admin-common/gamearrayentrydirective.js");
 
 (function(){
-	var LanDetailController = function($scope, $state, $modal, ngToast, LanService, GameService){
+	var LanDetailController = function($scope, $state, $uibModal, ngToast, LanService, GameService){
 		var lan = this;
 		lan.busy = false;
 		lan.current = {
@@ -108,7 +108,7 @@ require("../admin-common/gamearrayentrydirective.js");
 		};
 
 		lan.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -143,5 +143,5 @@ require("../admin-common/gamearrayentrydirective.js");
 			])
 		.controller("LanDetailController", LanDetailController);
 
-	LanDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "LanService", "GameService"];
+	LanDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "LanService", "GameService"];
 })();

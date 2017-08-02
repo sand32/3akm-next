@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -28,7 +28,7 @@ require("../common/confirmcontroller.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var ArticleDetailController = function($scope, $state, $modal, ngToast, ArticleService){
+	var ArticleDetailController = function($scope, $state, $uibModal, ngToast, ArticleService){
 		var article = this;
 		article.busy = false;
 		article.current = {
@@ -77,7 +77,7 @@ require("../common/enumselectdirective.js");
 		};
 
 		article.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -112,5 +112,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("ArticleDetailController", ArticleDetailController);
 
-	ArticleDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "ArticleService"];
+	ArticleDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "ArticleService"];
 })();

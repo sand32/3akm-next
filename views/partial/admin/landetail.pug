@@ -1,0 +1,73 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "LanDetailController as lan")
+	.panel-body
+		form(name = "lanForm", novalidate, ng-submit = "lan.save()")
+			.row
+				.form-group.col-xs-3
+					label Begin Date 
+						span.text-danger (Required)
+					input.form-control(type = "date", name = "beginDate", ng-model = "lan.current.beginDate", required)
+					.form-feedback.text-danger(ng-messages = "lanForm.beginDate.$error", ng-if = "lanForm.beginDate.$dirty", role = "alert")
+						div(ng-message = "required") A begin date is required
+				.form-group.col-xs-3
+					label End Date 
+						span.text-danger (Required)
+					input.form-control(type = "date", name = "endDate", ng-model = "lan.current.endDate", required)
+					.form-feedback.text-danger(ng-messages = "lanForm.endDate.$error", ng-if = "lanForm.endDate.$dirty", role = "alert")
+						div(ng-message = "required") An end date is required
+				.form-group.col-xs-3
+					label Active 
+						.glyphicon.glyphicon-question-sign(uib-tooltip = "{{lan.help.active}}", tooltip-placement = "bottom")
+					enum-select(current = "lan.current.active", possibles = "lan.boolPossibles")
+				.form-group.col-xs-3
+					label RSVPs 
+						.glyphicon.glyphicon-question-sign(uib-tooltip = "{{lan.help.acceptingRsvps}}", tooltip-placement = "bottom")
+					enum-select(current = "lan.current.acceptingRsvps", possibles = "lan.boolPossibles")
+			.row
+				.form-group.col-xs-6
+					label Entry Fee
+					input.form-control(type = "number", min = "0", name = "entryFee", ng-model = "lan.current.entryFee")
+					.form-feedback.text-danger(ng-messages = "lanForm.entryFee.$error", ng-if = "lanForm.entryFee.$dirty", role = "alert")
+						div(ng-message = "number") Must be a non-negative number
+						div(ng-message = "min") Must be a non-negative number
+				.col-xs-6.field-align.form-control-static
+					label Will appear as:
+					span  {{lan.current.entryFee | currency : $ : 0}}
+			.row
+				.form-group.col-xs-12
+					label Games
+					game-array-entry(array-model = "lan.current.games", addition-tooltip = "Add another game", removal-tooltip = "Remove this game", removal-tooltip-placement = "bottom")
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "lanForm.$invalid || lan.busy")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "lan.current._id", ng-click = "lan.delete()", ng-disabled = "lan.busy")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

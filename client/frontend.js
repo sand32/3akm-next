@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -87,6 +87,7 @@ require("./common/validationdirectives.js");
 				templateUrl: "/partial/404"
 			});
 
+		$compileProvider.debugInfoEnabled(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
 		ngToastProvider.configure({

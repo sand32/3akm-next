@@ -1,0 +1,64 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "RecipientDetailController as recipient")
+	.panel-body
+		form(name = "recipientForm", novalidate, ng-submit = "recipient.save()")
+			.row
+				.form-group.col-xs-6
+					label Email 
+						span.text-danger (Required)
+					input.form-control(type = "email", name = "email", autofocus, ng-model = "recipient.current.email", required)
+					.form-feedback.text-danger(ng-messages = "recipientForm.email.$error", ng-if = "recipientForm.email.$dirty", role = "alert")
+						div(ng-message = "required") An email is required
+						div(ng-message = "email") Invalid email
+			.row
+				.form-group.col-xs-6
+					label First Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "firstName", ng-model = "recipient.current.firstName", required)
+					.form-feedback.text-danger(ng-messages = "recipientForm.firstName.$error", ng-if = "recipientForm.firstName.$dirty", role = "alert")
+						div(ng-message = "required") A first name is required
+				.form-group.col-xs-6
+					label Last Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "lastName", ng-model = "recipient.current.lastName", required)
+					.form-feedback.text-danger(ng-messages = "recipientForm.lastName.$error", ng-if = "recipientForm.lastName.$dirty", role = "alert")
+						div(ng-message = "required") A last name is required
+			.row
+				.form-group.col-xs-4
+					label VIP 
+						.glyphicon.glyphicon-question-sign(tooltip = "{{recipient.help.vip}}", tooltip-placement = "bottom")
+					enum-select(current = "recipient.current.vip", possibles = "recipient.boolPossibles")
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "recipientForm.$invalid || recipient.busy")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "recipient.current._id", ng-click = "recipient.delete()", ng-disabled = "recipient.busy")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

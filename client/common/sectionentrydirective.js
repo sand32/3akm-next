@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -35,25 +35,21 @@ misrepresented as being the original software.
 			templateUrl: "/partial/sectionentry",
 			link: function(scope, element, attrs){
 				angular.element(element.children()[0]).css("background-image", "url(" + scope.headerImage + ")");
-				scope.collapsed = true;
+				scope.isCollapsed = true;
 
-				scope.toggleSection = function(){
-					var sectionBody = angular.element(element.children()[1]);
-					sectionBody.css({
-						height: sectionBody.offsetHeight
-					});
-					element.toggleClass("section-entry-open");
-					scope.collapsed = !scope.collapsed;
-
-					if(!scope.collapsed){
-						scope.$parent.$parent.$broadcast("AccordionSwitch", scope.$id);
-					}
-				}
+				scope.toggleOthers = function(){
+					// Remove the no-animate class. This class is a hack since
+					// newer versions of ui-bootstrap have an issue where the
+					// collapsed element will start open and animate closed
+					// on load
+					angular.element(element.children()[1]).removeClass("no-animate");
+					scope.$parent.$parent.$broadcast("AccordionSwitch", scope.$id);
+				};
 
 				scope.$on("AccordionSwitch", function(e, scopeId){
 					if(scope.$id !== scopeId){
 						element.removeClass("section-entry-open");
-						scope.collapsed = true;
+						scope.isCollapsed = true;
 					}
 				});
 			}

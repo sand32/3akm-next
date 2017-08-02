@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -23,7 +23,7 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var UserSelectController = function($modalInstance, ngToast, UserService){
+	var UserSelectController = function($uibModalInstance, ngToast, UserService){
 		var ctrl = this;
 		ctrl.users = [];
 
@@ -35,11 +35,11 @@ misrepresented as being the original software.
 		});
 
 		ctrl.ok = function(userId){
-			$modalInstance.close(userId);
+			$uibModalInstance.close(userId);
 		};
 
 		ctrl.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -47,5 +47,5 @@ misrepresented as being the original software.
 		.module("3akm.userSelectModal", [])
 		.controller("UserSelectController", UserSelectController);
 
-	UserSelectController.$inject = ["$modalInstance", "ngToast", "UserService"];
+	UserSelectController.$inject = ["$uibModalInstance", "ngToast", "UserService"];
 })();

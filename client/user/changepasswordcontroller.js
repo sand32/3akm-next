@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -26,17 +26,17 @@ require("../common/userservice.js");
 require("./profilecontroller.js");
 
 (function(){
-	var ChangePasswordController = function($modalInstance){
+	var ChangePasswordController = function($uibModalInstance){
 		var ctrl = this;
 		ctrl.oldPass = "";
 		ctrl.newPass = "";
 
 		ctrl.ok = function(){
-			$modalInstance.close({oldPassword: ctrl.oldPass, newPassword: ctrl.newPass});
+			$uibModalInstance.close({oldPassword: ctrl.oldPass, newPassword: ctrl.newPass});
 		};
 
 		ctrl.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -44,5 +44,5 @@ require("./profilecontroller.js");
 		.module("3akm.changePassword", [])
 		.controller("ChangePasswordController", ChangePasswordController);
 
-	ChangePasswordController.$inject = ["$modalInstance"];
+	ChangePasswordController.$inject = ["$uibModalInstance"];
 })();

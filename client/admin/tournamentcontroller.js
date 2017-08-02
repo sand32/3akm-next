@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -25,7 +25,7 @@ misrepresented as being the original software.
 require("../common/lanservice.js");
 
 (function(){
-	var TournamentController = function($modal, ngToast, LanService){
+	var TournamentController = function(ngToast, LanService){
 		var ctrl = this;
 		ctrl.tournament = null;
 		ctrl.roster = [];
@@ -67,10 +67,9 @@ require("../common/lanservice.js");
 	angular
 		.module("3akm.admin.tournament", 
 			[
-				"3akm.lan",
-				"3akm.confirmModal"
+				"3akm.lan"
 			])
 		.controller("TournamentController", TournamentController);
 
-	TournamentController.$inject = ["$modal", "ngToast", "LanService"];
+	TournamentController.$inject = ["ngToast", "LanService"];
 })();

@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -29,6 +29,9 @@ require("../common/userservice.js");
 		var reg = this;
 		reg.busy = false;
 		reg.tertiaryHandles = [];
+		reg.help = {
+			password: "Your password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number.<br/><br/>Your password also must not contain any significant portion of your first or last names."
+		}
 
 		reg.register = function(){
 			reg.busy = true;

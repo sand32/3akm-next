@@ -1,0 +1,45 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2017 Seth Anderson
+
+	This software is provided 'as-is', without any express or implied warranty. 
+	In no event will the authors be held liable for any damages arising from the 
+	use of this software.
+
+	Permission is granted to anyone to use this software for any purpose, 
+	including commercial applications, and to alter it and redistribute it 
+	freely, subject to the following restrictions:
+
+	1. The origin of this software must not be misrepresented; you must not 
+	claim that you wrote the original software. If you use this software in a 
+	product, an acknowledgment in the product documentation would be appreciated 
+	but is not required.
+
+	2. Altered source versions must be plainly marked as such, and must not be 
+	misrepresented as being the original software.
+
+	3. This notice may not be removed or altered from any source distribution.
+	-----------------------------------------------------------------------------
+
+.modal-header
+	h4.modal-title Select LAN
+.modal-body
+	.empty-table(ng-if = "select.lans.length === 0") No LANs found
+	table(ng-if = "select.lans.length > 0")
+		thead.panel-banner
+			tr
+				th Begin Date
+				th Games
+				th Active
+				th Accepting RSVPs
+		tbody
+			tr(ng-repeat = "lan in select.lans",
+				ng-click = "select.ok(lan._id)")
+				td {{lan.beginDate | date : "mediumDate"}}
+				td {{lan.games.length}}
+				td
+					span.text-success.glyphicon.glyphicon-ok(ng-if = "lan.active")
+					span.text-danger.glyphicon.glyphicon-remove(ng-if = "!lan.active")
+				td
+					span.text-success.glyphicon.glyphicon-ok(ng-if = "lan.acceptingRsvps")
+					span.text-danger.glyphicon.glyphicon-remove(ng-if = "!lan.acceptingRsvps")

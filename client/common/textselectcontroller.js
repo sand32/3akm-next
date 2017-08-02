@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2017 Seth Anderson
 
 This software is provided 'as-is', without any express or implied warranty. 
 In no event will the authors be held liable for any damages arising from the 
@@ -23,16 +23,16 @@ misrepresented as being the original software.
 */
 
 (function(){
-	var TextSelectController = function($modalInstance, title, text){
+	var TextSelectController = function($uibModalInstance, title, text){
 		this.title = title;
 		this.text = text;
 
 		this.ok = function(){
-			$modalInstance.close();
+			$uibModalInstance.close();
 		};
 
 		this.cancel = function(){
-			$modalInstance.dismiss("cancel");
+			$uibModalInstance.dismiss("cancel");
 		};
 	};
 
@@ -40,5 +40,5 @@ misrepresented as being the original software.
 		.module("3akm.common.textSelectModal", [])
 		.controller("TextSelectController", TextSelectController);
 
-	TextSelectController.$inject = ["$modalInstance", "title", "text"];
+	TextSelectController.$inject = ["$uibModalInstance", "title", "text"];
 })();
