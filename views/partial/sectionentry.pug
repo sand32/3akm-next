@@ -23,9 +23,9 @@
 
 .section-entry
 	.section-header(
-		ng-class = "{grayscale: !hover}",
+		ng-class = "{'section-entry-latent': !hover && isCollapsed, 'section-entry-highlight': hover || !isCollapsed}",
 		ng-mouseenter = "hover = true",
 		ng-mouseleave = "hover = false",
-		ng-click = "toggleSection()")
+		ng-click = "isCollapsed = !isCollapsed; toggleOthers()")
 		h2(ng-if = "!headerImage || headerImage === ''") {{name}}
-	.section-body(ng-transclude, uib-collapse = "collapsed")
+	.section-body.no-animate(ng-transclude, uib-collapse = "isCollapsed")
