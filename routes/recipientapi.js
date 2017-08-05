@@ -22,12 +22,12 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	Recipient = require("../model/recipient.js"),
+var Recipient = require("../model/recipient.js"),
 	User = require("../model/user.js"),
 	authenticate = require("../utils/common.js").authenticate,
 	authorize = require("../authorization.js").authorize,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
@@ -40,11 +40,9 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:recipient", 
+	app.get(prefix + "/:recipient",
+		checkObjectIDParam("recipient"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
-			return res.status(404).end();
-		}
 		Recipient.findById(req.params.recipient)
 		.then(function(recipient){
 			if(!recipient) throw 404;
@@ -52,10 +50,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var thisRecipient;
 		User.findOne({email: req.body.email})
@@ -73,14 +71,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:recipient", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:recipient",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("recipient"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
-			return res.status(404).end();
-		}
 		Recipient.findByIdAndUpdate(req.params.recipient, req.body)
 		.then(function(recipient){
 			if(!recipient) throw 404;
@@ -88,13 +84,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:recipient", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:recipient",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("recipient"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.recipient)){
-			return res.status(404).end();
-		}
 		Recipient.findByIdAndRemove(req.params.recipient)
 		.then(function(recipient){
 			if(!recipient) throw 404;

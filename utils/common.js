@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 var passport = require("passport"),
+	mongoose = require("mongoose"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	request = require("request"),
@@ -118,6 +119,16 @@ module.exports = {
 		if(req.body.__v) delete req.body.__v;
 		if(req.body._id) delete req.body._id;
 		next();
+	},
+
+	checkObjectIDParam: function(objectIDParam){
+		return function(req, res, next){
+			if(!mongoose.Types.ObjectId.isValid(req.params[objectIDParam])){
+				res.status(404).end();
+			}else{
+				next();
+			}
+		};
 	},
 
 	removeDuplicates: function(array){

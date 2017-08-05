@@ -28,10 +28,11 @@ var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
-	app.get(prefix, 
+	app.get(prefix,
 	function(req, res){
 		Game.find({})
 		.sort("name")
@@ -40,11 +41,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:game", 
+	app.get(prefix + "/:game",
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		Game.findById(req.params.game)
 		.then(function(game){
 			if(!game) throw 404;
@@ -52,10 +51,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var uniqueStores = [];
 		for(var i = 0; i < req.body.stores.length; i += 1){
@@ -79,15 +78,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
 		if(req.body.stores && Array.isArray(req.body.stores)){
 			var uniqueStores = [];
 			for(var i = 0; i < req.body.stores.length; i += 1){
@@ -109,14 +105,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
 		Lan.find({"games.game": req.params.game})
 		.then(function(lans){
 			if(lans){

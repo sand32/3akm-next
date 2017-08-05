@@ -22,11 +22,11 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	Store = require("../model/store.js"),
+var Store = require("../model/store.js"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
@@ -37,11 +37,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:store", 
+	app.get(prefix + "/:store",
+		checkObjectIDParam("store"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
-			return res.status(404).end();
-		}
 		Store.findById(req.params.store)
 		.then(function(store){
 			if(!store) throw 404;
@@ -49,10 +47,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var store = new Store(req.body);
 		store.save()
@@ -65,14 +63,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:store", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:store",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("store"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
-			return res.status(404).end();
-		}
 		Store.findByIdAndUpdate(req.params.store, req.body)
 		.then(function(store){
 			if(!store) throw 404;
@@ -80,13 +76,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:store", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:store",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("store"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.store)){
-			return res.status(404).end();
-		}
 		Store.findByIdAndRemove(req.params.store)
 		.then(function(store){
 			if(!store) throw 404;
