@@ -220,6 +220,26 @@ module.exports = function(app, prefix, prefix2){
 					.end();
 				}
 			});
+
+			// Send a notification to Slack
+			if(config.slackRsvpHook.startsWith("http")){
+				User.findById(req.params.user)
+				.then(function(user){
+					if(user){
+						Request({
+							method: "POST",
+							uri: config.slackRsvpHook,
+							json: {
+								text: user.firstName + " " + user.lastName + " has RSVPed for LAN " + req.params.year + " (see the <https://www.3akm.com/appearances|full RSVP list>)"
+							}
+						}, function(err, res, body){
+							if(err){
+								log.warn("Slack notification failed with code: " + err.code + ".");
+							}
+						});
+					}
+				});
+			}
 		});
 	});
 
