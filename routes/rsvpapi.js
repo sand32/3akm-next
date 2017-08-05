@@ -167,7 +167,7 @@ module.exports = function(app, prefix, prefix2){
 			return Rsvp.findOne({user: req.params.user, lan: lan._id});
 		}).then(function(doc){
 			rsvp = doc;
-			if(!rsvp) throw 404;
+			if(!rsvp) throw {reason: "must-create-new"};
 			rsvp.status = req.body.status;
 			rsvp.playing = req.body.playing;
 			rsvp.guests = req.body.guests;
@@ -201,7 +201,12 @@ module.exports = function(app, prefix, prefix2){
 					}
 				});
 			}
-		}).catch(function(){
+		}).catch(function(error){
+			if(error === 404){
+				res.status(404).end();
+				return;
+			}
+
 			rsvp = new Rsvp();
 			rsvp.user = req.params.user;
 			rsvp.lan = lan._id;
