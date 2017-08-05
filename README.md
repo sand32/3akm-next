@@ -1,9 +1,7 @@
 3akm-next
 =========
 
-![](https://img.shields.io/badge/license-zlib%2Flibpng-blue.svg "License")
-
-The next iteration of the site for the 3AK^M LAN party.
+The next iteration of the site for the 3AKM LAN party.
 
 Prerequisites
 -------------
