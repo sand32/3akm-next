@@ -23,7 +23,6 @@ SOFTWARE.
 */
 
 var passport = require("passport"),
-	mongoose = require("mongoose"),
 	Promise = require("bluebird"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
@@ -36,15 +35,16 @@ var passport = require("passport"),
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	smtp = require("../utils/smtp.js"),
 	config = require("../utils/common.js").config,
 	handleError = require("../utils/common.js").handleError,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
-	app.post(prefix + "/register", 
-		verifyRecaptcha, 
-		register, 
+	app.post(prefix + "/register",
+		verifyRecaptcha,
+		register,
 	function(req, res){
 		if(req.isAuthenticated()){
 			smtp.sendEmailVerification(app, req.user, req.protocol + '://' + config.domain)
@@ -58,8 +58,8 @@ module.exports = function(app, prefix){
 		}
 	});
 
-	app.post(prefix + "/login", 
-		login, 
+	app.post(prefix + "/login",
+		login,
 	function(req, res){
 		if(req.isAuthenticated()){
 			res.status(200).end();
@@ -87,14 +87,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/verify", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.post(prefix + "/:user/verify",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		User.findById(req.params.user)
 		.then(function(user){
 			if(!user) throw 404;
@@ -104,11 +101,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/verify/:token", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
+	app.post(prefix + "/:user/verify/:token",
+		checkObjectIDParam("user"),
+	function(req, res){
 		var verified = false, thisUser;
 		Promise.all([
 			User.findById(req.params.user),
@@ -152,13 +147,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:user/verified", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix + "/:user/verified",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		// Retrieve and return the "verified" value
 		User.findById(req.params.user)
 		.then(function(user){
@@ -167,9 +160,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.get(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
 	function(req, res){
 		User.find({})
 		.sort("lastName firstName")
@@ -180,13 +173,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:user", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix + "/:user",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var thisUser, responseData;
 		User.findById(req.params.user)
 		.then(function(user){
@@ -219,10 +210,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		if(req.body.roles){
 			req.body.roles = removeDuplicates(req.body.roles);
@@ -237,16 +228,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:user", 
-		authenticate, 
-		authorizeSessionUser(), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:user",
+		authenticate,
+		authorizeSessionUser(),
+		sanitizeBodyForDB,
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var editUser;
-
 		Promise.all([
 			User.findOne({email: req.body.email}),
 			User.findById(req.params.user)
@@ -284,21 +272,18 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:user/password", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix + "/:user/password",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		// Update the user
 		var thisUser;
 		User.findById(req.params.user)
 		.then(function(user){
 			if(!user) throw 404;
 			thisUser = user;
-			return req.user.hasRole("admin")
+			return req.user.hasRole("admin");
 		}).then(function(rolePresent){
 			if(rolePresent){
 				return thisUser.resetPassword(req.body.newPassword);
@@ -310,11 +295,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/password/reset/:token", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
+	app.post(prefix + "/:user/password/reset/:token",
+		checkObjectIDParam("user"),
+	function(req, res){
 		Promise.all([
 			User.findById(req.params.user),
 			Token.findOne({token: req.params.token})
@@ -335,12 +318,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/sync", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.post(prefix + "/:user/directory/sync",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 
@@ -353,12 +336,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/recreate", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.post(prefix + "/:user/directory/recreate",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 
@@ -371,12 +354,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/forceupdate", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.post(prefix + "/:user/directory/forceupdate",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 

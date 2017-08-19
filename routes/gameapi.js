@@ -28,10 +28,11 @@ var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError;
 
 module.exports = function(app, prefix){
-	app.get(prefix, 
+	app.get(prefix,
 	function(req, res){
 		Game.find({})
 		.sort("name")
@@ -40,11 +41,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:game", 
+	app.get(prefix + "/:game",
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		Game.findById(req.params.game)
 		.then(function(game){
 			if(!game) throw 404;
@@ -52,23 +51,29 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var uniqueStores = [];
-		for(var i = 0; i < req.body.stores.length; i += 1){
-			if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
-				return res.status(400).end();
-			}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
-				return res.status(400).end();
-			}else{
-				uniqueStores.push(req.body.stores[i].store);
+		if(req.body.stores && Array.isArray(req.body.stores)){
+			for(var i = 0; i < req.body.stores.length; i += 1){
+				if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
+					return res.status(400).end();
+				}else if(uniqueStores.indexOf(req.body.stores[i].store) !== -1){
+					return res.status(400).end();
+				}else{
+					uniqueStores.push({
+						store: req.body.stores[i].store,
+						appid: req.body.stores[i].appid
+					});
+				}
 			}
 		}
 
 		var game = new Game(req.body);
+		game.stores = uniqueStores;
 		game.save()
 		.then(function(){
 			res.status(201)
@@ -79,29 +84,30 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
+		var uniqueStores = [];
 		if(req.body.stores && Array.isArray(req.body.stores)){
-			var uniqueStores = [];
 			for(var i = 0; i < req.body.stores.length; i += 1){
 				if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
 					return res.status(400).end();
-				}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
+				}else if(uniqueStores.indexOf(req.body.stores[i].store) !== -1){
 					return res.status(400).end();
 				}else{
-					uniqueStores.push(req.body.stores[i].store);
+					uniqueStores.push({
+						store: req.body.stores[i].store,
+						appid: req.body.stores[i].appid
+					});
 				}
 			}
 		}
 
 		// Apply the update
+		req.body.stores = uniqueStores;
 		Game.findByIdAndUpdate(req.params.game, req.body)
 		.then(function(game){
 			if(!game) throw 404;
@@ -109,14 +115,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
-
 		Lan.find({"games.game": req.params.game})
 		.then(function(lans){
 			if(lans){
@@ -133,7 +136,7 @@ module.exports = function(app, prefix){
 		Game.findByIdAndRemove(req.params.game)
 		.then(function(game){
 			if(!game) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };

@@ -31,6 +31,7 @@ var mongoose = require("mongoose"),
 	authorize = require("../authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	shuffle = require("../utils/common.js").shuffle,
 	handleError = require("../utils/common.js").handleError,
 	log = require("../utils/log.js"),
@@ -60,7 +61,7 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:lan", 
+	app.get(prefix + "/:lan",
 	function(req, res){
 		var query = getLANQuery(req.params.lan);
 		if(query === "not-found"){
@@ -77,7 +78,7 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:lan/games", 
+	app.get(prefix + "/:lan/games",
 	function(req, res){
 		var year,
 			gameSelection = {},
@@ -130,7 +131,7 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:lan/rsvps", 
+	app.get(prefix + "/:lan/rsvps",
 	function(req, res){
 		var query = getLANQuery(req.params.lan),
 			thisLan;
@@ -159,10 +160,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var lan = new Lan(req.body);
 		lan.save()
@@ -175,14 +176,12 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:lan", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:lan",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("lan"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-			return res.status(404).end();
-		}
 		Lan.findByIdAndUpdate(req.params.lan, req.body)
 		.then(function(lan){
 			if(!lan) throw 404;
@@ -190,11 +189,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:lan/placements/:game", 
+	app.get(prefix + "/:lan/placements/:game",
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		var query = getLANQuery(req.params.lan);
 		if(query === "not-found"){
 			return res.status(404).end();
@@ -233,14 +230,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:lan/placements/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix + "/:lan/placements/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		var query = getLANQuery(req.params.lan),
 			users = [],
 			thisLan;
@@ -282,14 +277,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:lan/placements/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:lan/placements/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		var query = getLANQuery(req.params.lan);
 		if(query === "not-found"){
 			return res.status(404).end();
@@ -313,11 +306,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix + "/:lan/scores/:game", 
+	app.get(prefix + "/:lan/scores/:game",
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		var query = getLANQuery(req.params.lan);
 		if(query === "not-found"){
 			return res.status(404).end();
@@ -350,14 +341,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:lan/scores/:game", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:lan/scores/:game",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("game"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.game)){
-			return res.status(404).end();
-		}
 		var query = getLANQuery(req.params.lan);
 		if(query === "not-found"){
 			return res.status(404).end();
@@ -400,17 +389,15 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:lan", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:lan",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("lan"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.lan)){
-			return res.status(404).end();
-		}
 		Lan.findByIdAndRemove(req.params.lan)
 		.then(function(lan){
 			if(!lan) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };
