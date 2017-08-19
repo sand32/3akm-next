@@ -96,7 +96,7 @@ module.exports = function(app, prefix, prefix2){
 		Rsvp.findByIdAndRemove(req.params.rsvp)
 		.then(function(rsvp){
 			if(!rsvp) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 

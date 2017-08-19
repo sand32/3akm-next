@@ -136,7 +136,7 @@ module.exports = function(app, prefix){
 		Game.findByIdAndRemove(req.params.game)
 		.then(function(game){
 			if(!game) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };

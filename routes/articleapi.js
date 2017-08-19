@@ -141,7 +141,7 @@ module.exports = function(app, prefix){
 		Article.findByIdAndRemove(req.params.article)
 		.then(function(article){
 			if(!article) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };

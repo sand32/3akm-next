@@ -92,7 +92,7 @@ module.exports = function(app, prefix){
 		Recipient.findByIdAndRemove(req.params.recipient)
 		.then(function(recipient){
 			if(!recipient) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };
