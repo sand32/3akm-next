@@ -283,7 +283,7 @@ module.exports = function(app, prefix){
 		.then(function(user){
 			if(!user) throw 404;
 			thisUser = user;
-			return req.user.hasRole("admin")
+			return req.user.hasRole("admin");
 		}).then(function(rolePresent){
 			if(rolePresent){
 				return thisUser.resetPassword(req.body.newPassword);

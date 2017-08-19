@@ -57,17 +57,23 @@ module.exports = function(app, prefix){
 		sanitizeBodyForDB,
 	function(req, res){
 		var uniqueStores = [];
-		for(var i = 0; i < req.body.stores.length; i += 1){
-			if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
-				return res.status(400).end();
-			}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
-				return res.status(400).end();
-			}else{
-				uniqueStores.push(req.body.stores[i].store);
+		if(req.body.stores && Array.isArray(req.body.stores)){
+			for(var i = 0; i < req.body.stores.length; i += 1){
+				if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
+					return res.status(400).end();
+				}else if(uniqueStores.indexOf(req.body.stores[i].store) !== -1){
+					return res.status(400).end();
+				}else{
+					uniqueStores.push({
+						store: req.body.stores[i].store,
+						appid: req.body.stores[i].appid
+					});
+				}
 			}
 		}
 
 		var game = new Game(req.body);
+		game.stores = uniqueStores;
 		game.save()
 		.then(function(){
 			res.status(201)
@@ -84,20 +90,24 @@ module.exports = function(app, prefix){
 		sanitizeBodyForDB,
 		checkObjectIDParam("game"),
 	function(req, res){
+		var uniqueStores = [];
 		if(req.body.stores && Array.isArray(req.body.stores)){
-			var uniqueStores = [];
 			for(var i = 0; i < req.body.stores.length; i += 1){
 				if(!mongoose.Types.ObjectId.isValid(req.body.stores[i].store)){
 					return res.status(400).end();
-				}else if(uniqueStores.indexOf(req.body.stores[i].store) != -1){
+				}else if(uniqueStores.indexOf(req.body.stores[i].store) !== -1){
 					return res.status(400).end();
 				}else{
-					uniqueStores.push(req.body.stores[i].store);
+					uniqueStores.push({
+						store: req.body.stores[i].store,
+						appid: req.body.stores[i].appid
+					});
 				}
 			}
 		}
 
 		// Apply the update
+		req.body.stores = uniqueStores;
 		Game.findByIdAndUpdate(req.params.game, req.body)
 		.then(function(game){
 			if(!game) throw 404;
