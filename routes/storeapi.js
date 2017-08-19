@@ -84,7 +84,7 @@ module.exports = function(app, prefix){
 		Store.findByIdAndRemove(req.params.store)
 		.then(function(store){
 			if(!store) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };

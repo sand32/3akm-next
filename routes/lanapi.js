@@ -397,7 +397,7 @@ module.exports = function(app, prefix){
 		Lan.findByIdAndRemove(req.params.lan)
 		.then(function(lan){
 			if(!lan) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 };
