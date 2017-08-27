@@ -28,7 +28,7 @@ div(ng-controller = "VerifyController as verify")
 		| Verifying...
 	.col-xs-12(ng-if = "verify.loaded")
 		.row
-			p(ng-if = "verify.verified") 
+			p(ng-if = "verify.verified()")
 				span.text-success Been verified! 
 				| Feel free to log in and enjoy the full functionality of the site. 
 				br
@@ -36,7 +36,7 @@ div(ng-controller = "VerifyController as verify")
 				| Please remember to 
 				a(href = "/rsvp") RSVP
 				|  for the upcoming LAN!
-			p(ng-if = "!verify.verified")
+			p(ng-if = "!verify.verified()")
 				span.text-danger Verification failed! 
 				| Verification tokens are single-use and only last for one hour after the email is sent. 
 				| Perhaps you waited too long?

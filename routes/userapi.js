@@ -32,6 +32,7 @@ var passport = require("passport"),
 	register = require("../utils/authentication.js").register,
 	login = require("../utils/authentication.js").login,
 	authenticate = require("../utils/authentication.js").authenticate,
+	getJwt = require("../utils/authentication.js").getJwt,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
@@ -95,7 +96,6 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/:user/verify/:token",
-		checkObjectIDParam("user"),
 	function(req, res){
 		var verified = false, thisUser;
 		Promise.all([
@@ -105,8 +105,9 @@ module.exports = function(app, prefix){
 			if(!user || !token) throw 404;
 			verified = user.verified;
 			thisUser = user;
+			// If the user is already verified, let's hop out now
 			if(verified){
-				return Promise.resolve();
+				return Promise.reject();
 			}
 			if(token.validateToken("verify" + thisUser.email)){
 				Token.remove({token: req.params.token}).exec();
@@ -124,14 +125,20 @@ module.exports = function(app, prefix){
 					thisUser.save();
 				}
 			});
-			thisUser.updateDirectory()
-			.then(function(){
-				res.status(200).end();
-			}).catch(function(err){
-				log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
-				res.status(500).end();
-			});
+			if(config.ldap.enabled){
+				thisUser.updateDirectory()
+				.then(function(){
+					// Refresh the session with the new verified status
+					res.send({token: getJwt(thisUser)});
+				}).catch(function(err){
+					log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
+					res.status(500).end();
+				});
+			}else{
+				res.send({token: getJwt(thisUser)});
+			}
 		}).catch(function(err){
+			// If the user is already verified, we don't want to refresh the session
 			if(verified){
 				res.status(200).end();
 				return;
@@ -289,7 +296,6 @@ module.exports = function(app, prefix){
 	});
 
 	app.post(prefix + "/:user/password/reset/:token",
-		checkObjectIDParam("user"),
 	function(req, res){
 		Promise.all([
 			User.findById(req.params.user),

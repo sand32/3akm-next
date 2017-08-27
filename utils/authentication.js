@@ -41,17 +41,21 @@ module.exports = {
         return User.createNew(userTemplate);
     },
 
+    getJwt: function(user){
+        var jwtOptions = {
+            algorithm: "HS256",
+            expiresIn: config.jwtExpiry,
+            audience: "3akm",
+            issuer: "3akm",
+            subject: user._id.toString()
+        };
+        return jwt.sign({roles: user.roles, verified: user.verified}, config.jwtSecret, jwtOptions);
+    },
+
     login: function(username, password){
         return User.authenticate(username, password)
         .then(function(user){
-            var jwtOptions = {
-                algorithm: "HS256",
-                expiresIn: config.jwtExpiry,
-                audience: "3akm",
-                issuer: "3akm",
-                subject: user._id.toString()
-            };
-            return jwt.sign({roles: user.roles, verified: user.verified}, config.jwtSecret, jwtOptions);
+            return getJwt(user);
         });
     },
 
