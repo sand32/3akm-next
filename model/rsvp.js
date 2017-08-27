@@ -71,4 +71,6 @@ var rsvpSchema = mongoose.Schema({
 		}
 	});
 
+rsvpSchema.index({user: 1, lan: 1}, {unique: true});
+
 module.exports = mongoose.model("Rsvp", rsvpSchema);
