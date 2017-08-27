@@ -26,18 +26,18 @@ require("../common/userservice.js");
 
 (function(){
 	var VerifyController = function($scope, $state, ngToast, UserService){
-		var verify = this;
-		verify.loaded = false;
+		var ctrl = this;
+		ctrl.loaded = false;
 
 		UserService.verify($state.params.userId, $state.params.token)
 		.then(function(response){
 			localStorage.setItem("id_token", response.data.token);
-			verify.loaded = true;
+			ctrl.loaded = true;
 		}).catch(function(response){
 			if(response.status === 500){
 				ngToast.danger("The server has encountered an error, please try again.");
 			}
-			verify.loaded = true;
+			ctrl.loaded = true;
 		});
 
 		ctrl.verified = function(){

@@ -51,11 +51,10 @@ module.exports = function(app, prefix){
 			.then(function(){
 				res.status(201).send(user._id.toString());
 			}).catch(function(err){
+				log.error("Failed to send registration email for user: " + user.email);
 				res.status(500).end();
 			});
-		}).catch(function(){
-			res.status(400).end();
-		});
+		}).catch(handleError(res));
 	});
 
 	app.post(prefix + "/login",
