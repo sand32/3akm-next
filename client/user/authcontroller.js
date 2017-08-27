@@ -26,7 +26,7 @@ require("./forgotpasswordcontroller.js");
 require("../common/userservice.js");
 
 (function(){
-	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService, jwtHelper){
+	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService, jwtHelper, authManager){
 		var ctrl = this;
 		ctrl.busy = false;
 		ctrl.isLoggedIn = false;
@@ -34,7 +34,6 @@ require("../common/userservice.js");
 		ctrl.isAdmin = function(){
 			var token = localStorage.getItem("id_token");
 			if(!token) return false;
-			console.log(token);
 
 			var tokenPayload = jwtHelper.decodeToken(token);
 			if(!tokenPayload || !tokenPayload.roles) return false;
@@ -49,6 +48,7 @@ require("../common/userservice.js");
 				ctrl.email = "";
 				ctrl.password = "";
 				localStorage.setItem("id_token", response.data.token);
+				authManager.authenticate();
 				$state.go($state.current, {}, {reload: true});
 				ctrl.busy = false;
 			}).catch(function(){
@@ -59,6 +59,7 @@ require("../common/userservice.js");
 
 		ctrl.logout = function(){
 			localStorage.clear("id_token");
+			authManager.unauthenticate();
 			$state.go($state.current, {}, {reload: true});
 		};
 
@@ -90,5 +91,5 @@ require("../common/userservice.js");
 		])
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService", "jwtHelper"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService", "jwtHelper", "authManager"];
 })();
