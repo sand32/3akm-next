@@ -27,7 +27,7 @@ require("../common/rsvpservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, $q, ngToast, LanService, RsvpService){
+	var RsvpController = function($scope, $state, $q, ngToast, LanService, RsvpService, jwtHelper){
 		var ctrl = this;
 		ctrl.year = 0;
 		ctrl.entryFee = 0;
@@ -133,5 +133,5 @@ require("../common/enumselectdirective.js");
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "LanService", "RsvpService", "jwtHelper"];
 })();
