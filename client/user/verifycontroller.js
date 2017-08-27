@@ -25,7 +25,7 @@ SOFTWARE.
 require("../common/userservice.js");
 
 (function(){
-	var VerifyController = function($scope, $state, ngToast, UserService){
+	var VerifyController = function($scope, $state, ngToast, UserService, jwtHelper){
 		var ctrl = this;
 		ctrl.loaded = false;
 
@@ -55,5 +55,5 @@ require("../common/userservice.js");
 		.module("3akm.user")
 		.controller("VerifyController", VerifyController);
 
-	VerifyController.$inject = ["$scope", "$state", "ngToast", "UserService"];
+	VerifyController.$inject = ["$scope", "$state", "ngToast", "UserService", "jwtHelper"];
 })();
