@@ -23,16 +23,13 @@ SOFTWARE.
 */
 
 var express = require("express"),
-	session = require("express-session"),
 	http = require("http"),
 	https = require("https"),
 	fs = require("fs"),
 	cors = require("cors"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
-	passport = require("passport"),
 	mongoose = require("mongoose"),
-	authentication = require("./authentication.js"),
 	routes = require("./routes/routes.js"),
 	startup = require("./utils/startup.js"),
 	app = express(),
@@ -70,16 +67,6 @@ app.use(cors(corsOptions));
 app.use(cookieParser(config.cookieSecret));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(session({
-	secret: config.sessionSecret,
-	resave: true,
-	saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Define authentication method
-authentication();
 
 // Define routes
 routes(app);

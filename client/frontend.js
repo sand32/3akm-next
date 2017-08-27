@@ -37,7 +37,7 @@ require("./common/arrayentrydirectives.js");
 require("./common/validationdirectives.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $httpProvider, jwtOptionsProvider, ngToastProvider){
 		$urlRouterProvider.otherwise("/404");
 		$locationProvider.html5Mode(true);
 
@@ -90,6 +90,13 @@ require("./common/validationdirectives.js");
 		$compileProvider.debugInfoEnabled(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
+		jwtOptionsProvider.config({
+			tokenGetter: function(){
+				return localStorage.getItem("id_token");
+			}
+		});
+		$httpProvider.interceptors.push('jwtInterceptor');
+
 		ngToastProvider.configure({
 			dismissButton: true,
 			animation: "slide",
@@ -97,11 +104,16 @@ require("./common/validationdirectives.js");
 		});
 	};
 
+	var Run = function(authManager){
+		authManager.checkAuthOnRefresh();
+	};
+
 	angular
 		.module("3akm.frontend", 
 			[
 				"ui.router",
 				"ui.bootstrap",
+				"angular-jwt",
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
@@ -118,7 +130,9 @@ require("./common/validationdirectives.js");
 				"3akm.profile",
 				"3akm.user"
 			])
-		.config(Config);
+		.config(Config)
+		.run(Run);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "ngToastProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "$httpProvider", "jwtOptionsProvider", "ngToastProvider"];
+	Run.$inject = ["authManager"];
 })();

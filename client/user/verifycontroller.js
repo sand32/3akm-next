@@ -28,18 +28,27 @@ require("../common/userservice.js");
 	var VerifyController = function($scope, $state, ngToast, UserService){
 		var verify = this;
 		verify.loaded = false;
-		verify.verified = false;
+
 		UserService.verify($state.params.userId, $state.params.token)
-		.then(function(){
-			verify.verified = true;
+		.then(function(response){
+			localStorage.setItem("id_token", response.data.token);
 			verify.loaded = true;
 		}).catch(function(response){
 			if(response.status === 500){
 				ngToast.danger("The server has encountered an error, please try again.");
 			}
-			verify.verified = false;
 			verify.loaded = true;
 		});
+
+		ctrl.verified = function(){
+			var token = localStorage.getItem("id_token");
+			if(!token) return false;
+
+			var tokenPayload = jwtHelper.decodeToken(token);
+			if(!tokenPayload || !tokenPayload.verified) return false;
+
+			return tokenPayload.verified;
+		};
 	}
 
 	angular
