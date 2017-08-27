@@ -46,6 +46,7 @@ html(ng-app = "3akm.admin")
 					label Password
 					input.form-control(type = "password", name = "password", ng-model = "auth.password")
 				input.btn.btn-default(type = "submit" value = "Login", ng-disabled = "auth.busy")
+				a.btn.btn-link.button-row-right(href = "/") Frontend
 				.version v#{version}
 		.container-fluid.content-area(ng-if = "isAuthenticated")
 			.menu.col-xs-2.visible-md.visible-lg

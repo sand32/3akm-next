@@ -24,7 +24,7 @@ SOFTWARE.
 
 var cod4 = require("../../utils/cod4-rcon.js"),
 	authorize = require("../../utils/authorization.js").authorize,
-	authenticate = require("../../utils/common.js").authenticate,
+	authenticate = require("../../utils/authentication.js").authenticate,
 	loadConfig = require("../../utils/common.js").loadConfig,
 	log = require("../../utils/log.js"),
 	gameinfo = loadConfig(__dirname + "/../../config/cod4-gameinfo.json");
