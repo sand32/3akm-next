@@ -14,13 +14,9 @@
 		"browserify": "14.3.x",
 		"minifyify": "7.3.x",
 		"express": "4.15.x",
-		"express-session": "1.15.x",
 		"cors": "2.8.x",
 		"body-parser": "1.17.x",
 		"cookie-parser": "1.4.x",
-		"passport": "0.3.x",
-		"passport-http": "0.3.x",
-		"passport-local": "1.0.x",
 		"bcrypt-nodejs": "0.0.x",
 		"mongoose": "4.9.x",
 		"pug": "latest",
@@ -30,6 +26,7 @@
 		"ldapjs": "1.0.x",
 		"nodemailer": "4.0.x",
 		"nodemailer-smtp-pool": "2.8.x",
-		"elasticsearch": "13.2.x"
+		"elasticsearch": "13.2.x",
+		"jsonwebtoken": "7.4.x"
 	}
 }

@@ -44,8 +44,7 @@ require("../common/enumselectdirective.js");
 			profile.current.roles = profile.current.roles || [];
 			profile.loaded = true;
 		}).catch(function(response){
-			if(response.status === 403){
-				$scope.$emit("AuthChanged", false);
+			if(response.status === 401){
 				$state.go("default");
 			}else{
 				ngToast.danger("Failed to retrieve user.");

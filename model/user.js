@@ -469,7 +469,7 @@ userModel.authenticate = function(email, password){
 					resolve(user);
 				// Else, set the flash and move on
 				}else{
-					resolve(false);
+					reject({reason: "invalid-credentials"});
 				}
 			});
 		}

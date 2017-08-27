@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 var ts3 = require("../../utils/ts3-serverquery.js"),
-	authorize = require("../../authorization.js").authorize,
-	authenticate = require("../../utils/common.js").authenticate,
+	authorize = require("../../utils/authorization.js").authorize,
+	authenticate = require("../../utils/authentication.js").authenticate,
 	log = require("../../utils/log.js");
 
 module.exports = function(app, prefix){

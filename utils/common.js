@@ -22,8 +22,7 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport"),
-	mongoose = require("mongoose"),
+var mongoose = require("mongoose"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	request = require("request"),
@@ -44,46 +43,6 @@ module.exports = {
 	config: loadConfig(__dirname + "/../config/config.json"),
 
 	version: loadConfig(__dirname + "/../package.json").version,
-
-	register: function(req, res, next){
-		passport.authenticate("register", function(err, user, info){
-			if(err && err.reason === "invalid-password"){
-				return res.status(400).end();
-			}else if(err){
-				return res.status(500).end();
-			}else{
-				req.login(user, function(err){
-					if(err){
-						return next(err);
-					}
-					return next();
-				});
-			}
-		})(req, res, next);
-	},
-
-	login: function(req, res, next){
-		passport.authenticate("local")(req, res, next);
-	},
-
-	authenticate: function(req, res, next){
-		module.exports.localElseBasicAuthenticate(req, res, next);
-	},
-
-	// Special authentication in order to support local sessions and basic auth 
-	// on API routes.
-	// 
-	// Basically: if we have a local session, proceed, else require basic auth.
-	localElseBasicAuthenticate: function(req, res, next){
-		if(req.isAuthenticated()){
-			return next();
-		}
-		if(req.params.user !== "session"){
-			passport.authenticate("basic")(req, res, next);
-		}else{
-			res.status(403).end();
-		}
-	},
 
 	verifyRecaptcha: function(req, res, next){
 		var config = module.exports.config,
@@ -185,6 +144,14 @@ module.exports = {
 			array[index] = temp;
 		}
 		return array;
+	},
+
+	arraysAreEqual: function(a, b){
+		if(a.length !== b.length) return false;
+		for(var i = 0; i < a.length; i+=1){
+			if(a[i] !== b[i]) return false;
+		}
+		return true;
 	},
 
 	handleError: function(res){

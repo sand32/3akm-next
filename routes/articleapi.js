@@ -23,9 +23,9 @@ SOFTWARE.
 */
 
 var Article = require("../model/article.js"),
-	isAuthorized = require("../authorization.js").isAuthorized,
-	authorize = require("../authorization.js").authorize,
-	authenticate = require("../utils/common.js").authenticate,
+	isAuthorized = require("../utils/authorization.js").isAuthorized,
+	authorize = require("../utils/authorization.js").authorize,
+	authenticate = require("../utils/authentication.js").authenticate,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
