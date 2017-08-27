@@ -36,7 +36,7 @@ html(ng-app = "3akm.admin")
 		base(href = "/admin/")
 		toast
 		.container-fluid.content-area.login-ui(ng-if = "!isAuthenticated", ng-controller = "AuthController as auth")
-			form.login-form(name = "loginForm", role = "form", ng-if = "!isAuthenticated", ng-submit = "auth.login()")
+			form.login-form(name = "loginForm", role = "form", ng-submit = "auth.login()")
 				.logo
 				h2 Admin Portal
 				.form-group
