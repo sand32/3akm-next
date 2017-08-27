@@ -24,17 +24,14 @@ SOFTWARE.
 
 require("../common/lanservice.js");
 require("../common/rsvpservice.js");
-require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, $q, ngToast, UserService, LanService, RsvpService){
+	var RsvpController = function($scope, $state, $q, ngToast, LanService, RsvpService){
 		var ctrl = this;
 		ctrl.year = 0;
 		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
-		ctrl.isLoggedIn = false;
-		ctrl.isVerified = false;
 		ctrl.busy = false;
 		ctrl.loaded = false;
 		ctrl.statusPossibles = [
@@ -54,13 +51,15 @@ require("../common/enumselectdirective.js");
 			bringingFood: false
 		};
 
-		UserService.retrieve("session")
-		.then(function(response){
-			ctrl.isVerified = response.data.verified;
-			ctrl.isLoggedIn = true;
-		}).catch(function(status){
-			ctrl.isLoggedIn = false;
-		});
+		ctrl.isVerified = function(){
+			var token = localStorage.getItem("id_token");
+			if(!token) return false;
+
+			var tokenPayload = jwtHelper.decodeToken(token);
+			if(!tokenPayload || !tokenPayload.verified) return false;
+
+			return tokenPayload.verified;
+		};
 
 		LanService.retrieve("current")
 		.then(function(response){
@@ -128,12 +127,11 @@ require("../common/enumselectdirective.js");
 
 	angular
 		.module("3akm.rsvpSubmission", [
-				"3akm.user",
 				"3akm.lan",
 				"3akm.rsvp",
 				"3akm.common.enumselect"
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "UserService", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "LanService", "RsvpService"];
 })();

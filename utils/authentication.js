@@ -51,7 +51,7 @@ module.exports = {
                 issuer: "3akm",
                 subject: user._id.toString()
             };
-            return jwt.sign({roles: user.roles}, config.jwtSecret, jwtOptions);
+            return jwt.sign({roles: user.roles, verified: user.verified}, config.jwtSecret, jwtOptions);
         });
     },
 
