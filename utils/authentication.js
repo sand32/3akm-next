@@ -24,6 +24,7 @@ SOFTWARE.
 
 var jwt = require("jsonwebtoken"),
     config = require("./common.js").config,
+    arraysAreEqual = require("./common.js").arraysAreEqual,
     User = require("../model/user.js");
 
 module.exports = {
@@ -55,7 +56,7 @@ module.exports = {
     login: function(username, password){
         return User.authenticate(username, password)
         .then(function(user){
-            return getJwt(user);
+            return module.exports.getJwt(user);
         });
     },
 
@@ -74,6 +75,15 @@ module.exports = {
             }
             User.findById(decoded.sub)
             .then(function(user){
+                // If the user's verified status or roles have changed
+                // mid-session, let's kick them out so they're forced
+                // to log back in and get a new value.
+                if(user.verified !== decoded.verified
+                || !arraysAreEqual(user.roles, decoded.roles)){
+                    res.status(401).end();
+                    return;
+                }
+
                 req.user = user;
                 next();
             }).catch(function(){

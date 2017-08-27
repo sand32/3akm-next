@@ -163,6 +163,14 @@ module.exports = {
 		return array;
 	},
 
+	arraysAreEqual: function(a, b){
+		if(a.length !== b.length) return false;
+		for(var i = 0; i < a.length; i+=1){
+			if(a[i] !== b[i]) return false;
+		}
+		return true;
+	},
+
 	handleError: function(res){
 		return function(err){
 			if(isNumeric(err)){
