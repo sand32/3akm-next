@@ -129,10 +129,14 @@ require("./user/authcontroller.js");
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
 		jwtOptionsProvider.config({
-			unauthenticatedRedirectPath: "/admin",
 			tokenGetter: function(){
 				return localStorage.getItem("id_token");
-			}
+			},
+			unauthenticatedRedirector: ["$state", "authManager", function($state, authManager) {
+				localStorage.clear("id_token");
+				authManager.unauthenticate();
+				$state.go('default');
+			}]
 		});
 		$httpProvider.interceptors.push('jwtInterceptor');
 
