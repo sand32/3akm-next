@@ -22,8 +22,7 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport"),
-	Promise = require("bluebird"),
+var Promise = require("bluebird"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
 	Recipient = require("../model/recipient.js"),
