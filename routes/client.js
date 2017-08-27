@@ -24,7 +24,7 @@ SOFTWARE.
 
 var express = require("express"),
 	authenticate = require("../utils/common.js").authenticate,
-	authorize = require("../authorization.js").authorize,
+	authorize = require("../utils/authorization.js").authorize,
 	config = require("../utils/common.js").config,
 	version = require("../utils/common.js").version,
 	log = require("../utils/log.js");

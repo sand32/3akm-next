@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 var Store = require("../model/store.js"),
-	authorize = require("../authorization.js").authorize,
+	authorize = require("../utils/authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,

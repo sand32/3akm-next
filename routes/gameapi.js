@@ -25,7 +25,7 @@ SOFTWARE.
 var mongoose = require("mongoose"),
 	Game = require("../model/game.js"),
 	Lan = require("../model/lan.js"),
-	authorize = require("../authorization.js").authorize,
+	authorize = require("../utils/authorization.js").authorize,
 	authenticate = require("../utils/common.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,

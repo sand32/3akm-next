@@ -4,6 +4,8 @@
 	"domain": "localhost:8080",
 	"cert": "changeme",
 	"key": "changeme",
+	"jwtSecret": "changeme",
+	"jwtExpiry": "1h",
 	"analyticsTrackingId": "changeme",
 	"cookieSecret": "changeme",
 	"sessionSecret": "changeme",

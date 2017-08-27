@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 var cod4 = require("../../utils/cod4-rcon.js"),
-	authorize = require("../../authorization.js").authorize,
+	authorize = require("../../utils/authorization.js").authorize,
 	authenticate = require("../../utils/common.js").authenticate,
 	loadConfig = require("../../utils/common.js").loadConfig,
 	log = require("../../utils/log.js"),

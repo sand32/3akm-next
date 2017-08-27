@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 var ts3 = require("../../utils/ts3-serverquery.js"),
-	authorize = require("../../authorization.js").authorize,
+	authorize = require("../../utils/authorization.js").authorize,
 	authenticate = require("../../utils/common.js").authenticate,
 	log = require("../../utils/log.js");
 

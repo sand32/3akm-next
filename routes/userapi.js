@@ -27,11 +27,11 @@ var passport = require("passport"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
 	Recipient = require("../model/recipient.js"),
-	authorize = require("../authorization.js").authorize,
-	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	register = require("../utils/common.js").register,
-	login = require("../utils/common.js").login,
-	authenticate = require("../utils/common.js").authenticate,
+	authorize = require("../utils/authorization.js").authorize,
+	authorizeSessionUser = require("../utils/authorization.js").authorizeSessionUser,
+	register = require("../utils/authentication.js").register,
+	login = require("../utils/authentication.js").login,
+	authenticate = require("../utils/authentication.js").authenticate,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
@@ -44,33 +44,26 @@ var passport = require("passport"),
 module.exports = function(app, prefix){
 	app.post(prefix + "/register",
 		verifyRecaptcha,
-		register,
 	function(req, res){
-		if(req.isAuthenticated()){
-			smtp.sendEmailVerification(app, req.user, req.protocol + '://' + config.domain)
+		register(req.body)
+		.then(function(user){
+			smtp.sendEmailVerification(app, user, req.protocol + '://' + config.domain)
 			.then(function(){
-				res.status(201).send(req.user._id.toString());
+				res.status(201).send(user._id.toString());
 			}).catch(function(err){
 				res.status(500).end();
 			});
-		}else{
-			res.status(403).end();
-		}
+		}).catch(function(){
+			res.status(400).end();
+		});
 	});
 
 	app.post(prefix + "/login",
-		login,
 	function(req, res){
-		if(req.isAuthenticated()){
-			res.status(200).end();
-		}else{
-			res.status(403).end();
-		}
-	});
-
-	app.post(prefix + "/logout", function(req, res){
-		req.logout();
-		res.status(200).end();
+		login(req.body.email, req.body.password)
+		.then(function(jwt){
+			res.send({token: jwt});
+		});
 	});
 
 	app.get(prefix + "/isloggedin", function(req, res){

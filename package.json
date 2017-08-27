@@ -29,6 +29,7 @@
 		"bluebird": "3.5.x",
 		"ldapjs": "1.0.x",
 		"nodemailer": "4.0.x",
-		"nodemailer-smtp-pool": "2.8.x"
+		"nodemailer-smtp-pool": "2.8.x",
+		"jsonwebtoken": "7.4.x"
 	}
 }
