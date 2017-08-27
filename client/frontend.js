@@ -113,10 +113,10 @@ require("./common/validationdirectives.js");
 			[
 				"ui.router",
 				"ui.bootstrap",
+				"angular-jwt",
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
-				"angular-jwt",
 				"ngToast",
 				"3akm.common.analytics",
 				"3akm.common.arrayentry",

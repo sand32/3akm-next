@@ -35,7 +35,7 @@ require("./admin/cod4controller.js");
 require("./common/analyticsdirective.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $httpProvider, jwtOptionsProvider, ngToastProvider){
 		$urlRouterProvider.otherwise("/");
 		$locationProvider.html5Mode(true);
 
@@ -127,6 +127,13 @@ require("./common/analyticsdirective.js");
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
+		jwtOptionsProvider.config({
+			tokenGetter: function(){
+				return localStorage.getItem("id_token");
+			}
+		});
+		$httpProvider.interceptors.push('jwtInterceptor');
+
 		ngToastProvider.configure({
 			dismissButton: true,
 			animation: "slide",
@@ -139,6 +146,7 @@ require("./common/analyticsdirective.js");
 			[
 				"ui.router",
 				"ui.bootstrap",
+				"angular-jwt",
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
@@ -157,5 +165,5 @@ require("./common/analyticsdirective.js");
 			])
 		.config(Config);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "ngToastProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "$httpProvider", "jwtOptionsProvider", "ngToastProvider"];
 })();

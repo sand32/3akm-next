@@ -24,7 +24,7 @@ SOFTWARE.
 
 var Recipient = require("../model/recipient.js"),
 	User = require("../model/user.js"),
-	authenticate = require("../utils/common.js").authenticate,
+	authenticate = require("../utils/authentication.js").authenticate,
 	authorize = require("../utils/authorization.js").authorize,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,

@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 var express = require("express"),
-	authenticate = require("../utils/common.js").authenticate,
+	authenticate = require("../utils/authentication.js").authenticate,
 	authorize = require("../utils/authorization.js").authorize,
 	config = require("../utils/common.js").config,
 	version = require("../utils/common.js").version,
@@ -52,9 +52,7 @@ module.exports = function(app, prefix){
 
 	app.use(express.static('public'));
 
-	app.get(prefix + "/admin*", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.get(prefix + "/admin*",
 	function(req, res){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");

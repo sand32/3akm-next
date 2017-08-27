@@ -24,7 +24,7 @@ SOFTWARE.
 
 var Store = require("../model/store.js"),
 	authorize = require("../utils/authorization.js").authorize,
-	authenticate = require("../utils/common.js").authenticate,
+	authenticate = require("../utils/authentication.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
 	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError;
