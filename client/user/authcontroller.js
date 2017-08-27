@@ -29,7 +29,6 @@ require("../common/userservice.js");
 	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService, jwtHelper, authManager){
 		var ctrl = this;
 		ctrl.busy = false;
-		ctrl.isLoggedIn = false;
 
 		ctrl.isAdmin = function(){
 			var token = localStorage.getItem("id_token");

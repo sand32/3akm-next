@@ -106,7 +106,7 @@ require("./common/validationdirectives.js");
 
 	var Run = function(authManager){
 		authManager.checkAuthOnRefresh();
-	}
+	};
 
 	angular
 		.module("3akm.frontend", 
