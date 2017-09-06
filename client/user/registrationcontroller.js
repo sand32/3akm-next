@@ -33,6 +33,10 @@ require("../common/userservice.js");
 			password: "Your password must consist of at least 8 characters including a lowercase letter, an uppercase letter, and a number.<br/><br/>Your password also must not contain any significant portion of your first or last names."
 		}
 
+		if($scope.isAuthenticated){
+			$state.go("default");
+		}
+
 		reg.register = function(){
 			reg.busy = true;
 			UserService.register({

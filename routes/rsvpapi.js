@@ -22,14 +22,14 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	Lan = require("../model/lan.js"),
+var Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
 	User = require("../model/user.js"),
-	authorize = require("../authorization.js").authorize,
-	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	authenticate = require("../utils/common.js").authenticate,
+	authorize = require("../utils/authorization.js").authorize,
+	authorizeSessionUser = require("../utils/authorization.js").authorizeSessionUser,
+	authenticate = require("../utils/authentication.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError,
 	config = require("../utils/common.js").config,
 	log = require("../utils/log.js"),
@@ -48,10 +48,8 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.get(prefix + "/:rsvp",
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findById(req.params.rsvp)
 		.populate("user lan", "email firstName lastName beginDate")
 		.exec()
@@ -62,9 +60,9 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.post(prefix,
-		authenticate, 
-		authorize({hasRole: ["admin"]}), 
-		sanitizeBodyForDB, 
+		authenticate,
+		authorize({hasRole: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var rsvp = new Rsvp(req.body);
 		rsvp.save()
@@ -77,14 +75,12 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:rsvp", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:rsvp",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body)
 		.then(function(rsvp){
 			if(!rsvp) throw 404;
@@ -92,17 +88,15 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:rsvp", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:rsvp",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findByIdAndRemove(req.params.rsvp)
 		.then(function(rsvp){
 			if(!rsvp) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 
@@ -123,14 +117,11 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix2 + "/:year", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix2 + "/:year",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
@@ -146,15 +137,12 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix2 + "/:year", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix2 + "/:year",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var lan, rsvp;
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
@@ -167,7 +155,7 @@ module.exports = function(app, prefix, prefix2){
 			return Rsvp.findOne({user: req.params.user, lan: lan._id});
 		}).then(function(doc){
 			rsvp = doc;
-			if(!rsvp) throw 404;
+			if(!rsvp) throw {reason: "must-create-new"};
 			rsvp.status = req.body.status;
 			rsvp.playing = req.body.playing;
 			rsvp.guests = req.body.guests;
@@ -201,7 +189,12 @@ module.exports = function(app, prefix, prefix2){
 					}
 				});
 			}
-		}).catch(function(){
+		}).catch(function(error){
+			if(error === 404){
+				res.status(404).end();
+				return;
+			}
+
 			rsvp = new Rsvp();
 			rsvp.user = req.params.user;
 			rsvp.lan = lan._id;
@@ -220,17 +213,34 @@ module.exports = function(app, prefix, prefix2){
 					.end();
 				}
 			});
+
+			// Send a notification to Slack
+			if(config.slackRsvpHook.startsWith("http")){
+				User.findById(req.params.user)
+				.then(function(user){
+					if(user){
+						Request({
+							method: "POST",
+							uri: config.slackRsvpHook,
+							json: {
+								text: user.firstName + " " + user.lastName + " has RSVPed for LAN " + req.params.year + " (see the <https://www.3akm.com/appearances|full RSVP list>)"
+							}
+						}, function(err, res, body){
+							if(err){
+								log.warn("Slack notification failed with code: " + err.code + ".");
+							}
+						});
+					}
+				});
+			}
 		});
 	});
 
-	app.put(prefix2 + "/:year/attended", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix2 + "/:year/attended",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true

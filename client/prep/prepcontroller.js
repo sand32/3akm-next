@@ -26,7 +26,7 @@ require("../common/lanservice.js");
 require("../common/userservice.js");
 
 (function(){
-	var PrepController = function(LanService, UserService){
+	var PrepController = function(LanService){
 		var prep = this;
 		prep.lan = null;
 		prep.loaded = false;
@@ -39,21 +39,13 @@ require("../common/userservice.js");
 		}).catch(function(){
 			prep.loaded = true;
 		});
-
-		UserService.retrieve("session")
-		.then(function(response){
-			prep.isLoggedIn = true;
-		}).catch(function(status){
-			prep.isLoggedIn = false;
-		});
 	};
 
 	angular
 		.module("3akm.prep", [
-				"3akm.lan",
-				"3akm.user"
+				"3akm.lan"
 			])
 		.controller("PrepController", PrepController);
 
-	PrepController.$inject = ["LanService", "UserService"];
+	PrepController.$inject = ["LanService"];
 })();

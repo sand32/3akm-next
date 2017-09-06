@@ -64,6 +64,9 @@ module.exports = {
 	//     hasRoles: [String]
 	// }
 	isAuthorized: function(user, ruleset){
+		if(!user){
+			return Promise.resolve(false);
+		}
 		if(!ruleset){
 			return Promise.resolve(true);
 		}

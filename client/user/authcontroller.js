@@ -26,24 +26,28 @@ require("./forgotpasswordcontroller.js");
 require("../common/userservice.js");
 
 (function(){
-	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService){
+	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService, jwtHelper, authManager){
 		var ctrl = this;
 		ctrl.busy = false;
-		ctrl.isLoggedIn = false;
-		ctrl.isAdmin = false;
 
-		UserService.isLoggedIn()
-		.then(function(response){
-			$scope.$emit("AuthChanged", response.data.isLoggedIn);
-		});
+		ctrl.isAdmin = function(){
+			var token = localStorage.getItem("id_token");
+			if(!token) return false;
+
+			var tokenPayload = jwtHelper.decodeToken(token);
+			if(!tokenPayload || !tokenPayload.roles) return false;
+
+			return tokenPayload.roles.indexOf("admin") !== -1;
+		};
 
 		ctrl.login = function(){
 			ctrl.busy = true;
 			UserService.login(ctrl.email, ctrl.password)
-			.then(function(){
+			.then(function(response){
 				ctrl.email = "";
 				ctrl.password = "";
-				$scope.$emit("AuthChanged", true);
+				localStorage.setItem("id_token", response.data.token);
+				authManager.authenticate();
 				$state.go($state.current, {}, {reload: true});
 				ctrl.busy = false;
 			}).catch(function(){
@@ -53,13 +57,9 @@ require("../common/userservice.js");
 		};
 
 		ctrl.logout = function(){
-			ctrl.busy = true;
-			UserService.logout()
-			.then(function(){
-				$scope.$emit("AuthChanged", false);
-				$state.go($state.current, {}, {reload: true});
-				ctrl.busy = false;
-			});
+			localStorage.clear("id_token");
+			authManager.unauthenticate();
+			$state.go($state.current, {}, {reload: true});
 		};
 
 		ctrl.openForgotPasswordModal = function(){
@@ -81,19 +81,6 @@ require("../common/userservice.js");
 				});
 			});
 		};
-
-		$rootScope.$on("AuthChanged", function(e, loggedIn){
-			ctrl.isLoggedIn = loggedIn;
-			ctrl.isAdmin = false;
-			if(loggedIn){
-				UserService.retrieve("session")
-				.then(function(response){
-					if(response.data.roles.indexOf("admin") !== -1){
-						ctrl.isAdmin = true;
-					}
-				});
-			}
-		});
 	};
 
 	angular
@@ -103,5 +90,5 @@ require("../common/userservice.js");
 		])
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService", "jwtHelper", "authManager"];
 })();

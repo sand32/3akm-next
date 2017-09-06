@@ -22,55 +22,47 @@ SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport"),
-	mongoose = require("mongoose"),
-	Promise = require("bluebird"),
+var Promise = require("bluebird"),
 	User = require("../model/user.js"),
 	Token = require("../model/token.js"),
 	Recipient = require("../model/recipient.js"),
-	authorize = require("../authorization.js").authorize,
-	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	register = require("../utils/common.js").register,
-	login = require("../utils/common.js").login,
-	authenticate = require("../utils/common.js").authenticate,
+	authorize = require("../utils/authorization.js").authorize,
+	authorizeSessionUser = require("../utils/authorization.js").authorizeSessionUser,
+	register = require("../utils/authentication.js").register,
+	login = require("../utils/authentication.js").login,
+	authenticate = require("../utils/authentication.js").authenticate,
+	getJwt = require("../utils/authentication.js").getJwt,
 	verifyRecaptcha = require("../utils/common.js").verifyRecaptcha,
 	removeDuplicates = require("../utils/common.js").removeDuplicates,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	smtp = require("../utils/smtp.js"),
 	config = require("../utils/common.js").config,
 	handleError = require("../utils/common.js").handleError,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
-	app.post(prefix + "/register", 
-		verifyRecaptcha, 
-		register, 
+	app.post(prefix + "/register",
+		verifyRecaptcha,
 	function(req, res){
-		if(req.isAuthenticated()){
-			smtp.sendEmailVerification(app, req.user, req.protocol + '://' + config.domain)
+		register(req.body)
+		.then(function(user){
+			smtp.sendEmailVerification(app, user, req.protocol + '://' + config.domain)
 			.then(function(){
-				res.status(201).send(req.user._id.toString());
+				res.status(201).send(user._id.toString());
 			}).catch(function(err){
+				log.error("Failed to send registration email for user: " + user.email);
 				res.status(500).end();
 			});
-		}else{
-			res.status(403).end();
-		}
+		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/login", 
-		login, 
+	app.post(prefix + "/login",
 	function(req, res){
-		if(req.isAuthenticated()){
-			res.status(200).end();
-		}else{
-			res.status(403).end();
-		}
-	});
-
-	app.post(prefix + "/logout", function(req, res){
-		req.logout();
-		res.status(200).end();
+		login(req.body.email, req.body.password)
+		.then(function(jwt){
+			res.send({token: jwt});
+		});
 	});
 
 	app.get(prefix + "/isloggedin", function(req, res){
@@ -87,14 +79,11 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/verify", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.post(prefix + "/:user/verify",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		User.findById(req.params.user)
 		.then(function(user){
 			if(!user) throw 404;
@@ -104,11 +93,8 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/verify/:token", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
+	app.post(prefix + "/:user/verify/:token",
+	function(req, res){
 		var verified = false, thisUser;
 		Promise.all([
 			User.findById(req.params.user),
@@ -117,8 +103,9 @@ module.exports = function(app, prefix){
 			if(!user || !token) throw 404;
 			verified = user.verified;
 			thisUser = user;
+			// If the user is already verified, let's hop out now
 			if(verified){
-				return Promise.resolve();
+				return Promise.reject();
 			}
 			if(token.validateToken("verify" + thisUser.email)){
 				Token.remove({token: req.params.token}).exec();
@@ -136,14 +123,20 @@ module.exports = function(app, prefix){
 					thisUser.save();
 				}
 			});
-			thisUser.updateDirectory()
-			.then(function(){
-				res.status(200).end();
-			}).catch(function(err){
-				log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
-				res.status(500).end();
-			});
+			if(config.ldap.enabled){
+				thisUser.updateDirectory()
+				.then(function(){
+					// Refresh the session with the new verified status
+					res.send({token: getJwt(thisUser)});
+				}).catch(function(err){
+					log.error("Successfully verified token for user \"" + thisUser.email + "\", but failed to sync with directory");
+					res.status(500).end();
+				});
+			}else{
+				res.send({token: getJwt(thisUser)});
+			}
 		}).catch(function(err){
+			// If the user is already verified, we don't want to refresh the session
 			if(verified){
 				res.status(200).end();
 				return;
@@ -152,13 +145,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:user/verified", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix + "/:user/verified",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		// Retrieve and return the "verified" value
 		User.findById(req.params.user)
 		.then(function(user){
@@ -167,9 +158,9 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.get(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
 	function(req, res){
 		User.find({})
 		.sort("lastName firstName")
@@ -180,13 +171,11 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.get(prefix + "/:user", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix + "/:user",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var thisUser, responseData;
 		User.findById(req.params.user)
 		.then(function(user){
@@ -219,10 +208,10 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix, 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.post(prefix,
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		if(req.body.roles){
 			req.body.roles = removeDuplicates(req.body.roles);
@@ -237,16 +226,13 @@ module.exports = function(app, prefix){
 		});
 	});
 
-	app.put(prefix + "/:user", 
-		authenticate, 
-		authorizeSessionUser(), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:user",
+		authenticate,
+		authorizeSessionUser(),
+		sanitizeBodyForDB,
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var editUser;
-
 		Promise.all([
 			User.findOne({email: req.body.email}),
 			User.findById(req.params.user)
@@ -284,21 +270,18 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:user/password", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix + "/:user/password",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		// Update the user
 		var thisUser;
 		User.findById(req.params.user)
 		.then(function(user){
 			if(!user) throw 404;
 			thisUser = user;
-			return req.user.hasRole("admin")
+			return req.user.hasRole("admin");
 		}).then(function(rolePresent){
 			if(rolePresent){
 				return thisUser.resetPassword(req.body.newPassword);
@@ -310,11 +293,8 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/password/reset/:token", function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
+	app.post(prefix + "/:user/password/reset/:token",
+	function(req, res){
 		Promise.all([
 			User.findById(req.params.user),
 			Token.findOne({token: req.params.token})
@@ -335,12 +315,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/sync", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.post(prefix + "/:user/directory/sync",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 
@@ -353,12 +333,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/recreate", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.post(prefix + "/:user/directory/recreate",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 
@@ -371,12 +351,12 @@ module.exports = function(app, prefix){
 		}).catch(handleError(res));
 	});
 
-	app.post(prefix + "/:user/directory/forceupdate", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.post(prefix + "/:user/directory/forceupdate",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)
-		|| !config.ldap.enabled){
+		if(!config.ldap.enabled){
 			return res.status(404).end();
 		}
 

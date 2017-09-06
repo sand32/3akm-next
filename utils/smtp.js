@@ -64,7 +64,7 @@ module.exports = {
 				subject: "Email Verification"
 			};
 			return new Promise(function(resolve, reject){
-				app.render("mail/emailverification.jade", {
+				app.render("mail/emailverification.pug", {
 					siteUrl: siteUrl,
 					verificationLink: siteUrl + "/verify/" + user._id + "/" + token
 				}, function(err, html){
@@ -94,7 +94,7 @@ module.exports = {
 				subject: "Forgot Password"
 			};
 			return new Promise(function(resolve, reject){
-				app.render("mail/resetpassword.jade", {
+				app.render("mail/resetpassword.pug", {
 					siteUrl: siteUrl,
 					verificationLink: siteUrl + "/resetpassword/" + user._id + "/" + token
 				}, function(err, html){

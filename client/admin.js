@@ -34,9 +34,10 @@ require("./admin/recipientlistcontroller.js");
 require("./admin/cod4controller.js");
 require("./admin/teamspeakcontroller.js");
 require("./common/analyticsdirective.js");
+require("./user/authcontroller.js");
 
 (function(){
-	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, ngToastProvider){
+	var Config = function($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $httpProvider, jwtOptionsProvider, ngToastProvider){
 		$urlRouterProvider.otherwise("/");
 		$locationProvider.html5Mode(true);
 
@@ -140,6 +141,18 @@ require("./common/analyticsdirective.js");
 
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|steam|macappstore):/);
 
+		jwtOptionsProvider.config({
+			tokenGetter: function(){
+				return localStorage.getItem("id_token");
+			},
+			unauthenticatedRedirector: ["$state", "authManager", function($state, authManager) {
+				localStorage.clear("id_token");
+				authManager.unauthenticate();
+				$state.go('default');
+			}]
+		});
+		$httpProvider.interceptors.push('jwtInterceptor');
+
 		ngToastProvider.configure({
 			dismissButton: true,
 			animation: "slide",
@@ -147,15 +160,22 @@ require("./common/analyticsdirective.js");
 		});
 	};
 
+	var Run = function(authManager){
+		authManager.checkAuthOnRefresh();
+		authManager.redirectWhenUnauthenticated();
+	};
+
 	angular
 		.module("3akm.admin", 
 			[
 				"ui.router",
 				"ui.bootstrap",
+				"angular-jwt",
 				"ngLoadScript",
 				"ngMessages",
 				"ngAnimate",
 				"ngToast",
+				"3akm.auth",
 				"3akm.common.analytics",
 				"3akm.admin.styling",
 				"3akm.admin.dashboard",
@@ -169,7 +189,9 @@ require("./common/analyticsdirective.js");
 				"3akm.admin.cod4",
 				"3akm.admin.teamspeak"
 			])
-		.config(Config);
+		.config(Config)
+		.run(Run);
 
-	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "ngToastProvider"];
+	Config.$inject = ["$stateProvider", "$urlRouterProvider", "$locationProvider", "$compileProvider", "$httpProvider", "jwtOptionsProvider", "ngToastProvider"];
+	Run.$inject = ["authManager"];
 })();

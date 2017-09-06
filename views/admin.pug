@@ -35,7 +35,20 @@ html(ng-app = "3akm.admin")
 	body
 		base(href = "/admin/")
 		toast
-		.container-fluid.content-area
+		.container-fluid.content-area.login-ui(ng-if = "!isAuthenticated", ng-controller = "AuthController as auth")
+			form.login-form(name = "loginForm", role = "form", ng-submit = "auth.login()")
+				.logo
+				h2 Admin Portal
+				.form-group
+					label Email
+					input.form-control(type = "text", name = "email", ng-model = "auth.email")
+				.form-group
+					label Password
+					input.form-control(type = "password", name = "password", ng-model = "auth.password")
+				input.btn.btn-default(type = "submit" value = "Login", ng-disabled = "auth.busy")
+				a.btn.btn-link.button-row-right(href = "/") Frontend
+				.version v#{version}
+		.container-fluid.content-area(ng-if = "isAuthenticated")
 			.menu.col-xs-2.visible-md.visible-lg
 				a(ui-sref = "default")
 					.logo
@@ -120,6 +133,7 @@ html(ng-app = "3akm.admin")
 	script(src = "/thirdparty/angular-sanitize.min.js")
 	script(src = "/thirdparty/angular-ui-router.min.js")
 	script(src = "/thirdparty/angular-loadscript.js")
+	script(src = "/thirdparty/angular-jwt.min.js")
 	script(src = "/thirdparty/ui-bootstrap-tpls-2.5.0.min.js")
 	script(src = "/thirdparty/textangular/textAngular-rangy.min.js")
 	script(src = "/thirdparty/textangular/textAngular-sanitize.min.js")
