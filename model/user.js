@@ -25,7 +25,7 @@ SOFTWARE.
 var mongoose = require("mongoose"),
 	Promise = require("bluebird")
 mongoose.Promise = Promise;
-var bcrypt = require("bcrypt-nodejs"),
+var bcrypt = require("bcrypt"),
 	config = require("../utils/common.js").config,
 	ldap = require("../utils/ldap.js"),
 	log = require("../utils/log.js"),
