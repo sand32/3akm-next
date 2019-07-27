@@ -35,18 +35,18 @@ var Promise = require("bluebird"),
 		}
 	})),
 
-	sendMail = function(message){
+	_sendMail = function(message){
 		message.from = "3AKM <" + config.smtp.fromAddress + ">";
 
 		return transport.sendMailAsync(message)
 		.catch(function(err){
-			return Promise.reject({reason: "smtp-error", message: err});
+			throw {reason: "smtp-error", message: err};
 		});
 	};
 
 module.exports = {
 	sendMail: function(message){
-		return sendMail(message);
+		return _sendMail(message);
 	},
 
 	sendEmailVerification: function(app, user, siteUrl){
@@ -65,7 +65,7 @@ module.exports = {
 						reject({reason: "html-rendering-error", message: err});
 					}else{
 						message.html = html;
-						sendMail(message).then(function(){
+						_sendMail(message).then(function(){
 							resolve();
 						}).catch(function(err){
 							reject(err);
@@ -92,7 +92,7 @@ module.exports = {
 						reject({reason: "html-rendering-error", message: err});
 					}else{
 						message.html = html;
-						sendMail(message).then(function(){
+						_sendMail(message).then(function(){
 							resolve();
 						}).catch(function(err){
 							reject(err);
