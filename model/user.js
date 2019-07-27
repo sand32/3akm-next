@@ -410,7 +410,7 @@ userModel.authenticate = function(email, password){
 	return new Promise(function(resolve, reject){
 		if(config.ldap.enabled){
 			ldap.authenticate(email, password)
-			.then(function(){
+			.then(function(cn){
 				// Try to find a user with the given email in our app DB
 				userModel.findOne({"email": email}, function(err, user){
 					if(err){
@@ -432,10 +432,11 @@ userModel.authenticate = function(email, password){
 					}else{
 						var newUser = new userModel({
 							email: email,
+							cn: cn,
 							roles: [],
 							services: []
 						});
-						newUser.save(function(err){
+						newUser.save({validateBeforeSave: false}, function(err){
 							if(err){
 								reject(err);
 								return;

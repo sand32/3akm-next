@@ -298,7 +298,8 @@ module.exports = {
 			client = createClient();
 			return bind(client, cn, password);
 		}).then(function(){
-			return unbind(client);
+			unbind(client);
+			return Promise.resolve(cn);
 		}).catch(function(err){
 			unbind(client);
 			if(err.reason){
