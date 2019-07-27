@@ -24,23 +24,19 @@ SOFTWARE.
 
 var Promise = require("bluebird"),
 	nodemailer = require("nodemailer"),
-	smtpPool = require("nodemailer-smtp-pool"),
 	Token = require("../model/token.js"),
 	config = require("./common.js").config,
-	transport = Promise.promisifyAll(nodemailer.createTransport(smtpPool({
+	transport = Promise.promisifyAll(nodemailer.createTransport({
 		host: config.smtp.address,
 		port: config.smtp.port,
 		auth: {
 			user: config.smtp.user,
 			pass: config.smtp.password
 		}
-	}))),
+	})),
 
 	sendMail = function(message){
-		message.from = {
-			name: "3AKM",
-			address: config.smtp.fromAddress
-		};
+		message.from = "3AKM <" + config.smtp.fromAddress + ">";
 
 		return transport.sendMailAsync(message)
 		.catch(function(err){
@@ -56,11 +52,8 @@ module.exports = {
 	sendEmailVerification: function(app, user, siteUrl){
 		return Token.createToken("verify" + user.email)
 		.then(function(token){
-			message = {
-				to: {
-					name: user.firstName + " " + user.lastName,
-					address: user.email
-				},
+			var message = {
+				to: user.firstName + " " + user.lastName + " <" + user.email + ">",
 				subject: "Email Verification"
 			};
 			return new Promise(function(resolve, reject){
@@ -86,11 +79,8 @@ module.exports = {
 	sendPasswordReset: function(app, user, siteUrl){
 		return Token.createToken("passwordreset" + user.email)
 		.then(function(token){
-			message = {
-				to: {
-					name: user.firstName + " " + user.lastName,
-					address: user.email
-				},
+			var message = {
+				to: user.firstName + " " + user.lastName + " <" + user.email + ">",
 				subject: "Forgot Password"
 			};
 			return new Promise(function(resolve, reject){

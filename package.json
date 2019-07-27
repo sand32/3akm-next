@@ -24,8 +24,7 @@
 		"node-teamspeak": "1.0.x",
 		"bluebird": "3.5.x",
 		"ldapjs": "1.0.x",
-		"nodemailer": "4.0.x",
-		"nodemailer-smtp-pool": "2.8.x",
+		"nodemailer": "6.3.x",
 		"jsonwebtoken": "7.4.x"
 	}
 }
