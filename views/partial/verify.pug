@@ -1,0 +1,50 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2018 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+h1 User Verification
+hr
+div(ng-controller = "VerifyController as verify")
+	p(ng-if = "!verify.loaded")
+		| Verifying...
+	.col-xs-12(ng-if = "verify.loaded")
+		.row
+			p(ng-if = "verify.verified()")
+				span.text-success Been verified! 
+				| Feel free to log in and enjoy the full functionality of the site. 
+				br
+				br
+				| Please remember to 
+				a(href = "/rsvp") RSVP
+				|  for the upcoming LAN!
+			p(ng-if = "!verify.verified()")
+				span.text-danger Verification failed! 
+				| Verification tokens are single-use and only last for one hour after the email is sent. 
+				| Perhaps you waited too long?
+				br
+				br
+				| If that's not the case, and you still can't verify your email with the site, 
+				| please contact 
+				a(href = "mailto:seth.anderson32@gmail.com") Seth
+				| .
+				br
+				br

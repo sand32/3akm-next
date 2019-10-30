@@ -1,0 +1,73 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2018 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+h1 User Profile
+hr
+form(name = "profileForm", novalidate, ng-controller = "ProfileController as profile", ng-submit = "profile.save()", ng-show = "profile.loaded")
+	.row
+		.col-xs-9
+			.row
+				.form-group.col-xs-12.col.md-6.col-lg-6
+					label Email 
+						span.text-danger (Required)
+					input.form-control(type = "email", name = "email", autofocus, ng-model = "profile.current.email", required)
+					.form-feedback.text-danger(ng-messages = "profileForm.email.$error", ng-if = "profileForm.email.$dirty", role = "alert")
+						div(ng-message = "required") An email is required
+						div(ng-message = "email") Invalid email
+				.field-align.col-xs-12.col.md-6.col-lg-6(ng-if = "!profile.current.verified")
+					span.text-danger.form-control-static.col-xs-6 Email not verified!
+					a.col-xs-6(class = "btn btn-danger" ng-click = "profile.resendVerificationEmail()", ng-disabled = "profile.busy") Resend Verification
+				.field-align.col-xs-12.col.md-6.col-lg-6(ng-if = "profile.current.verified")
+					span.text-success.form-control-static.col-xs-6 Been verified!
+			.row
+				.form-group.col-xs-12.col.md-4.col-lg-4
+					label First Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "firstName", ng-model = "profile.current.firstName", required)
+					.form-feedback.text-danger(ng-messages = "profileForm.firstName.$error", ng-if = "profileForm.firstName.$dirty", role = "alert")
+						div(ng-message = "required") A first name is required
+				.form-group.col-xs-12.col.md-4.col-lg-4
+					label Last Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "lastName", ng-model = "profile.current.lastName", required)
+					.form-feedback.text-danger(ng-messages = "profileForm.lastName.$error", ng-if = "profileForm.lastName.$dirty", role = "alert")
+						div(ng-message = "required") A last name is required
+			.row
+				.form-group.col-xs-12.col.md-6.col-lg-6
+					label Handles
+					input.form-control(type = "text", name = "primaryHandle", ng-model = "profile.current.primaryHandle", placeholder = "Primary Handle")
+			.row
+				.form-group.col-xs-12.col.md-6.col-lg-6
+					simple-array-entry(array-model = "profile.current.tertiaryHandles", addition-tooltip = "Add another handle", removal-tooltip = "Remove this handle")
+			.row
+				.form-group.col-xs-12.col.md-6.col-lg-6
+					label LAN Invite Desired
+					enum-select(current = "profile.current.lanInviteDesired", possibles = "profile.boolPossibles")
+			.row(ng-if = "profile.current.roles.indexOf('admin') !== -1")
+				hr
+				.col-xs-12.col.md-4.col-lg-4
+					label Roles
+					simple-array-entry(array-model = "profile.current.roles", addition-tooltip = "Add another role", removal-tooltip = "Remove this role")
+	hr
+	input.btn.btn-default(type = "submit", value = "Save", ng-disabled = "profileForm.$invalid || profile.busy")
+	a.btn.btn-link(ng-click = "profile.openChangePasswordModal()") Change Password

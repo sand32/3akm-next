@@ -1,24 +1,24 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
@@ -28,7 +28,7 @@ require("../common/arrayentrydirectives.js");
 require("../common/confirmcontroller.js");
 
 (function(){
-	var GameDetailController = function($scope, $state, $modal, ngToast, GameService, StoreService){
+	var GameDetailController = function($scope, $state, $uibModal, ngToast, GameService, StoreService){
 		var game = this;
 		game.busy = false;
 		game.current = {
@@ -41,17 +41,15 @@ require("../common/confirmcontroller.js");
 		}
 
 		StoreService.retrieveAll()
-		.then(
-			function(response){
-				for(var i = 0; i < response.data.length; i += 1){
-					game.storesEnum.push({
-						key: response.data[i].name,
-						value: response.data[i]._id
-					});
-					game.help.stores += "<strong>" + response.data[i].name + "</strong>: " + response.data[i].appUrl + "<br/>";
-				}
+		.then(function(response){
+			for(var i = 0; i < response.data.length; i += 1){
+				game.storesEnum.push({
+					key: response.data[i].name,
+					value: response.data[i]._id
+				});
+				game.help.stores += "<strong>" + response.data[i].name + "</strong>: " + response.data[i].appUrl + "<br/>";
 			}
-		);
+		});
 
 		if($state.params.gameId && $state.params.gameId !== "new"){
 			GameService.retrieve($state.params.gameId)
@@ -90,7 +88,7 @@ require("../common/confirmcontroller.js");
 		};
 
 		game.delete = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/confirmmodal",
 				controller: "ConfirmController as confirm",
 				resolve: {
@@ -122,5 +120,5 @@ require("../common/confirmcontroller.js");
 			])
 		.controller("GameDetailController", GameDetailController);
 
-	GameDetailController.$inject = ["$scope", "$state", "$modal", "ngToast", "GameService", "StoreService"];
+	GameDetailController.$inject = ["$scope", "$state", "$uibModal", "ngToast", "GameService", "StoreService"];
 })();

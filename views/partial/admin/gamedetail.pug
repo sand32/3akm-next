@@ -1,0 +1,65 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2018 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+.panel(ng-controller = "GameDetailController as game")
+	.panel-body
+		form(name = "gameForm", novalidate, ng-submit = "game.save()")
+			.row
+				.form-group.col-xs-6
+					label Name 
+						span.text-danger (Required)
+					input.form-control(type = "text", name = "name", autofocus, ng-model = "game.current.name", required)
+					.form-feedback.text-danger(ng-messages = "gameForm.name.$error", ng-if = "gameForm.name.$dirty", role = "alert")
+						div(ng-message = "required") A name is required
+				.form-group.col-xs-6
+					label Version
+					input.form-control(type = "text", name = "version", ng-model = "game.current.version", placeholder = "Current")
+			.row
+				.form-group.col-xs-6
+					label Description Header Image URL
+					input.form-control(ng-model = "game.current.descriptionHeaderImage")
+			.row
+				.form-group.col-xs-12
+					label Description
+					text-angular(ng-model = "game.current.description")
+			.row
+				.form-group.col-xs-12
+					label Supplemental Files
+					key-value-array-entry(array-model = "game.current.supplementalFiles", key-label = "Name", value-label = "URL", key-name = "name", value-name = "url", addition-tooltip = "Add another file", removal-tooltip = "Remove this file", removal-tooltip-placement = "bottom")
+			.row
+				.form-group.col-xs-12
+					label Stores 
+						.glyphicon.glyphicon-question-sign(uib-tooltip-html = "game.help.stores", tooltip-placement = "bottom", tooltip-class = "tooltip-wide tooltip-left")
+					enum-value-array-entry(array-model = "game.current.stores", enumeration = "game.storesEnum", key-label = "Store", value-label = "AppID", key-name = "store", value-name = "appid", addition-tooltip = "Add another store", removal-tooltip = "Remove this store", removal-tooltip-placement = "bottom")
+			.row
+				.col-xs-6
+					.button-row-left
+						button.btn.btn-default(type = "submit", ng-disabled = "gameForm.$invalid || game.busy")
+							span.button-icon.glyphicon.glyphicon-save
+							| Save
+						a.btn.btn-link(ui-sref = "^") Cancel
+				.col-xs-6
+					.button-row-right
+						a.btn.btn-default(ng-if = "game.current._id", ng-click = "game.delete()", ng-disabled = "game.busy")
+							span.button-icon.glyphicon.glyphicon-trash
+							| Delete

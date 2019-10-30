@@ -1,40 +1,37 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
 require("../common/lanservice.js");
 require("../common/rsvpservice.js");
-require("../common/userservice.js");
 require("../common/enumselectdirective.js");
 
 (function(){
-	var RsvpController = function($scope, $state, $q, ngToast, UserService, LanService, RsvpService){
+	var RsvpController = function($scope, $state, $q, ngToast, LanService, RsvpService, jwtHelper){
 		var ctrl = this;
 		ctrl.year = 0;
 		ctrl.entryFee = 0;
 		ctrl.tournaments = [];
-		ctrl.isLoggedIn = false;
-		ctrl.isVerified = false;
 		ctrl.busy = false;
 		ctrl.loaded = false;
 		ctrl.statusPossibles = [
@@ -54,13 +51,15 @@ require("../common/enumselectdirective.js");
 			bringingFood: false
 		};
 
-		UserService.retrieve("session")
-		.then(function(response){
-			ctrl.isVerified = response.data.verified;
-			ctrl.isLoggedIn = true;
-		}).catch(function(status){
-			ctrl.isLoggedIn = false;
-		});
+		ctrl.isVerified = function(){
+			var token = localStorage.getItem("id_token");
+			if(!token) return false;
+
+			var tokenPayload = jwtHelper.decodeToken(token);
+			if(!tokenPayload || !tokenPayload.verified) return false;
+
+			return tokenPayload.verified;
+		};
 
 		LanService.retrieve("current")
 		.then(function(response){
@@ -128,12 +127,11 @@ require("../common/enumselectdirective.js");
 
 	angular
 		.module("3akm.rsvpSubmission", [
-				"3akm.user",
 				"3akm.lan",
 				"3akm.rsvp",
 				"3akm.common.enumselect"
 			])
 		.controller("RsvpController", RsvpController);
 
-	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "UserService", "LanService", "RsvpService"];
+	RsvpController.$inject = ["$scope", "$state", "$q", "ngToast", "LanService", "RsvpService", "jwtHelper"];
 })();

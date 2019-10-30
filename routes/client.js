@@ -1,46 +1,46 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
 var express = require("express"),
-	authenticate = require("../utils/common.js").authenticate,
-	authorize = require("../authorization.js").authorize,
+	authenticate = require("../utils/authentication.js").authenticate,
+	authorize = require("../utils/authorization.js").authorize,
 	config = require("../utils/common.js").config,
 	version = require("../utils/common.js").version,
 	log = require("../utils/log.js");
 
 module.exports = function(app, prefix){
 	app.get(prefix + "/partial/registrationform", function(req, res){
-		res.render("partial/registrationform.jade", {
+		res.render("partial/registrationform.pug", {
 			recaptchaSiteKey: config.recaptchaSiteKey
 		});
 	});
 
 	app.get(prefix + "/partial/*", function(req, res){
 		if(config.debugMode){
-			res.render("partial/" + req.params[0] + ".jade");
+			res.render("partial/" + req.params[0] + ".pug");
 		}else{
-			res.render("partial/" + req.params[0] + ".jade", {}, function(err, html){
+			res.render("partial/" + req.params[0] + ".pug", {}, function(err, html){
 				if(err){
 					res.redirect("/partial/404");
 				}else{
@@ -52,9 +52,7 @@ module.exports = function(app, prefix){
 
 	app.use(express.static('public'));
 
-	app.get(prefix + "/admin*", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.get(prefix + "/admin*",
 	function(req, res){
 		if(config.debugMode){
 			var startup = require("../utils/startup.js");
@@ -82,7 +80,8 @@ module.exports = function(app, prefix){
 			startup.bundleClientJS()
 			.then(function(){
 				res.render("frontend", {
-					analyticsTrackingId: config.analyticsTrackingId
+					analyticsTrackingId: config.analyticsTrackingId,
+					debugMode: config.debugMode
 				});
 			}).catch(function(error){
 				log.error(error);
@@ -90,7 +89,8 @@ module.exports = function(app, prefix){
 			});
 		}else{
 			res.render("frontend", {
-				analyticsTrackingId: config.analyticsTrackingId
+				analyticsTrackingId: config.analyticsTrackingId,
+				debugMode: config.debugMode
 			});
 		}
 	});

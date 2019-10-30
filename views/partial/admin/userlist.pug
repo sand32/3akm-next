@@ -1,0 +1,64 @@
+//-
+	-----------------------------------------------------------------------------
+	Copyright (c) 2014-2018 Seth Anderson
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-----------------------------------------------------------------------------
+
+.user-list(ng-controller = "UserListController as users")
+	.page-title
+		h2 User List
+	.page-content
+		.col-lg-6
+			.button-row
+				.button-row-left.button-row-padded
+					a.btn.btn-default(ui-sref = ".detail({userId: 'new'})")
+						span.button-icon.glyphicon.glyphicon-plus
+						| New
+				.button-row-right.button-row-padded(uib-tooltip = "Not yet implemented")
+					a.btn.btn-default(disabled)
+						span.button-icon.glyphicon.glyphicon-filter
+						| Filter
+					a.btn.btn-default(disabled)
+						span.button-icon.glyphicon.glyphicon-search
+						| Search
+			.panel.no-padding
+				.panel-content
+					.empty-table(ng-if = "users.list.length === 0") No users defined
+					table(ng-if = "users.list.length > 0")
+						thead.panel-banner
+							tr
+								th Name
+								th Email
+								th Created
+								th Verified
+						tbody
+							tr(ng-repeat = "user in users.list",
+								ui-sref = ".detail({userId: users.list[$index]._id})",
+								ng-class = "users.list[$index]._id === users.selectedUser ? 'selected' : ''")
+								td {{user.firstName}} {{user.lastName}}
+								td {{user.email}}
+								td {{user.created | date: "medium"}}
+								td
+									span.text-success.glyphicon.glyphicon-ok(ng-if = "user.verified")
+									span.text-danger.glyphicon.glyphicon-remove(ng-if = "!user.verified")
+		.col-lg-6
+			.no-selection(ng-if = "!users.selectedUser")
+				| No user selected
+			div(ui-view = "detail")

@@ -1,35 +1,35 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var mongoose = require("mongoose"),
-	Lan = require("../model/lan.js"),
+var Lan = require("../model/lan.js"),
 	Rsvp = require("../model/rsvp.js"),
 	User = require("../model/user.js"),
-	authorize = require("../authorization.js").authorize,
-	authorizeSessionUser = require("../authorization.js").authorizeSessionUser,
-	authenticate = require("../utils/common.js").authenticate,
+	authorize = require("../utils/authorization.js").authorize,
+	authorizeSessionUser = require("../utils/authorization.js").authorizeSessionUser,
+	authenticate = require("../utils/authentication.js").authenticate,
 	sanitizeBodyForDB = require("../utils/common.js").sanitizeBodyForDB,
+	checkObjectIDParam = require("../utils/common.js").checkObjectIDParam,
 	handleError = require("../utils/common.js").handleError,
 	config = require("../utils/common.js").config,
 	log = require("../utils/log.js"),
@@ -48,10 +48,8 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.get(prefix + "/:rsvp",
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findById(req.params.rsvp)
 		.populate("user lan", "email firstName lastName beginDate")
 		.exec()
@@ -62,9 +60,9 @@ module.exports = function(app, prefix, prefix2){
 	});
 
 	app.post(prefix,
-		authenticate, 
-		authorize({hasRole: ["admin"]}), 
-		sanitizeBodyForDB, 
+		authenticate,
+		authorize({hasRole: ["admin"]}),
+		sanitizeBodyForDB,
 	function(req, res){
 		var rsvp = new Rsvp(req.body);
 		rsvp.save()
@@ -77,14 +75,12 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix + "/:rsvp", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
-		sanitizeBodyForDB, 
+	app.put(prefix + "/:rsvp",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		sanitizeBodyForDB,
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findByIdAndUpdate(req.params.rsvp, req.body)
 		.then(function(rsvp){
 			if(!rsvp) throw 404;
@@ -92,17 +88,15 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.delete(prefix + "/:rsvp", 
-		authenticate, 
-		authorize({hasRoles: ["admin"]}), 
+	app.delete(prefix + "/:rsvp",
+		authenticate,
+		authorize({hasRoles: ["admin"]}),
+		checkObjectIDParam("rsvp"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.rsvp)){
-			return res.status(404).end();
-		}
 		Rsvp.findByIdAndRemove(req.params.rsvp)
 		.then(function(rsvp){
 			if(!rsvp) throw 404;
-			res.status(200).end();
+			res.status(204).end();
 		}).catch(handleError(res));
 	});
 
@@ -123,14 +117,11 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.get(prefix2 + "/:year", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.get(prefix2 + "/:year",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
@@ -146,15 +137,12 @@ module.exports = function(app, prefix, prefix2){
 		}).catch(handleError(res));
 	});
 
-	app.put(prefix2 + "/:year", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix2 + "/:year",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
 		var lan, rsvp;
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true
@@ -248,14 +236,11 @@ module.exports = function(app, prefix, prefix2){
 		});
 	});
 
-	app.put(prefix2 + "/:year/attended", 
-		authenticate, 
-		authorizeSessionUser(), 
+	app.put(prefix2 + "/:year/attended",
+		authenticate,
+		authorizeSessionUser(),
+		checkObjectIDParam("user"),
 	function(req, res){
-		if(!mongoose.Types.ObjectId.isValid(req.params.user)){
-			return res.status(404).end();
-		}
-
 		Lan.findOne({
 			active: true,
 			acceptingRsvps: true

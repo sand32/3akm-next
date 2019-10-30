@@ -39,6 +39,28 @@ html, body {
 	overflow: hidden;
 }
 
+.login-ui {
+	background-color: #444;
+}
+
+.login-form {
+	background-color: white;
+	position: absolute;
+	top: 30%;
+	left: 50%;
+	width: 300px;
+	margin-left: -150px;
+	padding: 1.5em;
+	border-radius: 3px;
+}
+
+.login-form h2 {
+	text-align: center;
+	margin: 0;
+	padding-top: 0;
+	padding-bottom: 0.5em;
+}
+
 .content {
 	background-color: white;
 	padding-top: 1em;
@@ -58,6 +80,12 @@ a.btn-link:hover {
 	height: 100px;
 	margin-top: 1.5em;
 	margin-bottom: 1.5em;
+}
+
+.login-form .logo {
+	background: url('/images/3akm_dark.jpg') no-repeat center;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .menu.col-xs-2 {
@@ -113,6 +141,16 @@ a.btn-link:hover {
 	width: 16.66%;
 	bottom: 0;
 	margin-bottom: 2em;
+}
+
+.login-form .version {
+	color: inherit;
+	text-align: center;
+	position: static;
+	width: auto;
+	bottom: 0;
+	margin-top: 1.5em;
+	margin-bottom: 0;
 }
 
 .panel {

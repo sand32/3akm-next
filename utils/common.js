@@ -1,28 +1,28 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-var passport = require("passport"),
+var mongoose = require("mongoose"),
 	querystring = require("querystring"),
 	fs = require("fs"),
 	request = require("request"),
@@ -43,46 +43,6 @@ module.exports = {
 	config: loadConfig(__dirname + "/../config/config.json"),
 
 	version: loadConfig(__dirname + "/../package.json").version,
-
-	register: function(req, res, next){
-		passport.authenticate("register", function(err, user, info){
-			if(err && err.reason === "invalid-password"){
-				return res.status(400).end();
-			}else if(err){
-				return res.status(500).end();
-			}else{
-				req.login(user, function(err){
-					if(err){
-						return next(err);
-					}
-					return next();
-				});
-			}
-		})(req, res, next);
-	},
-
-	login: function(req, res, next){
-		passport.authenticate("local")(req, res, next);
-	},
-
-	authenticate: function(req, res, next){
-		module.exports.localElseBasicAuthenticate(req, res, next);
-	},
-
-	// Special authentication in order to support local sessions and basic auth 
-	// on API routes.
-	// 
-	// Basically: if we have a local session, proceed, else require basic auth.
-	localElseBasicAuthenticate: function(req, res, next){
-		if(req.isAuthenticated()){
-			return next();
-		}
-		if(req.params.user !== "session"){
-			passport.authenticate("basic")(req, res, next);
-		}else{
-			res.status(403).end();
-		}
-	},
 
 	verifyRecaptcha: function(req, res, next){
 		var config = module.exports.config,
@@ -120,6 +80,16 @@ module.exports = {
 		next();
 	},
 
+	checkObjectIDParam: function(objectIDParam){
+		return function(req, res, next){
+			if(!mongoose.Types.ObjectId.isValid(req.params[objectIDParam])){
+				res.status(404).end();
+			}else{
+				next();
+			}
+		};
+	},
+
 	removeDuplicates: function(array){
 		if(!array || !Array.isArray(array)){
 			return array;
@@ -150,6 +120,14 @@ module.exports = {
 			array[index] = temp;
 		}
 		return array;
+	},
+
+	arraysAreEqual: function(a, b){
+		if(a.length !== b.length) return false;
+		for(var i = 0; i < a.length; i+=1){
+			if(a[i] !== b[i]) return false;
+		}
+		return true;
 	},
 
 	handleError: function(res){

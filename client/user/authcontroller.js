@@ -1,24 +1,24 @@
 /*
 -----------------------------------------------------------------------------
-Copyright (c) 2014-2016 Seth Anderson
+Copyright (c) 2014-2018 Seth Anderson
 
-This software is provided 'as-is', without any express or implied warranty. 
-In no event will the authors be held liable for any damages arising from the 
-use of this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. The origin of this software must not be misrepresented; you must not 
-claim that you wrote the original software. If you use this software in a 
-product, an acknowledgment in the product documentation would be appreciated 
-but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be 
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source distribution.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
@@ -26,24 +26,28 @@ require("./forgotpasswordcontroller.js");
 require("../common/userservice.js");
 
 (function(){
-	var AuthController = function($scope, $rootScope, $state, $modal, ngToast, UserService){
+	var AuthController = function($scope, $rootScope, $state, $uibModal, ngToast, UserService, jwtHelper, authManager){
 		var ctrl = this;
 		ctrl.busy = false;
-		ctrl.isLoggedIn = false;
-		ctrl.isAdmin = false;
 
-		UserService.isLoggedIn()
-		.then(function(response){
-			$scope.$emit("AuthChanged", response.data.isLoggedIn);
-		});
+		ctrl.isAdmin = function(){
+			var token = localStorage.getItem("id_token");
+			if(!token) return false;
+
+			var tokenPayload = jwtHelper.decodeToken(token);
+			if(!tokenPayload || !tokenPayload.roles) return false;
+
+			return tokenPayload.roles.indexOf("admin") !== -1;
+		};
 
 		ctrl.login = function(){
 			ctrl.busy = true;
 			UserService.login(ctrl.email, ctrl.password)
-			.then(function(){
+			.then(function(response){
 				ctrl.email = "";
 				ctrl.password = "";
-				$scope.$emit("AuthChanged", true);
+				localStorage.setItem("id_token", response.data.token);
+				authManager.authenticate();
 				$state.go($state.current, {}, {reload: true});
 				ctrl.busy = false;
 			}).catch(function(){
@@ -53,17 +57,13 @@ require("../common/userservice.js");
 		};
 
 		ctrl.logout = function(){
-			ctrl.busy = true;
-			UserService.logout()
-			.then(function(){
-				$scope.$emit("AuthChanged", false);
-				$state.go($state.current, {}, {reload: true});
-				ctrl.busy = false;
-			});
+			localStorage.clear("id_token");
+			authManager.unauthenticate();
+			$state.go($state.current, {}, {reload: true});
 		};
 
 		ctrl.openForgotPasswordModal = function(){
-			var modalInstance = $modal.open({
+			var modalInstance = $uibModal.open({
 				templateUrl: "/partial/forgotpasswordmodal",
 				controller: "ForgotPasswordController as forgotPass"
 			});
@@ -81,19 +81,6 @@ require("../common/userservice.js");
 				});
 			});
 		};
-
-		$rootScope.$on("AuthChanged", function(e, loggedIn){
-			ctrl.isLoggedIn = loggedIn;
-			ctrl.isAdmin = false;
-			if(loggedIn){
-				UserService.retrieve("session")
-				.then(function(response){
-					if(response.data.roles.indexOf("admin") !== -1){
-						ctrl.isAdmin = true;
-					}
-				});
-			}
-		});
 	};
 
 	angular
@@ -103,5 +90,5 @@ require("../common/userservice.js");
 		])
 		.controller("AuthController", AuthController);
 
-	AuthController.$inject = ["$scope", "$rootScope", "$state", "$modal", "ngToast", "UserService"];
+	AuthController.$inject = ["$scope", "$rootScope", "$state", "$uibModal", "ngToast", "UserService", "jwtHelper", "authManager"];
 })();
