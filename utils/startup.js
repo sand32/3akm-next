@@ -124,6 +124,21 @@ module.exports = {
 				});
 			}
 		});
+		Store.findOne({name: "Epic Games Store"}, function(err, doc){
+			if(!err && !doc){
+				var store = new Store({
+					name: "Epic Games Store",
+					icon: "/images/epic28.png",
+					baseUrl: "https://www.epicgames.com/store/en-US/",
+					appUrl: "https://www.epicgames.com/store/en-US/product/[appid]/home"
+				});
+				store.save(function(err){
+					if(err){
+						log.error(err);
+					}
+				});
+			}
+		});
 	},
 
 	bundleClientJS: function(){
